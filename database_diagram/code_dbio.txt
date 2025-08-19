@@ -1,0 +1,148 @@
+// ======================
+// USER MANAGEMENT
+// ======================
+Table Users {
+  id integer [pk, increment]
+  name nvarchar(50) [not null]
+  address nvarchar(100)
+  email varchar(50)
+  phone varchar(15)
+  birth_date date
+  sex nvarchar(3)
+  username varchar(30) [unique, not null]
+  password varchar(100) [not null] // hashed
+  role enum('Patient','Doctor','Staff') [not null]
+}
+Table Patients {
+  id integer [pk, increment]
+  user_id integer [not null, ref: > Users.id, unique]
+  medical_record_number varchar(20) [unique] // mã bệnh án
+  notes text [null]
+}
+
+Table Doctors {
+  id integer [pk, increment]
+  user_id integer [not null, ref: > Users.id, unique]
+  license_number varchar(50) [unique]
+  specialty varchar(100)
+  years_of_experience int
+  notes text [null]
+}
+
+Table Staff {
+  id integer [pk, increment]
+  user_id integer [not null, ref: > Users.id, unique]
+  staff_code varchar(20) [unique]
+  position varchar(50)
+  notes text [null]
+}
+
+Table Appointments {
+  id integer [pk, increment]
+  patient_id integer [not null, ref: > Patients.user_id]
+  doctor_id integer [not null, ref: > Doctors.user_id]
+  appointment_date date [not null]
+  appointment_time time [not null]
+  duration_minutes int [default: 30] // thời gian ước tính
+  status enum('Scheduled','Completed','Cancelled','No Show') [default: 'Scheduled']
+  notes text [null] // ghi chú của bác sĩ hoặc nhân viên
+}
+
+
+// ======================
+// PRESCRIPTIONS
+// ======================
+Table Prescriptions {
+  id integer [pk, increment]
+  patient_id integer [not null]
+  doctor_id integer [not null]
+  date_issued date [not null]
+  expires_on date
+
+  // OD (mắt phải)
+  sph_od decimal(4,2)
+  cyl_od decimal(4,2)
+  axis_od integer
+  add_power_od decimal(4,2)
+  prism_od varchar(10) [note: 'Ví dụ: "2.0 BO"']
+
+  // OS (mắt trái)
+  sph_os decimal(4,2)
+  cyl_os decimal(4,2)
+  axis_os integer
+  add_power_os decimal(4,2)
+  prism_os varchar(10) [note: 'Ví dụ: "1.5 BU"']
+
+  notes text
+}
+
+
+// ======================
+// INVENTORY (KHO)
+// ======================
+Table InventoryItems {
+  id int [pk, increment]
+  category enum('Frame','Lens','Equipment','Supply','Medicine')
+  name varchar(255)
+  quantity int
+  unit varchar(50)
+  price decimal(10,2)
+  date_added date
+  expiry_date date
+  notes text
+}
+
+// --------- Frames ---------- gọng kính
+Table Frames {
+  id int [pk, increment]
+  item_id int [ref: > InventoryItems.id]
+  frame_type varchar(50)
+  material varchar(50)
+  color varchar(50)
+}
+
+// --------- Lenses ---------- tròng kính
+Table Lenses {
+  id int [pk, increment]
+  item_id int [ref: > InventoryItems.id]
+  lens_type varchar(50)
+  material varchar(50)
+  coating varchar(255)
+  power_range varchar(100)
+}
+
+// --------- Equipment ----------  máy móc
+Table Equipment {
+  id int [pk, increment]
+  item_id int [ref: > InventoryItems.id]
+  model varchar(100)
+  serial_number varchar(100)
+  manufacturer varchar(100)
+  date_purchased date
+  warranty_period varchar(50)
+  last_maintenance date
+  next_maintenance date
+  status enum('In Use','Maintenance','Broken','Disposed')
+}
+
+// --------- Supplies ---------- vật tiêu hao
+Table Supplies {
+  id int [pk, increment]
+  item_id int [ref: > InventoryItems.id]
+  supply_type varchar(100)
+}
+
+// --------- Medicines ---------- thuốc
+Table Medicines {
+  id int [pk, increment]
+  item_id int [ref: > InventoryItems.id]
+  active_ingredient varchar(100)
+  dosage_form varchar(100)
+  strength varchar(100)
+  usage varchar(255)
+}
+
+
+Ref: "Users"."email" < "Users"."name"
+
+Ref: "Users"."name" < "Users"."address"
