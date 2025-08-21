@@ -93,9 +93,9 @@ Table Prescriptions {
 // ======================
 // 4. INVENTORY (KHO)
 // ======================
-Table InventoryItems {
+Table Inventory {
   id int [pk, increment]
-  category enum('Frame','Lens','Equipment','Supply','Medicine')
+  categoryId int [ref: > Category.Id]
   name varchar(255)
   quantity int
   unit varchar(50)
@@ -108,7 +108,7 @@ Table InventoryItems {
 // --------- Frames ---------- gọng kính
 Table Frames {
   id int [pk, increment]
-  item_id int [ref: - InventoryItems.id]
+  item_id int [ref: - Inventory.id]
   frame_type varchar(50)
   material varchar(50)
   color varchar(50)
@@ -117,7 +117,7 @@ Table Frames {
 // --------- Lenses ---------- tròng kính
 Table Lenses {
   id int [pk, increment]
-  item_id int [ref: - InventoryItems.id]
+  item_id int [ref: - Inventory.id]
   lens_type varchar(50)
   material varchar(50)
   coating varchar(255)
@@ -127,7 +127,7 @@ Table Lenses {
 // --------- Equipment ---------- máy móc
 Table Equipment {
   id int [pk, increment]
-  item_id int [ref: - InventoryItems.id]
+  item_id int [ref: - Inventory.id]
   model varchar(100)
   serial_number varchar(100)
   manufacturer varchar(100)
@@ -141,20 +141,24 @@ Table Equipment {
 // --------- Supplies ---------- vật tư tiêu hao
 Table Supplies {
   id int [pk, increment]
-  item_id int [ref: - InventoryItems.id]
+  item_id int [ref: - Inventory.id]
   supply_type varchar(100)
 }
 
 // --------- Medicines ---------- thuốc
 Table Medicines {
   id int [pk, increment]
-  item_id int [ref: - InventoryItems.id]
+  item_id int [ref: - Inventory.id]
   active_ingredient varchar(100)
   dosage_form varchar(100)
   strength varchar(100)
   usage varchar(255)
 }
 
+Table Category{
+  ten nvarchar(50)  
+  Id int [pk]
+}
 
 
 // ======================
@@ -171,14 +175,14 @@ Table Invoices {
 Table InvoiceItems {
   id integer [pk, increment]
   invoice_id int [ref: > Invoices.id]
-  item_id int [ref: > InventoryItems.id]
+  item_id int [ref: > Inventory.id]
   quantity int
   price integer
 }
 
 Table InventoryTransactions {
   id int [pk, increment]
-  item_id int [ref: > InventoryItems.id]
+  item_id int [ref: > Inventory.id]
   type enum('Import','Export','Adjustment') [not null] // nhập, xuất, điều chỉnh
   quantity int [not null]
   unit_price decimal(10,2) [not null] // giá 1 đơn vị tại thời điểm nhập/xuất
@@ -187,3 +191,4 @@ Table InventoryTransactions {
   staff_id int [ref: > Staff.id] // ai thực hiện
   notes text
 }
+
