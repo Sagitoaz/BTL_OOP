@@ -11,13 +11,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class HelloApplication extends Application {
-    @FXML
-    private Label Label;
-
-    @FXML
-    void OnClick(ActionEvent event) {
-        Label.setText("Hậu sida");
+    public static void main(String[] args) {
+        launch();
     }
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/FXML/Login.fxml"));
@@ -26,9 +23,5 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.show();
-    }
-
-    public static void main(String[] args) {
-        launch();
     }
 }
