@@ -53,7 +53,7 @@ public class LoginController {
     @FXML
     void GoToSignUpButtonOnClick(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/hello-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Signup.fxml"));
             Parent root = loader.load();
             Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
             state.setScene(new Scene(root));
