@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="230a6cbc-c64b-4055-b978-ccf84c240dc4" name="Changes" comment="" />
+    <list default="true" id="3685f998-d36a-4b2d-b9ff-5a42003718f6" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
   <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
+  "associatedIndex": 5
 }]]></component>
-  <component name="ProjectId" id="31pPWEbqxj8zSnPLxAXc7dCt61r" />
+  <component name="ProjectId" id="31pPSfgKFn3LwnjIHGE5ISHBfXZ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -25,7 +25,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "OOP-9",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/code/oop_assignment/BTL_OOP"
+    "last_opened_file_path": "C:/code/oop_assignment/BTL_OOP/OOP/src"
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -37,11 +37,11 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="230a6cbc-c64b-4055-b978-ccf84c240dc4" name="Changes" comment="" />
-      <created>1756218070769</created>
+      <changelist id="3685f998-d36a-4b2d-b9ff-5a42003718f6" name="Changes" comment="" />
+      <created>1756218041927</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1756218070769</updated>
+      <updated>1756218041927</updated>
     </task>
     <servers />
   </component>
