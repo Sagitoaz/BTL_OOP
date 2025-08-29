@@ -5,6 +5,7 @@ module org.example.oop {
 
     requires org.controlsfx.controls;
     requires jakarta.mail;
+    requires java.desktop;
 
     opens org.example.oop.Control to javafx.fxml;
     exports org.example.oop.Control;

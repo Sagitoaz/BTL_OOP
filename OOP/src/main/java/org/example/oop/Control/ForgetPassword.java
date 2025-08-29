@@ -6,7 +6,10 @@ import javafx.scene.text.Text;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
 import java.security.SecureRandom;
+import java.util.Scanner;
 
 
 public class ForgetPassword
@@ -14,8 +17,25 @@ public class ForgetPassword
     private MailService mail = new MailService();
     @FXML
     private TextField emailField;
+    @FXML
+
+    public boolean CheckEmailExisted(String email){
+        try{
+            Scanner sc = new Scanner(new File("DataBase.txt"));
+            while(sc.hasNextLine()){
+                String nextln = sc.nextLine();
+                if(nextln.equals(email)){
+                    return true;
+                }
+            }
+            return false;
+        }
+        catch(Exception e){
+            return false;
+        }
 
 
+    }
     private String CreateNewPassword(){
         SecureRandom random = new SecureRandom();
         //Random mat khau co 8 chu so
@@ -30,6 +50,11 @@ public class ForgetPassword
     public void SendPassword(){
         String email = emailField.getText();
         System.out.println(email);
-        mail.SendText(email, CreateNewPassword());
+        if(CheckEmailExisted(email)){
+            mail.SendText(email, CreateNewPassword());
+        }
+        else{
+            emailField.setText("NOT FOUND");
+        }
     }
 }
