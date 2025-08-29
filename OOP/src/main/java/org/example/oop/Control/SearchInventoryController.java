@@ -1,4 +1,4 @@
-package org.example.oop.View;
+package org.example.oop.Control;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -7,18 +7,15 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.example.oop.Control.InventoriesController;
 import org.example.oop.Model.InventoryRow;
 import org.example.oop.Utils.AppConfig;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class SearchInventoryView {
+public class SearchInventoryController {
     @FXML private TableColumn<InventoryRow, String> categoryColumn;
     @FXML private TableColumn<InventoryRow, Integer> idColumn;
     @FXML private TableView<InventoryRow> inventoryTable;

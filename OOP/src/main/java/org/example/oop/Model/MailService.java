@@ -1,4 +1,4 @@
-package org.example.oop.Control;
+package org.example.oop.Model;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;

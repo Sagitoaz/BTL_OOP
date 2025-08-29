@@ -1,18 +1,14 @@
-package org.example.oop.Control;
+package org.example.oop.Model;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Text;
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.security.SecureRandom;
 import java.util.Scanner;
 
 
-public class ForgetPassword
+public class ForgetPasswordService
 {
     private MailService mail = new MailService();
     @FXML
