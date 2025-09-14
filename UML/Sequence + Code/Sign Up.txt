@@ -1,0 +1,18 @@
+@startuml
+title Sign Up
+
+actor User
+boundary UI
+control Service
+database Database
+
+User -> UI: Submit sign-up form\n(name, email/phone, password)
+UI -> Service: POST /signup
+activate Service
+Service -> Database: Check duplicate email/phone
+Database --> Service: Not found
+Service -> Database: Insert user\n(role=PATIENT, status=ACTIVE, password_hash)
+Database --> Service: Saved
+Service --> UI: 201 Created
+deactivate Service
+@enduml

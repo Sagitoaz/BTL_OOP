@@ -1,0 +1,16 @@
+@startuml
+title Logout
+
+actor User
+boundary UI
+control Service
+database Database
+
+User -> UI: Click Logout
+UI -> Service: POST /logout (refreshToken)
+activate Service
+Service -> Database: Revoke/mark refreshToken
+Database --> Service: OK
+Service --> UI: 204 No Content
+deactivate Service
+@enduml

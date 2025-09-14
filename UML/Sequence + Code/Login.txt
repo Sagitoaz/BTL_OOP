@@ -1,0 +1,22 @@
+@startuml
+title Login
+
+actor User
+boundary UI
+control Service
+database Database
+
+User -> UI: Enter email/phone + password
+UI -> Service: POST /login
+activate Service
+Service -> Database: Get user by identifier
+Database --> Service: user + password_hash
+Service -> Service: Verify password
+alt Valid
+  Service -> Service: Issue tokens (access, refresh)
+  Service --> UI: 200 OK (tokens, profile)
+else Invalid
+  Service --> UI: 401 Unauthorized
+end
+deactivate Service
+@enduml

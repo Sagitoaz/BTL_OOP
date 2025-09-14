@@ -1,0 +1,16 @@
+@startuml
+title Profile Management
+
+actor User
+boundary UI
+control Service
+database Database
+
+User -> UI: Edit profile fields
+UI -> Service: PUT /me/profile (Authorization)
+activate Service
+Service -> Database: Update user/profile
+Database --> Service: OK
+Service --> UI: 200 OK (updated profile)
+deactivate Service
+@enduml

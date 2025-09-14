@@ -1,0 +1,16 @@
+@startuml
+title Role / Permission (Admin)
+
+actor Admin
+boundary UI
+control Service
+database Database
+
+Admin -> UI: Choose user + new role
+UI -> Service: PUT /users/{id}/role (Authorization: Admin)
+activate Service
+Service -> Database: Update role/permissions
+Database --> Service: OK
+Service --> UI: 200 OK
+deactivate Service
+@enduml
