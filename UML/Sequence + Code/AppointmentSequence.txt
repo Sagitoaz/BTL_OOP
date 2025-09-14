@@ -1,0 +1,34 @@
+@startuml
+title Book Appointment (with Database)
+
+actor User
+boundary UI
+control Service
+database Database
+
+User -> UI: Select doctor, date, service
+UI -> Service: Get availability
+activate Service
+Service -> Database: Fetch doctor's schedule & exceptions
+Database --> Service: Return schedule & exceptions
+Service -> Database: Fetch already-booked appointments
+Database --> Service: Return booked appointments
+Service --> UI: Return available slots
+deactivate Service
+
+User -> UI: Submit selected slot
+UI -> Service: Create appointment
+activate Service
+Service -> Database: Check if slot is still free?
+
+alt Slot is free
+  Service -> Database: Insert new appointment
+  Database --> Service: Insert success
+  Service --> UI: Successfully created appointment\n(+ appointment details)
+else Slot is busy
+  Service --> UI: Conflict – slot already booked
+end
+deactivate Service
+
+UI --> User: Show result (success or error)
+@enduml
