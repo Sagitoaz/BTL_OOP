@@ -1,0 +1,26 @@
+@startuml
+title Create / Update Patient
+
+actor Staff as "Staff/Doctor"
+boundary UI
+control Service
+database Database
+
+Staff -> UI: Fill patient information
+UI -> Service: POST /patients (patientData)
+activate Service
+
+Service -> Service: Validate request body
+
+alt Missing required field
+  Service --> UI: Error details
+  deactivate Service
+  UI --> Staff: Display error
+else Valid request
+  Service -> Database: Upsert patient record\n(patient, insurance, ...)
+  Database --> Service: Result (success)
+  Service --> UI: Success response
+  deactivate Service
+  UI --> Staff: Display success
+end
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+title View Payment History
+
+actor User as "Staff/Doctor/Patient"
+boundary UI
+control Service
+database Database
+
+User -> UI: Request to view payment history
+UI -> Service: Request (user/period)
+activate Service
+
+Service -> Service: Check authorization & role
+
+alt Patient access
+  alt Not own record
+    Service --> UI: Unauthorized error (no permission)
+    deactivate Service
+    UI --> User: No permission
+  else Correct patient
+    Service -> Database: Query invoices by userId
+    Database --> Service: Payment history (filtered)
+    Service --> UI: History (patient's own)
+    deactivate Service
+    UI --> User: Display history
+  end
+else Staff/Doctor access
+  Service -> Database: Query invoices by period
+  Database --> Service: All payment history
+  Service --> UI: History (all)
+  deactivate Service
+  UI --> User: Display history
+end
+@enduml
