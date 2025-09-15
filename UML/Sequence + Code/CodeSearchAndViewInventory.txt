@@ -6,6 +6,8 @@ database Database
 
 Client -> UI: Enter keyword
 UI -> InventoryController: Send keyword
+InventoryController -> Database: Search Inventory by keyword
+Database --> InventoryController: Return list of Inventory
 InventoryController --> UI: Return list of Inventory
 UI --> Client: Show inventory list
 
