@@ -1,0 +1,261 @@
+@startuml
+!theme plain
+skinparam classAttributeIconSize 0
+hide stereotypes
+
+' ================= AUTH & ACCOUNTS =================
+package "Auth & Accounts" {
+enum AccountStatus{
+ACTIVE, INACTIVE
+}
+enum ROLE{
+PATIENT, DOCTOR, STAFF, ADMIN
+}
+class MailService{
+--
+SendText():void
+} 
+class ForgotPassword{
+--
+CreateNewPassword()
+SendNewPassword()
+} 
+class AccountController{
+--
+LogIn(username, password):bool
+}
+class Account {
+  +id: int
+  +fullname: string
+  +username: string
+  +password: string
+  +dob: string
+  +email: string
+  +phone: string
+  +createdAt: dateTime
+  +status: AccountStatus
+  +role: ROLE
+  --
+  LogOut(): void
+  ViewInfo(): void
+  ChangePassword(newPassword): void
+  
+}
+
+}
+
+' ================= PROFILES =================
+package "Profiles" {
+class PatientProfile{
++id: int
++accountId:int
++gender: string
++allergies: string
++currentMedications: string
++insuranceNo: string
+--
+ViewAppointment(): List<Appointment>
+ViewInvoices(): List<Invoices>
+}
+class DoctorProfile{
++id:int
++accountId:int
++licenseNo:string
++specialty:string
++yearsOfExperience:string
+--
+ViewSchedule(): List<WorkShift>
+ViewAppointments(): List<Appointment>
+ViewPatients(): List<PatientProfile>
+AddMedicalRecord(patientId): MedicalRecord
+CreatePrescription(patientId): Prescription
+
+}
+class StaffProfile{
++id:int
++accountId:int
++position:string
+--
+ViewSchedule(): List<WorkShift>
+ManageInventory(itemId, quantity, action): InventoryTransaction
+IssueInvoice(patientId, appointmentId): Invoice
+}
+class AdminProfile{
++id:int
++accountId:int
+--
+ManageAccount():void
+DeleteAccount(accountId): void
+assignWorkShift(accountId, shift): WorkShift
+ManageInventory(itemId, quantity, action): InventoryTransaction
+viewSystemLogs(): List<AuditLog>
+}  
+}
+
+' ================= APPOINTMENTS AND SERVICES =================
+package "Appointments And Services" {
+enum ApptStatus{
+CONFIRMED, COMPLETED, CANCEL, COMINGSOON
+}
+
+
+class Room{
++id:int
++isActive: bool
+}
+class Service{
++id:int
++name:string
++price:int
+--
+GetPrice():void
+}
+class Appointment{
++id:int
++doctorId:int
++patientId:int
++serviceId:int
++roomId:int
++status: ApptStatus
++startAt: string
++EndAt:string
++note:string
+--
++Request(patiendId, doctorId, serviceId, startAt): Appointment
++ReSchedule(startAt): void
++Confirm(patientId): void
++Cancel(patientId, reason): void
++Complete(): void
+}
+}
+
+
+' ================= INVENTORY =================
+package "Inventory" {
+enum InvTransactionType {
+    IN,       ' nhập kho
+    OUT,      ' xuất kho (bán/phát thuốc)
+    ADJUST    ' điều chỉnh (hỏng, kiểm kê lệch)
+}
+enum POStatus { 
+    DRAFT, SENT, RECEIVED, CANCELED 
+}
+class Category{
++id:int
++name:string
+}
+class InventoryItem{
++id:int
++code:int
++name:string
++categoryId:int
++unit:string
++quantity:int
+--
+Increase(amount):void
+Decrease(amount):void
+}  
+class InventoryTransaction{
++id:int
++itemId:int
++type: InvTransactionType
++createAt: dateTime
++createById: int
+--
+CreateIn(quantity, id, note): void
+CreateOut(quantity, id, note):void
+CreateAdjust(quantity, id, note):void
+}
+class Supplier{
++id:int
++name:string
++phone:string
++address:string
++email:string
+--
+UpdateContact(...):void
+}
+class PurchaseOrder{
++id:int
++supplierId:int
++status: POS
++orderAt: dateTime
++receiveAt: dateTime
+--
+AddItem(itemId, quantity, price): void
+send(): void
+cancel(): void
+receive(): void
+}
+class PurchaseOrderId{
++id:int
++itemId:int
++quantity:int
++price:int
+}
+}
+
+
+' ================= PAYMENT =================
+package "PAYMENT" {
+enum PaymentMethodType{
+CASH, BANK_TRANSFER, CARD
+} 
+enum PaymentStatus{
+PENDING, SUCCEEDED, FAILED
+}
+class PaymentMethod{
++id:int
++type: PaymentMethodType
++provider:string
+}
+class Payment{
++id:int
++invoiceId:int
++clientId:int
++price:int
++method: PaymentMethod
++provider:string
++status:PaymentStatus
++note:string
+--
+Create(price): Payment
+Confirm():void
+Cancel():void
+}
+class Invoice{
++id:int
++paymentId:int
++issuedAt:int
++pdfUrl:string
+--
+Generate(): Invoice
+}
+
+}
+' ================= MEDICAL =================
+package "Medical" {
+class MedicalRecord{
++id:int
++patientId:int
++doctorId:int
++appointmentId:int
++note:string
+}
+}
+' ================= SYSTEM =================
+package "System" {
+class Session {
+    +id: UUID
+    +accountId: UUID
+    +ip: string
+    +userAgent: string
+    +createdAt: datetime
+    +expiresAt: datetime
+    --
+    +isActive(now): bool
+    +invalidate(): void
+    +extend(ttlMinutes): void
+  }
+}
+@enduml
