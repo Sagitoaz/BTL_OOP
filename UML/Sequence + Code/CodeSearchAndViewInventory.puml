@@ -4,25 +4,57 @@ participant UI
 participant InventoryController
 database Database
 
-Client -> UI: Enter keyword
-UI -> InventoryController: Send keyword
-InventoryController -> Database: Search Inventory by keyword
-Database --> InventoryController: Return list of Inventory
-InventoryController --> UI: Return list of Inventory
-UI --> Client: Show inventory list
+== Start searching inventory ==
+Client -> UI: Enter search keyword
+UI -> InventoryController: Send search keyword
 
-Client -> UI: Select Inventory
-UI -> InventoryController: Send Inventory
-InventoryController -> Database: Send Inventory ID
-Database -> Database: Get Inventory ID
+' Keyword validation
+InventoryController -> InventoryController: Validate keyword
+alt Invalid keyword (too short, forbidden characters, null)
+    InventoryController --> UI: HTTP 400 Bad Request
+    UI --> Client: Show error "Invalid keyword"
+else Valid keyword
+    InventoryController -> Database: Search inventory by keyword
+    alt Database connection error (timeout, DB error)
+        Database --> InventoryController: HTTP 500 Internal Server Error
+        InventoryController --> UI: HTTP 500 Internal Server Error
+        UI --> Client: Show error "System error, please try again later"
+    else Database available
+        Database --> InventoryController: Return inventory list (can be empty)
+        alt No inventory found
+            InventoryController --> UI: HTTP 404 Not Found
+            UI --> Client: Show "No inventory matches"
+        else Inventory found
+            InventoryController --> UI: HTTP 200 OK (Return inventory list)
+            UI --> Client: Display inventory list
 
-alt Inventory Found
-    Database --> InventoryController: Return Inventory Information
-    InventoryController --> UI: Send Inventory Information
-    UI --> Client: Show Inventory Information
-else Inventory Not Found
-    Database --> InventoryController: Return Not Found
-    InventoryController --> UI: Send Error Message
-    UI --> Client: Show Error Message
+            == View inventory detail ==
+            Client -> UI: Select inventory to view details
+            UI -> InventoryController: Send Inventory ID
+
+            ' Validate Inventory ID
+            InventoryController -> InventoryController: Validate Inventory ID
+            alt Invalid Inventory ID
+                InventoryController --> UI: HTTP 400 Bad Request
+                UI --> Client: Show error "Invalid Inventory ID"
+            else Valid Inventory ID
+                InventoryController -> Database: Query inventory by ID
+                alt Database access error
+                    Database --> InventoryController: HTTP 503 Service Unavailable
+                    InventoryController --> UI: HTTP 503 Service Unavailable
+                    UI --> Client: Show error "System temporarily unavailable"
+                else Database OK
+                    Database --> InventoryController: Return inventory info (or null)
+                    alt Inventory not found
+                        InventoryController --> UI: HTTP 404 Not Found
+                        UI --> Client: Show error "Inventory not found"
+                    else Inventory found
+                        InventoryController --> UI: HTTP 200 OK (Return inventory details)
+                        UI --> Client: Display inventory details
+                    end
+                end
+            end
+        end
+    end
 end
 @enduml
