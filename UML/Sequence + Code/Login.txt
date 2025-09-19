@@ -1,0 +1,29 @@
+@startuml Login Flow
+actor User
+boundary UI
+control Authentication as Auth
+database DB
+
+User -> UI: Enter Username
+User -> UI: Enter Password
+User -> UI: Click Login Button
+
+UI -> Auth: Send Login Information
+Auth -> DB: Get Account Information
+DB --> Auth: Return Account Information (200)
+
+Auth -> Auth: Validate Password
+
+alt Correct username and password
+    Auth --> UI: 200 OK (User Login Accepted)
+    UI -> UI: Redirect to Page
+    UI --> User: Display Dashboard
+else Wrong username and password
+    Auth --> UI: 401 Unauthorized (Login Rejected)
+    UI --> User: Clear Page & Show Fail Login Message
+else Exception
+    Auth --> UI: 500 Internal Server Error
+    UI --> User: Display Error Message
+end
+
+@enduml
