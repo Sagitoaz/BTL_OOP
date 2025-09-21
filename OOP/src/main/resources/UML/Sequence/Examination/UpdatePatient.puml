@@ -1,0 +1,42 @@
+@startuml
+title Create / Update Patient
+
+actor Staff as "Staff/Doctor"
+boundary UI
+control Service as "Patient API"
+database DB as "Database"
+
+Staff -> UI: Nhập thông tin bệnh nhân
+UI -> Service: Gửi yêu cầu tạo/cập nhật (patientData)
+activate Service
+
+Service -> Service: Validate request body
+
+alt Request không hợp lệ
+  alt 400 Bad Request
+    Service --> UI: Thiếu hoặc sai định dạng trường bắt buộc
+  else 401 Unauthorized
+    Service --> UI: Chưa đăng nhập / token hết hạn
+  else 403 Forbidden
+    Service --> UI: Không có quyền tạo/cập nhật bệnh nhân
+  else 404 Not Found
+    Service --> UI: Không tìm thấy bệnh nhân (trong trường hợp update)
+  else 409 Conflict
+    Service --> UI: Thông tin trùng (CMND/CCCD, email, số bảo hiểm y tế)
+  else 422 Unprocessable Entity
+    Service --> UI: Quy tắc nghiệp vụ không hợp lệ (bảo hiểm hết hạn, ngày sinh không hợp lệ,…)
+  else 429 Too Many Requests
+    Service --> UI: Quá nhiều request, thử lại sau
+  else 503/504 Service Unavailable
+    Service --> UI: Lỗi hệ thống hoặc DB
+  end
+  deactivate Service
+  UI --> Staff: Hiển thị lỗi
+else Request hợp lệ
+  Service -> DB: Upsert hồ sơ bệnh nhân
+  DB --> Service: Lưu thành công
+  Service --> UI: 200 OK hoặc 201 Created (chi tiết bệnh nhân)
+  deactivate Service
+  UI --> Staff: Hiển thị thành công
+end
+@enduml

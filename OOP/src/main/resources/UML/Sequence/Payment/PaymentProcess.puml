@@ -1,0 +1,88 @@
+@startuml
+title Payment Process
+
+actor Patient as "Patient/Staff"
+boundary UI
+control Service as "Payment API"
+database DB as "Database"
+entity PSP as "Payment Gateway"
+
+== 1) Khởi tạo thanh toán ==
+Patient -> UI: Chọn phương thức & xác nhận thanh toán
+UI -> Service: Yêu cầu thanh toán (invoiceId, amount, method)\n(kèm Idempotency-Key)
+activate Service
+Service -> DB: Kiểm tra hóa đơn & số tiền
+DB --> Service: Trạng thái hóa đơn / số tiền / tồn tại?
+
+alt Request thành công
+    alt Hóa đơn không hợp lệ
+      alt 404 Not Found
+        Service --> UI: invoice không tồn tại
+      else 409 Conflict
+        Service --> UI: invoice đã PAID
+      else 422 Unprocessable
+        Service --> UI: amount/currency không khớp
+      end
+      deactivate Service
+    else Hợp lệ
+      Service -> DB: Tạo bản ghi payment (status=PENDING)
+      Service -> PSP: Khởi tạo/ủy quyền thanh toán
+      alt Cần xác thực bổ sung (3DS/redirect)
+        PSP --> Service: requires_action + redirectUrl/clientSecret
+        Service --> UI: 202 Accepted (status=PENDING)
+        deactivate Service
+        UI --> Patient: Hiển thị bước xác thực (3DS/OTP)
+      else Thanh toán thành công tức thời (capture/authorize ok)
+        PSP --> Service: success
+        Service -> DB: Cập nhật status=PAID
+        DB --> Service: Update success
+        Service --> UI: 200 OK (success)
+        deactivate Service
+        UI --> Patient: Hiển thị thành công (+ gửi email biên lai)
+      else Thất bại ngay (declined/insufficient_funds)
+        PSP --> Service: failed + reason
+        Service -> DB: Cập nhật payment=FAILED
+        Service --> UI: 402 Payment Required (failed)
+        deactivate Service
+        UI --> Patient: Hiển thị thất bại
+      end
+    end
+else Xảy ra lỗi
+    alt 400 Bad Request
+      Service --> UI: Dữ liệu đầu vào sai (thiếu trường/sai format)
+    else 401 Unauthorized
+      Service --> UI: Chưa đăng nhập / token hết hạn
+    else 404 Not Found
+      Service --> UI: Không thấy invoice/payment
+    else 409 Conflict
+      Service --> UI: Invoice đã thanh toán / trạng thái không cho phép
+    else 422 Unprocessable Entity
+      Service --> UI: amount/currency không khớp, quy tắc nghiệp vụ khác
+    else 429 Too Many Requests
+      Service --> UI: Quá nhiều yêu cầu, thử lại sau
+    else 502/503/504
+      Service --> UI: Lỗi gateway hoặc hệ thống quá tải/timeout
+    end
+end
+
+== 2) Webhook xác nhận bất đồng bộ ==
+PSP -> Service: Webhook payment_succeeded / payment_failed
+activate Service
+Service -> DB: Đối soát & cập nhật trạng thái (payment, invoice)
+DB --> Service: Update done
+Service --> PSP: 200 OK
+deactivate Service
+UI -> Service: (tùy chọn) Poll trạng thái / nhận push nội bộ
+Service --> UI: Trả trạng thái hiện tại (PENDING/SUCCEEDED/FAILED)
+
+== 3) Idempotency ==
+UI -> Service: Gửi lại yêu cầu thanh toán (cùng Idempotency-Key)
+activate Service
+alt Trùng nội dung yêu cầu trước đó
+  Service --> UI: 200 OK hoặc 202 Accepted\n(trả lại kết quả đã lưu theo key)
+else Nội dung khác với key cũ
+  Service --> UI: 409 Conflict (Idempotency Key reuse conflict)
+end
+deactivate Service
+
+@enduml

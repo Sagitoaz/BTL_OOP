@@ -1,0 +1,44 @@
+@startuml
+title Generate Invoice
+
+actor Staff as "Staff/Doctor"
+boundary UI
+control Service as "Invoice API"
+database DB as "Database"
+
+== 1) Yêu cầu tạo hóa đơn ==
+Staff -> UI: Yêu cầu tạo hóa đơn (dịch vụ, thuốc)
+UI -> Service: Gửi yêu cầu tạo hóa đơn
+activate Service
+Service -> DB: Kiểm tra cấu hình
+DB --> Service: Thông tin cấu hình
+
+alt Request thành công
+    alt Thiếu hoặc sai cấu hình
+      Service --> UI: 422 Unprocessable Entity
+    else Cấu hình đầy đủ
+      Service -> Service: Tính toán chi phí (dịch vụ, thuốc, bảo hiểm)
+      Service -> DB: Lưu hóa đơn và chi tiết
+      DB --> Service: Trả về Invoice ID
+      Service --> UI: 201 Created + Link PDF
+    end
+    deactivate Service
+
+else Lỗi xuất hóa đơn
+    alt 400 Bad Request
+      Service --> UI: Sai dữ liệu đầu vào (thiếu trường, sai format)
+    else 401 Unauthorized
+      Service --> UI: Chưa đăng nhập / token hết hạn
+    else 404 Not Found
+      Service --> UI: Không tìm thấy dịch vụ / thuốc
+    else 422 Unprocessable Entity
+      Service --> UI: Thiếu cấu hình hoặc quy tắc nghiệp vụ khác
+    else 429 Too Many Requests
+      Service --> UI: Quá nhiều yêu cầu, vui lòng thử lại sau
+    else 503/504 Service Unavailable
+      Service --> UI: Hệ thống quá tải hoặc DB lỗi
+    end
+
+    UI --> Staff: Hiển thị hóa đơn hoặc lỗi
+end
+@enduml
