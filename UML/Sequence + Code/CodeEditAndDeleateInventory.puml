@@ -1,23 +1,65 @@
 @startuml
+title Change Inventory - Success & Error Handling
+
 actor Admin
 participant UI
 participant InventoryController
 database Database
 
-Admin -> UI: Change Inventory
-UI -> InventoryController: Post Change
-InventoryController -> Database: Check Valid Inventory
-Database -> Database: Check Inventory Information
-Database --> InventoryController: Return result
+== Submit ==
+Admin -> UI: Change Inventory (form/JSON)
+UI -> InventoryController: POST /inventory/change\nHeaders + Body
 
-alt Invalid Inventory
-    InventoryController --> UI: Return Invalid Inventory
-    UI --> Admin: Show Invalid Message
-else Valid Inventory
-    InventoryController -> Database: Send Changes
-    Database -> Database: Update to Inventory
-    Database --> InventoryController: Return Changing result
-    InventoryController --> UI: Sending result to User
-    UI --> Admin: Show Result Message
+== Syntactic & Basic Validation ==
+InventoryController -> InventoryController: Validate headers/body\n(required fields, types, schema)
+alt 400 Bad Request (invalid payload)
+    InventoryController --> UI: HTTP 400\n{ "error": "INVALID_REQUEST", "details": ... }
+    UI --> Admin: Show 400 Bad Request message
+else Payload OK
+    == Existence & Referential Checks ==
+    InventoryController -> Database: Check inventory existence by ID/SKU
+    Database -> Database: Lookup record, status
+    alt 404 Not Found (record missing)
+        Database --> InventoryController: Not found
+        InventoryController --> UI: HTTP 404\n{ "error": "INVENTORY_NOT_FOUND", "id": ... }
+        UI --> Admin: Show 404 Not Found message
+    else Record exists
+        == Business Rules & Domain Validation ==
+        InventoryController -> InventoryController: Validate business rules\n(stock >= 0, version match, constraint)
+        alt 400 Bad Request (domain validation fails)
+            InventoryController --> UI: HTTP 400\n{ "error": "VALIDATION_FAILED", "fields": {...} }
+            UI --> Admin: Show validation errors
+        else Domain OK
+            == Persist Changes ==
+            InventoryController -> Database: Update inventory\n(quantity, price, metadata, updated_at)
+            Database -> Database: Apply changes, write audit log/txn
+            alt DB error (e.g., deadlock/timeout)
+                Database --> InventoryController: Error/exception
+                InventoryController --> UI: HTTP 500\n{ "error": "DB_ERROR", "traceId": ... }
+                UI --> Admin: Show 500 Server Error message
+            else Update OK
+                Database --> InventoryController: Update result (rows=1, version++)
+                InventoryController --> UI: HTTP 200\n{ "status": "OK", "inventory": {...} }
+                UI --> Admin: Show success message
+            end
+        end
+    end
+end
+
+== Optional Concurrency/Precondition Branches ==
+opt Conditional update with ETag/If-Match
+    InventoryController -> InventoryController: Check If-Match vs current version
+    alt 412 Precondition Failed (version mismatch)
+        InventoryController --> UI: HTTP 412\n{ "error": "VERSION_CONFLICT", "expected": v, "actual": v' }
+        UI --> Admin: Prompt to refresh data
+    end
+end
+
+
+== Fallback Unexpected Errors ==
+opt Unhandled exception
+    InventoryController -> InventoryController: Catch & map error
+    InventoryController --> UI: HTTP 500\n{ "error": "INTERNAL_ERROR", "traceId": ... }
+    UI --> Admin: Show generic error message
 end
 @enduml

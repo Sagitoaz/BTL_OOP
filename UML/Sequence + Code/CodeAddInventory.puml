@@ -1,22 +1,41 @@
 @startuml
+title Add Inventory - Success & Error Handling
+
 actor Admin
 participant UI
 participant InventoryController
 database Database
 
-Admin -> UI: Add Inventory
-UI -> InventoryController: Send Inventory Information
-InventoryController -> Database: Check duplicate Inventory
-Database --> InventoryController: Return result of Duplicate
+== Submit Request ==
+Admin -> UI: Add new inventory (form/JSON)
+UI -> InventoryController: POST /inventory/add\nHeaders + Body
 
-alt Inventory Duplicated
-    InventoryController --> UI: Return Invalid Inventory
-    UI --> Admin: Show Invalid Message
-else Inventory Valid
-    InventoryController -> Database: Send Inventory
-    Database -> Database: Add Inventory to DB
-    Database --> InventoryController: Return adding result
-    InventoryController --> UI: Sending result to User
-    UI --> Admin: Show Result Message
+== Input Validation ==
+InventoryController -> InventoryController: Validate required fields & data types
+alt 400 Bad Request (invalid payload)
+    InventoryController --> UI: HTTP 400 {"error": "INVALID_REQUEST"}
+    UI --> Admin: Show 400 Bad Request message
+else Valid payload
+    == Duplicate Check ==
+    InventoryController -> Database: Check inventory by SKU/ID
+    Database -> Database: Lookup record
+    alt 409 Conflict (already exists)
+        Database --> InventoryController: Duplicate found
+        InventoryController --> UI: HTTP 409 {"error": "DUPLICATE_INVENTORY"}
+        UI --> Admin: Show duplicate inventory message
+    else Not found
+        == Insert Record ==
+        InventoryController -> Database: INSERT new inventory
+        Database -> Database: Write to table
+        alt DB Error (deadlock/timeout)
+            Database --> InventoryController: DB error/exception
+            InventoryController --> UI: HTTP 500 {"error": "DB_ERROR"}
+            UI --> Admin: Show 500 Server Error message
+        else Success
+            Database --> InventoryController: Insert success (new id)
+            InventoryController --> UI: HTTP 201 {"status": "CREATED", "id": ...}
+            UI --> Admin: Show success message
+        end
+    end
 end
 @enduml
