@@ -1,0 +1,62 @@
+@startuml
+title View Doctor's Schedule
+
+actor User
+boundary UI
+control Service as "Schedule API"
+database DB as "Database"
+
+== 1) Tìm kiếm bác sĩ ==
+User -> UI: Nhập từ khóa tên bác sĩ
+UI -> Service: Gửi request tìm kiếm
+activate Service
+Service -> DB: Query doctors theo keyword
+DB --> Service: Danh sách bác sĩ
+
+alt Request không hợp lệ
+  alt 400 Bad Request
+    Service --> UI: Sai dữ liệu đầu vào (keyword rỗng/sai format)
+  else 401 Unauthorized
+    Service --> UI: Chưa đăng nhập / token hết hạn
+  else 404 Not Found
+    Service --> UI: Không tìm thấy bác sĩ nào
+  else 429 Too Many Requests
+    Service --> UI: Quá nhiều request
+  else 503/504 Service Unavailable
+    Service --> UI: Lỗi hệ thống hoặc DB
+  end
+  deactivate Service
+  UI --> User: Hiển thị lỗi
+else Request hợp lệ
+  Service --> UI: 200 OK (danh sách bác sĩ)
+  deactivate Service
+  UI --> User: Hiển thị danh sách
+end
+
+== 2) Xem lịch bác sĩ ==
+User -> UI: Chọn bác sĩ
+UI -> Service: Gửi request xem lịch bác sĩ
+activate Service
+Service -> DB: Query schedule theo doctorId
+DB --> Service: Lịch làm việc
+
+alt Request không hợp lệ
+  alt 400 Bad Request
+    Service --> UI: Sai dữ liệu đầu vào (id sai định dạng)
+  else 401 Unauthorized
+    Service --> UI: Chưa đăng nhập / token hết hạn
+  else 404 Not Found
+    Service --> UI: Không tìm thấy bác sĩ/lịch
+  else 429 Too Many Requests
+    Service --> UI: Quá nhiều request
+  else 503/504 Service Unavailable
+    Service --> UI: Lỗi hệ thống hoặc DB
+  end
+  deactivate Service
+  UI --> User: Hiển thị lỗi
+else Request hợp lệ
+  Service --> UI: 200 OK (lịch làm việc bác sĩ)
+  deactivate Service
+  UI --> User: Hiển thị lịch
+end
+@enduml

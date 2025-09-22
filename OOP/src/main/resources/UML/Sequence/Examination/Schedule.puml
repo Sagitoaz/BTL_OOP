@@ -1,0 +1,74 @@
+@startuml
+title Change Work Schedule
+
+actor Admin
+boundary UI
+control Service as "Schedule API"
+database DB as "Database"
+
+== 1) Yêu cầu đổi lịch ==
+Admin -> UI: Chọn nhân viên & chỉnh ca
+UI -> Service: Gửi yêu cầu đổi lịch (staff, shifts)
+activate Service
+
+alt Request thành công
+  opt Có thay đổi thông tin nhân viên
+    alt Lỗi cập nhật thông tin nhân viên
+        alt 400 Bad Request
+            Service --> UI: thiếu/sai định dạng trường staff
+        else 401 Unauthorized
+            Service --> UI: chưa đăng nhập / token hết hạn
+        else 404 Not Found
+            Service --> UI: không tìm thấy nhân viên
+        else 409 Conflict
+            Service --> UI: email/phone/username trùng
+        else 422 Unprocessable Entity
+            Service --> UI: vai trò/trạng thái không hợp lệ
+        else 429 Too Many Requests
+            Service --> UI: vượt hạn mức chỉnh sửa
+        else 503/504 Service Unavailable
+            Service --> UI: lỗi hệ thống/DB
+        deactivate Service
+    end
+      UI --> Admin: Hiển thị lỗi cập nhật nhân viên
+    else Hợp lệ
+      Service -> DB: Cập nhật thông tin nhân viên
+      DB --> Service: Cập nhật thành công
+    end
+  end
+
+  group Áp dụng quy tắc & lịch làm việc
+    Service -> Service: Kiểm tra quy tắc (ngày nghỉ, giờ tối đa, ca chồng lấn)
+  end
+
+  alt Vi phạm/xung đột lịch
+    alt 409 Conflict
+        Service --> UI: trùng/đè ca khác
+    else 422 Unprocessable Entity
+        Service --> UI: vượt giờ tối đa, rơi ngày nghỉ, chính sách ca
+    end
+    deactivate Service
+    UI --> Admin: Hiển thị lỗi lịch làm việc
+  else Hợp lệ
+    Service -> DB: Lưu lịch làm việc mới
+    DB --> Service: Lưu thành công
+    Service --> UI: 200 OK (Schedule changed successfully)
+    deactivate Service
+    UI --> Admin: Hiển thị thông báo thành công
+  end
+else Xảy ra lỗi hệ thống/yêu cầu
+  alt 400 Bad Request
+    Service --> UI: Dữ liệu đầu vào sai (thiếu trường, sai format)
+  else 401 Unauthorized
+    Service --> UI: Chưa đăng nhập / token hết hạn
+  else 403 Forbidden
+    Service --> UI: Không có quyền đổi lịch
+  else 404 Not Found
+    Service --> UI: Không tìm thấy nhân viên / lịch làm việc
+  else 429 Too Many Requests
+    Service --> UI: Quá nhiều yêu cầu, thử lại sau
+  else 503/504 Service Unavailable
+    Service --> UI: Lỗi hệ thống hoặc DB
+  end
+end
+@enduml

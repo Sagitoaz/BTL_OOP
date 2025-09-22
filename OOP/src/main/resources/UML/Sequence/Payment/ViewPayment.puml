@@ -1,0 +1,50 @@
+@startuml
+title View Payment History
+
+actor User as "Staff/Doctor/Patient"
+boundary UI
+control Service as "Payment API"
+database DB as "Database"
+
+User -> UI: Yêu cầu xem lịch sử thanh toán
+UI -> Service: Gửi request (user/period)
+activate Service
+
+Service -> Service: Kiểm tra xác thực & phân quyền
+
+alt Request không hợp lệ
+  alt 400 Bad Request
+    Service --> UI: Sai dữ liệu đầu vào (period sai format, tham số thiếu)
+  else 401 Unauthorized
+    Service --> UI: Chưa đăng nhập / token hết hạn
+  else 404 Not Found
+    Service --> UI: Không tìm thấy bản ghi nào
+  else 429 Too Many Requests
+    Service --> UI: Quá nhiều request, thử lại sau
+  else 503/504 Service Unavailable
+    Service --> UI: Lỗi hệ thống hoặc DB
+  end
+  deactivate Service
+  UI --> User: Hiển thị lỗi
+else Request hợp lệ
+  alt Người dùng là Patient
+    alt Truy cập không phải hồ sơ của chính mình
+      Service --> UI: 403 Forbidden (no permission)
+      deactivate Service
+      UI --> User: Hiển thị "không có quyền"
+    else Truy cập hồ sơ chính mình
+      Service -> DB: Query invoices theo userId
+      DB --> Service: Kết quả (history lọc theo bệnh nhân)
+      Service --> UI: 200 OK (lịch sử thanh toán của bệnh nhân)
+      deactivate Service
+      UI --> User: Hiển thị lịch sử
+    end
+  else Người dùng là Staff/Doctor
+    Service -> DB: Query invoices theo period
+    DB --> Service: Kết quả (toàn bộ lịch sử)
+    Service --> UI: 200 OK (lịch sử tất cả)
+    deactivate Service
+    UI --> User: Hiển thị lịch sử
+  end
+end
+@enduml

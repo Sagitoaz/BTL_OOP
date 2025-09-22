@@ -1,0 +1,81 @@
+@startuml
+title Book Appointment
+
+actor User
+boundary UI
+control Service as "Appointment API"
+database DB as "Database"
+
+== 1) Xem lịch trống ==
+User -> UI: Chọn bác sĩ / ngày / dịch vụ
+UI -> Service: Yêu cầu xem lịch trống
+activate Service
+Service -> DB: Lấy lịch làm việc + slot đã đặt
+DB --> Service: Dữ liệu lịch
+alt Thành công
+    Service --> UI: 200 OK + danh sách slot trống
+deactivate Service
+
+else Lỗi khi xem lịch
+    alt 400 Bad Request
+        Service --> UI: ngày sai định dạng / ID không hợp lệ
+    else 401 Unauthorized
+        Service --> UI: chưa đăng nhập / token hết hạn
+    else 404 Not Found
+        Service --> UI:không tìm thấy bác sĩ / dịch vụ
+    else 422 Unprocessable Entity
+        Service --> UI: bác sĩ nghỉ, phòng khám đóng cửa, dịch vụ không hỗ trợ
+    else 429 Too Many Requests
+        Service --> UI: gửi quá nhiều lần
+    else 503/504 Service Unavailable
+        Service --> UI: hệ thống quá tải hoặc DB lỗi
+    end
+end
+
+== 2) Đặt lịch ==
+User -> UI: Chọn slot muốn đặt
+UI -> Service: Yêu cầu đặt lịch hẹn
+activate Service
+Service -> DB: Kiểm tra slot
+alt Request thành công
+    alt Slot còn trống
+      Service -> DB: Tạo lịch hẹn mới
+      DB --> Service: Thành công
+      Service --> UI: Thành công\n201 Created + chi tiết lịch hẹn
+    else Slot đã bận
+      Service --> UI: 409 Conflict (slot đã được đặt)
+    end
+    deactivate Service
+
+else Lỗi khi đặt lịch
+    alt 400 Bad Request
+        Service --> UI: body sai / thiếu trường
+    else 401 Unauthorized
+        Service --> UI: chưa đăng nhập
+    else 403 Forbidden
+        Service --> UI: không được đặt cho người khác
+    else 404 Not Found
+        Service --> UI: bác sĩ / bệnh nhân / dịch vụ không tồn tại
+    else 422 Unprocessable Entity
+        Service --> UI: ngoài giờ làm, trùng lịch nghỉ, sai thời lượng dịch vụ, bệnh nhân trùng lịch
+    end
+end
+
+== 3) Idempotency ==
+UI -> Service: Gửi lại yêu cầu đặt lịch (cùng mã Idempotency)
+alt Yêu cầu giống hệt lần trước
+  Service --> UI: 200 OK (trả lại kết quả cũ)
+else Tham số khác với yêu cầu trước
+  Service --> UI: 409 Conflict (Idempotency Key reuse conflict)
+end
+
+== 4) Cập nhật / hủy ==
+UI -> Service: Yêu cầu cập nhật/hủy lịch hẹn
+Service -> DB: Kiểm tra phiên bản
+alt Phiên bản không khớp
+  Service --> UI: 412 Precondition Failed (version conflict)
+else Phiên bản hợp lệ
+  Service -> DB: Cập nhật thành công
+  Service --> UI: 200 OK (chi tiết lịch hẹn mới)
+end
+@enduml
