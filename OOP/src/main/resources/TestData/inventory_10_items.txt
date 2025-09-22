@@ -1,0 +1,10 @@
+1,Paracetamol 500mg,Medication,Painkiller,120,tablet,1500,2025-08-26
+2,Surgical Mask,Supplies,Protective,500,pcs,800,2025-08-26
+3,Ultrasound Machine,Equipment,Imaging,2,unit,25000000,2025-08-27
+4,Amoxicillin 250mg,Medication,Antibiotic,0,capsule,2000,2025-08-28
+5,Latex Gloves,Supplies,Protective,30,box,25000,2025-08-26
+6,Thermometer Digital,Equipment,Diagnostic,10,unit,150000,2025-08-28
+7,Vitamin C 500mg,Medication,Supplement,200,tablet,1200,2025-08-26
+8,Face Shield,Supplies,Protective,80,pcs,12000,2025-08-26
+9,Stethoscope,Equipment,Diagnostic,5,unit,500000,2025-08-27
+10,Ibuprofen 200mg,Medication,Painkiller,150,tablet,1800,2025-08-26

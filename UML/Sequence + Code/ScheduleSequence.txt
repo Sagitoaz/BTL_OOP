@@ -1,0 +1,34 @@
+@startuml
+title Change Work Schedule
+
+actor Admin
+boundary UI
+control Service
+database Database
+
+Admin -> UI: Request "Change schedule" (select staff, adjust shift)
+UI -> Service: POST schedule & staff changes
+activate Service
+
+opt Staff changes included
+  Service -> Service: Validate staff changes
+  Service -> Database: Update staff information
+  activate Database
+  Database --> Service: Success
+  deactivate Database
+end
+
+group Apply rules & scheduling
+  Service -> Service: Retrieve rules and apply scheduling
+end
+
+Service -> Database: Save updated schedule
+activate Database
+Database --> Service: Save successful
+deactivate Database
+
+Service --> UI: Return "Schedule changed successfully"
+deactivate Service
+
+UI --> Admin: Display success message
+@enduml

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.SignUpController">
+    <children>
+        <Label layoutX="260.0" layoutY="184.0" prefHeight="18.0" prefWidth="106.0" text="Username*" />
+        <TextField fx:id="usernameTextField" layoutX="370.0" layoutY="185.0" prefHeight="26.0" prefWidth="258.0" />
+        <Label layoutX="260.0" layoutY="222.0" prefHeight="18.0" prefWidth="106.0" text="Password*" />
+        <TextField fx:id="passwordTextField" layoutX="370.0" layoutY="222.0" prefHeight="26.0" prefWidth="258.0" />
+        <Label layoutX="260.0" layoutY="254.0" prefHeight="18.0" prefWidth="106.0" text="Confirm Password*" />
+        <TextField fx:id="confirmPasswordTextField" layoutX="370.0" layoutY="254.0" prefHeight="26.0" prefWidth="258.0" />
+
+        <TextField fx:id="fullNameTextField" layoutX="370.0" layoutY="291.0" prefHeight="26.0" prefWidth="258.0" />
+        <TextField fx:id="addressTextField" layoutX="370.0" layoutY="325.0" prefHeight="26.0" prefWidth="258.0" />
+        <TextField fx:id="emailTextField" layoutX="370.0" layoutY="360.0" prefHeight="26.0" prefWidth="258.0" />
+        <TextField fx:id="phoneTextField" layoutX="370.0" layoutY="400.0" prefHeight="26.0" prefWidth="258.0" />
+        <TextField fx:id="dobTextField" layoutX="370.0" layoutY="437.0" prefHeight="26.0" prefWidth="258.0" promptText="dd/MM/yyyy" />
+        <ComboBox fx:id="genderComboBox" layoutX="370.0" layoutY="473.0" prefHeight="26.0" prefWidth="258.0" promptText="Select gender" />
+
+        <Label layoutX="260.0" layoutY="291.0" prefHeight="18.0" prefWidth="106.0" text="Full Name*" />
+        <Label layoutX="260.0" layoutY="325.0" prefHeight="18.0" prefWidth="106.0" text="Address*" />
+        <Label layoutX="260.0" layoutY="364.0" prefHeight="18.0" prefWidth="106.0" text="Email*" />
+        <Label layoutX="260.0" layoutY="404.0" prefHeight="18.0" prefWidth="106.0" text="Phone" />
+        <Label layoutX="260.0" layoutY="441.0" prefHeight="18.0" prefWidth="106.0" text="Date of Birth" />
+        <Label layoutX="260.0" layoutY="477.0" prefHeight="18.0" prefWidth="106.0" text="Gender" />
+
+        <Button fx:id="signUpButton" layoutX="446.0" layoutY="532.0" mnemonicParsing="false" onAction="#signUpButtonOnClick" prefHeight="26.0" prefWidth="106.0" text="Sign Up" />
+        <Text layoutX="260.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Patient Registration" />
+        <Label fx:id="errorMessage" layoutX="370.0" layoutY="506.0" prefHeight="18.0" prefWidth="258.0" textFill="RED" />
+        <Label layoutX="446.0" layoutY="574.0" prefHeight="18.0" prefWidth="147.0" text="Already have an account?" />
+        <Button fx:id="backToLoginButton" layoutX="446.0" layoutY="608.0" mnemonicParsing="false" onAction="#backToLoginButtonOnClick" prefHeight="26.0" prefWidth="106.0" text="Login" />
+    </children>
+</AnchorPane>

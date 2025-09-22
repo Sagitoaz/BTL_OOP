@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.SearchInventoryController">
+   <top>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="searchTextField" promptText="Search..." />
+            <ComboBox fx:id="typeBox" prefWidth="150.0" promptText="Type" />
+            <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Category" />
+            <DatePicker fx:id="lastUpdatedPicker" promptText="Last Updated" />
+            <Button fx:id="searchButton" mnemonicParsing="false" onAction="#OnClickSearchButton" text="Search" />
+            <Button fx:id="resetButton" mnemonicParsing="false" onAction="#OnClickResetButton" text="Reset" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding>
+      </HBox>
+   </top>
+   <center>
+      <TableView fx:id="inventoryTable" prefHeight="665.0" prefWidth="887.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="idColumn" prefWidth="78.39999085664749" text="ID" />
+          <TableColumn fx:id="nameColumn" prefWidth="116.79998779296875" text="Name" />
+            <TableColumn fx:id="typeColumn" prefWidth="112.00001525878906" text="Type" />
+            <TableColumn fx:id="categoryColumn" prefWidth="109.60003662109375" text="Category" />
+            <TableColumn fx:id="quantityColumn" prefWidth="94.4000244140625" text="Quantity" />
+            <TableColumn fx:id="unitColumn" prefWidth="74.40005493164062" text="Unit" />
+            <TableColumn fx:id="priceColumn" prefWidth="105.60003662109375" text="Unit Price" />
+            <TableColumn fx:id="lastUpdatedColumn" prefWidth="180.79998779296875" text="Last Updated" />
+        </columns>
+      </TableView>
+   </center>
+   <right>
+      <VBox prefHeight="625.0" prefWidth="369.0" spacing="20.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="itemName" text="Name" />
+            <ImageView fitHeight="308.0" fitWidth="324.0" pickOnBounds="true" preserveRatio="true" />
+            <TextArea fx:id="itemDescription" prefHeight="235.0" prefWidth="382.0" promptText="Informations" />
+         </children>
+         <BorderPane.margin>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </BorderPane.margin>
+      </VBox>
+   </right>
+   <bottom>
+      <Label prefHeight="35.0" prefWidth="546.0" text="Message" BorderPane.alignment="CENTER" />
+   </bottom>
+</BorderPane>
