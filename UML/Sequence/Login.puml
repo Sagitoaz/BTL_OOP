@@ -5,8 +5,7 @@ boundary UI
 control "Authentication API" as Auth
 database DB
 
-User -> UI: Enter username + password
-User -> UI: Click Login
+User -> UI: Login request
 UI -> Auth: Request Login (username, password)
 activate Auth
 

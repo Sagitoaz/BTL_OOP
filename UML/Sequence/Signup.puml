@@ -5,60 +5,44 @@ boundary UI
 control "User Service" as Service
 database DB
 
-User -> UI: Click Signup
-UI --> User: Show Registration Form
+User -> UI: Signup request
 
-User -> UI: Enter Username
-UI -> Service: Check Username Availability (username)
+UI -> Service: Submit Registration Form (username, password, other fields)
 activate Service
+
 Service -> DB: Query: username exists?
 DB --> Service: QueryResult (exists / not exists)
 
 alt Username exists
     Service --> UI: 409 Conflict (Username already exists)
-    UI --> User: Show username taken
-else Username available
-    Service --> UI: 200 OK (Username available)
-    UI --> User: Username accepted
-end
-deactivate Service
-
-' Client-side: password format & confirmation (UI validation)
-User -> UI: Enter Password + Confirm Password
-alt Password invalid format
-    UI --> User: 400 Bad Request (password format invalid)
-end
-alt Passwords don't match
-    UI --> User: 400 Bad Request (passwords mismatch)
-end
-
-User -> UI: Fill remaining fields and Submit Registration
-UI -> Service: Submit Registration Form (full payload)
-activate Service
-Service -> Service: Validate payload
-
-alt Payload valid
-    Service -> DB: Create user (transactional insert)
-    DB --> Service: QueryResult (created user id / error)
-    alt Insert success
-        Service --> UI: 201 Created (registration success)
-        UI -> UI: Redirect to Login
-        UI --> User: Show success
-    else Insert failed (duplicate key / constraint)
-        Service --> UI: 409 Conflict (duplicate identity/email/phone)
-        UI --> User: Show error
+    UI --> User: Show "username taken"
+else Username not exists
+    Service -> Service: Server-side validate payload (format, policy, business rules)
+    alt Payload invalid (format/business rule)
+        Service --> UI: 400 Bad Request or 422 Unprocessable Entity (validation/business error)
+        UI --> User: Show validation error(s)
+    else Payload valid
+        Service -> DB: Insert new user (transactional insert)
+        DB --> Service: QueryResult (insert success / constraint error)
+        alt Insert success
+            Service --> UI: 201 Created (registration success)
+            UI -> UI: Redirect to Login
+            UI --> User: Show success
+        else Insert failed (duplicate key / constraint)
+            Service --> UI: 409 Conflict (duplicate identity/email/phone)
+            UI --> User: Show error
+        end
     end
-else Payload invalid / business rule
-    Service --> UI: 400/422 (validation or business rule error)
-    UI --> User: Show error
 end
 deactivate Service
 
-alt Rate / infra errors
+alt Rate / infra / unexpected errors
     alt Too many requests
         Service --> UI: 429 Too Many Requests
     else DB unavailable / timeout
-        Service --> UI: 503/504 Service Unavailable
+        Service --> UI: 503 Service Unavailable or 504 Gateway Timeout
+    else Unexpected server error
+        Service --> UI: 500 Internal Server Error
     end
     UI --> User: Display error
 end
