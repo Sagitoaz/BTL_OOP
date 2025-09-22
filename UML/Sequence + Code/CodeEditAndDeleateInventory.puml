@@ -98,9 +98,8 @@ else OK
 end
 
 == Lỗi Ngoài Ý Muốn ==
-opt Lỗi không xác định
-  BDK -> BDK: Bắt & ánh xạ lỗi
-  BDK --> UI: HTTP 500\n{ "error": "INTERNAL_ERROR", "traceId": ... }
-  UI --> Admin: Hiển thị lỗi chung
-end
+note over IC
+   Bất kỳ lỗi không dự đoán được
+   → trả HTTP 500 {"lỗi":"LỖI_MÁY_CHỦ_NỘI_BỘ"}
+end note
 @enduml

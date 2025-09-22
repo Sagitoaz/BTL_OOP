@@ -98,23 +98,9 @@ else Hợp lệ
   end
 end
 
-== Nhánh tùy chọn ==
-opt Giới hạn tần suất (Rate limiting)
-  IC -> IC: Kiểm tra quota/throttle theo IP/user
-  alt 429 Quá nhiều yêu cầu
-    IC --> UI: HTTP 429 { "error": "TOO_MANY_REQUESTS", "retryAfterSec": n }
-    UI --> Client: "Vui lòng thử lại sau vài giây"
-  end
-end
-
-opt Caching (ETag cho chi tiết)
-  UI -> IC: GET /inventory/{id} với If-None-Match: "etag"
-  IC -> Database: Lấy etag/updated_at
-  alt 304 Không thay đổi
-    IC --> UI: HTTP 304 (Không tải lại nội dung)
-    UI --> Client: Dùng cache hiện có
-  else Có thay đổi
-    IC --> UI: HTTP 200 { "inventory": {...}, "ETag": "etag'" }
-  end
-end
+== Lỗi Ngoài Ý Muốn ==
+note over IC
+Bất kỳ lỗi không dự đoán được
+→ trả HTTP 500 {"lỗi":"LỖI_MÁY_CHỦ_NỘI_BỘ"}
+end note
 @enduml
