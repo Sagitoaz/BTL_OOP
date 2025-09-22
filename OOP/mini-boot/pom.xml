@@ -8,7 +8,7 @@
     <groupId>org.example</groupId>
     <artifactId>BTL_OOP-parent</artifactId>
     <version>1.0.0</version>
-    <relativePath>..</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>mini-boot</artifactId>
