@@ -1,0 +1,79 @@
+@startuml
+title Thêm Hàng Tồn Kho - Thành Công & Xử Lý Lỗi
+
+actor Admin
+participant UI
+participant InventoryController as IC
+database Database
+
+Admin -> UI: Thêm hàng tồn kho mới (form/JSON)
+UI -> IC: POST /inventory/add\nTiêu đề + Nội dung
+
+== Kiểm Tra Đầu Vào & Bảo Mật ==
+IC -> IC: Kiểm tra Content-Type = application/json
+alt 415 Không hỗ trợ loại dữ liệu
+  IC --> UI: HTTP 415 {"lỗi":"KHÔNG_HỖ_TRỢ_DỮ_LIỆU"}
+  UI --> Admin: Báo lỗi 415
+else Hợp lệ
+  IC -> IC: Xác minh JWT (Authorization: Bearer ...)
+  alt 401 Chưa đăng nhập / token hết hạn
+    IC --> UI: HTTP 401 {"lỗi":"CHƯA_XÁC_THỰC"}
+    UI --> Admin: Yêu cầu đăng nhập
+  else Đã xác thực
+    IC -> IC: Kiểm tra quyền (vai trò: ADMIN)
+    alt 403 Cấm truy cập
+      IC --> UI: HTTP 403 {"lỗi":"KHÔNG_CÓ_QUYỀN"}
+      UI --> Admin: Báo không đủ quyền
+    else Được phép
+      == Kiểm Tra Dữ Liệu ==
+      IC -> IC: Kiểm tra trường bắt buộc & kiểu dữ liệu
+      alt 400 Yêu cầu sai định dạng
+        IC --> UI: HTTP 400 {"lỗi":"YÊU_CẦU_KHÔNG_HỢP_LỆ"}
+        UI --> Admin: Báo lỗi 400
+      else JSON hợp lệ
+        IC -> IC: Kiểm tra quy tắc nghiệp vụ (số lượng ≥ 0, giá ≥ 0...)
+        alt 422 Dữ liệu không hợp lệ theo nghiệp vụ
+          IC --> UI: HTTP 422 {"lỗi":"DỮ_LIỆU_KHÔNG_HỢP_LỆ"}
+          UI --> Admin: Báo lỗi dữ liệu
+        else Dữ liệu hợp lệ
+          == Kiểm Tra Trùng Lặp ==
+          IC -> Database: SELECT theo SKU/ID
+          Database -> Database: Tìm bản ghi
+          alt 409 Đã tồn tại
+            Database --> IC: Trùng SKU/ID
+            IC --> UI: HTTP 409 {"lỗi":"HÀNG_TỒN_KHO_TRÙNG"}
+            UI --> Admin: Báo trùng hàng
+          else Không tìm thấy
+            == Thêm Bản Ghi ==
+            IC -> Database: INSERT hàng mới
+            Database -> Database: Ghi vào bảng
+            alt 503 Dịch vụ không khả dụng (DB hỏng/đang bảo trì)
+              Database --> IC: Lỗi kết nối
+              IC --> UI: HTTP 503 {"lỗi":"DỊCH_VỤ_KHÔNG_KHẢ_DỤNG"}
+              UI --> Admin: Thử lại sau
+            else 504 Hết thời gian chờ
+              Database --> IC: Quá hạn truy vấn
+              IC --> UI: HTTP 504 {"lỗi":"HẾT_THỜI_GIAN_CHỜ"}
+              UI --> Admin: Báo lỗi timeout
+            else 500 Lỗi CSDL (deadlock/constraint)
+              Database --> IC: Ngoại lệ DB
+              IC --> UI: HTTP 500 {"lỗi":"LỖI_CSDL"}
+              UI --> Admin: Báo lỗi server
+            else Thành công
+              Database --> IC: Thêm thành công (id mới)
+              IC --> UI: HTTP 201 {"trạng_thái":"ĐÃ_TẠO","id":...}
+              UI --> Admin: Báo thêm hàng thành công
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+== Lỗi Ngoài Ý Muốn ==
+note over IC
+Bất kỳ lỗi không dự đoán được
+→ trả HTTP 500 {"lỗi":"LỖI_MÁY_CHỦ_NỘI_BỘ"}
+end note
+@enduml
