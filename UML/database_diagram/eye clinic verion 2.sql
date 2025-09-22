@@ -95,7 +95,7 @@ CREATE TABLE [Payment_Status_Log] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [payment_id] int NOT NULL,
   [changed_at] datetime DEFAULT (CURRENT_TIMESTAMP),
-  [status] enum(unpaid,paid) NOT NULL
+  [status] enum(unpaid,pending,paid) NOT NULL
 )
 GO
 
