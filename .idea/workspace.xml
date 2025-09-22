@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="230a6cbc-c64b-4055-b978-ccf84c240dc4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UML/Sequence + Code/CodeAddInventory.puml" beforeDir="false" afterPath="$PROJECT_DIR$/UML/Sequence + Code/CodeAddInventory.puml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UML/Sequence + Code/CodeEditAndDeleateInventory.puml" beforeDir="false" afterPath="$PROJECT_DIR$/UML/Sequence + Code/CodeEditAndDeleateInventory.puml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

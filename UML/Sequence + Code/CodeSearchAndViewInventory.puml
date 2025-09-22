@@ -1,60 +1,120 @@
 @startuml
+title Tìm Kiếm & Xem Chi Tiết Hàng Tồn KhO
+
 actor "Doctor/Admin" as Client
 participant UI
-participant InventoryController
+participant InventoryController as IC
 database Database
 
-== Start searching inventory ==
-Client -> UI: Enter search keyword
-UI -> InventoryController: Send search keyword
+== Bắt đầu tìm kiếm inventory ==
+Client -> UI: Nhập từ khóa tìm kiếm
+UI -> IC: GET /inventory/search\nQuery: keyword, page, size, sort\nHeaders
 
-' Keyword validation
-InventoryController -> InventoryController: Validate keyword
-alt Invalid keyword (too short, forbidden characters, null)
-    InventoryController --> UI: HTTP 400 Bad Request
-    UI --> Client: Show error "Invalid keyword"
-else Valid keyword
-    InventoryController -> Database: Search inventory by keyword
-    alt Database connection error (timeout, DB error)
-        Database --> InventoryController: HTTP 500 Internal Server Error
-        InventoryController --> UI: HTTP 500 Internal Server Error
-        UI --> Client: Show error "System error, please try again later"
-    else Database available
-        Database --> InventoryController: Return inventory list (can be empty)
-        alt No inventory found
-            InventoryController --> UI: HTTP 404 Not Found
-            UI --> Client: Show "No inventory matches"
-        else Inventory found
-            InventoryController --> UI: HTTP 200 OK (Return inventory list)
-            UI --> Client: Display inventory list
+== Tiền kiểm & Bảo mật ==
+IC -> IC: Kiểm tra Content-Type/Accept = application/json
+alt 415 Không hỗ trợ loại dữ liệu
+  IC --> UI: HTTP 415 { "error": "UNSUPPORTED_MEDIA_TYPE" }
+  UI --> Client: Thông báo lỗi 415
+else OK
+  IC -> IC: Xác thực JWT (Authorization: Bearer ...)
+  alt 401 Chưa đăng nhập / token hết hạn/không hợp lệ
+    IC --> UI: HTTP 401 { "error": "UNAUTHORIZED" }
+    UI --> Client: Yêu cầu đăng nhập
+  else Đã xác thực
+    IC -> IC: Kiểm tra quyền truy cập (Doctor/Admin)
+    alt 403 Không đủ quyền
+      IC --> UI: HTTP 403 { "error": "FORBIDDEN" }
+      UI --> Client: Thông báo không đủ quyền
+    else Được phép
 
-            == View inventory detail ==
-            Client -> UI: Select inventory to view details
-            UI -> InventoryController: Send Inventory ID
+      == Kiểm tra từ khóa ==
+      IC -> IC: Validate keyword (độ dài tối thiểu, ký tự cấm, trim)
+      alt 400 Payload không hợp lệ (thiếu keyword/null)
+        IC --> UI: HTTP 400 { "error": "INVALID_REQUEST" }
+        UI --> Client: Lỗi "Thiếu hoặc sai tham số"
+      else 422 Dữ liệu không hợp lệ (nghiệp vụ)
+        IC --> UI: HTTP 422 { "error": "VALIDATION_ERROR", "fields": { "keyword": "quá ngắn/ký tự cấm" } }
+        UI --> Client: Hiển thị lỗi keyword
+      else Hợp lệ
 
-            ' Validate Inventory ID
-            InventoryController -> InventoryController: Validate Inventory ID
-            alt Invalid Inventory ID
-                InventoryController --> UI: HTTP 400 Bad Request
-                UI --> Client: Show error "Invalid Inventory ID"
-            else Valid Inventory ID
-                InventoryController -> Database: Query inventory by ID
-                alt Database access error
-                    Database --> InventoryController: HTTP 503 Service Unavailable
-                    InventoryController --> UI: HTTP 503 Service Unavailable
-                    UI --> Client: Show error "System temporarily unavailable"
-                else Database OK
-                    Database --> InventoryController: Return inventory info (or null)
-                    alt Inventory not found
-                        InventoryController --> UI: HTTP 404 Not Found
-                        UI --> Client: Show error "Inventory not found"
-                    else Inventory found
-                        InventoryController --> UI: HTTP 200 OK (Return inventory details)
-                        UI --> Client: Display inventory details
-                    end
-                end
-            end
+        == Thực thi tìm kiếm ==
+        IC -> Database: SELECT inventories WHERE name/SKU LIKE :keyword\nWITH pagination (page,size,sort)
+        Database -> Database: Thực thi truy vấn
+        alt Lỗi hệ quản trị (timeout/connection/deadlock)
+          Database --> IC: Exception (Timeout/ConnError/Deadlock)
+          alt 503 Dịch vụ không khả dụng (DB down/maintenance)
+            IC --> UI: HTTP 503 { "error": "SERVICE_UNAVAILABLE" }
+            UI --> Client: "Hệ thống tạm thời gián đoạn, thử lại sau"
+          else 504 Hết thời gian chờ
+            IC --> UI: HTTP 504 { "error": "TIMEOUT" }
+            UI --> Client: "Quá thời gian chờ, vui lòng thử lại"
+          else 500 Lỗi DB khác
+            IC --> UI: HTTP 500 { "error": "DB_ERROR", "traceId": ... }
+            UI --> Client: "Lỗi hệ thống, vui lòng thử lại"
+          end
+        else OK
+          Database --> IC: Trả danh sách inventory (có thể rỗng) + tổng số
+          IC --> UI: HTTP 200 { "items": [...], "total": N, "page": p, "size": s }
+          UI --> Client: Hiển thị danh sách (nếu rỗng: thông báo "Không có kết quả phù hợp")
         end
+      end
     end
+  end
+end
+
+== Xem chi tiết inventory ==
+Client -> UI: Chọn 1 inventory để xem chi tiết
+UI -> IC: GET /inventory/{id}\nHeaders
+
+== Tiền kiểm & Quy tắc ==
+IC -> IC: Validate Inventory ID (định dạng/kiểu)
+alt 400 ID không hợp lệ
+  IC --> UI: HTTP 400 { "error": "INVALID_ID" }
+  UI --> Client: "Mã inventory không hợp lệ"
+else Hợp lệ
+  IC -> Database: SELECT inventory WHERE id = :id
+  Database -> Database: Thực thi truy vấn
+  alt Lỗi truy cập DB
+    Database --> IC: Exception (Conn/Timeout/Deadlock)
+    alt 503 Dịch vụ không khả dụng
+      IC --> UI: HTTP 503 { "error": "SERVICE_UNAVAILABLE" }
+      UI --> Client: "Hệ thống tạm thời gián đoạn"
+    else 504 Hết thời gian chờ
+      IC --> UI: HTTP 504 { "error": "TIMEOUT" }
+      UI --> Client: "Quá thời gian chờ"
+    else 500 Lỗi DB khác
+      IC --> UI: HTTP 500 { "error": "DB_ERROR", "traceId": ... }
+      UI --> Client: "Lỗi hệ thống"
+    end
+  else OK
+    Database --> IC: Trả thông tin inventory (hoặc null)
+    alt Không tìm thấy
+      IC --> UI: HTTP 404 { "error": "INVENTORY_NOT_FOUND", "id": ... }
+      UI --> Client: "Không tìm thấy hàng tồn kho"
+    else Tìm thấy
+      IC --> UI: HTTP 200 { "inventory": { ... } }
+      UI --> Client: Hiển thị chi tiết
+    end
+  end
+end
+
+== Nhánh tùy chọn ==
+opt Giới hạn tần suất (Rate limiting)
+  IC -> IC: Kiểm tra quota/throttle theo IP/user
+  alt 429 Quá nhiều yêu cầu
+    IC --> UI: HTTP 429 { "error": "TOO_MANY_REQUESTS", "retryAfterSec": n }
+    UI --> Client: "Vui lòng thử lại sau vài giây"
+  end
+end
+
+opt Caching (ETag cho chi tiết)
+  UI -> IC: GET /inventory/{id} với If-None-Match: "etag"
+  IC -> Database: Lấy etag/updated_at
+  alt 304 Không thay đổi
+    IC --> UI: HTTP 304 (Không tải lại nội dung)
+    UI --> Client: Dùng cache hiện có
+  else Có thay đổi
+    IC --> UI: HTTP 200 { "inventory": {...}, "ETag": "etag'" }
+  end
 end
 @enduml

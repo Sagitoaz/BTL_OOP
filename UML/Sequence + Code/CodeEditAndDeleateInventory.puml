@@ -1,65 +1,106 @@
 @startuml
-title Change Inventory - Success & Error Handling
+title Thay Đổi Hàng Tồn Kho - Thành Công & Xử Lý Lỗi
 
 actor Admin
 participant UI
-participant InventoryController
+participant InventoryController as BDK
 database Database
 
-== Submit ==
-Admin -> UI: Change Inventory (form/JSON)
-UI -> InventoryController: POST /inventory/change\nHeaders + Body
+== Gửi Yêu Cầu ==
+Admin -> UI: Thay đổi hàng tồn kho (form/JSON)
+UI -> BDK: POST /inventory/change\nHeaders + Body
 
-== Syntactic & Basic Validation ==
-InventoryController -> InventoryController: Validate headers/body\n(required fields, types, schema)
-alt 400 Bad Request (invalid payload)
-    InventoryController --> UI: HTTP 400\n{ "error": "INVALID_REQUEST", "details": ... }
-    UI --> Admin: Show 400 Bad Request message
-else Payload OK
-    == Existence & Referential Checks ==
-    InventoryController -> Database: Check inventory existence by ID/SKU
-    Database -> Database: Lookup record, status
-    alt 404 Not Found (record missing)
-        Database --> InventoryController: Not found
-        InventoryController --> UI: HTTP 404\n{ "error": "INVENTORY_NOT_FOUND", "id": ... }
-        UI --> Admin: Show 404 Not Found message
-    else Record exists
-        == Business Rules & Domain Validation ==
-        InventoryController -> InventoryController: Validate business rules\n(stock >= 0, version match, constraint)
-        alt 400 Bad Request (domain validation fails)
-            InventoryController --> UI: HTTP 400\n{ "error": "VALIDATION_FAILED", "fields": {...} }
-            UI --> Admin: Show validation errors
-        else Domain OK
-            == Persist Changes ==
-            InventoryController -> Database: Update inventory\n(quantity, price, metadata, updated_at)
-            Database -> Database: Apply changes, write audit log/txn
-            alt DB error (e.g., deadlock/timeout)
-                Database --> InventoryController: Error/exception
-                InventoryController --> UI: HTTP 500\n{ "error": "DB_ERROR", "traceId": ... }
-                UI --> Admin: Show 500 Server Error message
-            else Update OK
-                Database --> InventoryController: Update result (rows=1, version++)
-                InventoryController --> UI: HTTP 200\n{ "status": "OK", "inventory": {...} }
-                UI --> Admin: Show success message
+== Kiểm Tra Sơ Bộ & Bảo Mật ==
+BDK -> BDK: Kiểm tra Content-Type = application/json
+alt 415 Không hỗ trợ loại dữ liệu
+  BDK --> UI: HTTP 415\n{ "error": "UNSUPPORTED_MEDIA_TYPE" }
+  UI --> Admin: Hiển thị lỗi 415 – Loại dữ liệu không hỗ trợ
+else OK
+  BDK -> BDK: Xác thực JWT (Authorization: Bearer ...)
+  alt 401 Chưa đăng nhập / token hết hạn
+    BDK --> UI: HTTP 401\n{ "error": "UNAUTHORIZED" }
+    UI --> Admin: Yêu cầu đăng nhập lại
+  else Đã xác thực
+    BDK -> BDK: Kiểm tra quyền hạn (vai trò: ADMIN)
+    alt 403 Không đủ quyền
+      BDK --> UI: HTTP 403\n{ "error": "FORBIDDEN" }
+      UI --> Admin: Hiển thị lỗi quyền hạn
+    else Được phép
+
+      == Kiểm Tra Cú Pháp ==
+      BDK -> BDK: Kiểm tra headers/body\n(trường bắt buộc, kiểu dữ liệu, schema)
+      alt 400 Yêu cầu không hợp lệ (payload sai)
+        BDK --> UI: HTTP 400\n{ "error": "INVALID_REQUEST", "details": ... }
+        UI --> Admin: Hiển thị lỗi 400 – Yêu cầu sai định dạng
+      else Payload hợp lệ
+
+        == Kiểm Tra Sự Tồn Tại ==
+        BDK -> Database: Tìm inventory theo ID/SKU
+        Database -> Database: Truy vấn dữ liệu
+        alt 404 Không tìm thấy
+          Database --> BDK: Không tồn tại
+          BDK --> UI: HTTP 404\n{ "error": "INVENTORY_NOT_FOUND", "id": ... }
+          UI --> Admin: Hiển thị lỗi 404 – Không tìm thấy hàng
+        else Có bản ghi
+
+          == Kiểm Tra Quy Tắc Nghiệp Vụ ==
+          BDK -> BDK: Kiểm tra (tồn kho ≥ 0, giá ≥ 0, constraint)
+          alt 422 Dữ liệu không hợp lệ theo nghiệp vụ
+            BDK --> UI: HTTP 422\n{ "error": "VALIDATION_FAILED", "fields": {...} }
+            UI --> Admin: Hiển thị lỗi dữ liệu không hợp lệ
+          else Dữ liệu hợp lệ
+
+            == Kiểm Tra Phiên Bản (Concurrency) ==
+            BDK -> BDK: So sánh If-Match / version
+            alt 412 Xung đột phiên bản
+              BDK --> UI: HTTP 412\n{ "error": "VERSION_CONFLICT", "expected": v, "actual": v' }
+              UI --> Admin: Yêu cầu tải lại dữ liệu
+            else Phiên bản hợp lệ
+
+              == Kiểm Tra Trùng Lặp (SKU mới) ==
+              BDK -> Database: SELECT theo SKU mới (nếu có thay đổi)
+              Database -> Database: Kiểm tra trùng
+              alt 409 SKU đã tồn tại
+                Database --> BDK: Trùng SKU
+                BDK --> UI: HTTP 409\n{ "error": "SKU_CONFLICT", "sku": "..." }
+                UI --> Admin: Hiển thị lỗi SKU trùng
+              else Không trùng
+
+                == Cập Nhật Dữ Liệu ==
+                BDK -> Database: UPDATE inventory (qty, price, metadata, updated_at)
+                Database -> Database: Thực thi cập nhật + ghi log
+                alt 503 Dịch vụ không khả dụng (DB down/bảo trì)
+                  Database --> BDK: Không kết nối được
+                  BDK --> UI: HTTP 503\n{ "error": "SERVICE_UNAVAILABLE" }
+                  UI --> Admin: Thử lại sau
+                else 504 Hết thời gian chờ
+                  Database --> BDK: Timeout
+                  BDK --> UI: HTTP 504\n{ "error": "TIMEOUT" }
+                  UI --> Admin: Báo lỗi timeout
+                else 500 Lỗi CSDL (deadlock/constraint)
+                  Database --> BDK: Ngoại lệ DB
+                  BDK --> UI: HTTP 500\n{ "error": "DB_ERROR", "traceId": ... }
+                  UI --> Admin: Hiển thị lỗi server
+                else Thành công
+                  Database --> BDK: rows=1, version++
+                  BDK --> UI: HTTP 200\n{ "status": "OK", "inventory": {...} }
+                  UI --> Admin: Hiển thị cập nhật thành công
+                end
+
+              end
             end
+
+          end
         end
+      end
     end
+  end
 end
 
-== Optional Concurrency/Precondition Branches ==
-opt Conditional update with ETag/If-Match
-    InventoryController -> InventoryController: Check If-Match vs current version
-    alt 412 Precondition Failed (version mismatch)
-        InventoryController --> UI: HTTP 412\n{ "error": "VERSION_CONFLICT", "expected": v, "actual": v' }
-        UI --> Admin: Prompt to refresh data
-    end
-end
-
-
-== Fallback Unexpected Errors ==
-opt Unhandled exception
-    InventoryController -> InventoryController: Catch & map error
-    InventoryController --> UI: HTTP 500\n{ "error": "INTERNAL_ERROR", "traceId": ... }
-    UI --> Admin: Show generic error message
+== Lỗi Ngoài Ý Muốn ==
+opt Lỗi không xác định
+  BDK -> BDK: Bắt & ánh xạ lỗi
+  BDK --> UI: HTTP 500\n{ "error": "INTERNAL_ERROR", "traceId": ... }
+  UI --> Admin: Hiển thị lỗi chung
 end
 @enduml
