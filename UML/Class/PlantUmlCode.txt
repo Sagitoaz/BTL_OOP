@@ -1,0 +1,613 @@
+@startuml
+hide stereotypes
+skinparam classAttributeIconSize 0
+' ==== Enums khớp DB ====
+enum EmployeeRole {
+  DOCTOR
+  NURSE
+}
+
+enum AppointmentType {
+  VISIT
+  TEST
+  SURGERY
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ProductCategory {
+  FRAME
+  LENS
+  CONTACT_LENS
+  MACHINE
+  CONSUMABLE
+  SERVICE
+}
+
+enum MoveType {
+  PURCHASE
+  SALE
+  RETURN_IN
+  RETURN_OUT
+  ADJUSTMENT
+  CONSUME
+  TRANSFER
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  E_WALLET
+  OTHER
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+
+' ==== Accounts ====
+class Admin {
+  +id:int
+  +username:string
+  +password:string
+  +email:string
+  +isActive:bool
+--
++createEmployee(data):Employee
++updateEmployeeId(employeeId, patch):void
++deActiveEmployee(employeeId):void
++createCustomer(data):Customer
++updateCustomerId(customerId, patch):void
+
+}
+
+class Employee {
+  +id:int
+  +username:string
+  +password:string
+  +firstname:string
+  +lastname:string
+  +role:EmployeeRole
+  +licenseNo:string
+  +email:string
+  +phone:string
+  +isActive:boolean
+  +createdAt:DateTime
+--
++updateContact(phone, email, address, note): void
++updateProfile(firstname, lastname, dob, address, note): void
+}
+class Doctor{
++specialty:string
+--
++viewMySchedule(range:DateRange): List<Appointment>
++acceptAppointment(appointmentId:int): void
++startVisit(appointmentId:int): void
++completeVisit(appointmentId:int): void
++writeVisitSummary(appointmentId:int, summary:string, attachments:string): AppointmentReport
++issueSpectaclePrescription(appointmentId:int, data:SpectaclePrescriptionDTO): SpectaclePrescription
+}
+class Staff{
+
+---
++assignAppointment(data):Appointment
++reAssignAppointment(appointmentId, patch):void
++createAppointmentReport(data):AppointmentReport
++createSpectaclePrescription(data):SpectaclePrescription
++adjustSpectaclePrescription(spectaclePrescriptionId):void
++createProduct(data): Product
++setIsActiveProduct(productId, state):void
++adjustStock(productId, quantity):void
++createPurchaseOrder(supplierName, item[]):PurchaseOrder
++receivePurchaseOrder(purchaseorderId):void
++createPayment(data):Payment
++creataPaymentItem(data):PaymentItem
++adjustPayment(paymentId, patch):void
++finalizePayment(paymentId:int, amountPaid:decimal): void
++createStockMovement(data): StockMovement
++adjustStockMovement(stockMovementId):void
++updateInventoryBalance(productId):void
+}
+class Customer {
+  +id:int
+  +firstname:string
+  +lastname:string
+  +phone:string
+  +email:string
+  +dob:Date
+  +address:string
+  +note:string
+  +createdAt:DateTime
+--
++updateContact(phone, email, address, note): void
++updateProfile(firstname, lastname, dob, address, note): void
++requestAppointment(doctorId, startTime, endTime, note): Appointment
++rescheduleAppointment(appointmentId, new_startTime, new_endTime):void
++cancelAppointment(appointmentId):void
++viewAppointment():List<Appointment>
++checkIn(appointmentId):void
++viewVisitSummary(appointmentId:int): AppointmentReport
++viewSpectaclePrescription(appointmentId:int): SpectaclePrescription
++viewPaymentHistory():List<Payment>
++pay( method: PAYMENT_METHOD):Payment
+}
+
+Doctor --|> Employee
+Staff --|> Employee
+' ==== Appointments ====
+class Appointment {
+  +id:int
+  +customerId:int
+  +doctorId:int       ' ref Employees(id) with role=doctor
+  +appointmentType:AppointmentType
+  +notes:string
+  +startTime:DateTime
+  +endTime:DateTime
+  +status:AppointmentStatus
+  +createdBy:int      ' Employees.id
+  +updatedBy:int      ' Employees.id
+  +createdAt:DateTime
+  +updatedAt:DateTime
+  --
+  +confirm(byEmployeeId:int):void
+  +checkIn(byEmployeeId:int):void
+  +start(byEmployeeId:int):void
+  +complete(byEmployeeId:int):void
+  +cancel(byEmployeeId:int, reason:string):void
+}
+
+class AppointmentReport {
+  +id:int
+  +appointmentId:int  ' unique
+  +summary:text
+  +attachments:string
+  +createdAt:DateTime
+  +updatedAt:DateTime
+}
+
+class SpectaclePrescription {
+  +id:int
+  +appointmentId:int  ' unique
+  +dateIssued:Date
+  +status:enum(active,expired,void)
+  +sph_od:decimal
+  +cyl_od:decimal
+  +axis_od:int
+  +va_od:string
+  +sph_os:decimal
+  +cyl_os:decimal
+  +axis_os:int
+  +va_os:string
+  +add_power:decimal
+  +pd:decimal
+  +lens_type:enum(single_vision,bifocal,progressive,contact,other)
+  +material:string
+  +features:string
+  +recheck_after_months:int
+  +notes:text
+  +signedAt:DateTime
+  +signedBy:int       ' Employees.id
+}
+
+
+
+' ==== Products / Inventory ====
+class Product {
+  +id:int
+  +sku:string
+  +name:string
+  +category:ProductCategory
+  +unit:string
+  +priceCost:int
+  +priceRetail:int
+  +isActive:boolean
+  +note:string
+  +createdAt:DateTime
+}
+
+class PurchaseOrder {
+  +id:int
+  +supplierName:string
+  +orderedAt:DateTime
+  +status:enum(draft,ordered,received,cancelled)
+  +total:int
+  +note:string
+}
+
+class PurchaseOrderItem {
+  +id:int
+  +purchaseId:int
+  +productId:int
+  +qty:int
+  +priceUnit:int
+  +totalLine:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+}
+
+class StockMovement {
+  +id:int
+  +productId:int
+  +qty:int
+  +moveType:MoveType
+  +refTable:string
+  +refId:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+  +movedAt:DateTime
+  +movedBy:int      ' Employees.id
+
+}
+
+class InventoryBalance {
+  +productId:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+  +qtyOnHand:int
+  +updatedAt:DateTime
+}
+
+
+
+' ==== Payments ====
+class Payment {
+  +id:int
+  +code:string        ' receipt number
+  +customerId:int
+  +cashierId:int      ' Employees.id
+  +issuedAt:DateTime
+  +subtotal:int
+  +discount:int
+  +taxTotal:int
+  +rounding:int
+  +grandTotal:int
+  +paymentMethod:PaymentMethod
+  +amountPaid:decimal
+  +note:string
+  +createdAt:DateTime
+}
+
+class PaymentItem {
+  +id:int
+  +paymentId:int
+  +productId:int
+  +description:string
+  +qty:int
+  +unitPrice:int
+  +discountLine:int
+  +taxRate:int
+  +taxAmount:int
+  +totalLine:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+}
+
+class PaymentStatusLog {
+  +id:int
+  +paymentId:int
+  +changedAt:DateTime
+  +status:PaymentStatus
+  +changedBy:int      ' Employees.id
+}
+
+hide stereotypes
+skinparam classAttributeIconSize 0
+' ==== Enums khớp DB ====
+enum EmployeeRole {
+  DOCTOR
+  NURSE
+}
+
+enum AppointmentType {
+  VISIT
+  TEST
+  SURGERY
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ProductCategory {
+  FRAME
+  LENS
+  CONTACT_LENS
+  MACHINE
+  CONSUMABLE
+  SERVICE
+}
+
+enum MoveType {
+  PURCHASE
+  SALE
+  RETURN_IN
+  RETURN_OUT
+  ADJUSTMENT
+  CONSUME
+  TRANSFER
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  E_WALLET
+  OTHER
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+
+' ==== Accounts ====
+class Admin {
+  +id:int
+  +username:string
+  +password:string
+  +email:string
+  +isActive:bool
+--
++createEmployee(data):Employee
++updateEmployeeId(employeeId, patch):void
++deActiveEmployee(employeeId):void
++createCustomer(data):Customer
++updateCustomerId(customerId, patch):void
+
+}
+
+class Employee {
+  +id:int
+  +username:string
+  +password:string
+  +firstname:string
+  +lastname:string
+  +role:EmployeeRole
+  +licenseNo:string
+  +email:string
+  +phone:string
+  +isActive:boolean
+  +createdAt:DateTime
+--
++updateContact(phone, email, address, note): void
++updateProfile(firstname, lastname, dob, address, note): void
+}
+class Doctor{
++specialty:string
+--
++viewMySchedule(range:DateRange): List<Appointment>
++acceptAppointment(appointmentId:int): void
++startVisit(appointmentId:int): void
++completeVisit(appointmentId:int): void
++writeVisitSummary(appointmentId:int, summary:string, attachments:string): AppointmentReport
++issueSpectaclePrescription(appointmentId:int, data:SpectaclePrescriptionDTO): SpectaclePrescription
+}
+class Staff{
+
+---
++assignAppointment(data):Appointment
++reAssignAppointment(appointmentId, patch):void
++createAppointmentReport(data):AppointmentReport
++createSpectaclePrescription(data):SpectaclePrescription
++adjustSpectaclePrescription(spectaclePrescriptionId):void
++createProduct(data): Product
++setIsActiveProduct(productId, state):void
++adjustStock(productId, quantity):void
++createPurchaseOrder(supplierName, item[]):PurchaseOrder
++receivePurchaseOrder(purchaseorderId):void
++createPayment(data):Payment
++creataPaymentItem(data):PaymentItem
++adjustPayment(paymentId, patch):void
++finalizePayment(paymentId:int, amountPaid:decimal): void
++createStockMovement(data): StockMovement
++adjustStockMovement(stockMovementId):void
++updateInventoryBalance(productId):void
+}
+class Customer {
+  +id:int
+  +firstname:string
+  +lastname:string
+  +phone:string
+  +email:string
+  +dob:Date
+  +address:string
+  +note:string
+  +createdAt:DateTime
+--
++updateContact(phone, email, address, note): void
++updateProfile(firstname, lastname, dob, address, note): void
++requestAppointment(doctorId, startTime, endTime, note): Appointment
++rescheduleAppointment(appointmentId, new_startTime, new_endTime):void
++cancelAppointment(appointmentId):void
++viewAppointment():List<Appointment>
++checkIn(appointmentId):void
++viewVisitSummary(appointmentId:int): AppointmentReport
++viewSpectaclePrescription(appointmentId:int): SpectaclePrescription
++viewPaymentHistory():List<Payment>
++pay( method: PAYMENT_METHOD):Payment
+}
+
+Doctor --|> Employee
+Staff --|> Employee
+' ==== Appointments ====
+class Appointment {
+  +id:int
+  +customerId:int
+  +doctorId:int       ' ref Employees(id) with role=doctor
+  +appointmentType:AppointmentType
+  +notes:string
+  +startTime:DateTime
+  +endTime:DateTime
+  +status:AppointmentStatus
+  +createdBy:int      ' Employees.id
+  +updatedBy:int      ' Employees.id
+  +createdAt:DateTime
+  +updatedAt:DateTime
+  --
+  +confirm(byEmployeeId:int):void
+  +checkIn(byEmployeeId:int):void
+  +start(byEmployeeId:int):void
+  +complete(byEmployeeId:int):void
+  +cancel(byEmployeeId:int, reason:string):void
+}
+
+class AppointmentReport {
+  +id:int
+  +appointmentId:int  ' unique
+  +summary:text
+  +attachments:string
+  +createdAt:DateTime
+  +updatedAt:DateTime
+}
+
+class SpectaclePrescription {
+  +id:int
+  +appointmentId:int  ' unique
+  +dateIssued:Date
+  +status:enum(active,expired,void)
+  +sph_od:decimal
+  +cyl_od:decimal
+  +axis_od:int
+  +va_od:string
+  +sph_os:decimal
+  +cyl_os:decimal
+  +axis_os:int
+  +va_os:string
+  +add_power:decimal
+  +pd:decimal
+  +lens_type:enum(single_vision,bifocal,progressive,contact,other)
+  +material:string
+  +features:string
+  +recheck_after_months:int
+  +notes:text
+  +signedAt:DateTime
+  +signedBy:int       ' Employees.id
+}
+
+
+
+' ==== Products / Inventory ====
+class Product {
+  +id:int
+  +sku:string
+  +name:string
+  +category:ProductCategory
+  +unit:string
+  +priceCost:int
+  +priceRetail:int
+  +isActive:boolean
+  +note:string
+  +createdAt:DateTime
+}
+
+class PurchaseOrder {
+  +id:int
+  +supplierName:string
+  +orderedAt:DateTime
+  +status:enum(draft,ordered,received,cancelled)
+  +total:int
+  +note:string
+}
+
+class PurchaseOrderItem {
+  +id:int
+  +purchaseId:int
+  +productId:int
+  +qty:int
+  +priceUnit:int
+  +totalLine:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+}
+
+class StockMovement {
+  +id:int
+  +productId:int
+  +qty:int
+  +moveType:MoveType
+  +refTable:string
+  +refId:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+  +movedAt:DateTime
+  +movedBy:int      ' Employees.id
+
+}
+
+class InventoryBalance {
+  +productId:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+  +qtyOnHand:int
+  +updatedAt:DateTime
+}
+
+
+
+' ==== Payments ====
+class Payment {
+  +id:int
+  +code:string        ' receipt number
+  +customerId:int
+  +cashierId:int      ' Employees.id
+  +issuedAt:DateTime
+  +subtotal:int
+  +discount:int
+  +taxTotal:int
+  +rounding:int
+  +grandTotal:int
+  +paymentMethod:PaymentMethod
+  +amountPaid:decimal
+  +note:string
+  +createdAt:DateTime
+}
+
+class PaymentItem {
+  +id:int
+  +paymentId:int
+  +productId:int
+  +description:string
+  +qty:int
+  +unitPrice:int
+  +discountLine:int
+  +taxRate:int
+  +taxAmount:int
+  +totalLine:int
+  +batchNo:string
+  +expiryDate:Date
+  +serialNo:string
+}
+
+class PaymentStatusLog {
+  +id:int
+  +paymentId:int
+  +changedAt:DateTime
+  +status:PaymentStatus
+  +changedBy:int      ' Employees.id
+}
+@enduml
