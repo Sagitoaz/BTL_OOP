@@ -26,8 +26,8 @@ CREATE TABLE [Customers] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [firstname] nvarchar(50) NOT NULL,
   [lastname] nvarchar(100) NOT NULL,
-  [phone] varchar(20),
-  [email] varchar(100),
+  [phone] varchar(10),
+  [email] varchar(100) UNIQUE,
   [dob] date,
   [address] nvarchar(255),
   [note] nvarchar(255),
@@ -44,18 +44,6 @@ CREATE TABLE [Appointments] (
   [start_time] datetime NOT NULL,
   [end_time] datetime NOT NULL,
   [status] enum(scheduled,confirmed,checked_in,in_progress,completed,cancelled,no_show) NOT NULL DEFAULT 'scheduled',
-  [created_by] int,
-  [updated_by] int,
-  [created_at] datetime DEFAULT (CURRENT_TIMESTAMP),
-  [updated_at] datetime
-)
-GO
-
-CREATE TABLE [Appointment_Reports] (
-  [id] int PRIMARY KEY IDENTITY(1, 1),
-  [appointment_id] int UNIQUE NOT NULL,
-  [summary] text,
-  [attachments] nvarchar(255),
   [created_at] datetime DEFAULT (CURRENT_TIMESTAMP),
   [updated_at] datetime
 )
@@ -81,43 +69,25 @@ CREATE TABLE [Spectacle_Prescriptions] (
   [features] nvarchar(255),
   [recheck_after_months] int,
   [notes] text,
-  [signed_at] datetime,
-  [signed_by] int
+  [signed_at] datetime
 )
 GO
 
 CREATE TABLE [Payments] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [code] varchar(30) UNIQUE,
-  [customer_id] int NOT NULL,
-  [cashier_id] int,
+  [customer_id] int,
+  [cashier_id] int NOT NULL,
   [issued_at] datetime DEFAULT (CURRENT_TIMESTAMP),
   [subtotal] int NOT NULL DEFAULT (0),
   [discount] int NOT NULL DEFAULT (0),
   [tax_total] int NOT NULL DEFAULT (0),
   [rounding] int NOT NULL DEFAULT (0),
   [grand_total] int NOT NULL DEFAULT (0),
-  [payment_method] enum(cash,card,transfer,e_wallet,other),
+  [payment_method] enum(cash,bank),
   [amount_paid] decimal(12,2),
   [note] nvarchar(255),
   [created_at] datetime DEFAULT (CURRENT_TIMESTAMP)
-)
-GO
-
-CREATE TABLE [Payment_Items] (
-  [id] int PRIMARY KEY IDENTITY(1, 1),
-  [payment_id] int NOT NULL,
-  [product_id] int,
-  [description] nvarchar(200),
-  [qty] int NOT NULL,
-  [unit_price] int NOT NULL,
-  [discount_line] int NOT NULL DEFAULT (0),
-  [tax_rate] int,
-  [tax_amount] int NOT NULL DEFAULT (0),
-  [total_line] int NOT NULL,
-  [batch_no] varchar(40),
-  [expiry_date] date,
-  [serial_no] varchar(60)
 )
 GO
 
@@ -125,8 +95,17 @@ CREATE TABLE [Payment_Status_Log] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [payment_id] int NOT NULL,
   [changed_at] datetime DEFAULT (CURRENT_TIMESTAMP),
-  [status] enum(unpaid,paid) NOT NULL,
-  [changed_by] int
+  [status] enum(unpaid,pending,paid) NOT NULL
+)
+GO
+
+CREATE TABLE [Payment_Items] (
+  [id] int PRIMARY KEY IDENTITY(1, 1),
+  [payment_id] int NOT NULL,
+  [description] nvarchar(200),
+  [qty] int NOT NULL,
+  [unit_price] int NOT NULL,
+  [total_line] int NOT NULL
 )
 GO
 
@@ -144,29 +123,6 @@ CREATE TABLE [Products] (
 )
 GO
 
-CREATE TABLE [PurchaseOrders] (
-  [id] int PRIMARY KEY IDENTITY(1, 1),
-  [supplier_name] vnarchar(100),
-  [ordered_at] datetime DEFAULT (CURRENT_TIMESTAMP),
-  [status] enum(draft,ordered,received,cancelled) DEFAULT 'ordered',
-  [total] int,
-  [note] nvarchar(255)
-)
-GO
-
-CREATE TABLE [PurchaseOrder_Items] (
-  [id] int PRIMARY KEY IDENTITY(1, 1),
-  [purchase_id] int NOT NULL,
-  [product_id] int NOT NULL,
-  [qty] int NOT NULL,
-  [price_unit] int NOT NULL,
-  [total_line] int,
-  [batch_no] varchar(40),
-  [expiry_date] date,
-  [serial_no] varchar(60)
-)
-GO
-
 CREATE TABLE [Stock_Movements] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [product_id] int NOT NULL,
@@ -178,7 +134,7 @@ CREATE TABLE [Stock_Movements] (
   [expiry_date] date,
   [serial_no] varchar(60),
   [moved_at] datetime DEFAULT (CURRENT_TIMESTAMP),
-  [moved_by] int
+  [moved_by] int NOT NULL
 )
 GO
 
@@ -228,13 +184,6 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Table_Description',
-@value = 'INDEX (payment_id, changed_at)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Payment_Status_Log';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
 @value = 'INDEX (product_id), (ref_table, ref_id)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'Stock_Movements';
@@ -246,49 +195,16 @@ GO
 ALTER TABLE [Appointments] ADD FOREIGN KEY ([doctor_id]) REFERENCES [Employees] ([id])
 GO
 
-ALTER TABLE [Appointments] ADD FOREIGN KEY ([created_by]) REFERENCES [Employees] ([id])
-GO
-
-ALTER TABLE [Appointments] ADD FOREIGN KEY ([updated_by]) REFERENCES [Employees] ([id])
-GO
-
-ALTER TABLE [Appointment_Reports] ADD FOREIGN KEY ([appointment_id]) REFERENCES [Appointments] ([id])
-GO
-
 ALTER TABLE [Spectacle_Prescriptions] ADD FOREIGN KEY ([appointment_id]) REFERENCES [Appointments] ([id])
-GO
-
-ALTER TABLE [Spectacle_Prescriptions] ADD FOREIGN KEY ([signed_by]) REFERENCES [Employees] ([id])
-GO
-
-ALTER TABLE [Payments] ADD FOREIGN KEY ([customer_id]) REFERENCES [Customers] ([id])
-GO
-
-ALTER TABLE [Payments] ADD FOREIGN KEY ([cashier_id]) REFERENCES [Employees] ([id])
-GO
-
-ALTER TABLE [Payment_Items] ADD FOREIGN KEY ([payment_id]) REFERENCES [Payments] ([id])
-GO
-
-ALTER TABLE [Payment_Items] ADD FOREIGN KEY ([product_id]) REFERENCES [Products] ([id])
 GO
 
 ALTER TABLE [Payment_Status_Log] ADD FOREIGN KEY ([payment_id]) REFERENCES [Payments] ([id])
 GO
 
-ALTER TABLE [Payment_Status_Log] ADD FOREIGN KEY ([changed_by]) REFERENCES [Employees] ([id])
-GO
-
-ALTER TABLE [PurchaseOrder_Items] ADD FOREIGN KEY ([purchase_id]) REFERENCES [PurchaseOrders] ([id])
-GO
-
-ALTER TABLE [PurchaseOrder_Items] ADD FOREIGN KEY ([product_id]) REFERENCES [Products] ([id])
+ALTER TABLE [Payment_Items] ADD FOREIGN KEY ([payment_id]) REFERENCES [Payments] ([id])
 GO
 
 ALTER TABLE [Stock_Movements] ADD FOREIGN KEY ([product_id]) REFERENCES [Products] ([id])
-GO
-
-ALTER TABLE [Stock_Movements] ADD FOREIGN KEY ([moved_by]) REFERENCES [Employees] ([id])
 GO
 
 ALTER TABLE [Inventory_Balances] ADD FOREIGN KEY ([product_id]) REFERENCES [Products] ([id])
