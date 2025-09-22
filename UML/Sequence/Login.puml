@@ -1,0 +1,41 @@
+@startuml Login Flow
+title Login Flow
+actor User
+boundary UI
+control "Authentication API" as Auth
+database DB
+
+User -> UI: Login request
+UI -> Auth: Request Login (username, password)
+activate Auth
+
+Auth -> DB: Query: get account by username/email
+DB --> Auth: QueryResult (account data or not found)
+
+alt Account found
+    Auth -> Auth: Validate password / check account status
+    alt Password correct and account active
+        Auth --> UI: 200 OK (auth token, user profile)
+        UI -> UI: Redirect to dashboard
+        UI --> User: Display dashboard
+    else Wrong password or account locked
+        Auth --> UI: 401 Unauthorized (invalid credentials or locked)
+        UI --> User: Show login failed message
+    end
+else Account not found
+    Auth --> UI: 401 Unauthorized (invalid credentials)
+    UI --> User: Show login failed message
+end
+deactivate Auth
+
+alt Validation / rate / infra errors
+    alt Missing fields / invalid format
+        Auth --> UI: 400 Bad Request
+    else Too many attempts / rate limit
+        Auth --> UI: 429 Too Many Requests (or account temporary lock)
+    else DB error / timeout
+        Auth --> UI: 503/504 Service Unavailable
+    end
+    UI --> User: Display error message
+end
+@enduml

@@ -1,0 +1,49 @@
+@startuml Signup Flow
+title Signup Flow
+actor User
+boundary UI
+control "User Service" as Service
+database DB
+
+User -> UI: Signup request
+
+UI -> Service: Submit Registration Form (username, password, other fields)
+activate Service
+
+Service -> DB: Query: username exists?
+DB --> Service: QueryResult (exists / not exists)
+
+alt Username exists
+    Service --> UI: 409 Conflict (Username already exists)
+    UI --> User: Show "username taken"
+else Username not exists
+    Service -> Service: Server-side validate payload (format, policy, business rules)
+    alt Payload invalid (format/business rule)
+        Service --> UI: 400 Bad Request or 422 Unprocessable Entity (validation/business error)
+        UI --> User: Show validation error(s)
+    else Payload valid
+        Service -> DB: Insert new user (transactional insert)
+        DB --> Service: QueryResult (insert success / constraint error)
+        alt Insert success
+            Service --> UI: 201 Created (registration success)
+            UI -> UI: Redirect to Login
+            UI --> User: Show success
+        else Insert failed (duplicate key / constraint)
+            Service --> UI: 409 Conflict (duplicate identity/email/phone)
+            UI --> User: Show error
+        end
+    end
+end
+deactivate Service
+
+alt Rate / infra / unexpected errors
+    alt Too many requests
+        Service --> UI: 429 Too Many Requests
+    else DB unavailable / timeout
+        Service --> UI: 503 Service Unavailable or 504 Gateway Timeout
+    else Unexpected server error
+        Service --> UI: 500 Internal Server Error
+    end
+    UI --> User: Display error
+end
+@enduml
