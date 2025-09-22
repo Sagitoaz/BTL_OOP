@@ -1,0 +1,65 @@
+@startuml Signup Flow
+title Signup Flow
+actor User
+boundary UI
+control "User Service" as Service
+database DB
+
+User -> UI: Click Signup
+UI --> User: Show Registration Form
+
+User -> UI: Enter Username
+UI -> Service: Check Username Availability (username)
+activate Service
+Service -> DB: Query: username exists?
+DB --> Service: QueryResult (exists / not exists)
+
+alt Username exists
+    Service --> UI: 409 Conflict (Username already exists)
+    UI --> User: Show username taken
+else Username available
+    Service --> UI: 200 OK (Username available)
+    UI --> User: Username accepted
+end
+deactivate Service
+
+' Client-side: password format & confirmation (UI validation)
+User -> UI: Enter Password + Confirm Password
+alt Password invalid format
+    UI --> User: 400 Bad Request (password format invalid)
+end
+alt Passwords don't match
+    UI --> User: 400 Bad Request (passwords mismatch)
+end
+
+User -> UI: Fill remaining fields and Submit Registration
+UI -> Service: Submit Registration Form (full payload)
+activate Service
+Service -> Service: Validate payload
+
+alt Payload valid
+    Service -> DB: Create user (transactional insert)
+    DB --> Service: QueryResult (created user id / error)
+    alt Insert success
+        Service --> UI: 201 Created (registration success)
+        UI -> UI: Redirect to Login
+        UI --> User: Show success
+    else Insert failed (duplicate key / constraint)
+        Service --> UI: 409 Conflict (duplicate identity/email/phone)
+        UI --> User: Show error
+    end
+else Payload invalid / business rule
+    Service --> UI: 400/422 (validation or business rule error)
+    UI --> User: Show error
+end
+deactivate Service
+
+alt Rate / infra errors
+    alt Too many requests
+        Service --> UI: 429 Too Many Requests
+    else DB unavailable / timeout
+        Service --> UI: 503/504 Service Unavailable
+    end
+    UI --> User: Display error
+end
+@enduml
