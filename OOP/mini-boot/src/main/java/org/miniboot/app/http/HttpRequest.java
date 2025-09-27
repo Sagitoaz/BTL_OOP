@@ -89,7 +89,7 @@ public class HttpRequest {
             String[] p = kv.split("=", 2);
             String k = urlDecode(p[0]);
             String v = p.length > 1 ? urlDecode(p[1]) : "";
-            res.computeIfAbsent(k, _ -> new ArrayList<>()).add(v);
+            res.computeIfAbsent(k, key -> new ArrayList<>()).add(v);
         }
         return res;
     }
@@ -107,5 +107,9 @@ public class HttpRequest {
     }
     public String bodyText() {
         return new String(body, StandardCharsets.UTF_8);
+    }
+
+    public static HttpRequest of(String method, String path, String httpVersion, Map<String, String> headers, byte[] body) {
+        return new HttpRequest(method, path, httpVersion, headers, body);
     }
 }

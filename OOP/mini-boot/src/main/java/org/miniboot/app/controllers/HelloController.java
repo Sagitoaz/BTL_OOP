@@ -2,7 +2,7 @@ package org.miniboot.app.controllers;
 
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
-import org.miniboot.app.http.Router;
+import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 
 import java.util.Map;
