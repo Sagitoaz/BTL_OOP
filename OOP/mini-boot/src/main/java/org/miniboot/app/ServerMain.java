@@ -8,9 +8,12 @@ public class ServerMain {
     public static void main(String[] args) throws Exception {
         int port = Integer.parseInt(System.getProperty(AppConfig.PORT_KEY, AppConfig.HTTP_PORT));
         Router router = new Router();
+
+        // mount các controller
         HelloController.mount(router);
+
 
         HttpServer server = new HttpServer(port, router);
         server.start();
     }
-}   
+}
