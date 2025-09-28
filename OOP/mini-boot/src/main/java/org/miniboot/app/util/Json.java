@@ -1,43 +1,30 @@
 package org.miniboot.app.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.miniboot.app.http.HttpResponse;
-
-import java.util.Map;
+import org.miniboot.app.AppConfig;
 
 public class Json {
-    public static HttpResponse ok(Object data) { return json(200, data); }
-    public static HttpResponse created(Object data) { return json(201, data); }
-    public static HttpResponse json(int status, Object data) { return HttpResponse.json(status, stringify(data)); }
-
-    @SuppressWarnings("unchecked")
-    private static String stringify(Object v) {
-        if (v == null) return "null";
-        if (v instanceof String s) return "\"" + escape(s) + "\"";
-        if (v instanceof Number || v instanceof Boolean) return v.toString();
-        if (v instanceof Map<?,?> m) {
-            StringBuilder sb = new StringBuilder("{");
-            boolean first = true;
-            for (var e : m.entrySet()) {
-                if (!first) sb.append(',');
-                sb.append(stringify(e.getKey().toString())).append(':').append(stringify(e.getValue()));
-                first = false;
-            }
-            return sb.append('}').toString();
-        }
-        if (v instanceof Iterable<?> it) {
-            StringBuilder sb = new StringBuilder("[");
-            boolean first = true;
-            for (Object e : it) {
-                if (!first) sb.append(',');
-                sb.append(stringify(e));
-                first = false;
-            }
-            return sb.append(']').toString();
-        }
-        return "\"" + escape(String.valueOf(v)) + "\"";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        // cho phép in đẹp khi debug: bật/tắt qua env
+        boolean pretty = Boolean.parseBoolean(System.getProperty(AppConfig.JSON_PRETTY_KEY,
+                System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY,AppConfig.JSON_PRETTY_DEFAULT)));
+        MAPPER.configure(SerializationFeature.INDENT_OUTPUT, pretty);
     }
 
-    private static String escape(String s) {
-        return s.replace("\\","\\\\").replace("\"","\\\"").replace("\n","\\n").replace("\r","\\r").replace("\t","\\t");
+    public static HttpResponse ok(Object data)     { return json(200, data); }
+    public static HttpResponse created(Object data){ return json(201, data); }
+
+    public static HttpResponse json(int status, Object data) {
+        try {
+            byte[] body = MAPPER.writeValueAsBytes(data);
+            return HttpResponse.of(status, AppConfig.JSON_UTF_8_TYPE, body);
+        } catch (JsonProcessingException e) {
+            byte[] body = ("{\"error\":\"json-serialize-failed\"}").getBytes();
+            return HttpResponse.of(500, AppConfig.JSON_UTF_8_TYPE, body);
+        }
     }
 }

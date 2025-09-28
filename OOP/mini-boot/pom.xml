@@ -4,6 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <properties>
+    <gson.version>2.10.1</gson.version>
+    <java-jwt.version>4.4.0</java-jwt.version>
+    <mssql.version>12.6.1.jre11</mssql.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <exec.plugin.version>3.1.0</exec.plugin.version>
+  </properties>
+
   <parent>
     <groupId>org.example</groupId>
     <artifactId>BTL_OOP-parent</artifactId>
@@ -16,7 +24,13 @@
   <name>mini-boot</name>
 
   <dependencies>
-    <dependency>
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.17.2</version>
+      </dependency>
+
+      <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
@@ -38,19 +52,12 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <release>${maven.compiler.release}</release>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec.plugin.version}</version>
+        <version>3.5.0</version>
         <configuration>
+          <mainClass>org.miniboot.app.util.UtilSmokeMain</mainClass>
+          <classpathScope>runtime</classpathScope>
           <cleanupDaemonThreads>false</cleanupDaemonThreads>
         </configuration>
       </plugin>

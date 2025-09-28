@@ -1,6 +1,7 @@
 package org.miniboot.app.http;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.router.Router;
 
 import java.io.IOException;
 import java.io.InputStream;

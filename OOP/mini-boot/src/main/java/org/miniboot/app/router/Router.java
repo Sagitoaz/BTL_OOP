@@ -1,6 +1,9 @@
-package org.miniboot.app.http;
+package org.miniboot.app.router;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.http.HttpRequest;
+import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.http.HttpServer;
 
 import java.util.ArrayList;
 import java.util.function.Function;
