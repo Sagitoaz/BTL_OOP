@@ -1,5 +1,7 @@
 package org.miniboot.app.util;
 
+import org.miniboot.app.AppConfig;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -7,8 +9,8 @@ public class Logger {
     public enum Level { TRACE, DEBUG, INFO, WARN, ERROR }
     private final String name;
     private static final Level GLOBAL_LEVEL =
-            Level.valueOf(System.getProperty("LOG_LEVEL",
-                    System.getenv().getOrDefault("LOG_LEVEL","INFO")).toUpperCase());
+            Level.valueOf(System.getProperty(AppConfig.LOG_LEVEL_KEY,
+                    System.getenv().getOrDefault(AppConfig.LOG_LEVEL_KEY,AppConfig.LOG_LEVEL_DEFAULT)).toUpperCase());
 
     public static Logger get(Class<?> cls) { return new Logger(cls.getSimpleName()); }
     private Logger(String name) { this.name = name; }

@@ -10,8 +10,8 @@ public class Json {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     static {
         // cho phép in đẹp khi debug: bật/tắt qua env
-        boolean pretty = Boolean.parseBoolean(System.getProperty("JSON_PRETTY",
-                System.getenv().getOrDefault("JSON_PRETTY","false")));
+        boolean pretty = Boolean.parseBoolean(System.getProperty(AppConfig.JSON_PRETTY_KEY,
+                System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY,AppConfig.JSON_PRETTY_DEFAULT)));
         MAPPER.configure(SerializationFeature.INDENT_OUTPUT, pretty);
     }
 

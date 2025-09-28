@@ -33,6 +33,12 @@ public class AppConfig {
     public static String RESPONSE_500 = "Internal Server Error";
     public static String HTTP_TYPE = "HTTP/1.1";
 
+    //Utils
+    public static String JSON_PRETTY_KEY = "JSON_PRETTY";
+    public static String JSON_PRETTY_DEFAULT = "false";
+    public static String LOG_LEVEL_KEY = "LOG_LEVEL";
+    public static String LOG_LEVEL_DEFAULT = "INFO";
+
     // load tại startup
     public static void load() {
         Properties p = new Properties();
