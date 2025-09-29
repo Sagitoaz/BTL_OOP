@@ -2,11 +2,13 @@ package org.miniboot.app.controllers;
 
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.http.HttpRequest;
-import org.miniboot.app.router.Handler;
+import org.miniboot.app.http.HttpResponse;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class DoctorController {
     private final DoctorRepository doctorRepository;
@@ -15,50 +17,52 @@ public class DoctorController {
         this.doctorRepository = doctorRepository;
     }
 
-    //get//doctor
-    public Handler listDoctor() {
-        return null;
-    }
+    // GET /doctors
+    // -- không có ?id= trả về danh sách bác sĩ
+    // -- có ?id= thì trả về 1 bác sĩ có id
 
-    //get/doctor/{id}
-    public Handler getDoctorById(String doctorId) {
-        return null;
+    public Function<HttpRequest, HttpResponse> getDoctors() {
+        return (HttpRequest req) -> {
+            Optional<Integer> idOpt = extractId(req.query);
+            if (idOpt.isPresent()) {
+                return doctorRepository.findById(idOpt.get())
+                        .map(doctor -> HttpResponse.json(200, toJson(doctor)))
+                        .orElse(HttpResponse.of(
+                                404,
+                                "text/plain; charset=utf-8",
+                                "Doctor not found".getBytes(StandardCharsets.UTF_8)
+                        ));
+            }
+            return HttpResponse.json(200, toJsonList(doctorRepository.findAll()));
+        };
     }
 
     //helper
-    private Optional<Integer> extractId(HttpRequest request) {
+    private Optional<Integer> extractId(Map<String, List<String>> queries) {
         // path /doctor/{id}
-        String path = request.path;
-        if (path != null && path.startsWith("/doctors/")) {
-            String tail = path.substring("/doctors/".length()).trim();
-            if (!tail.isEmpty() && allDigits(tail)) {
-                try {
-                    return Optional.of(Integer.parseInt(tail));
-                } catch (NumberFormatException ignored) {
-                }
-            }
+        if (queries == null) return Optional.empty();
+        List<String> ids = queries.get("id");
+        if (ids == null || ids.isEmpty()) return Optional.empty();
+        try {
+            return Optional.of(Integer.parseInt(ids.get(0)));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
         }
-        // đọc từ query ?id=
-        Map<String, List<String>> q = request.query;
-        if (q != null && !q.isEmpty()) {
-            List<String> ids = q.get("id");
-            if (ids != null && !ids.isEmpty()) {
-                try {
-                    return Optional.of(Integer.parseInt(ids.get(0)));
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
-        return Optional.empty();
     }
 
-    private boolean allDigits(String str) {
-        for (int i = 0; i < str.length(); i++)
-            if (!Character.isDigit(str.charAt(i))) {
-                return false;
-            }
-        return true;
+    private String toJson(Object object) {
+        return "\"" + object.toString().replace("\"", "\\\"") + "\"";
     }
 
+    private String toJsonList(List<?> list) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < list.size(); i++) {
+            sb.append(toJson(list.get(i)));
+            if (i < list.size() - 1) sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }
 

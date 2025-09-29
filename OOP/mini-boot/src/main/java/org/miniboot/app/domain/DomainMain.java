@@ -1,8 +1,11 @@
 package org.miniboot.app.domain;
 
+import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
+import org.miniboot.app.router.Router;
+import org.miniboot.app.util.HttpStub;
 
 import java.util.*;
 
@@ -11,14 +14,27 @@ public class DomainMain {
         DoctorRepository doctorRepository = new InMemoryDoctorRepository();
 
         doctorRepository.saveAll(List.of(
-                new Doctor(1,"Hậu","Trần Văn","123456"),
-                new Doctor(2,"Dúng","Dương Chí","1236780"),
-                new Doctor(3,"Toàn","Phạm Minh","71439"),
-                new Doctor(4,"Hếu","Phan Minh","1637428"),
-                new Doctor(5,"Trung","Nuyễn Thành","23647")
+                new Doctor(1, "Hậu", "Trần Văn", "123456"),
+                new Doctor(2, "Dúng", "Dương Chí", "1236780"),
+                new Doctor(3, "Toàn", "Phạm Minh", "71439"),
+                new Doctor(4, "Hếu", "Phan Minh", "1637428"),
+                new Doctor(5, "Trung", "Nuyễn Thành", "23647")
         ));
         System.out.println(doctorRepository.findAll());
         System.out.println(doctorRepository.findById(1).orElse(null));
         System.out.println(doctorRepository.findById(6).orElse(null));
+
+        DoctorController dc = new DoctorController(doctorRepository);
+
+        Router router = new Router();
+        router.get("/doctors", dc.getDoctors());
+
+        HttpStub stub = new HttpStub(router);
+
+        var restList = stub.get("/doctors");
+        System.out.println(restList);
+
+        var restById = stub.get("/doctors?id=1");
+        System.out.println(restById);
     }
 }
