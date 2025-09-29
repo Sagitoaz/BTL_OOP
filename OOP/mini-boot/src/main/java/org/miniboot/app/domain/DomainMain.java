@@ -1,4 +1,5 @@
 package org.miniboot.app.domain;
+
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
