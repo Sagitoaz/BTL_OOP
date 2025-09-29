@@ -1,6 +1,7 @@
 package org.miniboot.app.http;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.util.Types;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,7 +14,7 @@ import java.util.Map;
 public class HttpResponse {
     public final int status;
     public final String contentType;
-    public final byte[] body;
+    public byte[] body;
     public final Map<String, String> headers = new LinkedHashMap<>();
 
     public HttpResponse(int status, String contentType, byte[] body) {
@@ -47,13 +48,29 @@ public class HttpResponse {
             default -> AppConfig.RESPONSE_500;
         };
         StringBuilder sb = new StringBuilder();
-        sb.append(AppConfig.HTTP_TYPE + " ").append(status + " ").append(reason + "\r\n");
+        sb.append(AppConfig.HTTP_TYPE).append(" ").append(status).append(" ").append(reason).append("\r\n");
         for (Map.Entry<String, String> entry : headers.entrySet()) {
-            sb.append(entry.getKey() + ": " + entry.getValue() + "\r\n");
+            sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\r\n");
         }
         sb.append("\r\n");
         out.write(sb.toString().getBytes(StandardCharsets.US_ASCII));
         out.write(body);
         out.flush();
+    }
+
+    public static HttpResponse of(Types.Status status) {
+        return new HttpResponse(status.code, AppConfig.TEXT_UTF_8_TYPE, new byte[0]);
+    }
+    public HttpResponse header(String key, String value) {
+        this.headers.put(key, value);
+        return this;
+    }
+    public HttpResponse body(byte[] body) {
+        this.body = body;
+        this.headers.put(AppConfig.RES_CONTENT_LENGTH_KEY, String.valueOf(body.length));
+        return this;
+    }
+    public HttpResponse body(String text) {
+        return body(text.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -23,6 +23,7 @@ public class AppConfig {
     public static String CONNECTION_CLOSE_KEY = "close";
     public static String SERVER_NAME = "mini-boot";
     public static String JSON_UTF_8_TYPE = "application/json; charset=utf-8";
+    public static String TEXT_UTF_8_TYPE = "text/plain; charset=utf-8";
     public static String RESPONSE_200 = "OK";
     public static String RESPONSE_201 = "Created";
     public static String RESPONSE_400 = "Bad Request";
