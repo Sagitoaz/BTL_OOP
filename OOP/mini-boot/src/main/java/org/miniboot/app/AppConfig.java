@@ -1,6 +1,7 @@
 package org.miniboot.app;
 
 import java.io.FileInputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class AppConfig {
@@ -20,6 +21,7 @@ public class AppConfig {
     public static String RES_CONNECTION_KEY = "connection";
     public static String RES_DATE_KEY = "date";
     public static String RES_SERVER_KEY = "server";
+    public static String LOCATION_KEY = "location";
     public static String CONNECTION_CLOSE_KEY = "close";
     public static String SERVER_NAME = "mini-boot";
     public static String JSON_UTF_8_TYPE = "application/json; charset=utf-8";
@@ -33,6 +35,24 @@ public class AppConfig {
     public static String RESPONSE_405 = "Method Not Allowed";
     public static String RESPONSE_500 = "Internal Server Error";
     public static String HTTP_TYPE = "HTTP/1.1";
+    //Map Errors
+    public static final Map<Integer, String> RESPONSE_REASON = Map.ofEntries(
+            Map.entry(200, "OK"),
+            Map.entry(201, "Created"),
+            Map.entry(204, "No Content"),
+            Map.entry(301, "Moved Permanently"),
+            Map.entry(302, "Found"),
+            Map.entry(304, "Not Modified"),
+            Map.entry(400, "Bad Request"),
+            Map.entry(401, "Unauthorized"),
+            Map.entry(403, "Forbidden"),
+            Map.entry(404, "Not Found"),
+            Map.entry(405, "Method Not Allowed"),
+            Map.entry(413, "Payload Too Large"),
+            Map.entry(500, "Internal Server Error"),
+            Map.entry(501, "Not Implemented"),
+            Map.entry(503, "Service Unavailable")
+    );
 
     //Utils
     public static String JSON_PRETTY_KEY = "JSON_PRETTY";

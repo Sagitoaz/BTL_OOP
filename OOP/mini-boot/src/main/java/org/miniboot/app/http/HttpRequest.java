@@ -2,88 +2,76 @@ package org.miniboot.app.http;
 
 import org.miniboot.app.AppConfig;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+// Immutable-style request holder (body remains byte[]) focusing on readability & extensibility.
 public class HttpRequest {
     public final String method;
     public final String path;
     public final String httpVersion;
+    // All header names stored in lower-case for O(1) case‑insensitive lookup.
     public final Map<String, String> headers;
     public final byte[] body;
     public final Map<String, List<String>> query;
 
-    private HttpRequest(String method, String path, String httpVersion, Map<String, String> headers, byte[] body) {
+    public HttpRequest(String method, String path, String httpVersion, Map<String, String> rawHeaders, byte[] body) {
         this.method = method;
         String[] split = path.split("\\?", 2);
         this.path = split[0];
         this.query = parseQuery(split.length == 2 ? split[1] : "");
         this.httpVersion = httpVersion;
-        this.headers = headers;
-        this.body = body;
+        // normalize headers to lower-case once
+        Map<String,String> normalized = new LinkedHashMap<>();
+        if (rawHeaders != null) {
+            rawHeaders.forEach((k,v) -> {
+                if (k != null && v != null) normalized.put(k.toLowerCase(), v);
+            });
+        }
+        this.headers = Collections.unmodifiableMap(normalized);
+        this.body = body != null ? body : new byte[0];
     }
 
-    public static HttpRequest parse(InputStream in,  int maxBody) throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(in);
-        String requestLine = readLine(bis);
-        if (requestLine == null || requestLine.isEmpty()) {
-            throw new HttpServer.BadRequest();
-        }
-        String[] parts = requestLine.split(" ", 3);
-        if (parts.length < 3) throw new HttpServer.BadRequest();
+    // --- Helpers / API ---
 
-        String method = parts[0];
-        String target = parts[1];
-        String version = parts[2];
-
-        Map<String, String> headers = new LinkedHashMap<>();
-        String line;
-        while ((line = readLine(bis)) != null && !line.isEmpty()) {
-            int idx = line.indexOf(':');
-            if (idx <= 0) continue;
-            String k = line.substring(0, idx).trim().toLowerCase();
-            String v = line.substring(idx + 1).trim();
-            headers.put(k, v);
-        }
-        int contentLength = 0;
-        if (headers.containsKey(AppConfig.RES_CONTENT_LENGTH_KEY)) {
-            try {
-                contentLength = Integer.parseInt(headers.get(AppConfig.RES_CONTENT_LENGTH_KEY));
-            } catch (NumberFormatException ignored) {}
-        }
-        if (contentLength < 0 || contentLength > maxBody) throw new HttpServer.BadRequest();
-
-        byte[] body = new byte[contentLength];
-        int read = 0;
-        while (read < contentLength) {
-            int r = bis.read(body, read, contentLength - read);
-            if (r == -1) throw new EOFException();
-            read += r;
-        }
-        return new HttpRequest(method, target, version, headers, body);
+    public String header(String name) {
+        if (name == null) return null;
+        return headers.get(name.toLowerCase());
     }
 
-    private static String readLine(BufferedInputStream bis) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
-        int prev = -1;
-        int cur;
-        while ((cur = bis.read()) != -1) {
-            if (prev == '\r' || prev == '\n') break;
-            if (prev != -1) bos.write(prev);
-            prev = cur;
-            if (bos.size() > 8192) throw new HttpServer.BadRequest();
-        }
-        if (cur == -1 && prev == -1) return null;
-        if (prev != -1 && !(prev == '\r')) bos.write(prev);
-        return bos.toString(StandardCharsets.US_ASCII);
+    public String bodyText() {
+        return new String(body, StandardCharsets.UTF_8);
     }
+
+    public List<String> queryValues(String name) {
+        if (name == null) return List.of();
+        return query.getOrDefault(name, List.of());
+    }
+
+    public String firstQueryValue(String name) {
+        List<String> vs = queryValues(name);
+        return vs.isEmpty() ? null : vs.get(0);
+    }
+
+    // Factory (kept)
+    public static HttpRequest of(String method, String path, String httpVersion, Map<String, String> headers, byte[] body) {
+        return new HttpRequest(method, path, httpVersion, headers, body);
+    }
+
+    // Legacy parser (kept for compatibility) now delegates to HttpRequestParser to avoid duplication.
+    @Deprecated
+    public static HttpRequest parse(InputStream in, int maxBody) throws IOException {
+        // maxBody currently enforced inside HttpRequestParser via AppConfig.MAX_BODY_BYTES (ignored param here).
+        return HttpRequestParser.parse(in);
+    }
+
+    // --- internal query parsing ---
 
     private static Map<String, List<String>> parseQuery(String q) {
         Map<String, List<String>> res = new LinkedHashMap<>();
+        if (q == null || q.isEmpty()) return res;
         for (String kv : q.split("&")) {
             if (kv.isEmpty()) continue;
             String[] p = kv.split("=", 2);
@@ -100,16 +88,5 @@ public class HttpRequest {
         } catch (Exception e) {
             return s;
         }
-    }
-
-    public String header(String name) {
-        return headers.getOrDefault(name.toLowerCase(), null);
-    }
-    public String bodyText() {
-        return new String(body, StandardCharsets.UTF_8);
-    }
-
-    public static HttpRequest of(String method, String path, String httpVersion, Map<String, String> headers, byte[] body) {
-        return new HttpRequest(method, path, httpVersion, headers, body);
     }
 }

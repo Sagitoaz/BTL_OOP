@@ -16,6 +16,9 @@ public class HelloController {
         router.get("/json", req -> Response.json(
                 Map.of("msg", "xin chào 😊", "nums", java.util.List.of(1,2,3))
         ));
+        router.post("/items", req -> Response.created("/items/123",
+                Map.of("id", 123, "name", "book"))
+        );
     }
 
     private static HttpResponse hello(HttpRequest request) {
