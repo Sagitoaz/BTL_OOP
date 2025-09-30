@@ -2,12 +2,13 @@ package org.miniboot.app.domain.models;
 
 public class Doctor {
     private int id;
-    private String firstName, lastName,lisenceNO;
-    public Doctor(int id, String firstName, String lastName, String lisenceNO) {
+    private String firstName, lastName, lisenceNo;
+
+    public Doctor(int id, String firstName, String lastName, String lisenceNo) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.lisenceNO = lisenceNO;
+        this.lisenceNo = lisenceNo;
     }
 
     public int getId() {
@@ -22,12 +23,12 @@ public class Doctor {
         return lastName;
     }
 
-    public String getLisenceNO() {
-        return lisenceNO;
+    public String getLisenceNo() {
+        return lisenceNo;
     }
 
     @Override
     public String toString() {
-        return "Doctor{id="+this.id+", name="+this.lastName+" "+this.firstName+"}";
+        return "Doctor{id=" + this.id + ", name=" + this.lastName + " " + this.firstName + "}";
     }
 }

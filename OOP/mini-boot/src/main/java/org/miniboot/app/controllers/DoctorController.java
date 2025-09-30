@@ -1,10 +1,11 @@
 package org.miniboot.app.controllers;
 
+import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.util.Json;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,22 +25,35 @@ public class DoctorController {
     public Function<HttpRequest, HttpResponse> getDoctors() {
         return (HttpRequest req) -> {
             Optional<Integer> idOpt = extractId(req.query);
-            if (idOpt.isPresent()) {
-                return doctorRepository.findById(idOpt.get())
-                        .map(doctor -> HttpResponse.json(200, toJson(doctor)))
-                        .orElse(HttpResponse.of(
-                                404,
-                                "text/plain; charset=utf-8",
-                                "Doctor not found".getBytes(StandardCharsets.UTF_8)
-                        ));
-            }
-            return HttpResponse.json(200, toJsonList(doctorRepository.findAll()));
+//            if (idOpt.isPresent()) {
+//                int id = idOpt.get();
+//                var doctorOpt = doctorRepository.findById(id);
+//                if (doctorOpt.isPresent()) {
+//                    return Json.ok(doctorOpt.get());
+//                } else {
+//                    return HttpResponse.of(
+//                            404,
+//                            "text/plain; charset=utf-8",
+//                            AppConfig.RESPONSE_404.getBytes()
+//                    );
+//                }
+//            } else {
+//                return Json.ok(doctorRepository.findAll());
+//            }
+            return idOpt.map(id -> doctorRepository.findById(id)
+                            .map(Json::ok)
+                            .orElse(HttpResponse.of(
+                                    404,
+                                    "text/plain; charset=utf-8",
+                                    AppConfig.RESPONSE_404.getBytes()
+                            )))
+                    .orElseGet(() -> Json.ok(doctorRepository.findAll()));
         };
     }
 
     //helper
     private Optional<Integer> extractId(Map<String, List<String>> queries) {
-        // path /doctor/{id}
+        // path /doctor?id=
         if (queries == null) return Optional.empty();
         List<String> ids = queries.get("id");
         if (ids == null || ids.isEmpty()) return Optional.empty();
@@ -48,21 +62,6 @@ public class DoctorController {
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
-    }
-
-    private String toJson(Object object) {
-        return "\"" + object.toString().replace("\"", "\\\"") + "\"";
-    }
-
-    private String toJsonList(List<?> list) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int i = 0; i < list.size(); i++) {
-            sb.append(toJson(list.get(i)));
-            if (i < list.size() - 1) sb.append(", ");
-        }
-        sb.append("]");
-        return sb.toString();
     }
 }
 

@@ -32,9 +32,9 @@ public class DomainMain {
         HttpStub stub = new HttpStub(router);
 
         var restList = stub.get("/doctors");
-        System.out.println(restList);
+        System.out.println("LIST => " + restList.status() + " " + restList.body());
 
-        var restById = stub.get("/doctors?id=1");
-        System.out.println(restById);
+        var restById = stub.get("/doctors?id=5");
+        System.out.println("BY ID => " + restById.status() + " " + restById.body());
     }
 }
