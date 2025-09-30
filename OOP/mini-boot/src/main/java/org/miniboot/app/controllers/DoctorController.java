@@ -6,6 +6,7 @@ import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.util.Json;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class DoctorController {
                             .orElse(HttpResponse.of(
                                     404,
                                     "text/plain; charset=utf-8",
-                                    AppConfig.RESPONSE_404.getBytes()
+                                    AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
                             )))
                     .orElseGet(() -> Json.ok(doctorRepository.findAll()));
         };

@@ -1,8 +1,12 @@
 package org.miniboot.app.domain;
 
+import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
+import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.HttpStub;
@@ -36,5 +40,36 @@ public class DomainMain {
 
         var restById = stub.get("/doctors?id=5");
         System.out.println("BY ID => " + restById.status() + " " + restById.body());
+
+        AppointmentRepository appointmentRepository = new InMemoryAppointmentRepository();
+        appointmentRepository.save(
+                new Appointment(0, 1, "Dương Chí Dúng", "09:00", "2025-12-30")
+        );
+        appointmentRepository.save(
+                new Appointment(0, 1, "Nguyễn Văn A", "10:00", "2025-12-30")
+        );
+        appointmentRepository.save(
+                new Appointment(0, 2, "Trần Thị B", "09:30", "2025-12-30")
+        );
+        appointmentRepository.save(
+                new Appointment(0, 2, "Lê Văn C", "11:00", "2025-12-31")
+        );
+
+        AppointmentController ac = new AppointmentController(appointmentRepository);
+        router = new Router();
+        router.get("/appointments", ac.getAppointments());
+        stub = new HttpStub(router);
+
+        //GET ALL
+        var v1 = stub.get("/appointments");
+        System.out.println("LIST => " + v1.status() + " " + v1.body());
+
+        // get by id =2
+        var v2 = stub.get("/appointments?id=3");
+        System.out.println("BY ID => " + v2.status() + " " + v2.body());
+
+        // get filter doctorid + date
+        var v3 = stub.get("/appointments?doctorId=2&date=2025-12-30");
+        System.out.println("BY ID => " + v3.status() + " " + v3.body());
     }
 }

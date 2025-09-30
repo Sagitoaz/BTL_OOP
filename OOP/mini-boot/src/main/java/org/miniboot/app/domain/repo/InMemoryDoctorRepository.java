@@ -1,6 +1,7 @@
 package org.miniboot.app.domain.repo;
 
 import org.miniboot.app.domain.models.Doctor;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,6 +12,7 @@ public class InMemoryDoctorRepository implements DoctorRepository {
     public List<Doctor> findAll() {
         return new ArrayList<>(data.values());// trả về bản sao mới
     }
+
     @Override
     public Optional<Doctor> findById(int id) {
         return Optional.ofNullable(data.get(id));
@@ -19,10 +21,11 @@ public class InMemoryDoctorRepository implements DoctorRepository {
     @Override
     public void saveAll(Collection<Doctor> doctors) {
         for (Doctor doctor : doctors) {
-            data.put(doctor.getId(),doctor);
+            data.put(doctor.getId(), doctor);
         }
     }
-    void saveDoctor(Doctor doctor) {
-        data.put(doctor.getId(),doctor);
+
+    public void saveDoctor(Doctor doctor) {
+        data.put(doctor.getId(), doctor);
     }
 }
