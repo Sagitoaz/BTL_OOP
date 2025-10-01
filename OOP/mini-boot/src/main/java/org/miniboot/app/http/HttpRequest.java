@@ -16,6 +16,7 @@ public class HttpRequest {
     public final Map<String, String> headers;
     public final byte[] body;
     public final Map<String, List<String>> query;
+    public final Map<String,String> tags = new LinkedHashMap<>();
 
     private HttpRequest(String method, String path, String httpVersion, Map<String, String> headers, byte[] body) {
         this.method = method;

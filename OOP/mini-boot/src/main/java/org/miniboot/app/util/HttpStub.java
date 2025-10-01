@@ -14,15 +14,17 @@ public class HttpStub {
 
     public HttpStub(Router router) { this.router = router; }
 
-    public Result get(String path)  { return call(AppConfig.GET_KEY, path, new byte[0]); }
-    public Result post(String path, byte[] body) { return call(AppConfig.POST_KEY, path, body); }
+    public Result get(String path) throws Exception { return call(AppConfig.GET_KEY, path, new byte[0]); }
+    public Result post(String path, byte[] body) throws Exception { return call(AppConfig.POST_KEY, path, body); }
 
-    public Result call(String method, String path, byte[] body) {
+    public Result call(String method, String path, byte[] body) throws Exception {
         Map<String,String> headers = new LinkedHashMap<>();
         headers.put("host","localhost");
         headers.put(AppConfig.RES_CONTENT_LENGTH_KEY, String.valueOf(body.length));
         HttpRequest req = HttpRequest.of(method, path, AppConfig.HTTP_TYPE, headers, body);
         HttpResponse res = router.dispatch(req);
+        System.out.println(res.headers.get("Access-Control-Allow-Origin"));
+
         return new Result(res.status, new String(res.body, StandardCharsets.UTF_8), res.contentType);
     }
 

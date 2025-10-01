@@ -35,6 +35,7 @@ public class HttpResponse {
         return new HttpResponse(status, contentType, body);
     }
 
+
     public void writeTo(OutputStream out) throws IOException {
         String reason = switch (status) {
             case 200 -> AppConfig.RESPONSE_200;

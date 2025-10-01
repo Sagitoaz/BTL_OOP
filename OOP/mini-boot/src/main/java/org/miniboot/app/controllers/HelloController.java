@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class HelloController {
     public static void mount(Router router) {
-        router.get("/hello", HelloController::hello);
-        router.get("/health", HelloController::health);
+        router.get("/hello", HelloController::hello, true);
+        router.get("/health", HelloController::health, false);
     }
 
     private static HttpResponse hello(HttpRequest request) {
