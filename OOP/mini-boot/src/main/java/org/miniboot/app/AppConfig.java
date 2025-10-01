@@ -1,6 +1,7 @@
 package org.miniboot.app;
 
 import java.io.FileInputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class AppConfig {
@@ -15,17 +16,16 @@ public class AppConfig {
     // HTTP constants (giữ nguyên)
     public static String POST_KEY = "POST";
     public static String GET_KEY = "GET";
-
     public static String RES_CONTENT_TYPE_KEY = "content-type";
     public static String RES_CONTENT_LENGTH_KEY = "content-length";
     public static String RES_CONNECTION_KEY = "connection";
     public static String RES_DATE_KEY = "date";
     public static String RES_SERVER_KEY = "server";
-    
+    public static String LOCATION_KEY = "location";
     public static String CONNECTION_CLOSE_KEY = "close";
     public static String SERVER_NAME = "mini-boot";
     public static String JSON_UTF_8_TYPE = "application/json; charset=utf-8";
-
+    public static String TEXT_UTF_8_TYPE = "text/plain; charset=utf-8";
     public static String RESPONSE_200 = "OK";
     public static String RESPONSE_201 = "Created";
     public static String RESPONSE_400 = "Bad Request";
@@ -34,13 +34,29 @@ public class AppConfig {
     public static String RESPONSE_404 = "Not Found";
     public static String RESPONSE_405 = "Method Not Allowed";
     public static String RESPONSE_500 = "Internal Server Error";
-
     public static String HTTP_TYPE = "HTTP/1.1";
+    //Map Errors
+    public static final Map<Integer, String> RESPONSE_REASON = Map.ofEntries(
+            Map.entry(200, "OK"),
+            Map.entry(201, "Created"),
+            Map.entry(204, "No Content"),
+            Map.entry(301, "Moved Permanently"),
+            Map.entry(302, "Found"),
+            Map.entry(304, "Not Modified"),
+            Map.entry(400, "Bad Request"),
+            Map.entry(401, "Unauthorized"),
+            Map.entry(403, "Forbidden"),
+            Map.entry(404, "Not Found"),
+            Map.entry(405, "Method Not Allowed"),
+            Map.entry(413, "Payload Too Large"),
+            Map.entry(500, "Internal Server Error"),
+            Map.entry(501, "Not Implemented"),
+            Map.entry(503, "Service Unavailable")
+    );
 
     //Utils
     public static String JSON_PRETTY_KEY = "JSON_PRETTY";
     public static String JSON_PRETTY_DEFAULT = "false";
-
     public static String LOG_LEVEL_KEY = "LOG_LEVEL";
     public static String LOG_LEVEL_DEFAULT = "INFO";
 
@@ -49,16 +65,15 @@ public class AppConfig {
         Properties p = new Properties();
 
         // 1) file properties (tùy chọn)
-        String path = System.getProperty("APP_PROPS", System.getenv().getOrDefault("APP_PROPS", ""));
+        String path = System.getProperty("APP_PROPS", System.getenv().getOrDefault("APP_PROPS",""));
         if (!path.isBlank()) {
             try (FileInputStream fis = new FileInputStream(path)) {
                 p.load(fis);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
 
         // helper
-        java.util.function.BiFunction<String, String, String> pick = (key, defVal) -> {
+        java.util.function.BiFunction<String,String,String> pick = (key, defVal) -> {
             String sys = System.getProperty(key);
             if (sys != null) return sys;
             String env = System.getenv(key);
@@ -67,7 +82,7 @@ public class AppConfig {
             return file != null ? file : defVal;
         };
 
-        HTTP_PORT = pick.apply("PORT", HTTP_PORT);
+        HTTP_PORT      = pick.apply("PORT", HTTP_PORT);
         MAX_BODY_BYTES = Integer.parseInt(pick.apply("MAX_BODY_BYTES", String.valueOf(MAX_BODY_BYTES)));
         WORKER_THREADS = Integer.parseInt(pick.apply("WORKER_THREADS", String.valueOf(WORKER_THREADS)));
     }

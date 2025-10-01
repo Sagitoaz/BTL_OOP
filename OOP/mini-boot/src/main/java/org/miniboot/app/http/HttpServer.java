@@ -1,8 +1,5 @@
 package org.miniboot.app.http;
 
-import org.miniboot.app.AppConfig;
-import org.miniboot.app.router.Router;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,57 +9,406 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class HttpServer {
-    private final int port;
-    private final Router router;
-    private volatile boolean running = false;
-    private ServerSocket socket;
-    private ExecutorService pool = Executors.newFixedThreadPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 2));
+import org.miniboot.app.AppConfig;
+import org.miniboot.app.router.Router;
 
+/**
+ * HTTP Server - Lớp chính triển khai web server đơn giản
+ * <p>
+ * Lớp này cung cấp một HTTP server đa luồng (multi-threaded) đơn giản
+ * có khả năng:
+ * - Lắng nghe kết nối TCP trên một port cụ thể
+ * - Xử lý đồng thời nhiều client connections sử dụng thread pool
+ * - Parse HTTP requests và tạo HTTP responses
+ * - Routing requests tới các handlers tương ứng
+ * - Xử lý exceptions và trả về error responses phù hợp
+ * <p>
+ * Kiến trúc:
+ * - Main thread: Accept connections và giao cho worker threads
+ * - Worker threads: Parse request, route, generate response
+ * - Thread pool: Quản lý số lượng threads để tối ưu performance
+ *
+ * @author Ngũ hổ tướng
+ */
+public class HttpServer {
+    /**
+     * Timeout cho client socket (10 giây)
+     * Nếu client không gửi dữ liệu trong thời gian này, connection sẽ bị đóng
+     * để tránh tình trạng hang threads
+     */
+    private static final int CLIENT_SO_TIMEOUT_MS = 10_000;
+
+    /**
+     * Port mà server sẽ lắng nghe (ví dụ: 8080, 3000)
+     */
+    private final int port;
+
+    /**
+     * Router chịu trách nhiệm điều hướng requests tới handlers phù hợp
+     */
+    private final Router router;
+
+    /**
+     * Flag đánh dấu server có đang chạy không
+     * Sử dụng volatile để đảm bảo thread safety khi đọc/ghi từ nhiều threads
+     */
+    private volatile boolean running = false;
+
+    /**
+     * ServerSocket chính để accept connections
+     */
+    private ServerSocket socket;
+
+    /**
+     * Thread pool để xử lý client connections đồng thời
+     * Kích thước pool = max(4, số CPU cores * 2) để tối ưu performance
+     * Công thức này cân bằng giữa sử dụng tài nguyên và khả năng xử lý đồng thời
+     */
+    private final ExecutorService pool =
+            Executors.newFixedThreadPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 2));
+
+    /**
+     * Constructor khởi tạo HttpServer
+     *
+     * @param port   Port để server lắng nghe (thường là 8080, 3000, 80, 443)
+     * @param router Router để điều hướng requests tới handlers tương ứng
+     */
     public HttpServer(int port, Router router) {
         this.port = port;
         this.router = router;
     }
 
+    /**
+     * Constructor đơn giản chỉ với port, không sử dụng router
+     * 
+     * Tạo server với routing logic mặc định (ping, health, echo endpoints).
+     * Phù hợp cho testing hoặc ứng dụng đơn giản.
+     * 
+     * @param port Port để server lắng nghe
+     */
+    public HttpServer(int port) {
+        this(port, null);
+    }
+
+    /**
+     * Khởi động HTTP Server
+     * <p>
+     * Thực hiện các bước:
+     * 1. Tạo và cấu hình ServerSocket
+     * 2. Bind socket vào port chỉ định
+     * 3. Chuyển sang chế độ lắng nghe
+     * 4. Accept connections trong vòng lặp vô hạn
+     * 5. Giao mỗi connection cho worker thread xử lý
+     * <p>
+     * Method này sẽ block cho đến khi server được stop()
+     *
+     * @throws IOException Nếu không thể bind port hoặc có lỗi network
+     */
     public void start() throws IOException {
+        // Tạo ServerSocket và cấu hình
         socket = new ServerSocket();
-        socket.setReuseAddress(true);
-        socket.bind(new InetSocketAddress(port));
+        socket.setReuseAddress(true); // Cho phép reuse địa chỉ ngay sau khi đóng
+        socket.bind(new InetSocketAddress(port)); // Bind vào port chỉ định
+
         running = true;
         System.out.println("[mini-boot] HTTP listening on: " + port);
 
-        while (running) {
+        // Main server loop - accept connections liên tục
+        while (!socket.isClosed()) {
+            // Accept connection từ client (blocking call)
             Socket client = socket.accept();
-            client.setSoTimeout(10000);
-            pool.submit(() -> handle(client));
+
+            // Đặt timeout cho client socket để tránh hang indefinitely
+            client.setSoTimeout(CLIENT_SO_TIMEOUT_MS);
+
+            // Giao client connection cho worker thread trong pool xử lý
+            pool.execute(() -> handle(client));
         }
     }
 
+    /**
+     * Dừng HTTP Server một cách graceful
+     * <p>
+     * Thực hiện các bước cleanup:
+     * 1. Đặt flag running = false để thoát khỏi accept loop
+     * 2. Đóng ServerSocket để ngừng accept connections mới
+     * 3. Shutdown thread pool và hủy các tasks đang pending
+     * 4. In thông báo server đã dừng
+     * <p>
+     * Method này không block, shutdown sẽ diễn ra asynchronously
+     */
+    public void stop() {
+        running = false; // Báo hiệu cho main loop dừng lại
+
+        // Đóng ServerSocket để interrupt accept() call
+        try {
+            if (socket != null) socket.close();
+        } catch (IOException ignore) {
+            // Bỏ qua exceptions khi đóng socket - không quan trọng lúc này
+        }
+
+        // Shutdown thread pool ngay lập tức, hủy các tasks đang chờ
+        pool.shutdownNow();
+        System.out.println("[mini-boot] HTTP stopped.");
+    }
+
+    /**
+     * Xử lý một client connection trong worker thread
+     * <p>
+     * Quy trình xử lý đã được tách thành các method nhỏ để dễ đọc và bảo trì:
+     * 1. Thiết lập timeout cho client
+     * 2. Parse HTTP request từ input stream
+     * 3. Tạo response phù hợp (routing logic)
+     * 4. Ghi HTTP response ra output stream
+     * 5. Xử lý exceptions và log kết quả
+     *
+     * @param client Socket connection tới client
+     */
     private void handle(Socket client) {
-        try (client; InputStream in = client.getInputStream(); OutputStream out = client.getOutputStream()) {
-            HttpRequest request = HttpRequest.parse(in, 1000000);
-            HttpResponse response = router.dispatch(request);
-            response.writeTo(out);
-        } catch (BadRequest e) {
-            writeError(client, 400, AppConfig.RESPONSE_400);
-        } catch (NotFound e) {
-            writeError(client, 404, AppConfig.RESPONSE_404);
-        } catch (MethodNotAllowed e) {
-            writeError(client, 405, AppConfig.RESPONSE_405);
-        } catch (Throwable t) {
-            writeError(client, 500, AppConfig.RESPONSE_500);
+        setupClientTimeout(client);
+        
+        InputStream in;
+        OutputStream out = null;
+
+        try {
+            in = client.getInputStream();
+            out = client.getOutputStream();
+
+            long startTime = System.nanoTime();
+
+            // Bước 1: Parse HTTP request
+            HttpRequest request = HttpRequestParser.parse(in);
+
+            // Bước 2: Tạo HTTP response dựa trên request
+            HttpResponse response = createResponse(request);
+
+            // Bước 3: Ghi response ra client
+            HttpResponseEncoder.write(out, response);
+
+            // Bước 4: Log kết quả xử lý
+            logRequest(request, response, startTime);
+
+        } catch (IllegalArgumentException | IOException e) {
+            // Lỗi do request không hợp lệ hoặc lỗi I/O → HTTP 400 Bad Request
+            handleBadRequestError(out, client);
+        } catch (Exception e) {
+            // Lỗi bất ngờ khác → HTTP 500 Internal Server Error
+            handleInternalError(out, client, e);
+        } finally {
+            // Đảm bảo đóng kết nối một cách sạch sẽ
+            cleanupConnection(out, client);
         }
     }
 
-    private void writeError(Socket client, int status, String message) {
-        try (OutputStream out = client.getOutputStream()) {
-            HttpResponse.of(status, "application/json",
-                            ("{\"error\":{\"code\":" + status + ",\"message\":\"" + message + "\"}}").getBytes())
-                    .writeTo(out);
-        } catch (IOException ignored) {}
+    /**
+     * Thiết lập timeout cho client socket để tránh treo connection
+     * 
+     * @param client Socket connection tới client
+     */
+    private void setupClientTimeout(Socket client) {
+        try {
+            client.setSoTimeout(CLIENT_SO_TIMEOUT_MS);
+        } catch (Exception ignore) {
+            // Bỏ qua lỗi khi thiết lập timeout
+        }
     }
 
-    public static class BadRequest extends RuntimeException {}
-    public static class NotFound extends RuntimeException {}
-    public static class MethodNotAllowed extends RuntimeException {}
+    /**
+     * Tạo HTTP response dựa trên HTTP request
+     * <p>
+     * Hiện tại đây là logic routing cơ bản với các endpoint mặc định:
+     * - GET /ping → trả về "pong"
+     * - GET /health → trả về JSON status
+     * - POST /echo → echo lại request body
+     * - Các trường hợp khác → 404 Not Found hoặc 405 Method Not Allowed
+     * <p>
+     * Logic này có thể được thay thế bằng Router trong tương lai.
+     * 
+     * @param request HTTP request từ client
+     * @return HTTP response tương ứng
+     */
+    private HttpResponse createResponse(HttpRequest request) {
+        String method = request.method;
+        String path = request.path;
+        
+        boolean isGet = "GET".equalsIgnoreCase(method);
+        boolean isPost = "POST".equalsIgnoreCase(method);
+
+        // Logic routing cơ bản
+        if (isGet && "/ping".equals(path)) {
+            return createPingResponse();
+        } 
+        
+        if (isGet && "/health".equals(path)) {
+            return createHealthResponse();
+        } 
+        
+        if (isPost && "/echo".equals(path)) {
+            return createEchoResponse(request);
+        }
+        
+        // Xử lý các trường hợp lỗi
+        if ("/ping".equals(path) || "/health".equals(path)) {
+            return createMethodNotAllowedResponse();
+        }
+        
+        return createNotFoundResponse();
+    }
+
+    /**
+     * Tạo response cho endpoint /ping
+     */
+    private HttpResponse createPingResponse() {
+        return HttpResponse.of(200, AppConfig.TEXT_UTF_8_TYPE, "pong".getBytes());
+    }
+
+    /**
+     * Tạo response cho endpoint /health check
+     */
+    private HttpResponse createHealthResponse() {
+        return HttpResponse.json(200, "{\"status\":\"UP\"}");
+    }
+
+    /**
+     * Tạo response cho endpoint /echo - trả lại chính nội dung request
+     * 
+     * @param request HTTP request chứa body cần echo
+     */
+    private HttpResponse createEchoResponse(HttpRequest request) {
+        String contentType = request.headers.getOrDefault("content-type", "application/octet-stream");
+        return HttpResponse.of(200, contentType, request.body);
+    }
+
+    /**
+     * Tạo response cho lỗi 405 Method Not Allowed
+     */
+    private HttpResponse createMethodNotAllowedResponse() {
+        return HttpResponse.of(405, AppConfig.TEXT_UTF_8_TYPE, "method not allowed".getBytes());
+    }
+
+    /**
+     * Tạo response cho lỗi 404 Not Found
+     */
+    private HttpResponse createNotFoundResponse() {
+        return HttpResponse.of(404, AppConfig.TEXT_UTF_8_TYPE, "not found".getBytes());
+    }
+
+    /**
+     * Ghi log thông tin request và response với thời gian xử lý
+     * 
+     * @param request HTTP request
+     * @param response HTTP response
+     * @param startTime Thời điểm bắt đầu xử lý (nanoseconds)
+     */
+    private void logRequest(HttpRequest request, HttpResponse response, long startTime) {
+        long processingTimeMs = (System.nanoTime() - startTime) / 1_000_000;
+        System.out.printf("[HTTP] %s %s -> %d (%dms)%n", 
+            request.method, request.path, response.status, processingTimeMs);
+    }
+
+    /**
+     * Xử lý lỗi Bad Request (400) - request không hợp lệ hoặc lỗi I/O
+     * 
+     * @param out OutputStream để ghi response, có thể null
+     * @param client Client socket để lấy OutputStream nếu cần
+     */
+    private void handleBadRequestError(OutputStream out, Socket client) {
+        try {
+            if (out == null) out = client.getOutputStream();
+            HttpResponse errorResponse = HttpResponse.of(400, AppConfig.TEXT_UTF_8_TYPE, "bad request".getBytes());
+            HttpResponseEncoder.write(out, errorResponse);
+        } catch (Exception ignore) {
+            // Best effort - nếu không gửi được error response thì thôi
+        }
+    }
+
+    /**
+     * Xử lý lỗi Internal Server Error (500) - lỗi không mong đợi
+     * 
+     * @param out OutputStream để ghi response, có thể null
+     * @param client Client socket để lấy OutputStream nếu cần
+     * @param originalException Exception gốc gây ra lỗi (để log nếu cần)
+     */
+    private void handleInternalError(OutputStream out, Socket client, Exception originalException) {
+        try {
+            if (out == null) out = client.getOutputStream();
+            HttpResponse errorResponse = HttpResponse.of(500, AppConfig.TEXT_UTF_8_TYPE, "internal error".getBytes());
+            HttpResponseEncoder.write(out, errorResponse);
+        } catch (Exception ignore) {
+            // Best effort - nếu không gửi được error response thì thôi
+        }
+        
+        // Log lỗi để debug (có thể bật/tắt tùy theo môi trường)
+        System.err.println("[ERROR] Internal server error: " + originalException.getMessage());
+    }
+
+    /**
+     * Dọn dẹp và đóng connection một cách an toàn
+     * 
+     * @param out OutputStream cần flush và đóng
+     * @param client Client socket cần đóng
+     */
+    private void cleanupConnection(OutputStream out, Socket client) {
+        // Flush output stream để đảm bảo dữ liệu được gửi
+        try { 
+            if (out != null) out.flush(); 
+        } catch (Exception ignore) {}
+        
+        // Đóng client socket
+        try { 
+            client.close(); 
+        } catch (Exception ignore) {}
+    }
+
+    /**
+     * Ghi error response dưới định dạng JSON cho client
+     * <p>
+     * Tạo JSON error response với format chuẩn:
+     * {
+     * "error": {
+     * "code": 404,
+     * "message": "Not Found"
+     * }
+     * }
+     * <p>
+     * Method này được sử dụng trong catch blocks để gửi error responses
+     * khi xử lý request thất bại.
+     *
+     * @param client  Socket connection tới client
+     * @param status  HTTP status code (400, 404, 405, 500)
+     * @param message Error message tương ứng với status code
+     */
+    private void writeJsonError(Socket client, int status, String message) {
+        try {
+            OutputStream out = client.getOutputStream();
+            // Tạo JSON error response theo format chuẩn
+            String json = "{\"error\":{\"code\":" + status + ",\"message\":\"" + message + "\"}}";
+            HttpResponse.json(status, json).writeTo(out);
+        } catch (IOException ignore) {
+            // Bỏ qua IOException khi ghi error response
+            // Vì đây là best-effort attempt để thông báo lỗi cho client
+            // Nếu không ghi được thì client sẽ thấy connection bị đóng
+        }
+    }
+
+    // === INNER EXCEPTION CLASSES ===
+    // Các exception classes này được sử dụng để phân loại và xử lý lỗi một cách có cấu trúc
+
+    /**
+     * Exception cho HTTP 400 Bad Request - request không đúng định dạng
+     */
+    public static class BadRequest extends RuntimeException {
+    }
+
+    /**
+     * Exception cho HTTP 404 Not Found - không tìm thấy route
+     */
+    public static class NotFound extends RuntimeException {
+    }
+
+    /**
+     * Exception cho HTTP 405 Method Not Allowed - method không được hỗ trợ
+     */
+    public static class MethodNotAllowed extends RuntimeException {
+    }
 }
