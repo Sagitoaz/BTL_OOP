@@ -2,7 +2,10 @@ package org.miniboot.app;
 
 import org.miniboot.app.controllers.HelloController;
 import org.miniboot.app.http.HttpServer;
+import org.miniboot.app.router.PathPattern;
 import org.miniboot.app.router.Router;
+
+import java.util.Map;
 
 public class ServerMain {
     public static void main(String[] args) throws Exception {
