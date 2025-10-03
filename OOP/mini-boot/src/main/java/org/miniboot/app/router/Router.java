@@ -57,6 +57,9 @@ public class Router {
                 return h.handle(request);
             }
         }
+        if (pathExists) throw new HttpServer.MethodNotAllowed();
         throw new HttpServer.NotFound();
     }
+
+
 }
