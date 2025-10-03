@@ -36,6 +36,9 @@ public class Json {
     public static HttpResponse created(Object data) {
         return json(201, data);
     }
+    public static HttpResponse error(int status, String message) {
+        return json(status, java.util.Map.of("error", message));
+    }
 
     @SuppressWarnings("unchecked")
     public static HttpResponse json(int status, Object data) {
