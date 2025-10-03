@@ -60,6 +60,8 @@ public class AppConfig {
     public static String LOG_LEVEL_KEY = "LOG_LEVEL";
     public static String LOG_LEVEL_DEFAULT = "INFO";
 
+    //Math
+    public static int MAX_INTEGER_VALUE = 10000000;
     // load tại startup
     public static void load() {
         Properties p = new Properties();
@@ -86,4 +88,6 @@ public class AppConfig {
         MAX_BODY_BYTES = Integer.parseInt(pick.apply("MAX_BODY_BYTES", String.valueOf(MAX_BODY_BYTES)));
         WORKER_THREADS = Integer.parseInt(pick.apply("WORKER_THREADS", String.valueOf(WORKER_THREADS)));
     }
+
+
 }

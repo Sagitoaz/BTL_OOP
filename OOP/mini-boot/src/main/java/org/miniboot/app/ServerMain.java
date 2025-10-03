@@ -12,7 +12,13 @@ import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
 import org.miniboot.app.http.HttpServer;
+import org.miniboot.app.router.PathPattern;
 import org.miniboot.app.router.Router;
+import org.miniboot.app.router.middleware.AuthMiddlewareStub;
+import org.miniboot.app.router.middleware.CorsMiddleware;
+import org.miniboot.app.router.middleware.LoggingMiddleware;
+
+import java.util.Map;
 
 import java.util.List;
 

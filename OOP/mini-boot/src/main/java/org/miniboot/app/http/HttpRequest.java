@@ -42,6 +42,7 @@ public class HttpRequest {
     
     /** Map chứa các query parameters, mỗi parameter có thể có nhiều giá trị */
     public final Map<String, List<String>> query;
+    public final Map<String,String> tags = new LinkedHashMap<>();
 
     /**
      * Constructor khởi tạo HttpRequest
