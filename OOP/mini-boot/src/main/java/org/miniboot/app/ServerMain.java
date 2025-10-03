@@ -1,5 +1,6 @@
 package org.miniboot.app;
 
+import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.HelloController;
 import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
@@ -11,7 +12,7 @@ public class ServerMain {
 
         // mount các controller
         HelloController.mount(router);
-
+        AuthController.mount(router);
 
         HttpServer server = new HttpServer(port, router);
         server.start();
