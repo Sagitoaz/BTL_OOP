@@ -13,6 +13,7 @@ public class Router {
         private final String method;
         private final String path;
         private final Function<HttpRequest, HttpResponse> handler;
+
         public Route(String method, String path, Function<HttpRequest, HttpResponse> handler) {
             this.method = method;
             this.path = path;
@@ -31,12 +32,18 @@ public class Router {
     }
 
     public HttpResponse dispatch(HttpRequest request) {
+        boolean pathExists = false;
         for (Route route : routes) {
             if (route.path.equals(request.path)) {
-                if (!route.method.equalsIgnoreCase(request.method)) throw new HttpServer.MethodNotAllowed();
-                return route.handler.apply(request);
+                pathExists = true;
+                if (route.method.equalsIgnoreCase(request.method)) {
+                    return route.handler.apply(request);
+                }
             }
         }
+        if (pathExists) throw new HttpServer.MethodNotAllowed();
         throw new HttpServer.NotFound();
     }
+
+
 }
