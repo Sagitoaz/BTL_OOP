@@ -1,9 +1,11 @@
 package org.miniboot.app.controllers;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 
 import java.nio.charset.StandardCharsets;
@@ -17,6 +19,28 @@ public class DoctorController {
 
     public DoctorController(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
+    }
+
+    public static void mount(Router router, DoctorController dc) {
+        router.get("/doctors", dc.getDoctors());
+        router.post("/doctors", dc.createDoctor());
+    }
+
+    //POST /doctors
+    public Function<HttpRequest, HttpResponse> createDoctor() {
+        return (HttpRequest req) -> {
+            try {
+                System.out.println(new String(req.body, StandardCharsets.UTF_8));
+                Doctor doctor = Json.fromBytes(req.body, Doctor.class);
+                doctorRepository.saveDoctor(doctor);
+                return Json.created(doctor);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return HttpResponse.of(400,
+                        "text/plain; charset=utf-8",
+                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            }
+        };
     }
 
     // GET /doctors

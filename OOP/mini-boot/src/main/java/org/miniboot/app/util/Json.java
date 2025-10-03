@@ -6,20 +6,36 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.AppConfig;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
 public class Json {
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
     static {
         // cho phép in đẹp khi debug: bật/tắt qua env
         boolean pretty = Boolean.parseBoolean(System.getProperty(AppConfig.JSON_PRETTY_KEY,
-                System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY,AppConfig.JSON_PRETTY_DEFAULT)));
+                System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY, AppConfig.JSON_PRETTY_DEFAULT)));
         MAPPER.configure(SerializationFeature.INDENT_OUTPUT, pretty);
     }
 
-    public static HttpResponse ok(Object data)     { return json(200, data); }
-    public static HttpResponse created(Object data){ return json(201, data); }
+    // parse JSON từ byte[]
+    public static <T> T fromBytes(byte[] body, Class<T> clazz) throws IOException {
+        return MAPPER.readValue(body, clazz);
+    }
+
+    public static <T> T fromString(String body, Class<T> clazz) throws IOException {
+        return MAPPER.readValue(body, clazz);
+    }
+
+    public static HttpResponse ok(Object data) {
+        return json(200, data);
+    }
+
+    public static HttpResponse created(Object data) {
+        return json(201, data);
+    }
 
     @SuppressWarnings("unchecked")
     public static HttpResponse json(int status, Object data) {
@@ -71,16 +87,16 @@ public class Json {
         StringBuilder sb = new StringBuilder("\"");
         for (char c : s.toCharArray()) {
             switch (c) {
-                case '"'  -> sb.append("\\\"");
+                case '"' -> sb.append("\\\"");
                 case '\\' -> sb.append("\\\\");
                 case '\b' -> sb.append("\\b");
                 case '\f' -> sb.append("\\f");
                 case '\n' -> sb.append("\\n");
                 case '\r' -> sb.append("\\r");
                 case '\t' -> sb.append("\\t");
-                default   -> {
+                default -> {
                     if (c < 0x20) {
-                        sb.append(String.format("\\u%04x", (int)c));
+                        sb.append(String.format("\\u%04x", (int) c));
                     } else {
                         sb.append(c);
                     }

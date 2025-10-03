@@ -2,9 +2,11 @@ package org.miniboot.app.controllers;
 
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 
 import java.nio.charset.StandardCharsets;
@@ -20,12 +22,32 @@ public class AppointmentController {
         this.appointmentRepository = appointmentRepository;
     }
 
+    public static void mount(Router router, AppointmentController ac) {
+        router.get("/appointments", ac.getAppointments());
+        router.post("/appointments", ac.createAppointment());
+    }
+
     /**
      * GET /appointments
      * - Không có query  -> trả mọi appointment
      * - ?id=123         -> trả 1 appointment theo id (hoặc 404)
      * - ?doctorId=&date=YYYY-MM-DD -> lọc theo bác sĩ + ngày
      */
+    public Function<HttpRequest, HttpResponse> createAppointment() {
+        return (HttpRequest req) ->
+        {
+            try {
+                Appointment appointment = Json.fromBytes(req.body, Appointment.class);
+                appointmentRepository.save(appointment);
+                return Json.created(appointment);
+            } catch (Exception e) {
+                return HttpResponse.of(400,
+                        "text/plain; charset=utf-8",
+                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            }
+        };
+    }
+
     public Function<HttpRequest, HttpResponse> getAppointments() {
         return (HttpRequest req) -> {
             Map<String, List<String>> q = req.query;

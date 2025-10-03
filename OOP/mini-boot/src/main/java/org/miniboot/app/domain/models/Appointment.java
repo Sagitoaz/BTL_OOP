@@ -8,6 +8,11 @@ public class Appointment {
     private String date;       // YYYY-MM-DD
     private String status = "scheduled"; // mặc định
 
+    //constructor mặc định
+    public Appointment() {
+    }
+
+    //constructor tiện lợi
     public Appointment(int id, int doctorId, String patientName, String startTime, String date) {
         this.id = id;
         this.doctorId = doctorId;
@@ -20,28 +25,44 @@ public class Appointment {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getDoctorId() {
         return doctorId;
+    }
+
+    public void setDoctorId(int doctorId) {
+        this.doctorId = doctorId;
     }
 
     public String getPatientName() {
         return patientName;
     }
 
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
     public String getStartTime() {
         return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
     public String getDate() {
         return date;
     }
 
-    public String getStatus() {
-        return status;
+    public void setDate(String date) {
+        this.date = date;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getStatus() {
+        return status;
     }
 
     public void setStatus(String status) {

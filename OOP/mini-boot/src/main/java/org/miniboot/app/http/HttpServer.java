@@ -80,10 +80,10 @@ public class HttpServer {
 
     /**
      * Constructor đơn giản chỉ với port, không sử dụng router
-     * 
+     * <p>
      * Tạo server với routing logic mặc định (ping, health, echo endpoints).
      * Phù hợp cho testing hoặc ứng dụng đơn giản.
-     * 
+     *
      * @param port Port để server lắng nghe
      */
     public HttpServer(int port) {
@@ -166,7 +166,7 @@ public class HttpServer {
      */
     private void handle(Socket client) {
         setupClientTimeout(client);
-        
+
         InputStream in;
         OutputStream out = null;
 
@@ -180,8 +180,7 @@ public class HttpServer {
             HttpRequest request = HttpRequestParser.parse(in);
 
             // Bước 2: Tạo HTTP response dựa trên request
-            HttpResponse response = createResponse(request);
-
+            HttpResponse response = router.dispatch(request);
             // Bước 3: Ghi response ra client
             HttpResponseEncoder.write(out, response);
 
@@ -202,7 +201,7 @@ public class HttpServer {
 
     /**
      * Thiết lập timeout cho client socket để tránh treo connection
-     * 
+     *
      * @param client Socket connection tới client
      */
     private void setupClientTimeout(Socket client) {
@@ -223,35 +222,35 @@ public class HttpServer {
      * - Các trường hợp khác → 404 Not Found hoặc 405 Method Not Allowed
      * <p>
      * Logic này có thể được thay thế bằng Router trong tương lai.
-     * 
+     *
      * @param request HTTP request từ client
      * @return HTTP response tương ứng
      */
     private HttpResponse createResponse(HttpRequest request) {
         String method = request.method;
         String path = request.path;
-        
+
         boolean isGet = "GET".equalsIgnoreCase(method);
         boolean isPost = "POST".equalsIgnoreCase(method);
 
         // Logic routing cơ bản
         if (isGet && "/ping".equals(path)) {
             return createPingResponse();
-        } 
-        
+        }
+
         if (isGet && "/health".equals(path)) {
             return createHealthResponse();
-        } 
-        
+        }
+
         if (isPost && "/echo".equals(path)) {
             return createEchoResponse(request);
         }
-        
+
         // Xử lý các trường hợp lỗi
         if ("/ping".equals(path) || "/health".equals(path)) {
             return createMethodNotAllowedResponse();
         }
-        
+
         return createNotFoundResponse();
     }
 
@@ -271,7 +270,7 @@ public class HttpServer {
 
     /**
      * Tạo response cho endpoint /echo - trả lại chính nội dung request
-     * 
+     *
      * @param request HTTP request chứa body cần echo
      */
     private HttpResponse createEchoResponse(HttpRequest request) {
@@ -295,21 +294,21 @@ public class HttpServer {
 
     /**
      * Ghi log thông tin request và response với thời gian xử lý
-     * 
-     * @param request HTTP request
-     * @param response HTTP response
+     *
+     * @param request   HTTP request
+     * @param response  HTTP response
      * @param startTime Thời điểm bắt đầu xử lý (nanoseconds)
      */
     private void logRequest(HttpRequest request, HttpResponse response, long startTime) {
         long processingTimeMs = (System.nanoTime() - startTime) / 1_000_000;
-        System.out.printf("[HTTP] %s %s -> %d (%dms)%n", 
-            request.method, request.path, response.status, processingTimeMs);
+        System.out.printf("[HTTP] %s %s -> %d (%dms)%n",
+                request.method, request.path, response.status, processingTimeMs);
     }
 
     /**
      * Xử lý lỗi Bad Request (400) - request không hợp lệ hoặc lỗi I/O
-     * 
-     * @param out OutputStream để ghi response, có thể null
+     *
+     * @param out    OutputStream để ghi response, có thể null
      * @param client Client socket để lấy OutputStream nếu cần
      */
     private void handleBadRequestError(OutputStream out, Socket client) {
@@ -324,9 +323,9 @@ public class HttpServer {
 
     /**
      * Xử lý lỗi Internal Server Error (500) - lỗi không mong đợi
-     * 
-     * @param out OutputStream để ghi response, có thể null
-     * @param client Client socket để lấy OutputStream nếu cần
+     *
+     * @param out               OutputStream để ghi response, có thể null
+     * @param client            Client socket để lấy OutputStream nếu cần
      * @param originalException Exception gốc gây ra lỗi (để log nếu cần)
      */
     private void handleInternalError(OutputStream out, Socket client, Exception originalException) {
@@ -337,27 +336,29 @@ public class HttpServer {
         } catch (Exception ignore) {
             // Best effort - nếu không gửi được error response thì thôi
         }
-        
+
         // Log lỗi để debug (có thể bật/tắt tùy theo môi trường)
         System.err.println("[ERROR] Internal server error: " + originalException.getMessage());
     }
 
     /**
      * Dọn dẹp và đóng connection một cách an toàn
-     * 
-     * @param out OutputStream cần flush và đóng
+     *
+     * @param out    OutputStream cần flush và đóng
      * @param client Client socket cần đóng
      */
     private void cleanupConnection(OutputStream out, Socket client) {
         // Flush output stream để đảm bảo dữ liệu được gửi
-        try { 
-            if (out != null) out.flush(); 
-        } catch (Exception ignore) {}
-        
+        try {
+            if (out != null) out.flush();
+        } catch (Exception ignore) {
+        }
+
         // Đóng client socket
-        try { 
-            client.close(); 
-        } catch (Exception ignore) {}
+        try {
+            client.close();
+        } catch (Exception ignore) {
+        }
     }
 
     /**

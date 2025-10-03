@@ -19,7 +19,7 @@ public class EchoController {
             // trả lại đúng body đã nhận
             //return HttpResponse.okJson(new String(body, StandardCharsets.UTF_8));
             // nếu bạn chưa có okJson, tạm dùng:
-             return new HttpResponse(200, "application/json; charset=utf-8", body);
+            return new HttpResponse(200, "application/json; charset=utf-8", body);
         };
     }
 }

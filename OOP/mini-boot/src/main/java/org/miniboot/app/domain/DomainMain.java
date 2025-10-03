@@ -8,6 +8,7 @@ import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
+import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.HttpStub;
 
@@ -24,23 +25,12 @@ public class DomainMain {
                 new Doctor(4, "Hếu", "Phan Minh", "1637428"),
                 new Doctor(5, "Trung", "Nuyễn Thành", "23647")
         ));
-        System.out.println(doctorRepository.findAll());
-        System.out.println(doctorRepository.findById(1).orElse(null));
-        System.out.println(doctorRepository.findById(6).orElse(null));
 
         DoctorController dc = new DoctorController(doctorRepository);
 
         Router router = new Router();
         router.get("/doctors", dc.getDoctors());
-
-        HttpStub stub = new HttpStub(router);
-
-        var restList = stub.get("/doctors");
-        System.out.println("LIST => " + restList.status() + " " + restList.body());
-
-        var restById = stub.get("/doctors?id=5");
-        System.out.println("BY ID => " + restById.status() + " " + restById.body());
-
+        
         AppointmentRepository appointmentRepository = new InMemoryAppointmentRepository();
         appointmentRepository.save(
                 new Appointment(0, 1, "Dương Chí Dúng", "09:00", "2025-12-30")
@@ -56,9 +46,15 @@ public class DomainMain {
         );
 
         AppointmentController ac = new AppointmentController(appointmentRepository);
-        router = new Router();
+
         router.get("/appointments", ac.getAppointments());
-        stub = new HttpStub(router);
+        HttpStub stub = new HttpStub(router);
+        //doctor
+        var restList = stub.get("/doctors");
+        System.out.println("LIST => " + restList.status() + " " + restList.body());
+
+        var restById = stub.get("/doctors?id=5");
+        System.out.println("BY ID => " + restById.status() + " " + restById.body());
 
         //GET ALL
         var v1 = stub.get("/appointments");
