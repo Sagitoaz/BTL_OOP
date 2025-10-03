@@ -17,6 +17,9 @@ public class Json {
 
     public static HttpResponse ok(Object data)     { return json(200, data); }
     public static HttpResponse created(Object data){ return json(201, data); }
+    public static HttpResponse error(int status, String message) {
+        return json(status, java.util.Map.of("error", message));
+    }
 
     public static HttpResponse json(int status, Object data) {
         try {
