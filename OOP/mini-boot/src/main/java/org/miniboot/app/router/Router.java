@@ -25,26 +25,37 @@ public class Router {
     }
 
     private ArrayList<Route> routes = new ArrayList<>();
-    private ArrayList<Middleware>  middlewares = new ArrayList<>();
+    private ArrayList<Middleware> middlewares = new ArrayList<>();
 
     public ArrayList<Middleware> getMiddlewares() {
         return middlewares;
     }
+
     public void use(Middleware middleware) {
         middlewares.add(middleware);
     }
-    public void get(String path, Function<HttpRequest, HttpResponse> handler,  boolean isProtected) {
+
+    public void get(String path, Function<HttpRequest, HttpResponse> handler, boolean isProtected) {
         routes.add(new Route(AppConfig.GET_KEY, path, handler, isProtected));
     }
 
-    public void post(String path, Function<HttpRequest, HttpResponse> handler,  boolean isProtected) {
+    public void get(String path, Function<HttpRequest, HttpResponse> handler) {
+        get(path, handler, false);
+    }
+
+    public void post(String path, Function<HttpRequest, HttpResponse> handler, boolean isProtected) {
         routes.add(new Route(AppConfig.POST_KEY, path, handler, isProtected));
+    }
+
+    public void post(String path, Function<HttpRequest, HttpResponse> handler) {
+        post(path, handler, false);
     }
 
     public HttpResponse dispatch(HttpRequest request) throws Exception {
         for (Route route : routes) {
             if (route.path.match(request.path)) {
-                if (!route.method.equalsIgnoreCase(request.method)) throw new HttpServer.MethodNotAllowed();
+                if (!route.method.equalsIgnoreCase(request.method))
+                    throw new HttpServer.MethodNotAllowed();
                 request.tags.put("protected", String.valueOf(route.isProtected));
                 Handler h = req -> route.handler.apply(req);
 
@@ -57,9 +68,7 @@ public class Router {
                 return h.handle(request);
             }
         }
-        if (pathExists) throw new HttpServer.MethodNotAllowed();
         throw new HttpServer.NotFound();
     }
-
 
 }
