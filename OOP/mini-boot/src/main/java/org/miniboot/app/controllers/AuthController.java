@@ -1,7 +1,6 @@
 package org.miniboot.app.controllers;
 
 import org.miniboot.app.auth.AuthService;
-import org.miniboot.app.auth.JwtService;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
@@ -17,15 +16,13 @@ import java.util.Map;
  */
 public class AuthController {
 
-    private static final AuthService authService = new AuthService(new JwtService());
-
     /**
      * Mount các route vào Router
      */
     public static void mount(Router router) {
-        router.post("/auth/login", AuthController::login);
-        router.get("/auth/profile", AuthController::getProfile);
-        router.get("/doctors", AuthController::getDoctors);
+        router.post("/auth/login", AuthController::login, false);
+        router.get("/auth/profile", AuthController::getProfile, true);
+        router.get("/doctors", AuthController::getDoctors, true);
     }
 
     /**
@@ -47,13 +44,12 @@ public class AuthController {
             }
 
             // Xác thực và tạo token
-            String token = authService.authenticate(username, password);
+            String token = AuthService.authenticate(username, password);
 
             return Json.ok(Map.of(
-                "access_token", token,
-                "token_type", "Bearer",
-                "expires_in", "86400"
-            ));
+                    "access_token", token,
+                    "token_type", "Bearer",
+                    "expires_in", "86400"));
 
         } catch (Exception e) {
             return Json.error(401, e.getMessage());
@@ -68,14 +64,13 @@ public class AuthController {
     private static HttpResponse getProfile(HttpRequest request) {
         try {
             String authHeader = request.header("Authorization");
-            String userId = authService.validateToken(authHeader);
+            String userId = AuthService.validateToken(authHeader);
 
             return Json.ok(Map.of(
-                "userId", userId,
-                "username", userId,  // Thêm trường username (giống userId)
-                "message", "Thong tin user",
-                "role", "admin"
-            ));
+                    "userId", userId,
+                    "username", userId, // Thêm trường username (giống userId)
+                    "message", "Thong tin user",
+                    "role", "admin"));
 
         } catch (Exception e) {
             return Json.error(401, e.getMessage());
@@ -91,18 +86,16 @@ public class AuthController {
         try {
             // Kiểm tra token
             String authHeader = request.header("Authorization");
-            String userId = authService.validateToken(authHeader);
+            String userId = AuthService.validateToken(authHeader);
 
             // Trả về danh sách bác sĩ demo
             return Json.ok(Map.of(
-                "message", "Danh sach bac si",
-                "requestedBy", userId,
-                "data", java.util.List.of(
-                    Map.of("id", 1, "name", "BS. Nguyen Van A", "specialty", "Nhi khoa"),
-                    Map.of("id", 2, "name", "BS. Tran Thi B", "specialty", "Noi khoa"),
-                    Map.of("id", 3, "name", "BS. Le Van C", "specialty", "Ngoai khoa")
-                )
-            ));
+                    "message", "Danh sach bac si",
+                    "requestedBy", userId,
+                    "data", java.util.List.of(
+                            Map.of("id", 1, "name", "BS. Nguyen Van A", "specialty", "Nhi khoa"),
+                            Map.of("id", 2, "name", "BS. Tran Thi B", "specialty", "Noi khoa"),
+                            Map.of("id", 3, "name", "BS. Le Van C", "specialty", "Ngoai khoa"))));
 
         } catch (Exception e) {
             return Json.error(403, "Forbidden: " + e.getMessage());
