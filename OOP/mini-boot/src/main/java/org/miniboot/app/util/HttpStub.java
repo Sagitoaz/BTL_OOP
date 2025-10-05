@@ -3,6 +3,7 @@ package org.miniboot.app.util;
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
 
 import java.nio.charset.StandardCharsets;
@@ -22,8 +23,18 @@ public class HttpStub {
         headers.put("host","localhost");
         headers.put(AppConfig.RES_CONTENT_LENGTH_KEY, String.valueOf(body.length));
         HttpRequest req = HttpRequest.of(method, path, AppConfig.HTTP_TYPE, headers, body);
-        HttpResponse res = router.dispatch(req);
-        System.out.println(res.headers.get("Access-Control-Allow-Origin"));
+        HttpResponse res;
+        try{
+            res = router.dispatch(req);
+        }
+        catch (HttpServer.NotFound e) {
+            return new Result(404, AppConfig.RESPONSE_404, AppConfig.RESPONSE_REASON.get(404));
+        }
+        catch (HttpServer.MethodNotAllowed e) {
+            return new Result(405, AppConfig.RESPONSE_405, AppConfig.RESPONSE_REASON.get(405));
+        }
+
+
 
         return new Result(res.status, new String(res.body, StandardCharsets.UTF_8), res.contentType);
     }

@@ -10,12 +10,15 @@ import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
 import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
+import org.miniboot.app.router.middleware.AuthMiddlewareStub;
+import org.miniboot.app.router.middleware.CorsMiddleware;
+import org.miniboot.app.router.middleware.LoggingMiddleware;
 import org.miniboot.app.util.HttpStub;
 
 import java.util.*;
 
 public class DomainMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         DoctorRepository doctorRepository = new InMemoryDoctorRepository();
 
         doctorRepository.saveAll(List.of(
@@ -29,7 +32,10 @@ public class DomainMain {
         DoctorController dc = new DoctorController(doctorRepository);
 
         Router router = new Router();
-        router.get("/doctors", dc.getDoctors());
+        router.use(new AuthMiddlewareStub());
+        router.use(new CorsMiddleware());
+        router.use(new LoggingMiddleware());
+
         
         AppointmentRepository appointmentRepository = new InMemoryAppointmentRepository();
         appointmentRepository.save(
@@ -47,25 +53,25 @@ public class DomainMain {
 
         AppointmentController ac = new AppointmentController(appointmentRepository);
 
-        router.get("/appointments", ac.getAppointments());
+        //router.get("/appointments", ac.getAppointments());
         HttpStub stub = new HttpStub(router);
         //doctor
-        var restList = stub.get("/doctors");
+        var restList = stub.get("/nguvcl");
         System.out.println("LIST => " + restList.status() + " " + restList.body());
 
-        var restById = stub.get("/doctors?id=5");
-        System.out.println("BY ID => " + restById.status() + " " + restById.body());
-
-        //GET ALL
-        var v1 = stub.get("/appointments");
-        System.out.println("LIST => " + v1.status() + " " + v1.body());
-
-        // get by id =2
-        var v2 = stub.get("/appointments?id=3");
-        System.out.println("BY ID => " + v2.status() + " " + v2.body());
-
-        // get filter doctorid + date
-        var v3 = stub.get("/appointments?doctorId=2&date=2025-12-30");
-        System.out.println("BY ID => " + v3.status() + " " + v3.body());
+//        var restById = stub.get("/doctors?id=5");
+//        System.out.println("BY ID => " + restById.status() + " " + restById.body());
+//
+//        //GET ALL
+//        var v1 = stub.get("/appointments");
+//        System.out.println("LIST => " + v1.status() + " " + v1.body());
+//
+//        // get by id =2
+//        var v2 = stub.get("/appointments?id=3");
+//        System.out.println("BY ID => " + v2.status() + " " + v2.body());
+//
+//        // get filter doctorid + date
+//        var v3 = stub.get("/appointments?doctorId=2&date=2025-12-30");
+//        System.out.println("BY ID => " + v3.status() + " " + v3.body());
     }
 }

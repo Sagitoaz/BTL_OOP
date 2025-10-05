@@ -58,6 +58,10 @@ public class ServerMain {
 
         // Tạo router và mount controllers
         Router router = new Router();
+        router.use(new AuthMiddlewareStub());
+        router.use(new CorsMiddleware());
+        router.use(new LoggingMiddleware());
+        router.get("/doctors", dc.getDoctors());
 
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
@@ -69,5 +73,7 @@ public class ServerMain {
         // Khởi động server
         HttpServer server = new HttpServer(port, router);
         server.start();
+
+        router.get("/doctors", dc.getDoctors());
     }
 }

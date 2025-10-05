@@ -8,7 +8,7 @@ import org.miniboot.app.util.HttpStub;
 import java.nio.charset.StandardCharsets;
 
 public class UtilSmokeMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // lắp router + controller
         Router router = new Router();
         HelloController.mount(router);
