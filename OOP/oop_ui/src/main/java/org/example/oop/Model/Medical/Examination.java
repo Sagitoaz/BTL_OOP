@@ -16,7 +16,7 @@ public class Examination {
     private  String note;
     private int  doctorId;
     private LocalDate examinationDate;
-    //Data file id|recordId|visionLeft|visionRight|colorBlindTest|eyePressure|diagnosis|recommendation|doctorId|date
+    //Data file id|recordId|visionLeft|visionRight|colorBlindTest|eyePressure|diagnosis|recommendation|note|doctorId|date
     public Examination(int id, int patientRecordId, double visionLeft, double visionRight, boolean colorBlindTest, double eyePressure, String diagnosis
                        , String recommendation, String note, int doctorId, LocalDate examinationDate) {
         if(id <= 0 || patientRecordId <= 0 || doctorId <= 0){
@@ -74,8 +74,8 @@ public class Examination {
         }
         return s;
     }
-    //Data file id|recordId|visionLeft|visionRight|colorBlindTest|eyePressure|diagnosis|recommendation|doctorId|date
-    public String ToDatabaseString(){
+    //Data file id|recordId|visionLeft|visionRight|colorBlindTest|eyePressure|diagnosis|recommendation|note|doctorId|date
+    public String ToDataString(){
         String examinationString = "";
         if(examinationDate != null){
             examinationString = examinationDate.toString();
@@ -84,6 +84,22 @@ public class Examination {
                 ,String.valueOf(colorBlindTest), String.valueOf(eyePressure), toSafeString(diagnosis), toSafeString(recommendation),
                 toSafeString(note), String.valueOf(doctorId), examinationString
         );
+    }
+
+    public static Examination fromDataString(String line){
+        String[] fields  = line.split("\\|", -1);
+        int id = Integer.parseInt(fields[0]);
+        int patientRecordId = Integer.parseInt(fields[1]);
+        double visionLeft = Double.parseDouble(fields[2]);
+        double visionRight = Double.parseDouble(fields[3]);
+        boolean colorBindTest = (fields[4].equals("null") || fields[4].isBlank()) ? false: Boolean.parseBoolean(fields[4]);
+        double eyePressure =(fields[5].equals("null") || fields[5].isBlank()) ? 0.0:  Double.parseDouble(fields[5]);
+        String diagnosis = (fields[6].equals("null") || fields[6].isBlank()) ? null: fields[6];
+        String recommendation = (fields[7].equals("null") || fields[7].isBlank()) ? null: fields[7];
+        String note = (fields[8].equals("null") || fields[8].isBlank()) ? null: fields[8];
+        int doctorId = Integer.parseInt(fields[9]);
+        LocalDate examinationDate = LocalDate.parse(fields[10]);
+        return new Examination(id, patientRecordId, visionLeft, visionRight, colorBindTest, eyePressure, diagnosis, recommendation, note, doctorId, examinationDate);
     }
 
     @Override
