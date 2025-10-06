@@ -115,6 +115,23 @@ public class Supplier {
         this.notes = notes;
     }
 
+    public boolean isActive() {
+        return "ACTIVE".equalsIgnoreCase(status);
+    }
+
+    /**
+     * Validate supplier data
+     */
+    public boolean isValid() {
+        if (name == null || name.trim().isEmpty())
+            return false;
+        if (code == null || code.trim().isEmpty())
+            return false;
+        if (email != null && !email.contains("@"))
+            return false;
+        return true;
+    }
+
     @Override
     public String toString() {
         return "Supplier{" +

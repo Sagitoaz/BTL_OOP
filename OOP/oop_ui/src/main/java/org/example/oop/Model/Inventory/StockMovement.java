@@ -128,6 +128,30 @@ public class StockMovement {
         this.notes = notes;
     }
 
+    public boolean isValid() {
+        if (productId <= 0) {
+            return false;
+        }
+        if (movementType == null) {
+            return false;
+        }
+        if (quantityChange <= 0) {
+            return false;
+        }
+        if (quantityBefore < 0 || quantityAfter < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isInMovement() {
+        return "IN".equalsIgnoreCase(movementType);
+    }
+
+    public boolean isOutMovement() {
+        return "OUT".equalsIgnoreCase(movementType);
+    }
+
     @Override
     public String toString() {
         return "StockMovement{" +

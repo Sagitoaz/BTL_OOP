@@ -1,6 +1,5 @@
 package org.example.oop.Model.Inventory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -24,9 +23,12 @@ public class Inventory {
     private boolean active = true; // trạng thái hoạt động (Products.is_active)
     private String note; // ghi chú (Products.note)
     private LocalDateTime createdAt; // thời điểm tạo (Products.created_at)
-    private String updatedBy;
-
+    private String updatedBy; // user cập nhật lần cuối
+    private Integer reorderLevel; // ngưỡng cảnh báo hết hàng
+    private Integer location; // vị trí lưu trữ trong kho
+    private Integer reorderQuantity; // số lượng đặt lại mặc định
     // --- Constructors ---
+
     public Inventory() {
     }
 
@@ -37,7 +39,11 @@ public class Inventory {
             int quantity,
             String unit,
             int unitPrice,
-            LocalDateTime lastUpdated) {
+            LocalDateTime lastUpdated,
+            String updateBy,
+            Integer reorderLevel,
+            Integer location,
+            Integer reorderQuantity) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -46,6 +52,10 @@ public class Inventory {
         this.unit = unit;
         this.unitPrice = unitPrice;
         this.lastUpdated = lastUpdated;
+        this.updatedBy = updateBy;
+        this.reorderLevel = reorderLevel;
+        this.location = location;
+        this.reorderQuantity = reorderQuantity;
     }
 
     // --- Getters (cũ – giữ nguyên tên để không gãy UI/loader) ---
@@ -170,5 +180,66 @@ public class Inventory {
 
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Integer getReorderLevel() {
+        return reorderLevel;
+    }
+
+    public void setReorderLevel(Integer reorderLevel) {
+        this.reorderLevel = reorderLevel;
+    }
+
+    public Integer getLocation() {
+        return location;
+    }
+
+    public void setLocation(Integer location) {
+        this.location = location;
+    }
+
+    public Integer getReorderQuantity() {
+        return reorderQuantity;
+    }
+
+    public void setReorderQuantity(Integer reorderQuantity) {
+        this.reorderQuantity = reorderQuantity;
+    }
+
+    public boolean isLowStock() {
+        if (reorderLevel == null || reorderLevel == 0) {
+            return false;
+        }
+        return this.quantity < this.reorderLevel;
+    }
+
+    public boolean isOutOfStock() {
+        return quantity == 0;
+    }
+
+    public boolean isValid() {
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+        if (quantity < 0) {
+            return false;
+        }
+        if (unitPrice < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public String toString() {
+        return String.format("Inventory[id=%d, sku=%s, name=%s, qty=%d, status=%s]",
+                id, sku, name, quantity, active ? "ACTIVE" : "INACTIVE");
     }
 }
