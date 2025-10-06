@@ -1,0 +1,6 @@
+Format: id|code|name|contactPerson|email|phone|address|status|paymentTerms|notes
+1|SUP-001|Công ty Dược phẩm ABC|Nguyễn Văn A|a.nguyen@abc.com|0901234567|123 Lê Lợi, Q1, HCM|ACTIVE|NET30|Nhà cung cấp thuốc chính
+2|SUP-002|Thiết bị Y tế XYZ|Trần Thị B|b.tran@xyz.com|0912345678|456 Nguyễn Huệ, Q1, HCM|ACTIVE|NET60|Chuyên thiết bị y tế
+3|SUP-003|Vật tư Y tế DEF|Lê Văn C|c.le@def.com|0923456789|789 Hai Bà Trưng, Q3, HCM|ACTIVE|NET30|Vật tư tiêu hao
+4|SUP-004|Công ty Dược Việt Nam|Phạm Thị D|d.pham@viet.com|0934567890|321 Võ Văn Tần, Q3, HCM|ACTIVE|NET45|Thuốc nội địa
+5|SUP-005|Medical Equipment Pro|Hoàng Văn E|e.hoang@medpro.com|0945678901|654 Điện Biên Phủ, Q10, HCM|INACTIVE|NET30|Ngừng hợp tác

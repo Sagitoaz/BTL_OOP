@@ -1,0 +1,6 @@
+Format: id|poNumber|supplierId|supplierName|orderDate|expectedDate|receivedDate|status|totalAmount|currency|notes
+1|PO-2025-001|1|Công ty Dược phẩm ABC|2025-09-25|2025-10-01|2025-10-01|RECEIVED|550000|VND|Đơn hàng đầu tiên
+2|PO-2025-002|2|Thiết bị Y tế XYZ|2025-09-28|2025-10-05|2025-10-02|RECEIVED|50000000|VND|Mua thiết bị siêu âm
+3|PO-2025-003|4|Công ty Dược Việt Nam|2025-10-01|2025-10-08||PENDING|400000|VND|Chờ nhận hàng
+4|PO-2025-004|3|Vật tư Y tế DEF|2025-10-02|2025-10-09|2025-10-04|RECEIVED|750000|VND|Găng tay và khẩu trang
+5|PO-2025-005|1|Công ty Dược phẩm ABC|2025-10-05|2025-10-12||APPROVED|1200000|VND|Đã duyệt chờ giao

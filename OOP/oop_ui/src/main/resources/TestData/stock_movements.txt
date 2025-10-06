@@ -1,0 +1,11 @@
+Format: id|productId|type|quantityBefore|quantityChange|quantityAfter|reason|reference|movedAt|movedBy|notes
+1|1|IN|0|100|100|Nhập hàng đầu kỳ|PO-2025-001|2025-10-01T08:00:00|admin|Nhập kho lần đầu
+2|2|IN|0|500|500|Nhập hàng đầu kỳ|PO-2025-001|2025-10-01T08:15:00|admin|Nhập kho lần đầu
+3|1|OUT|100|20|80|Xuất bán|INV-001|2025-10-02T10:30:00|staff01|Bán cho khách hàng
+4|3|IN|0|2|2|Mua thiết bị mới|PO-2025-002|2025-10-02T14:00:00|admin|Thiết bị siêu âm
+5|1|ADJUSTMENT|80|40|120|Điều chỉnh tồn kho|ADJ-001|2025-10-03T09:00:00|admin|Kiểm kê phát hiện sai lệch
+6|4|IN|0|0|0|Nhập hàng|PO-2025-003|2025-10-03T11:00:00|admin|Hàng về nhưng hết hạn
+7|2|OUT|500|50|450|Xuất sử dụng|REQ-001|2025-10-04T08:30:00|doctor01|Dùng cho phẫu thuật
+8|5|IN|0|30|30|Nhập hàng|PO-2025-004|2025-10-04T15:00:00|admin|Găng tay latex
+9|1|OUT|120|40|80|Xuất bán|INV-002|2025-10-05T10:00:00|staff01|Bán cho khách hàng
+10|2|RETURN|450|50|500|Trả hàng|RET-001|2025-10-05T14:00:00|doctor01|Không sử dụng hết

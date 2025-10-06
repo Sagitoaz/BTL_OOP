@@ -3,7 +3,8 @@ package org.example.oop.Control;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import org.example.oop.Model.InventoryRow;
+
+import org.example.oop.Model.Inventory.InventoryRow;
 import org.example.oop.Utils.AppConfig;
 
 import java.io.*;

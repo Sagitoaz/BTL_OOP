@@ -1,0 +1,9 @@
+Format: id|poId|productId|productName|quantityOrdered|quantityReceived|unitPrice|totalPrice
+1|1|1|Paracetamol 500mg|100|100|1500|150000
+2|1|2|Surgical Mask|500|500|800|400000
+3|2|3|Ultrasound Machine|2|2|25000000|50000000
+4|3|4|Amoxicillin 250mg|200|0|2000|400000
+5|4|5|Latex Gloves|30|30|25000|750000
+6|5|1|Paracetamol 500mg|500|0|1500|750000
+7|5|7|Vitamin C 500mg|300|0|1200|360000
+8|5|10|Ibuprofen 200mg|50|0|1800|90000

@@ -7,7 +7,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.example.oop.Model.InventoryRow;
+
+import org.example.oop.Model.Inventory.InventoryRow;
 import org.example.oop.Utils.AppConfig;
 
 import java.io.IOException;
@@ -16,29 +17,47 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class SearchInventoryController {
-    @FXML private TableColumn<InventoryRow, String> categoryColumn;
-    @FXML private TableColumn<InventoryRow, Integer> idColumn;
-    @FXML private TableView<InventoryRow> inventoryTable;
-    @FXML private TableColumn<InventoryRow, LocalDate> lastUpdatedColumn;
-    @FXML private TableColumn<InventoryRow, String> nameColumn;
-    @FXML private TableColumn<InventoryRow, Integer> priceColumn;
-    @FXML private TableColumn<InventoryRow, Integer> quantityColumn;
-    @FXML private Button resetButton;
-    @FXML private Button searchButton;
-    @FXML private TextField searchTextField;
-    @FXML private TableColumn<InventoryRow, String> typeColumn;
-    @FXML private TableColumn<InventoryRow, String> unitColumn;
-    @FXML private DatePicker lastUpdatedPicker;
-    @FXML private ComboBox<String> categoryBox;
-    @FXML private ComboBox<String> typeBox;
-    @FXML private Label itemName;
-    @FXML TextArea itemDescription;
+    @FXML
+    private TableColumn<InventoryRow, String> categoryColumn;
+    @FXML
+    private TableColumn<InventoryRow, Integer> idColumn;
+    @FXML
+    private TableView<InventoryRow> inventoryTable;
+    @FXML
+    private TableColumn<InventoryRow, LocalDate> lastUpdatedColumn;
+    @FXML
+    private TableColumn<InventoryRow, String> nameColumn;
+    @FXML
+    private TableColumn<InventoryRow, Integer> priceColumn;
+    @FXML
+    private TableColumn<InventoryRow, Integer> quantityColumn;
+    @FXML
+    private Button resetButton;
+    @FXML
+    private Button searchButton;
+    @FXML
+    private TextField searchTextField;
+    @FXML
+    private TableColumn<InventoryRow, String> typeColumn;
+    @FXML
+    private TableColumn<InventoryRow, String> unitColumn;
+    @FXML
+    private DatePicker lastUpdatedPicker;
+    @FXML
+    private ComboBox<String> categoryBox;
+    @FXML
+    private ComboBox<String> typeBox;
+    @FXML
+    private Label itemName;
+    @FXML
+    TextArea itemDescription;
 
     private final InventoriesController inventoriesController = new InventoriesController();
     private ObservableList<InventoryRow> masterData = FXCollections.observableArrayList();
     private FilteredList<InventoryRow> rowFilteredList;
 
-    @FXML public void initialize() throws IOException {
+    @FXML
+    public void initialize() throws IOException {
         InitTable();
         InitTypeBox();
         InitCategoryBox();
@@ -79,7 +98,8 @@ public class SearchInventoryController {
 
         inventoryTable.setItems(masterData);
         inventoryTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        inventoryTable.getSelectionModel().selectedItemProperty().addListener((item, oldRow, newRow) -> updateDetail(newRow));
+        inventoryTable.getSelectionModel().selectedItemProperty()
+                .addListener((item, oldRow, newRow) -> updateDetail(newRow));
     }
 
     private void InitCategoryBox() {
@@ -122,7 +142,8 @@ public class SearchInventoryController {
         typeBox.getSelectionModel().selectFirst();
     }
 
-    //Sau dùng database sẽ sửa ở hàm này thành hàm gọi liên kết đến db t InventoriesController
+    // Sau dùng database sẽ sửa ở hàm này thành hàm gọi liên kết đến db t
+    // InventoriesController
     private void updatePredicate() {
         String keyword = searchTextField.getText() == null ? "" : searchTextField.getText().trim().toLowerCase();
 
@@ -136,16 +157,16 @@ public class SearchInventoryController {
 
         rowFilteredList.setPredicate(row -> {
             boolean matchKeyword = keyword.isEmpty() ||
-                                    (row.getName() != null && row.getName().toLowerCase().contains(keyword));
+                    (row.getName() != null && row.getName().toLowerCase().contains(keyword));
 
             boolean matchType = allTypes ||
-                                (row.getType() != null && row.getType().equalsIgnoreCase(typeSelected));
+                    (row.getType() != null && row.getType().equalsIgnoreCase(typeSelected));
 
             boolean matchCategory = allCagories ||
-                                    (row.getCategory() != null && row.getCategory().equalsIgnoreCase(categorySelected));
+                    (row.getCategory() != null && row.getCategory().equalsIgnoreCase(categorySelected));
 
             boolean matchDate = (dateSelected == null) ||
-                                (row.getLastUpdated() != null && row.getLastUpdated().equals(dateSelected));
+                    (row.getLastUpdated() != null && row.getLastUpdated().equals(dateSelected));
 
             return matchType && matchKeyword && matchCategory && matchDate;
         });
