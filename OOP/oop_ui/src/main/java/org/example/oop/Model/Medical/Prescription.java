@@ -25,10 +25,10 @@ public class Prescription {
     }
     private int id;
     private int patientRecordId;
-    private int doctorId;
     private PrescriptionType prescriptionType;
     private String details;
     private String note;
+    private int doctorId;
     private LocalDate signedDate;
 
     public Prescription(int id,int patientRecordId, PrescriptionType prescriptionType, String details, String note,int doctorId, LocalDate signedDate) {
