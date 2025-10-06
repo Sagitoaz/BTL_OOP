@@ -22,6 +22,9 @@ public class PatientRecord {
     private List<Examination> examinationList;
     private List<MedicalHistory> medicalHistoryList;
     public PatientRecord(int id, String namePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email) {
+        if(id <= 0){
+            throw new IllegalArgumentException("id must be > 0");
+        }
         this.id = id;
         this.namePatient = namePatient;
         this.dob = dob;
@@ -97,6 +100,7 @@ public class PatientRecord {
         return s;
     }
 
+    // Data id|name|dob|gender|address|phone|email
     public String toDataString(){
         String dobString = (this.dob == null ) ? "": this.dob.toString();
         return String.join("|", String.valueOf(this.id),  toSafeString(this.namePatient), dobString, gender.name(), toSafeString(this.address), toSafeString(this.phoneNumber), toSafeString(this.email));
@@ -109,6 +113,7 @@ public class PatientRecord {
         return this.id == ((PatientRecord)o).id;
     }
     // Doc Data tu file
+    // Data id|name|dob|gender|address|phone|email
     public static PatientRecord fromDataString(String line){
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
