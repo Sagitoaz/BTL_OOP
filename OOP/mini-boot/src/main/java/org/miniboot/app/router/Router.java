@@ -52,23 +52,32 @@ public class Router {
     }
 
     public HttpResponse dispatch(HttpRequest request) throws Exception {
+        Handler h = null;
         for (Route route : routes) {
             if (route.path.match(request.path)) {
-                if (!route.method.equalsIgnoreCase(request.method))
-                    throw new HttpServer.MethodNotAllowed();
-                request.tags.put("protected", String.valueOf(route.isProtected));
-                Handler h = req -> route.handler.apply(req);
 
-                // (c) Gấp (fold) middleware từ CUỐI về ĐẦU
-                for (int i = middlewares.size() - 1; i >= 0; --i) {
-                    h = middlewares.get(i).apply(h);
+                if (!route.method.equalsIgnoreCase(request.method)){
+                    h = req ->{throw new HttpServer.MethodNotAllowed(); } ;
+                }
+                else{
+                    request.tags.put("protected", String.valueOf(route.isProtected));
+                    h = req -> route.handler.apply(req);
                 }
 
-                // (d) Gọi handler CUỐI (đã bọc middleware)
-                return h.handle(request);
+
+                break;
             }
         }
-        throw new HttpServer.NotFound();
+        if(h == null){
+            h = req -> {throw new HttpServer.NotFound(); } ;
+        }
+        //Boc middleware tu cuoi ve dau
+        for (int i = middlewares.size() - 1; i >= 0; --i) {
+            h = middlewares.get(i).apply(h);
+        }
+
+        // (d) Gọi handler CUỐI (đã bọc middleware)
+        return h.handle(request);
     }
 
 }

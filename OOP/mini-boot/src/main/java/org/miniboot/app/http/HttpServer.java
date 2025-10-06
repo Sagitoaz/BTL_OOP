@@ -181,6 +181,7 @@ public class HttpServer {
 
             // Bước 2: Tạo HTTP response dựa trên request
             HttpResponse response = router.dispatch(request);
+
             // Bước 3: Ghi response ra client
             HttpResponseEncoder.write(out, response);
 
@@ -190,6 +191,7 @@ public class HttpServer {
         } catch (IllegalArgumentException | IOException e) {
             // Lỗi do request không hợp lệ hoặc lỗi I/O → HTTP 400 Bad Request
             handleBadRequestError(out, client);
+
         } catch (Exception e) {
             // Lỗi bất ngờ khác → HTTP 500 Internal Server Error
             handleInternalError(out, client, e);

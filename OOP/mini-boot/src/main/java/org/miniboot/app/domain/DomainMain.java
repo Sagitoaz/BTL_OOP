@@ -2,6 +2,7 @@ package org.miniboot.app.domain;
 
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.controllers.HelloController;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.AppointmentRepository;
@@ -12,6 +13,7 @@ import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.router.middleware.AuthMiddlewareStub;
 import org.miniboot.app.router.middleware.CorsMiddleware;
+import org.miniboot.app.router.middleware.ErrorHandle;
 import org.miniboot.app.router.middleware.LoggingMiddleware;
 import org.miniboot.app.util.HttpStub;
 
@@ -35,6 +37,7 @@ public class DomainMain {
         router.use(new AuthMiddlewareStub());
         router.use(new CorsMiddleware());
         router.use(new LoggingMiddleware());
+        router.use(new ErrorHandle());
 
         
         AppointmentRepository appointmentRepository = new InMemoryAppointmentRepository();
@@ -55,12 +58,14 @@ public class DomainMain {
 
         //router.get("/appointments", ac.getAppointments());
         HttpStub stub = new HttpStub(router);
+        HelloController.mount(router);
+        DoctorController.mount(router, dc);
         //doctor
-        var restList = stub.get("/nguvcl");
+        var restList = stub.get("/hello");
         System.out.println("LIST => " + restList.status() + " " + restList.body());
 
-//        var restById = stub.get("/doctors?id=5");
-//        System.out.println("BY ID => " + restById.status() + " " + restById.body());
+        var restById = stub.get("/doctors?id=5");
+        System.out.println("BY ID => " + restById.status() + " " + restById.body());
 //
 //        //GET ALL
 //        var v1 = stub.get("/appointments");

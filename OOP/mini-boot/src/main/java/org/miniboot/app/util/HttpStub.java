@@ -23,16 +23,8 @@ public class HttpStub {
         headers.put("host","localhost");
         headers.put(AppConfig.RES_CONTENT_LENGTH_KEY, String.valueOf(body.length));
         HttpRequest req = HttpRequest.of(method, path, AppConfig.HTTP_TYPE, headers, body);
-        HttpResponse res;
-        try{
-            res = router.dispatch(req);
-        }
-        catch (HttpServer.NotFound e) {
-            return new Result(404, AppConfig.RESPONSE_404, AppConfig.RESPONSE_REASON.get(404));
-        }
-        catch (HttpServer.MethodNotAllowed e) {
-            return new Result(405, AppConfig.RESPONSE_405, AppConfig.RESPONSE_REASON.get(405));
-        }
+        HttpResponse res = router.dispatch(req);
+
 
 
 
