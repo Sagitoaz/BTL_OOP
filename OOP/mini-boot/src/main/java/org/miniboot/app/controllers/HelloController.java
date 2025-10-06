@@ -2,6 +2,7 @@ package org.miniboot.app.controllers;
 
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 import org.miniboot.app.util.Response;
@@ -12,6 +13,12 @@ public class HelloController {
     public static void mount(Router router) {
         router.get("/hello", HelloController::hello);
         router.get("/health", HelloController::health);
+        router.get("/bad-request", req -> { throw new IllegalArgumentException("Missing"); });
+        router.get("/method-not-allowed", req -> { throw new HttpServer.MethodNotAllowed(); });
+        router.get("/not-found", req -> { throw new HttpServer.NotFound(); });
+        router.get("/server-bug", req -> {
+            throw new RuntimeException("DB down");
+        });
         router.get("/plaintext", req -> Response.text("Xin chào UTF-8"));
         router.get("/json", req -> Response.json(
                 Map.of("msg", "xin chào 😊", "nums", java.util.List.of(1,2,3))

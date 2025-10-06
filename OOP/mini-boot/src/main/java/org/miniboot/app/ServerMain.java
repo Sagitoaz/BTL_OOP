@@ -16,6 +16,7 @@ import org.miniboot.app.router.PathPattern;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.router.middleware.AuthMiddlewareStub;
 import org.miniboot.app.router.middleware.CorsMiddleware;
+import org.miniboot.app.router.middleware.ErrorHandle;
 import org.miniboot.app.router.middleware.LoggingMiddleware;
 
 import java.util.Map;
@@ -58,6 +59,11 @@ public class ServerMain {
 
         // Tạo router và mount controllers
         Router router = new Router();
+        router.use(new AuthMiddlewareStub());
+        router.use(new CorsMiddleware());
+        router.use(new LoggingMiddleware());
+        router.use(new ErrorHandle());
+        router.get("/doctors", dc.getDoctors());
 
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
@@ -69,5 +75,8 @@ public class ServerMain {
         // Khởi động server
         HttpServer server = new HttpServer(port, router);
         server.start();
+
+
+
     }
 }
