@@ -119,11 +119,17 @@ public class PatientRecord {
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
         String namePatient = (fields[1].equals("null") || fields[1].isBlank())? null : fields[1];
-        LocalDate dob = (fields[2].equals("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
+        LocalDate dob = null;
+        try{
+            dob = (fields[2].equals("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
+        }
+        catch(Exception e){
+        }
         Gender gender = (fields[3].equals("null") || fields[3].isBlank()) ? null : Gender.valueOf(fields[3].toUpperCase());
         String address = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
         String phoneNumber = (fields[5].equals("null") || fields[5].isBlank()) ? null : fields[5];
         String email = (fields[6].equals("null") || fields[6].isBlank()) ? null : fields[6];
+
         return new PatientRecord(id, namePatient, dob, gender, address, phoneNumber, email);
     }
     // Ham In ra de debug

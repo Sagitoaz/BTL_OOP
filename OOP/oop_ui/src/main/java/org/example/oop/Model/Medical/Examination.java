@@ -75,7 +75,7 @@ public class Examination {
         return s;
     }
     //Data file id|recordId|visionLeft|visionRight|colorBlindTest|eyePressure|diagnosis|recommendation|note|doctorId|date
-    public String ToDataString(){
+    public String toDataString(){
         String examinationString = "";
         if(examinationDate != null){
             examinationString = examinationDate.toString();
@@ -98,7 +98,13 @@ public class Examination {
         String recommendation = (fields[7].equals("null") || fields[7].isBlank()) ? null: fields[7];
         String note = (fields[8].equals("null") || fields[8].isBlank()) ? null: fields[8];
         int doctorId = Integer.parseInt(fields[9]);
-        LocalDate examinationDate = LocalDate.parse(fields[10]);
+        LocalDate examinationDate = null;
+        try{
+           examinationDate =(fields[10].equals("null") || fields[8].isBlank())  ? null: LocalDate.parse(fields[10]);
+        }
+        catch(Exception e){
+
+        }
         return new Examination(id, patientRecordId, visionLeft, visionRight, colorBindTest, eyePressure, diagnosis, recommendation, note, doctorId, examinationDate);
     }
 

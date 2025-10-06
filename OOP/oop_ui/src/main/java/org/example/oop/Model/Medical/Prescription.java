@@ -91,7 +91,14 @@ public class Prescription {
         String details = (fields[3].equals("null") || fields[3].isBlank()) ? null : fields[3];
         String note = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
         int doctorId = Integer.parseInt(fields[5]);
-        LocalDate signedDate = LocalDate.parse(fields[6]);
+
+        LocalDate signedDate = null;
+        try{
+            signedDate = (fields[6].equals("null") || fields[6].isBlank()) ? null: LocalDate.parse(fields[6]);
+        }
+        catch(Exception e){
+
+        }
         return new Prescription(id, recordId, prescriptionType, details, note, doctorId, signedDate);
     }
 
