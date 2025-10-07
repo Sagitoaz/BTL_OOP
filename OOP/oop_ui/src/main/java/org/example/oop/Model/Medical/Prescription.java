@@ -87,7 +87,7 @@ public class Prescription {
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
         int recordId = Integer.parseInt(fields[1]);
-        PrescriptionType prescriptionType = PrescriptionType.valueOf(fields[2]);
+        PrescriptionType prescriptionType = (fields[2].equals("null") || fields[2].isBlank()) ? PrescriptionType.OTHER : PrescriptionType.valueOf(fields[2].toUpperCase());
         String details = (fields[3].equals("null") || fields[3].isBlank()) ? null : fields[3];
         String note = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
         int doctorId = Integer.parseInt(fields[5]);

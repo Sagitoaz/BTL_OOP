@@ -125,7 +125,7 @@ public class PatientRecord {
         }
         catch(Exception e){
         }
-        Gender gender = (fields[3].equals("null") || fields[3].isBlank()) ? null : Gender.valueOf(fields[3].toUpperCase());
+        Gender gender = (fields[3].equals("null") || fields[3].isBlank()) ? Gender.OTHER : Gender.valueOf(fields[3].toUpperCase());
         String address = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
         String phoneNumber = (fields[5].equals("null") || fields[5].isBlank()) ? null : fields[5];
         String email = (fields[6].equals("null") || fields[6].isBlank()) ? null : fields[6];
