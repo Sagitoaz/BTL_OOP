@@ -19,8 +19,7 @@ public class PatientRecord {
     private String address;
     private String phoneNumber;
     private String email;
-    private List<Prescription> prescriptionList;
-    private List<Examination> examinationList;
+    private List<SpectaclePrescription> prescriptionList;
     private List<MedicalHistory> medicalHistoryList;
     public PatientRecord(int id, String namePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email) {
         if(id <= 0){
@@ -34,7 +33,6 @@ public class PatientRecord {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.prescriptionList = new ArrayList<>();
-        this.examinationList = new ArrayList<>();
         this.medicalHistoryList = new ArrayList<>();
     }
     public int getId(){
@@ -65,24 +63,15 @@ public class PatientRecord {
     public String getEmail(){
         return email;
     }
-    public void addPrescription(Prescription prescription){
+    public void addPrescription(SpectaclePrescription prescription){
         if(prescription == null){
             return;
         }
         prescriptionList.add(prescription);
     }
-    public List<Prescription> getPrescriptionList(){
+    public List<SpectaclePrescription> getPrescriptionList(){
 
         return Collections.unmodifiableList(prescriptionList);
-    }
-    public void addExamination(Examination examination){
-        if(examination == null){
-            return;
-        }
-        examinationList.add(examination);
-    }
-    public List<Examination> getExaminationList(){
-        return Collections.unmodifiableList(examinationList);
     }
     public void addMedicalHistory(MedicalHistory medicalHistory){
         if(medicalHistory == null){
@@ -118,17 +107,17 @@ public class PatientRecord {
     public static PatientRecord fromDataString(String line){
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
-        String namePatient = (fields[1].equals("null") || fields[1].isBlank())? null : fields[1];
+        String namePatient = (fields[1].equalsIgnoreCase("null") || fields[1].isBlank())? null : fields[1];
         LocalDate dob = null;
         try{
-            dob = (fields[2].equals("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
+            dob = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
         }
         catch(Exception e){
         }
-        Gender gender = (fields[3].equals("null") || fields[3].isBlank()) ? Gender.OTHER : Gender.valueOf(fields[3].toUpperCase());
-        String address = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
-        String phoneNumber = (fields[5].equals("null") || fields[5].isBlank()) ? null : fields[5];
-        String email = (fields[6].equals("null") || fields[6].isBlank()) ? null : fields[6];
+        Gender gender = (fields[3].equalsIgnoreCase("null") || fields[3].isBlank()) ? Gender.OTHER : Gender.valueOf(fields[3].toUpperCase());
+        String address = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? null : fields[4];
+        String phoneNumber = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];
+        String email = (fields[6].equalsIgnoreCase("null") || fields[6].isBlank()) ? null : fields[6];
 
         return new PatientRecord(id, namePatient, dob, gender, address, phoneNumber, email);
     }

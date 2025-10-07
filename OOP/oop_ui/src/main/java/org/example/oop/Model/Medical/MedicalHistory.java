@@ -57,10 +57,10 @@ public class MedicalHistory {
         String[] fields = data.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
         int patientRecordId = Integer.parseInt(fields[1]);
-        String condition = (fields[2].equals("null") || fields[2].isBlank()) ? null : fields[2];
-        LocalDate date = (fields[3].equals("null")|| fields[3].isBlank()) ? null : LocalDate.parse(fields[3]);
-        String notes = (fields[4].equals("null") || fields[4].isBlank()) ? null : fields[4];
-        Status status = (fields[5].equals("null") || fields[5].isBlank()) ? Status.UNKNOWN :Status.valueOf(fields[5].toUpperCase());
+        String condition = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? null : fields[2];
+        LocalDate date = (fields[3].equalsIgnoreCase("null")|| fields[3].isBlank()) ? null : LocalDate.parse(fields[3]);
+        String notes = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? null : fields[4];
+        Status status = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? Status.UNKNOWN :Status.valueOf(fields[5].toUpperCase());
         return new MedicalHistory(id, patientRecordId, condition, date, notes, status);
 
     }
