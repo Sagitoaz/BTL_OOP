@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 public class InventoriesController {
     public ObservableList<InventoryRow> loadInventory(String path) throws IOException {
-        InputStream input = getClass().getResourceAsStream(AppConfig.TEST_DATA_TXT);
+        InputStream input = getClass().getResourceAsStream(path);
         if (input == null) {
             throw new IllegalStateException("Not Found " + AppConfig.TEST_DATA_TXT);
         }
@@ -35,5 +35,50 @@ public class InventoriesController {
             inventoryList.add(new InventoryRow(id, name, type, category, quantity, unit, price, lastUpdated));
         }
         return inventoryList;
+    }
+
+    public void saveInventory(ObservableList<InventoryRow> inventoryrow, String path) throws Exception {
+        File file = new File(path);
+        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
+            for (InventoryRow row : inventoryrow) {
+                writer.printf("%d,%s,%s,%s,%d,%s,%d",
+                        row.getId(),
+                        row.getName(),
+                        row.getType(),
+                        row.getCategory(),
+                        row.getQuantity(),
+                        row.getUnit(),
+                        row.getUnitPrice(),
+                        row.getLastUpdated());
+            }
+        }
+    }
+
+    public void AddInventory(ObservableList<InventoryRow> inventoryList, InventoryRow row) {
+        if (row == null) {
+            throw new IllegalArgumentException("Inventory row cannot be null");
+        }
+        int max_id = inventoryList.stream()
+                .mapToInt(InventoryRow::getId)
+                .max().orElse(0);
+        row.setId(max_id + 1);
+        inventoryList.add(row);
+    }
+
+    public boolean updateInventory(ObservableList<InventoryRow> inventoryList, int id, InventoryRow updatedRow) {
+        for (int i = 0; i < inventoryList.size(); i++) {
+            InventoryRow row = inventoryList.get(i);
+            if (row.getId() == id) {
+                row.setName(updatedRow.getName());
+                row.setType(updatedRow.getType());
+                row.setCategory(updatedRow.getCategory());
+                row.setQuantity(updatedRow.getQuantity());
+                row.setUnit(updatedRow.getUnit());
+                row.setUnitPrice(updatedRow.getUnitPrice());
+                row.setLastUpdated(updatedRow.getLastUpdated());
+                return true;
+            }
+        }
+        return false;
     }
 }
