@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="800.0" prefWidth="1280.0"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.oop.Control.SearchInventoryController">
+
+    <top>
+        <HBox spacing="10.0" BorderPane.alignment="CENTER" prefHeight="80.0">
+            <padding><Insets top="12.0" right="20.0" bottom="12.0" left="20.0"/></padding>
+            <children>
+                <TextField fx:id="searchTextField" promptText="Search..." prefWidth="220.0"/>
+                <TextField fx:id="skuTextField" promptText="Sku..." prefWidth="180.0"/>
+                <ComboBox fx:id="typeBox" prefWidth="150.0" promptText="Type"/>
+                <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Category"/>
+                <ComboBox fx:id="statusBox" prefWidth="150.0" promptText="Status"/>
+                <ComboBox fx:id="supplierBox" prefWidth="170.0" promptText="Supplier"/>
+                <DatePicker fx:id="lastUpdatedPicker" promptText="Last Updated" prefWidth="170.0"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="searchButton" text="Search" onAction="#OnClickSearchButton"/>
+                <Button fx:id="resetButton"  text="Reset"  onAction="#OnClickResetButton"/>
+                <Button fx:id="exportButton" text="Export" onAction="#OnClickExportButton"/>
+            </children>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="inventoryTable" prefHeight="665.0" prefWidth="900.0" BorderPane.alignment="CENTER">
+            <columns>
+                <TableColumn fx:id="idColumn"       text="ID"           prefWidth="70.0"  sortable="true"/>
+                <TableColumn fx:id="nameColumn"     text="Name"         prefWidth="180.0" sortable="true"/>
+                <TableColumn fx:id="skuColumn"      text="SKU"          prefWidth="120.0" sortable="true"/>
+                <TableColumn fx:id="typeColumn"     text="Type"         prefWidth="120.0" sortable="true"/>
+                <TableColumn fx:id="categoryColumn" text="Category"     prefWidth="130.0" sortable="true"/>
+                <TableColumn fx:id="supplierColumn" text="Supplier"     prefWidth="160.0" sortable="true"/>
+                <TableColumn fx:id="statusColumn"   text="Status"       prefWidth="110.0" sortable="true"/>
+                <TableColumn fx:id="quantityColumn" text="Quantity"     prefWidth="95.0"  sortable="true"/>
+                <TableColumn fx:id="unitColumn"     text="Unit"         prefWidth="80.0"  sortable="true"/>
+                <TableColumn fx:id="priceColumn"    text="Unit Price"   prefWidth="120.0" sortable="true"/>
+                <TableColumn fx:id="lastUpdatedColumn" text="Last Updated" prefWidth="160.0" sortable="true"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <right>
+        <VBox spacing="12.0" prefWidth="360.0" BorderPane.alignment="CENTER">
+            <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>
+            <children>
+                <TitledPane text="Item Details" expanded="true">
+                    <content>
+                        <VBox spacing="10.0">
+                            <Label fx:id="itemName" text="Name"/>
+                            <GridPane hgap="8.0" vgap="6.0">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="35"/>
+                                    <ColumnConstraints percentWidth="65"/>
+                                </columnConstraints>
+                                <children>
+                                    <Label text="SKU:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <Label fx:id="quickSku" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    <Label text="Supplier:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <Label fx:id="quickSupplier" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    <Label text="Status:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <Label fx:id="quickStatus" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                    <Label text="Unit Price:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                    <Label fx:id="quickPrice" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                </children>
+                            </GridPane>
+                            <ImageView fx:id="itemImage" fitWidth="320.0" fitHeight="240.0" preserveRatio="true" pickOnBounds="true"/>
+                            <TitledPane text="Notes" expanded="true">
+                                <content>
+                                    <TextArea fx:id="itemDescription" promptText="Informations" prefRowCount="6"/>
+                                </content>
+                            </TitledPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </children>
+        </VBox>
+    </right>
+
+    <bottom>
+        <HBox spacing="10.0" BorderPane.alignment="CENTER">
+            <padding><Insets top="6.0" right="12.0" bottom="6.0" left="12.0"/></padding>
+            <children>
+                <Label fx:id="messageLabel" text="Ready"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ProgressIndicator fx:id="loadingIndicator" visible="false" prefWidth="18.0" prefHeight="18.0"/>
+                <Label fx:id="countLabel" text="0 items"/>
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>

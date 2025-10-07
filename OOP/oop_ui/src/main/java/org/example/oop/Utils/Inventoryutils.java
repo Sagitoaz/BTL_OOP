@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.example.oop.Model.Inventory.Inventory;
 import org.example.oop.Model.Inventory.InventoryRow;
 
-public class Inventoryutils {
+public class InventoryUtils {
     /**
      * Convert Inventory → InventoryRow
      * Chuyển đổi model Inventory thành InventoryRow để hiển thị trên TableView
@@ -53,13 +53,13 @@ public class Inventoryutils {
             return new java.util.ArrayList<>();
         }
         return inventories.stream()
-                .map(Inventoryutils::toInventoryRow)
+                .map(InventoryUtils::toInventoryRow)
                 .collect(Collectors.toList());
     }
 
     /**
      * Calculate total stock value
-     * Tính tổng giá trị tồn kho (quantity * price_cost)    
+     * Tính tổng giá trị tồn kho (quantity * price_cost)
      * 
      * @param inventories - Danh sách inventory
      * @return Tổng giá trị tồn kho

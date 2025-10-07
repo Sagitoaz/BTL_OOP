@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/SearchInventoryView.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/Inventory/SearchInventoryView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("OOP");
         stage.setScene(scene);

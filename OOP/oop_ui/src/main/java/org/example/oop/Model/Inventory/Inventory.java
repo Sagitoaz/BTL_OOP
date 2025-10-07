@@ -9,7 +9,7 @@ public class Inventory {
     // --- Trường dữ liệu cũ (đang được UI/loader dùng)
     private int id;
     private String name;
-    private String type; // ví dụ: Medication / Supplies / Equipment (nếu bạn đang dùng)
+    private String type; // ví dụ: Medication / Supplies / E quipment (nếu bạn đang dùng)
     private String sku;
     private String category;
     private int quantity; // tồn hiện tại (đang hiển thị trên bảng)
@@ -25,7 +25,7 @@ public class Inventory {
     private LocalDateTime createdAt; // thời điểm tạo (Products.created_at)
     private String updatedBy; // user cập nhật lần cuối
     private Integer reorderLevel; // ngưỡng cảnh báo hết hàng
-    private Integer location; // vị trí lưu trữ trong kho
+    private String location; // vị trí lưu trữ trong kho
     private Integer reorderQuantity; // số lượng đặt lại mặc định
     // --- Constructors ---
 
@@ -42,7 +42,7 @@ public class Inventory {
             LocalDateTime lastUpdated,
             String updateBy,
             Integer reorderLevel,
-            Integer location,
+            String location,
             Integer reorderQuantity) {
         this.id = id;
         this.name = name;
@@ -198,11 +198,11 @@ public class Inventory {
         this.reorderLevel = reorderLevel;
     }
 
-    public Integer getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(Integer location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
