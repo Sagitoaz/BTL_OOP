@@ -14,6 +14,8 @@ public class StockMovement {
     private int quantityAfter;
     private String reason;
     private String reference; // Mã tham chiếu (PO number, invoice number)
+    private String locationFrom; // Vị trí xuất (cho TRANSFER)
+    private String locationTo; // Vị trí nhập (cho TRANSFER)
     private LocalDateTime movedAt;
     private String movedBy; // User ID
     private String notes;
@@ -102,6 +104,22 @@ public class StockMovement {
 
     public void setReference(String reference) {
         this.reference = reference;
+    }
+
+    public String getLocationFrom() {
+        return locationFrom;
+    }
+
+    public void setLocationFrom(String locationFrom) {
+        this.locationFrom = locationFrom;
+    }
+
+    public String getLocationTo() {
+        return locationTo;
+    }
+
+    public void setLocationTo(String locationTo) {
+        this.locationTo = locationTo;
     }
 
     public LocalDateTime getMovedAt() {

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.oop.Control.StockMovementController"
+            prefHeight="600.0" prefWidth="900.0">
+
+    <!-- TOP: Movement Form -->
+    <top>
+        <VBox spacing="10" BorderPane.alignment="CENTER">
+            <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+
+            <Label text="Record Stock Movement" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+            <GridPane hgap="10" vgap="10">
+                <Label text="Product:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <ComboBox fx:id="productBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                <Label text="Movement Type:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <ComboBox fx:id="movementTypeBox" prefWidth="150" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+
+                <Label text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <TextField fx:id="quantityField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                <Label text="Reason:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <TextField fx:id="reasonField" prefWidth="200" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+                <Label text="From Location:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <TextField fx:id="locationFromField" promptText="For TRANSFER" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                <Label text="To Location:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                <TextField fx:id="locationToField" promptText="For TRANSFER" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+            </GridPane>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="saveButton" text="Save Movement" onAction="#onSaveButton"
+                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                <Button fx:id="clearButton" text="Clear" onAction="#onClearButton"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- CENTER: History Table -->
+    <center>
+        <VBox spacing="10" BorderPane.alignment="CENTER">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+            <Label text="Movement History" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+            <TableView fx:id="movementTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="productColumn" text="Product" prefWidth="150"/>
+                    <TableColumn fx:id="typeColumn" text="Type" prefWidth="100"/>
+                    <TableColumn fx:id="qtyBeforeColumn" text="Qty Before" prefWidth="80"/>
+                    <TableColumn fx:id="qtyChangeColumn" text="Qty Change" prefWidth="80"/>
+                    <TableColumn fx:id="qtyAfterColumn" text="Qty After" prefWidth="80"/>
+                    <TableColumn fx:id="locationFromColumn" text="Location From" prefWidth="100"/>
+                    <TableColumn fx:id="locationToColumn" text="Location To" prefWidth="100"/>
+                    <TableColumn fx:id="reasonColumn" text="Reason" prefWidth="150"/>
+                    <TableColumn fx:id="movedAtColumn" text="Moved At" prefWidth="130"/>
+                    <TableColumn fx:id="movedByColumn" text="Moved By" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM: Status -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <Label fx:id="statusLabel" text="Ready to record movements"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

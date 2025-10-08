@@ -3,12 +3,15 @@ package org.example.oop.Control;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import org.example.oop.Model.Inventory.Inventory;
 import org.example.oop.Model.Inventory.InventoryRow;
 import org.example.oop.Utils.AppConfig;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class InventoriesController {
     public ObservableList<InventoryRow> loadInventory(String path) throws IOException {
@@ -80,5 +83,22 @@ public class InventoriesController {
             }
         }
         return false;
+    }
+
+    public boolean deleteInventory(ObservableList<InventoryRow> inventoryList, int id) {
+        return inventoryList.removeIf(row -> row.getId() == id);
+    }
+
+    public ObservableList<InventoryRow> getLowStockItems(ObservableList<InventoryRow> list) {
+        return list.stream().filter(row -> "LOW_STOCK".equalsIgnoreCase(row.getStockStatus()) ||
+                "OUT_OF_STOCK".equalsIgnoreCase(row.getStockStatus()))
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
+    }
+
+    public InventoryRow searchBySku(ObservableList<InventoryRow> inventoryList, String sku) {
+        return inventoryList.stream()
+                .filter(row -> sku.equalsIgnoreCase(row.getSku()))
+                .findFirst()
+                .orElse(null);
     }
 }

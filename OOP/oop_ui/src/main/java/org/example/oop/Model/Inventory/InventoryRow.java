@@ -21,6 +21,10 @@ public class InventoryRow {
     private String stockStatus; // LOW_STOCK, IN_STOCK, OUT_OF_STOCK
 
     // Constructor cũ (giữ nguyên để tương thích)
+
+    public InventoryRow() {
+    }
+
     public InventoryRow(int id, String name, String type, String category,
             int quantity, String unit, int unitPrice, LocalDate lastUpdated) {
         this.id = id;
