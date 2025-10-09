@@ -17,4 +17,8 @@ module org.example.oop {
     exports org.example.oop;
     exports org.example.oop.Model;
     opens org.example.oop.Model to javafx.fxml;
+    exports org.example.oop.Model.PaymentModel;
+    opens org.example.oop.Model.PaymentModel to javafx.fxml;
+    exports org.example.oop.Control.PaymentControl;
+    opens org.example.oop.Control.PaymentControl to javafx.fxml;
 }

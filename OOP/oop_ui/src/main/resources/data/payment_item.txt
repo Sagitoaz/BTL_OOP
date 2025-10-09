@@ -1,0 +1,5 @@
+1|101|1|Nuoc nho mat V-Rohto|2|40000|80000
+2|205|1|Khang sinh Amoxicillin|1|15000|15000
+3|310|2|Trong kinh chong anh sang xanh|1|250000|250000
+4|401|3|Thuoc dau dau Panadol Extra|1|55000|55000
+5|502|4|Vitamin C (vi 10 vien)|2|5000|10000
