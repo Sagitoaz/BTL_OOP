@@ -1,7 +1,6 @@
-package org.example.oop.Model.Medical;
+package org.example.oop.Model.PatientAndPrescription;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class SpectaclePrescription {
@@ -15,7 +14,7 @@ public class SpectaclePrescription {
     }
     private int id;
     private int doctorId;
-    private int patientRecordId;
+    private int patientId;
     private int appointmentId;
     private LocalDate dateIssued;
     private double sph_od;
@@ -43,7 +42,7 @@ public class SpectaclePrescription {
                                  Status status, Lens_Type lens_type ) {
         this.id = id;
         this.doctorId = doctorId;
-        this.patientRecordId = patientRecordId;
+        this.patientId = patientRecordId;
         this.appointmentId = appointmentId;
         this.dateIssued = dateIssued;
         this.sph_od = sph_od;
@@ -71,8 +70,8 @@ public class SpectaclePrescription {
     public int getDoctorId() {
         return doctorId;
     }
-    public int getPatientRecordId() {
-        return patientRecordId;
+    public int getPatientId() {
+        return patientId;
     }
     public int getAppointmentId() {
         return appointmentId;
@@ -140,7 +139,7 @@ public class SpectaclePrescription {
 
         return id + "|" +
                 doctorId + "|" +
-                patientRecordId + "|" +
+                patientId + "|" +
                 appointmentId + "|" +
                 (dateIssued != null ? dateIssued : "") + "|" +
                 sph_od + "|" +
@@ -168,7 +167,7 @@ public class SpectaclePrescription {
 
         int id = Integer.parseInt(fields[0]);
         int doctorId = Integer.parseInt(fields[1]);
-        int patientRecordId = Integer.parseInt(fields[2]);
+        int patientId = Integer.parseInt(fields[2]);
         int appointmentId = Integer.parseInt(fields[3]);
 
         LocalDate dateIssued = (fields[4].isEmpty() || fields[4].equals("null")) ? null : LocalDate.parse(fields[4]);
@@ -192,7 +191,7 @@ public class SpectaclePrescription {
         Lens_Type lens_type = (fields[22].isEmpty() || fields[22].equalsIgnoreCase("null")) ? null : Lens_Type.valueOf(fields[22].toUpperCase());
 
         return new SpectaclePrescription(
-                id, doctorId, patientRecordId, appointmentId, dateIssued,
+                id, doctorId, patientId, appointmentId, dateIssued,
                 sph_od, cyl_od, axis_od, va_od, sph_os, cyl_os, axis_os, va_os,
                 add_power, pd, material, features, recheck_after_months,
                 notes, signedAt, signedBy, status, lens_type
@@ -201,7 +200,7 @@ public class SpectaclePrescription {
 
     @Override
     public String toString(){
-        return "Prescription{id=" + id + ", patientRecordId=" + patientRecordId + ", appointmentId=" + appointmentId + ", doctorId=" + doctorId +"}";
+        return "Prescription{id=" + id + ", patientId=" + patientId + ", appointmentId=" + appointmentId + ", doctorId=" + doctorId +"}";
     }
 
 

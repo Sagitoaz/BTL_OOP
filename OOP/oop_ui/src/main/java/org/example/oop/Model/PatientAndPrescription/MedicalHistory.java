@@ -1,4 +1,4 @@
-package org.example.oop.Model.Medical;
+package org.example.oop.Model.PatientAndPrescription;
 
 import java.time.LocalDate;
 import java.util.Objects;
