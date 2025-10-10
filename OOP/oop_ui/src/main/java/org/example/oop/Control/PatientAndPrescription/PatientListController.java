@@ -3,6 +3,7 @@ package org.example.oop.Control.PatientAndPrescription;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -40,6 +41,7 @@ public class PatientListController implements Initializable {
     @FXML
     private Button newPatientButton;
 
+    ObservableList<PatientRecord> data;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // Cấu hình các cột
@@ -66,19 +68,19 @@ public class PatientListController implements Initializable {
         });
 
         // Thêm dữ liệu mẫu
-        ObservableList<PatientRecord> data = FXCollections.observableArrayList(
+        data = FXCollections.observableArrayList(
                 new PatientRecord(1, "John Doe", 101, LocalDate.of(1990, 1, 1),
-                        PatientRecord.Gender.MALE, "123 Street", "0123456789", "john@email.com"),
+                        PatientRecord.Gender.NAM, "123 Street", "0123456789", "john@email.com"),
                 new PatientRecord(2, "Jane Smith", 102, LocalDate.of(1992, 5, 15),
-                        PatientRecord.Gender.FEMALE, "456 Avenue", "0987654321", "jane@email.com")
+                        PatientRecord.Gender.NỮ, "456 Avenue", "0987654321", "jane@email.com")
         );
         patientTable.setItems(data);
 
         // Cấu hình filter giới tính
         genderFilter.setItems(FXCollections.observableArrayList(
-                "TẤT CẢ", "NAM", "NỮ", "KHÁC"
+                "NAM", "NỮ", "KHÁC"
         ));
-        genderFilter.setValue("TẤT CẢ");
+        genderFilter.setValue("NAM");
 
         // Cấu hình filter ngày sinh từ
         genderFilter1.setItems(FXCollections.observableArrayList(
@@ -91,6 +93,12 @@ public class PatientListController implements Initializable {
                 "1990", "2000", "2010", "2020"
         ));
         genderFilter2.setValue("2020");
+
+    }
+    @FXML
+    public void handleNewPatientButton(ActionEvent event) {
+        data.add(new PatientRecord(1, "John Doe", 101, LocalDate.of(1990, 1, 1),
+                PatientRecord.Gender.NAM, "123 Street", "0123456789", "john@email.com"));
 
     }
 }

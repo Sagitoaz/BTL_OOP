@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PatientListController">
+<AnchorPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PatientListController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -49,7 +49,7 @@
                         <Insets bottom="40.0" left="20.0" top="40.0" />
                      </HBox.margin>
                   </ChoiceBox>
-                        <Button fx:id="newPatientButton" mnemonicParsing="false" prefHeight="56.0" prefWidth="100.0" style="-fx-background-color: #0066cc; -fx-font-family: 'Inter'; -fx-background-radius: 8;" text="THÊM" textFill="WHITE">
+                        <Button fx:id="newPatientButton" mnemonicParsing="false" onAction="#handleNewPatientButton" prefHeight="56.0" prefWidth="100.0" style="-fx-background-color: #0066cc; -fx-font-family: 'Inter'; -fx-background-radius: 8;" text="THÊM" textFill="WHITE">
                             <HBox.margin>
                                 <Insets bottom="40.0" left="40.0" top="40.0" />
                             </HBox.margin>
