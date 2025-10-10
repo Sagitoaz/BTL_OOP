@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PatientListController">
+<AnchorPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PatientListController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
@@ -26,7 +26,7 @@
                                 <Insets bottom="12.0" left="64.0" right="16.0" top="12.0" />
                             </padding>
                         </Label>
-                        <TextField fx:id="searchField" prefHeight="100.0" prefWidth="300.0" promptText="🔍 Tìm Kiếm" style="-fx-font-family: 'Inter'; -fx-background-radius: 8; -fx-background-color: white;">
+                        <TextField fx:id="searchField" prefHeight="100.0" prefWidth="300.0" promptText="🔍 Tìm Kiếm">
                             <font>
                                 <Font name="Inter" size="22.0" />
                             </font>
@@ -34,22 +34,22 @@
                                 <Insets bottom="40.0" top="40.0" />
                             </HBox.margin>
                         </TextField>
-                        <ChoiceBox fx:id="genderFilter" prefHeight="200.0" prefWidth="120.0" style="-fx-background-color: white; -fx-font-family: 'Inter'; -fx-background-radius: 8;" value="Giới Tính">
+                        <ChoiceBox fx:id="genderFilter" minHeight="50.0" prefWidth="120.0" value="Giới Tính" HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets bottom="40.0" left="20.0" top="40.0" />
                             </HBox.margin>
                         </ChoiceBox>
-                  <ChoiceBox fx:id="genderFilter1" prefHeight="200.0" prefWidth="120.0" style="-fx-background-color: white; -fx-font-family: 'Inter'; -fx-background-radius: 8;" value="Sinh Từ">
+                  <ChoiceBox fx:id="dobFromFilter" minHeight="50.0" prefWidth="120.0" value="Sinh Từ" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets bottom="40.0" left="20.0" top="40.0" />
                      </HBox.margin>
                   </ChoiceBox>
-                  <ChoiceBox fx:id="genderFilter2" prefHeight="200.0" prefWidth="120.0" style="-fx-background-color: white; -fx-font-family: 'Inter'; -fx-background-radius: 8;" value="Sinh Tới">
+                  <ChoiceBox fx:id="dobToFilter" minHeight="50.0" prefWidth="120.0" value="Sinh Tới" HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets bottom="40.0" left="20.0" top="40.0" />
                      </HBox.margin>
                   </ChoiceBox>
-                        <Button fx:id="newPatientButton" mnemonicParsing="false" onAction="#handleNewPatientButton" prefHeight="56.0" prefWidth="100.0" style="-fx-background-color: #0066cc; -fx-font-family: 'Inter'; -fx-background-radius: 8;" text="THÊM" textFill="WHITE">
+                        <Button fx:id="applyFilterButton" mnemonicParsing="false" onAction="#handleApplyFilterButton" prefHeight="56.0" prefWidth="100.0" text="LỌC">
                             <HBox.margin>
                                 <Insets bottom="40.0" left="40.0" top="40.0" />
                             </HBox.margin>
