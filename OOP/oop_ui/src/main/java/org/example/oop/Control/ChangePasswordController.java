@@ -2,6 +2,8 @@ package org.example.oop.Control;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.example.oop.Data.models.User;
+import org.example.oop.Data.repositories.UserRepository;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
