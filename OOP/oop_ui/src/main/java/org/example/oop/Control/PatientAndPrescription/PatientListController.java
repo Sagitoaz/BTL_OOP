@@ -32,15 +32,16 @@ public class PatientListController implements Initializable {
     @FXML
     private TableColumn<PatientRecord, String> emailColumn;
     @FXML
+    private TableColumn<PatientRecord, String> addressColumn;
+    @FXML
     private TextField searchField;
     @FXML
-    private ChoiceBox<String> genderFilter;
+    private ComboBox<PatientRecord.Gender> genderFilter;
     @FXML
-    private ChoiceBox<String> dobFromFilter;
+    private DatePicker dateFromFilter;
     @FXML
-    private ChoiceBox<String> dobToFilter;
-    @FXML
-    private Button applyFilterButton;
+    private DatePicker dateToFilter;
+
 
     ObservableList<PatientRecord> data;
     ObservableList<PatientRecord> dataView;
@@ -54,6 +55,7 @@ public class PatientListController implements Initializable {
         dobColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getDob()));
         phoneColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getPhoneNumber()));
         emailColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getEmail()));
+        addressColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getAddress()));
 
         // Định dạng hiển thị cho cột ngày tháng
         dobColumn.setCellFactory(column -> new TableCell<>() {
@@ -82,80 +84,10 @@ public class PatientListController implements Initializable {
         patientTable.setItems(dataView);
 
         // Cấu hình filter giới tính
-        genderFilter.setItems(FXCollections.observableArrayList(
-                "NAM", "NỮ", "KHÁC", "HỦY BỎ"
-        ));
 
 
-        // Cấu hình filter ngày sinh từ
-        dobFromFilter.setItems(FXCollections.observableArrayList(
-                "1980", "1990", "2000", "2010", "HỦY BỎ"
-        ));
 
-
-        // Cấu hình filter ngày sinh tới
-        dobToFilter.setItems(FXCollections.observableArrayList(
-                "1990", "2000", "2010", "2020", "HỦY BỎ"
-        ));
-
-        genderFilter.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                handleGenderFilterInput(newValue);
-            }
-        });
-        dobFromFilter.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                handleDobFromFilterInput(newValue);
-            }
-        });
-
-        dobToFilter.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                handleDobToFilterInput(newValue);
-            }
-        });
 
     }
-    @FXML
-    public void handleApplyFilterButton(ActionEvent event) {
-        PatientRecord.Gender gender = null;
-        try{
-            gender = PatientRecord.Gender.valueOf(genderFilter.getValue().toString().toUpperCase());
-        }
-        catch(IllegalArgumentException ex){
 
-        }
-        dataView.clear();
-        System.out.println("LỌC ");
-        System.out.println(data.size());
-        for(int i = 0; i < data.size(); i++){
-            System.out.println(data.get(i).getGender().name());
-            if(gender == null || data.get(i).getGender() == gender){
-                dataView.add(data.get(i));
-            }
-        }
-        patientTable.setItems(dataView);
-
-    }
-    public void handleGenderFilterInput(String input) {
-        if(input.equals("HỦY BỎ")) {
-            genderFilter.getSelectionModel().clearSelection();
-            genderFilter.setValue("Giới Tính");
-        }
-        System.out.println(input);
-    }
-
-    public void handleDobFromFilterInput(String input) {
-        if(input.equals("HỦY BỎ")) {
-            dobFromFilter.getSelectionModel().clearSelection();
-            dobFromFilter.setValue("Sinh Từ");
-        }
-    }
-    public void handleDobToFilterInput(String input) {
-        if(input.equals("HỦY BỎ")){
-            dobToFilter.getSelectionModel().clearSelection();
-            dobToFilter.setValue("Sinh Tới");
-        }
-
-    }
 }
