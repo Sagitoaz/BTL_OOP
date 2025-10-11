@@ -3,12 +3,14 @@ package org.example.oop.Control;
 import java.io.IOException;
 import java.time.LocalDate;
 
-import org.example.oop.Model.Inventory.InventoryRow;
+import org.example.oop.Model.Inventory.Inventory;
 import org.example.oop.Utils.AppConfig;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -18,25 +20,26 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class ProductCRUDController {
      // === FXML Fields - Table ===
      @FXML
-     private TableView<InventoryRow> productTable;
+     private TableView<Inventory> productTable;
      @FXML
-     private TableColumn<InventoryRow, Integer> idColumn;
+     private TableColumn<Inventory, Integer> idColumn;
      @FXML
-     private TableColumn<InventoryRow, String> skuColumn;
+     private TableColumn<Inventory, String> skuColumn;
      @FXML
-     private TableColumn<InventoryRow, String> nameColumn;
+     private TableColumn<Inventory, String> nameColumn;
      @FXML // ✅ THÊM @FXML
-     private TableColumn<InventoryRow, String> categoryColumn;
+     private TableColumn<Inventory, String> categoryColumn;
      @FXML // ✅ THÊM @FXML
-     private TableColumn<InventoryRow, Integer> quantityColumn; // ✅ SỬA thành Integer
+     private TableColumn<Inventory, Integer> quantityColumn; // ✅ SỬA thành Integer
      @FXML // ✅ THÊM @FXML
-     private TableColumn<InventoryRow, Integer> priceColumn; // ✅ SỬA thành Integer
+     private TableColumn<Inventory, Integer> priceColumn; // ✅ SỬA thành Integer
+     @FXML // ✅ THÊM @FXML
+     private TableColumn<Inventory, String> statusColumn; // ✅ SỬA thành String
 
      // === FXML Fields - Form ===
      @FXML
@@ -49,16 +52,15 @@ public class ProductCRUDController {
      private TextField unitField;
      @FXML // ✅ THÊM @FXML
      private TextField priceField;
-     @FXML // ✅ THÊM @FXML - MỚI
-     private TextField supplierField;
-     @FXML // ✅ THÊM @FXML - MỚI
-     private TextArea descriptionArea;
-
      @FXML
-     private ComboBox<String> typeBox;
+     private TextField searchField;
+
      @FXML
      private ComboBox<String> categoryBox;
-
+     @FXML
+     private ComboBox<String> filterCategoryBox;
+     @FXML
+     private ComboBox<String> statusBox;
      // === FXML Fields - Buttons & Status ===
      @FXML
      private Label statusLabel;
@@ -68,30 +70,76 @@ public class ProductCRUDController {
      private Button deleteButton;
      @FXML
      private Button clearButton;
+     @FXML
+     private Button clearFilterButton;
+     @FXML
+     private Button exportButton;
+     @FXML
+     private Button importButton;
+     @FXML
+     private Button duplicateButton;
+     @FXML
+     private Button editButton;
+     @FXML
+     private Button addNewButton;
 
      // === Data ===
-     private ObservableList<InventoryRow> productList = FXCollections.observableArrayList();
+     private ObservableList<Inventory> productList = FXCollections.observableArrayList();
      private InventoriesController inventoriesController = new InventoriesController();
-     private InventoryRow selectedProduct = null;
+     private Inventory selectedProduct = null;
+     private FilteredList<Inventory> filteredData;
+     private SortedList<Inventory> sortedData;
 
      @FXML // ✅ THÊM @FXML cho initialize
      public void initialize() throws IOException {
-          initTable();
-          initFormBoxes();
-          loadData();
+          loadData(); // nạp vào productList
+          initFilterPipe(); // tạo FilteredList + SortedList + gắn vào bảng
+          initTable(); // chỉ set cellValueFactory + listener (ko setItems)
+          initFormBoxes(); // gán dữ liệu cho combobox form
      }
 
      // === Event Handlers ===
-     @FXML // ✅ THÊM @FXML
-     void onSaveButton(ActionEvent event) throws Exception {
+     @FXML
+     private void onExportButton(ActionEvent event) throws Exception {
+
+     }
+
+     @FXML
+     private void onAddNewButton(ActionEvent event) throws Exception {
+
+     }
+
+     @FXML
+     private void onImportButton(ActionEvent event) throws Exception {
+
+     }
+
+     @FXML
+     private void onClearFilterButton(ActionEvent event) throws Exception {
+          searchField.clear();
+          filterCategoryBox.getSelectionModel().selectFirst();
+     }
+
+     @FXML
+     private void onDuplicateButton(ActionEvent event) throws Exception {
+
+     }
+
+     @FXML
+     private void onEditButton(ActionEvent event) throws Exception {
+
+     }
+
+     @FXML
+     private void onSaveButton(ActionEvent event) throws Exception {
           if (!validateForm()) {
                showStatus("Please fill all required fields", true);
                return;
           }
-          InventoryRow product = getFormData();
+          Inventory product = getFormData();
           if (selectedProduct == null) {
                inventoriesController.AddInventory(productList, product);
-               showStatus("Product added successfully", false); // ✅ SỬA typo "successdully"
+               showStatus("Product added successfully", false);
           } else {
                boolean success = inventoriesController.updateInventory(productList, selectedProduct.getId(), product);
                if (success) {
@@ -106,7 +154,7 @@ public class ProductCRUDController {
      }
 
      @FXML
-     void onDeleteButton(ActionEvent event) throws Exception {
+     private void onDeleteButton(ActionEvent event) throws Exception {
           if (selectedProduct == null) {
                showStatus("Please select a product to delete", true);
                return;
@@ -132,21 +180,21 @@ public class ProductCRUDController {
      }
 
      @FXML
-     void onClearButton(ActionEvent event) {
+     private void onClearButton(ActionEvent event) {
           clearForm();
      }
 
      // === Helper Methods ===
      private void initTable() {
-          // ✅ SỬA: Xóa dòng lặp và fix logic
+          System.out.println(
+                    "✅ ProductCRUDController.initTable(): Setting up table with " + productList.size() + " items");
           idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getId()));
           skuColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getSku()));
           nameColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getName()));
-          categoryColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getCategory())); // ✅
-                                                                                                                  // SỬA
-          quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity())); // ✅
-                                                                                                                  // SỬA
-          priceColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getUnitPrice())); // ✅ SỬA
+          categoryColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getCategory()));
+          quantityColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantity()));
+          priceColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getUnitPrice()));
+          statusColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getStockStatus()));
 
           productTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
                if (newSelection != null) {
@@ -154,77 +202,62 @@ public class ProductCRUDController {
                     populateForm(newSelection);
                }
           });
-
-          productTable.setItems(productList);
+          // productTable.setItems(productList);
+          System.out.println("✅ ProductCRUDController.initTable(): Table setup complete!");
      }
 
      private void initFormBoxes() {
-          ObservableList<String> types = FXCollections.observableArrayList(
-                    "Medicine", "Equipment", "Material", "Other");
-          typeBox.setItems(types);
 
           ObservableList<String> categories = FXCollections.observableArrayList(
                     "Drug", "Lens", "Frame", "Tool", "Supply");
           categoryBox.setItems(categories);
+          ObservableList<String> status = FXCollections.observableArrayList(
+                    "OUT_OF_STOCK", "LOW_STOCK", "IN_STOCK");
+          statusBox.setItems(status);
      }
 
      private void loadData() throws IOException {
-          productList = inventoriesController.loadInventory(AppConfig.TEST_DATA_TXT);
+          productList.setAll(inventoriesController.loadInventory(AppConfig.TEST_DATA_TXT)); // ✅ thay setAll
+          System.out.println("✅ Loaded " + productList.size() + " products");
      }
 
-     private void populateForm(InventoryRow product) {
+     private void populateForm(Inventory product) {
           if (product == null)
                return;
 
           skuField.setText(product.getSku());
           nameField.setText(product.getName());
-          typeBox.setValue(product.getType());
           categoryBox.setValue(product.getCategory());
           quantityField.setText(String.valueOf(product.getQuantity()));
           unitField.setText(product.getUnit());
           priceField.setText(String.valueOf(product.getUnitPrice()));
+          statusBox.setValue(product.getStockStatus());
 
-          // ✅ SỬA: Bỏ comment nếu có supplier
-          if (product.getSupplier() != null) {
-               supplierField.setText(product.getSupplier());
-          }
-
-          // ✅ THÊM: Clear description (hoặc load nếu có)
-          descriptionArea.clear();
      }
 
      private void clearForm() {
           skuField.clear();
           nameField.clear();
-          typeBox.getSelectionModel().clearSelection();
           categoryBox.getSelectionModel().clearSelection();
           quantityField.clear();
           unitField.clear();
           priceField.clear();
-          supplierField.clear(); // ✅ THÊM
-          descriptionArea.clear(); // ✅ THÊM
-
+          statusBox.getSelectionModel().selectFirst();
           selectedProduct = null;
      }
 
-     private InventoryRow getFormData() {
-          InventoryRow row = new InventoryRow();
+     private Inventory getFormData() {
+          Inventory inventory = new Inventory();
 
-          row.setSku(skuField.getText());
-          row.setName(nameField.getText());
-          row.setType(typeBox.getValue());
-          row.setCategory(categoryBox.getValue());
-          row.setQuantity(Integer.parseInt(quantityField.getText()));
-          row.setUnit(unitField.getText());
-          row.setUnitPrice(Integer.parseInt(priceField.getText()));
-          row.setLastUpdated(LocalDate.now());
-
-          // ✅ SỬA: Thêm supplier nếu có
-          if (supplierField.getText() != null && !supplierField.getText().trim().isEmpty()) {
-               row.setSupplier(supplierField.getText());
-          }
-
-          return row;
+          inventory.setSku(skuField.getText());
+          inventory.setName(nameField.getText());
+          inventory.setCategory(categoryBox.getValue());
+          inventory.setQuantity(Integer.parseInt(quantityField.getText()));
+          inventory.setUnit(unitField.getText());
+          inventory.setUnitPrice(Integer.parseInt(priceField.getText()));
+          inventory.setLastUpdated(LocalDate.now());
+          inventory.setStockStatus(statusBox.getSelectionModel().getSelectedItem());
+          return inventory;
      }
 
      private boolean validateForm() {
@@ -232,9 +265,6 @@ public class ProductCRUDController {
                return false;
           }
           if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
-               return false;
-          }
-          if (typeBox.getValue() == null || typeBox.getValue().isEmpty()) {
                return false;
           }
           if (categoryBox.getValue() == null || categoryBox.getValue().isEmpty()) {
@@ -249,6 +279,54 @@ public class ProductCRUDController {
           }
 
           return true;
+     }
+
+     private void initFilterPipe() {
+          ObservableList<String> category = FXCollections.observableArrayList("Category", "Drug", "Lens", "Frame",
+                    "Tool",
+                    "Supply");
+          filterCategoryBox.setItems(category);
+          filterCategoryBox.getSelectionModel().selectFirst();
+          filteredData = new FilteredList<>(productList, p -> true);
+          sortedData = new SortedList<>(filteredData);
+          sortedData.comparatorProperty().bind(productTable.comparatorProperty());
+          productTable.setItems(sortedData);
+
+          // Ví dụ: filter theo searchField
+          if (searchField != null) {
+               searchField.textProperty().addListener((obs, o, n) -> applyFilter());
+          }
+          if (filterCategoryBox != null) {
+               filterCategoryBox.valueProperty().addListener((obs, o, n) -> applyFilter());
+          }
+          applyFilter();
+     }
+
+     private void applyFilter() {
+          String selected = filterCategoryBox.getSelectionModel().getSelectedItem();
+          boolean all = (selected == null || selected.equalsIgnoreCase("Category"));
+          String selectedNorm = norm(selected);
+          String kw = norm(searchField != null ? searchField.getText() : "");
+          filteredData.setPredicate(row -> {
+               if (row == null)
+                    return false;
+               boolean matchKw = kw.isBlank()
+                         || norm(row.getName()).contains(kw)
+                         || norm(row.getSku()).contains(kw)
+                         || norm(row.getCategory()).contains(kw);
+
+               boolean matchCat = all
+                         || norm(row.getCategory()).equals(selectedNorm); // hoặc .contains(...) nếu bạn muốn “chứa”
+
+               return matchKw && matchCat;
+          });
+     }
+
+     private static String norm(String s) {
+          if (s == null)
+               return "";
+          String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
+          return n.replaceAll("\\p{M}+", "").toLowerCase().trim();
      }
 
      private void showStatus(String message, boolean isError) {

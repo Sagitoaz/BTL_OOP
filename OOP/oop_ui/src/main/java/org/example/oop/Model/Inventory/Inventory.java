@@ -1,49 +1,48 @@
 package org.example.oop.Model.Inventory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Đại diện cho một mặt hàng trong kho (bản đơn giản để dùng với UI hiện tại).
+ * Model đại diện cho một sản phẩm trong kho.
+ * Được dùng cho cả UI (TableView) và business logic.
  */
 public class Inventory {
-    // --- Trường dữ liệu cũ (đang được UI/loader dùng)
+    // === BASIC INFO ===
     private int id;
-    private String name;
-    private String type; // ví dụ: Medication / Supplies / E quipment (nếu bạn đang dùng)
-    private String sku;
-    private String category;
-    private int quantity; // tồn hiện tại (đang hiển thị trên bảng)
-    private String unit;
-    private int unitPrice; // giá bán lẻ mặc định (đang hiển thị trên bảng)
-    private LocalDateTime lastUpdated;
-    // --- Trường bổ sung (theo schema/nhu cầu nghiệp vụ)
-    private String supplier;
-    private String description;
-    private Integer price_cost; // giá nhập (Products.price_cost)
-    private boolean active = true; // trạng thái hoạt động (Products.is_active)
-    private String note; // ghi chú (Products.note)
-    private LocalDateTime createdAt; // thời điểm tạo (Products.created_at)
-    private String updatedBy; // user cập nhật lần cuối
-    private Integer reorderLevel; // ngưỡng cảnh báo hết hàng
-    private String location; // vị trí lưu trữ trong kho
-    private Integer reorderQuantity; // số lượng đặt lại mặc định
-    // --- Constructors ---
+    private String sku; // Mã SKU (bắt buộc)
+    private String name; // Tên sản phẩm
+    private String type; // Loại: Medication/Equipment/Supplies
+    private String category; // Danh mục con: Painkiller/Diagnostic...
 
+    // === STOCK INFO ===
+    private int quantity; // Số lượng tồn kho
+    private String unit; // Đơn vị: tablet/box/unit/pcs
+    private Integer unitPrice; // Giá bán (VND)
+    private Integer priceCost; // Giá vốn (VND)
+
+    // === METADATA ===
+    private LocalDate lastUpdated; // Ngày cập nhật cuối (dùng LocalDate để khớp file)
+    private LocalDateTime createdAt; // Thời điểm tạo
+    private String updatedBy; // User cập nhật
+
+    // === STOCK MANAGEMENT ===
+    private Integer reorderLevel; // Ngưỡng cảnh báo (LOW_STOCK)
+    private Integer reorderQuantity; // Số lượng đặt lại mặc định
+    private String location; // Vị trí trong kho
+
+    // === STATUS ===
+    private boolean active = true; // Còn kinh doanh hay không
+    private String status;
+    private String note; // Ghi chú
+
+    // === CONSTRUCTORS ===
     public Inventory() {
+        this.active = true;
     }
 
-    public Inventory(int id,
-            String name,
-            String type,
-            String category,
-            int quantity,
-            String unit,
-            int unitPrice,
-            LocalDateTime lastUpdated,
-            String updateBy,
-            Integer reorderLevel,
-            String location,
-            Integer reorderQuantity) {
+    public Inventory(int id, String name, String type, String category,
+            int quantity, String unit, Integer unitPrice, Integer priceCost, LocalDate lastUpdated) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -51,47 +50,21 @@ public class Inventory {
         this.quantity = quantity;
         this.unit = unit;
         this.unitPrice = unitPrice;
+        this.priceCost = priceCost;
         this.lastUpdated = lastUpdated;
-        this.updatedBy = updateBy;
-        this.reorderLevel = reorderLevel;
-        this.location = location;
-        this.reorderQuantity = reorderQuantity;
+        this.active = true;
     }
 
-    // --- Getters (cũ – giữ nguyên tên để không gãy UI/loader) ---
+    // === GETTERS & SETTERS ===
+
     public int getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public int getUnitPrice() {
-        return unitPrice;
-    }
-
-    public LocalDateTime getLastUpdated() {
-        return lastUpdated;
-    }
-
-    // --- Getters/Setters đầy đủ (bổ sung) ---
     public String getSku() {
         return sku;
     }
@@ -100,45 +73,68 @@ public class Inventory {
         this.sku = sku;
     }
 
-    public String getSupplier() {
-        return supplier;
+    public String getName() {
+        return name;
     }
 
-    public void setSupplier(String supplier) {
-        this.supplier = supplier;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getType() {
+        return type;
     }
 
-    // Sửa lỗi: tham số trước đây tên "desciption" và gán nhầm biến
-    public void setDescription(String description) {
-        this.description = description;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public Integer getPrice_cost() {
-        return price_cost;
+    public String getCategory() {
+        return category;
     }
 
-    public void setPrice_cost(Integer price_cost) {
-        this.price_cost = price_cost;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public boolean isActive() {
-        return active;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public String getNote() {
-        return note;
+    public String getUnit() {
+        return unit;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public Integer getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(int unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public Integer getPriceCost() {
+        return priceCost;
+    }
+
+    public void setPriceCost(Integer priceCost) {
+        this.priceCost = priceCost;
+    }
+
+    public LocalDate getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(LocalDate lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -147,39 +143,6 @@ public class Inventory {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    // --- Setters cho các trường cũ (nếu bạn cần cập nhật từ code khác) ---
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public void setUnitPrice(int unitPrice) {
-        this.unitPrice = unitPrice;
-    }
-
-    public void setLastUpdated(LocalDateTime lastUpdated) {
-        this.lastUpdated = lastUpdated;
     }
 
     public String getUpdatedBy() {
@@ -198,14 +161,6 @@ public class Inventory {
         this.reorderLevel = reorderLevel;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public Integer getReorderQuantity() {
         return reorderQuantity;
     }
@@ -214,32 +169,87 @@ public class Inventory {
         this.reorderQuantity = reorderQuantity;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    // === BUSINESS LOGIC ===
+
+    /**
+     * Tính trạng thái tồn kho.
+     * 
+     * @return "OUT_OF_STOCK", "LOW_STOCK", hoặc "IN_STOCK"
+     */
+    public String getStockStatus() {
+        return this.status;
+    }
+
+    public void setStockStatus(String a) {
+        this.status = a;
+    }
+
+    public void setStockStatus() {
+        if (quantity <= 0) {
+            this.status = "OUT_OF_STOCK";
+        }
+        if (reorderLevel != null && quantity < reorderLevel) {
+            this.status = "LOW_STOCK";
+        }
+        this.status = "IN_STOCK";
+    }
+
+    /**
+     * Kiểm tra có phải low stock không.
+     */
     public boolean isLowStock() {
-        if (reorderLevel == null || reorderLevel == 0) {
-            return false;
-        }
-        return this.quantity < this.reorderLevel;
+        return "LOW_STOCK".equals(getStockStatus());
     }
 
+    /**
+     * Kiểm tra có phải out of stock không.
+     */
     public boolean isOutOfStock() {
-        return quantity == 0;
+        return quantity <= 0;
     }
 
+    /**
+     * Validate dữ liệu cơ bản.
+     */
     public boolean isValid() {
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty())
             return false;
-        }
-        if (quantity < 0) {
+        if (sku == null || sku.trim().isEmpty())
             return false;
-        }
-        if (unitPrice < 0) {
+        if (quantity < 0)
             return false;
-        }
+        if (unitPrice < 0)
+            return false;
         return true;
     }
 
+    @Override
     public String toString() {
         return String.format("Inventory[id=%d, sku=%s, name=%s, qty=%d, status=%s]",
-                id, sku, name, quantity, active ? "ACTIVE" : "INACTIVE");
+                id, sku, name, quantity, getStockStatus());
     }
 }

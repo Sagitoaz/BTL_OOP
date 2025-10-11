@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.oop.Control.AddInventoryController"
+            prefWidth="900.0" prefHeight="640.0">
+    <!-- HEADER -->
+    <top>
+        <VBox spacing="6">
+            <padding>
+                <Insets top="12" right="12" bottom="0" left="12"/>
+            </padding>
+            <Label text="Add Inventory (Product + Optional Initial Stock)"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Separator/>
+        </VBox>
+    </top>
+
+    <!-- BODY -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <!-- TAB 1: PRODUCT INFO (Products table) -->
+            <Tab text="Product Info">
+                <ScrollPane fitToWidth="true">
+                    <content>
+                        <GridPane hgap="10" vgap="10">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <columnConstraints>
+                                <ColumnConstraints prefWidth="160"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <!-- ID (read-only khi edit) -->
+                            <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfId" editable="false" promptText="(auto)"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <!-- SKU -->
+                            <Label text="SKU:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfSku" promptText="Mã hàng duy nhất"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <!-- Name -->
+                            <Label text="Name:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfName" promptText="Tên hiển thị"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                            <!-- Category -->
+                            <Label text="Category:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="cbCategory" prefWidth="220"
+                                      GridPane.rowIndex="3" GridPane.columnIndex="1">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="frame"/>
+                                        <String fx:value="lens"/>
+                                        <String fx:value="contact_lens"/>
+                                        <String fx:value="machine"/>
+                                        <String fx:value="consumable"/>
+                                        <String fx:value="service"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+
+                            <!-- Unit -->
+                            <Label text="Unit:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfUnit" promptText="chiếc, hộp, dịch vụ..."
+                                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                            <!-- Prices -->
+                            <Label text="Price Cost:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfPriceCost" promptText="Giá nhập (số nguyên)"
+                                       GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                            <Label text="Price Retail:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfPriceRetail" promptText="Giá bán lẻ mặc định"
+                                       GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                            <!-- Active -->
+                            <Label text="Active:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                            <CheckBox fx:id="chkActive" selected="true"
+                                      GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                            <!-- Note -->
+                            <Label text="Note:" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                            <TextArea fx:id="taNote" prefRowCount="3" promptText="Ghi chú"
+                                      GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                            <!-- Created At (read-only) -->
+                            <Label text="Created At:" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfCreatedAt" editable="false" promptText="auto"
+                                       GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                            <!-- Actions -->
+                            <HBox spacing="8" GridPane.rowIndex="10" GridPane.columnIndex="1">
+                                <Button fx:id="btnSaveProduct" text="Save Product"/>
+                                <Button fx:id="btnResetProduct" text="Reset"/>
+                            </HBox>
+                        </GridPane>
+                    </content>
+                </ScrollPane>
+            </Tab>
+
+            <!-- TAB 2: OPTIONAL INITIAL STOCK (ghi nhận tồn đầu kỳ) -->
+            <Tab text="Initial Stock (Optional)">
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="12" right="12" bottom="12" left="12"/>
+                    </padding>
+
+                    <!-- Chọn sản phẩm vừa tạo hoặc sản phẩm có sẵn -->
+                    <ToolBar>
+                        <Label text="Product:"/>
+                        <ComboBox fx:id="cbInitProduct" prefWidth="420"
+                                  promptText="Chọn sản phẩm để nhập tồn đầu kỳ"/>
+                        <Separator orientation="VERTICAL"/>
+                        <Label text="Total Qty:"/>
+                        <Label fx:id="lblInitTotalQty" text="0" style="-fx-font-weight: bold;"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnAddLine" text="Add Line"/>
+                        <Button fx:id="btnRemoveLine" text="Remove Selected"/>
+                        <Button fx:id="btnImportCsv" text="Import CSV"/>
+                    </ToolBar>
+
+                    <!-- Bảng nhập nhiều dòng (batch/expiry/serial/qty) -->
+                    <TableView fx:id="tblInitLines" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colBatch" text="Batch No" prefWidth="140"/>
+                            <TableColumn fx:id="colExpiry" text="Expiry Date" prefWidth="120"/>
+                            <TableColumn fx:id="colSerial" text="Serial No" prefWidth="180"/>
+                            <TableColumn fx:id="colQty" text="Qty" prefWidth="100"/>
+                            <TableColumn fx:id="colLineNote" text="Note" prefWidth="200"/>
+                        </columns>
+                        <placeholder>
+                            <Label text="Chưa có dòng nào. Nhấn Add Line để thêm."/>
+                        </placeholder>
+                    </TableView>
+
+                    <!-- Người thao tác và thời điểm -->
+                    <GridPane hgap="10" vgap="10">
+                        <padding>
+                            <Insets top="6" right="6" bottom="6" left="6"/>
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="160"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <Label text="Moved By (user id):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="tfInitMovedBy" promptText="User ID"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Moved At:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <HBox spacing="6" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                            <DatePicker fx:id="dpInitMovedDate" promptText="yyyy-MM-dd"/>
+                            <TextField fx:id="tfInitMovedTime" promptText="HH:mm:ss"/>
+                        </HBox>
+                    </GridPane>
+
+                    <HBox spacing="8">
+                        <Button fx:id="btnSaveInitialStock" text="Save Initial Stock"/>
+                        <Button fx:id="btnResetInitialStock" text="Reset"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+
+    <!-- FOOTER -->
+    <bottom>
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="8" right="12" bottom="12" left="12"/>
+            </padding>
+            <Label text="Status:"/>
+            <Label fx:id="lblStatus" text="Ready"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnClose" text="Close"/>
+        </HBox>
+    </bottom>
+</BorderPane>

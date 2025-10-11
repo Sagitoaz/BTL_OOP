@@ -1,0 +1,31 @@
+id,name,type,category,quantity,unit,unitPrice,priceCost,lastUpdated,sku
+1,Paracetamol 500mg,Medication,Painkiller,1500,tablet,2000,1200,2025-10-11,MED-PAR-500
+2,Ibuprofen 400mg,null,Anti-inflammatory,800,tablet,3500,2100,2025-10-11,MED-IBU-400
+3,Amoxicillin 250mg,Medication,Drug,600,capsule,5000,3500,2025-10-11,MED-AMO-250
+4,Vitamin C 1000mg,Medication,Supplement,2000,tablet,1500,900,2024-01-16,MED-VIT-C1K
+5,Aspirin 100mg,Medication,Cardiovascular,1200,tablet,2500,1500,2025-10-11,MED-ASP-100
+6,Blood Pressure Monitor,Equipment,Diagnostic,45,unit,850000,650000,2024-01-10,EQP-BPM-001
+7,Digital Thermometer,Equipment,Diagnostic,120,unit,150000,100000,2025-10-11,EQP-THM-DIG
+8,Stethoscope,Equipment,Diagnostic,30,unit,450000,320000,2024-01-11,EQP-STH-001
+9,Pulse Oximeter,Equipment,Diagnostic,60,unit,380000,280000,2024-01-14,EQP-POX-001
+10,ECG Machine,Equipment,Diagnostic,8,unit,12500000,10000000,2025-10-11,EQP-ECG-001
+11,Surgical Gloves,Supplies,Protective,5000,pair,5000,3000,2024-01-16,SUP-GLV-SRG
+12,Face Mask N95,Supplies,Protective,3000,piece,8000,5500,2024-01-15,SUP-MSK-N95
+13,Medical Gauze,Supplies,Wound Care,1500,roll,3000,1800,2025-10-11,SUP-GAU-001
+14,Adhesive Bandage,Supplies,Drug,2500,box,12000,8000,2025-10-11,SUP-BND-ADH
+15,Alcohol Swab,Supplies,Disinfectant,4000,piece,500,300,2024-01-16,SUP-ALC-SWB
+16,Insulin Syringe,Supplies,Injection,800,piece,3500,2200,2024-01-13,SUP-SYR-INS
+17,IV Catheter,Supplies,Injection,600,piece,8000,5500,2024-01-12,SUP-CAT-IV
+18,Wheelchair,Equipment,Mobility,15,unit,2500000,1900000,2024-01-09,EQP-WCH-001
+19,Hospital Bed,Equipment,Furniture,25,unit,8500000,6800000,2024-01-07,EQP-BED-HSP
+20,Examination Table,Equipment,Furniture,18,unit,4200000,3200000,2025-10-11,EQP-TBL-EXM
+21,Oxygen Cylinder,Equipment,Respiratory,35,unit,1800000,1400000,2024-01-11,EQP-OXY-CYL
+22,Nebulizer,Equipment,Respiratory,50,unit,950000,720000,2024-01-13,EQP-NEB-001
+23,Omeprazole 20mg,Medication,Gastrointestinal,900,capsule,4000,2800,2024-01-14,MED-OMP-20
+24,Metformin 500mg,Medication,Diabetes,1100,tablet,3000,2000,2024-01-15,MED-MET-500
+25,Atorvastatin 10mg,Medication,Cholesterol,600,tablet,6000,4200,2025-10-09,MED-ATO-10
+26,Lisinopril 5mg,Medication,Cardiovascular,850,tablet,5500,3800,2024-01-14,MED-LIS-5
+27,Salbutamol Inhaler,Medication,Respiratory,300,piece,45000,32000,2024-01-12,MED-SAL-INH
+28,Eye Drops Antibiotic,Medication,Ophthalmology,400,bottle,25000,18000,2024-01-15,MED-EYE-ABX
+29,Cotton Balls,Supplies,General,6000,piece,200,120,2024-01-16,SUP-COT-BAL
+30,Medical Tape,Supplies,Wound Care,1800,roll,4500,3000,2024-01-15,SUP-TAP-MED

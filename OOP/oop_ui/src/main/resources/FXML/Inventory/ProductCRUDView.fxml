@@ -1,105 +1,240 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.oop.Control.ProductCRUDController"
-            prefWidth="1280.0" prefHeight="800.0">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.ProductCRUDController">
+
+    <!-- TOP: Header with title and quick actions -->
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <padding><Insets bottom="15" left="20" right="20" top="15" /></padding>
+                <Label text="Product Management" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="addNewButton" onAction="#onAddNewButton" text="Add New Product">
+                    <tooltip><Tooltip text="Create a new product" /></tooltip>
+                </Button>
+            </HBox>
+            <Separator />
+        </VBox>
+    </top>
 
     <center>
-        <SplitPane dividerPositions="0.62">
-            <!-- LEFT: Search + Table -->
-            <VBox spacing="12">
-                <padding><Insets top="12" right="8" bottom="12" left="12"/></padding>
+        <SplitPane dividerPositions="0.65">
+            <!-- LEFT: Search + Table Panel -->
+            <VBox spacing="15">
+                <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
 
-                <TextField fx:id="searchField" promptText="Search products..." prefHeight="34"/>
+                <!-- Search Section -->
+                <VBox spacing="10">
+                    <Label text="Search and Filter" />
+                    
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <TextField fx:id="searchField" prefHeight="36" promptText="Search by name, SKU, or category..." HBox.hgrow="ALWAYS">
+                            <tooltip><Tooltip text="Search products by name, SKU, or category" /></tooltip>
+                        </TextField>
+                        
+                        <ComboBox fx:id="filterCategoryBox" prefWidth="160" promptText="All Categories">
+                            <tooltip><Tooltip text="Filter by category" /></tooltip>
+                        </ComboBox>
+                        
+                        <Button fx:id="clearFilterButton" onAction="#onClearFilterButton" text="Clear">
+                            <tooltip><Tooltip text="Clear all filters" /></tooltip>
+                        </Button>
+                    </HBox>
+                </VBox>
 
-                <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                    </columnResizePolicy>
+                <Separator />
 
-                    <columns>
-                        <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
-                        <TableColumn fx:id="skuColumn" text="SKU" minWidth="120"/>
-                        <TableColumn fx:id="nameColumn" text="Name" minWidth="220"/>
-                        <TableColumn fx:id="categoryColumn" text="Category" minWidth="160"/>
-                        <TableColumn fx:id="quantityColumn" text="Quantity" maxWidth="100"/>
-                        <TableColumn fx:id="priceColumn" text="Price" minWidth="140"/>
-                    </columns>
+                <!-- Table Section -->
+                <VBox spacing="8" VBox.vgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Product List" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="recordCountLabel" text="0 products" />
+                    </HBox>
 
-                    <!-- Hiện thông báo khi bảng rỗng -->
-                    <placeholder>
-                        <Label text="No products found" style="-fx-text-fill: #777;"/>
-                    </placeholder>
-                </TableView>
+                    <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
+                        <columnResizePolicy>
+                            <TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+
+                        <columns>
+                            <TableColumn fx:id="idColumn" prefWidth="60" minWidth="60" text="ID" />
+                            <TableColumn fx:id="skuColumn" prefWidth="120" minWidth="120" text="SKU" />
+                            <TableColumn fx:id="nameColumn" prefWidth="220" minWidth="200" text="Product Name" />
+                            <TableColumn fx:id="categoryColumn" prefWidth="140" minWidth="140" text="Category" />
+                            <TableColumn fx:id="quantityColumn" prefWidth="80" minWidth="80" text="Stock" />
+                            <TableColumn fx:id="priceColumn" prefWidth="120" minWidth="120" text="Price (VND)" />
+                            <TableColumn fx:id="statusColumn" prefWidth="100" minWidth="100" text="Status" />
+                        </columns>
+
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="10">
+                                <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
+                                <Label text="No products found" />
+                                <Label text="Try adjusting your search criteria" />
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+                </VBox>
             </VBox>
 
-            <!-- RIGHT: Form -->
-            <ScrollPane fitToWidth="true" fitToHeight="true" SplitPane.resizableWithParent="false">
+            <!-- RIGHT: Form Panel -->
+            <ScrollPane fitToHeight="true" fitToWidth="true" SplitPane.resizableWithParent="false">
                 <content>
-                    <VBox spacing="14" prefWidth="400" maxWidth="420">
-                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                    <VBox maxWidth="450" prefWidth="420" spacing="20">
+                        <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
 
-                        <Label text="Product Details" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
+                        <!-- Form Header -->
+                        <VBox spacing="5">
+                            <Label fx:id="formTitleLabel" text="Product Details" />
+                            <Separator />
+                        </VBox>
 
-                        <GridPane hgap="10" vgap="10">
+                        <!-- Form Fields -->
+                        <GridPane hgap="15" vgap="15">
                             <columnConstraints>
-                                <ColumnConstraints minWidth="120" halignment="RIGHT"/>
-                                <ColumnConstraints hgrow="ALWAYS"/>
+                                <ColumnConstraints halignment="RIGHT" minWidth="110" />
+                                <ColumnConstraints hgrow="ALWAYS" />
                             </columnConstraints>
 
-                            <Label text="SKU:" GridPane.rowIndex="0"/>
-                            <TextField fx:id="skuField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                            <!-- SKU Field -->
+                            <Label text="SKU:" GridPane.rowIndex="0" />
+                            <TextField fx:id="skuField" promptText="e.g. PROD-001" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <tooltip><Tooltip text="Unique product identifier (Stock Keeping Unit)" /></tooltip>
+                            </TextField>
 
-                            <Label text="Name:" GridPane.rowIndex="1"/>
-                            <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                            <!-- Name Field -->
+                            <Label text="Name:" GridPane.rowIndex="1" />
+                            <TextField fx:id="nameField" promptText="Enter product name" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <tooltip><Tooltip text="Full product name" /></tooltip>
+                            </TextField>
 
-                            <Label text="Type:" GridPane.rowIndex="2"/>
-                            <ComboBox fx:id="typeBox" prefWidth="220" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                            <!-- Category Field -->
+                            <Label text="Category:" GridPane.rowIndex="2" />
+                            <ComboBox fx:id="categoryBox" prefWidth="200" promptText="Select category" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <tooltip><Tooltip text="Product category" /></tooltip>
+                            </ComboBox>
 
-                            <Label text="Category:" GridPane.rowIndex="3"/>
-                            <ComboBox fx:id="categoryBox" prefWidth="220" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                            <!-- Quantity Field -->
+                            <Label text="Stock Qty:" GridPane.rowIndex="3" />
+                            <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                <TextField fx:id="quantityField" prefWidth="120" promptText="0">
+                                    <tooltip><Tooltip text="Current stock quantity" /></tooltip>
+                                </TextField>
+                                <TextField fx:id="unitField" prefWidth="80" promptText="pcs">
+                                    <tooltip><Tooltip text="Unit of measurement (e.g. pcs, kg, liters)" /></tooltip>
+                                </TextField>
+                            </HBox>
 
-                            <Label text="Quantity:" GridPane.rowIndex="4"/>
-                            <TextField fx:id="quantityField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                            <!-- Price Field -->
+                            <Label text="Unit Price:" GridPane.rowIndex="4" />
+                            <TextField fx:id="priceField" promptText="0.00 VND" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                <tooltip><Tooltip text="Price per unit in VND" /></tooltip>
+                            </TextField>
 
-                            <Label text="Unit:" GridPane.rowIndex="5"/>
-                            <TextField fx:id="unitField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                            <!-- Status Field -->
+                            <Label text="Status:" GridPane.rowIndex="5" />
+                            <ComboBox fx:id="statusBox" prefWidth="200" promptText="Active" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                <tooltip><Tooltip text="Product status (Active/Inactive/Discontinued)" /></tooltip>
+                            </ComboBox>
 
-                            <Label text="Unit Price:" GridPane.rowIndex="6"/>
-                            <TextField fx:id="priceField" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+                            <!-- Description Field -->
+                            <Label text="Description:" GridPane.rowIndex="6" GridPane.valignment="TOP" />
+                            <TextArea fx:id="descriptionArea" prefRowCount="4" promptText="Enter product description..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                <tooltip><Tooltip text="Detailed product description" /></tooltip>
+                            </TextArea>
 
-                            <Label text="Supplier:" GridPane.rowIndex="7"/>
-                            <TextField fx:id="supplierField" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-
-                            <Label text="Description:" GridPane.rowIndex="8"/>
-                            <TextArea fx:id="descriptionArea" prefRowCount="4"
-                                      GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                            <rowConstraints>
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                                <RowConstraints />
+                            </rowConstraints>
                         </GridPane>
 
-                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                            <Button fx:id="saveButton" text="Save" onAction="#onSaveButton" defaultButton="true"/>
-                            <Button fx:id="clearButton" text="Clear" onAction="#onClearButton" cancelButton="true"/>
-                        </HBox>
+                        <Separator />
+
+                        <!-- Action Buttons -->
+                        <VBox spacing="10">
+                            <HBox alignment="CENTER" spacing="12">
+                                <Button fx:id="saveButton" defaultButton="true" onAction="#onSaveButton" prefWidth="120" text="Save">
+                                    <tooltip><Tooltip text="Save product changes" /></tooltip>
+                                </Button>
+                                <Button fx:id="clearButton" cancelButton="true" onAction="#onClearButton" prefWidth="120" text="Clear">
+                                    <tooltip><Tooltip text="Clear all form fields" /></tooltip>
+                                </Button>
+                            </HBox>
+                            
+                            <HBox alignment="CENTER" spacing="12" />
+                        </VBox>
                     </VBox>
                 </content>
             </ScrollPane>
         </SplitPane>
     </center>
 
-    <!-- BOTTOM -->
+    <!-- BOTTOM: Action Bar -->
     <bottom>
-        <HBox spacing="10" alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
-            <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <padding><Insets bottom="12" left="20" right="20" top="12" /></padding>
+                <!-- Left Side Actions -->
+                <HBox spacing="10">
+                    <Button fx:id="deleteButton" onAction="#onDeleteButton" text="Delete Selected">
+                        <tooltip><Tooltip text="Delete selected product (cannot be undone)" /></tooltip>
+                    </Button>
+                    
+                    <Button fx:id="exportButton" onAction="#onExportButton" text="Export">
+                        <tooltip><Tooltip text="Export products to CSV/Excel" /></tooltip>
+                    </Button>
+                    
+                    <Button fx:id="importButton" onAction="#onImportButton" text="Import">
+                        <tooltip><Tooltip text="Import products from file" /></tooltip>
+                    </Button>
+                </HBox>
 
-            <Button fx:id="deleteButton" text="Delete Selected" onAction="#onDeleteButton"
-                    style="-fx-background-color:#d32f2f; -fx-text-fill:white;"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill:#666;"/>
-        </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Right Side Status -->
+                <HBox alignment="CENTER_RIGHT" spacing="15">
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label fx:id="totalValueLabel" text="Total Value: 0 VND" />
+                        <Label fx:id="lowStockLabel" text="Low Stock: 0 items" />
+                    </VBox>
+                    
+                    <Separator orientation="VERTICAL" prefHeight="30" />
+                    
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label fx:id="statusLabel" text="Ready" />
+                        <Label fx:id="lastUpdateLabel" text="Last updated: Never" />
+                    </VBox>
+                </HBox>
+            </HBox>
+        </VBox>
     </bottom>
 
 </BorderPane>

@@ -1,38 +1,46 @@
 package org.example.oop.Control;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.example.oop.Model.Inventory.Inventory;
+import org.example.oop.Utils.AppConfig;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import org.example.oop.Model.Inventory.InventoryRow;
-import org.example.oop.Utils.AppConfig;
-
-import javax.swing.*;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Set;
-import java.util.TreeSet;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 
 public class SearchInventoryController {
     @FXML
-    private TableColumn<InventoryRow, String> categoryColumn;
+    private TableColumn<Inventory, String> categoryColumn;
     @FXML
-    private TableColumn<InventoryRow, Integer> idColumn;
+    private TableColumn<Inventory, Integer> idColumn;
     @FXML
-    private TableView<InventoryRow> inventoryTable;
+    private TableView<Inventory> inventoryTable;
     @FXML
-    private TableColumn<InventoryRow, LocalDate> lastUpdatedColumn;
+    private TableColumn<Inventory, LocalDate> lastUpdatedColumn;
     @FXML
-    private TableColumn<InventoryRow, String> nameColumn;
+    private TableColumn<Inventory, String> nameColumn;
     @FXML
-    private TableColumn<InventoryRow, Integer> priceColumn;
+    private TableColumn<Inventory, Integer> priceColumn;
     @FXML
-    private TableColumn<InventoryRow, Integer> quantityColumn;
+    private TableColumn<Inventory, Integer> quantityColumn;
     @FXML
     private Button resetButton;
     @FXML
@@ -40,9 +48,9 @@ public class SearchInventoryController {
     @FXML
     private TextField searchTextField;
     @FXML
-    private TableColumn<InventoryRow, String> typeColumn;
+    private TableColumn<Inventory, String> typeColumn;
     @FXML
-    private TableColumn<InventoryRow, String> unitColumn;
+    private TableColumn<Inventory, String> unitColumn;
     @FXML
     private DatePicker lastUpdatedPicker;
     @FXML
@@ -58,27 +66,31 @@ public class SearchInventoryController {
     @FXML
     private ComboBox<String> statusBox;
     @FXML
-    private ComboBox<String> supplierBox;
-    @FXML
     private Button exportButton;
 
     // Columns thiếu
     @FXML
-    private TableColumn<InventoryRow, String> skuColumn;
+    private TableColumn<Inventory, String> skuColumn;
     @FXML
-    private TableColumn<InventoryRow, String> supplierColumn;
-    @FXML
-    private TableColumn<InventoryRow, String> statusColumn;
+    private TableColumn<Inventory, String> statusColumn;
 
     // Quick info fields thiếu
     @FXML
     private Label quickSku;
     @FXML
-    private Label quickSupplier;
-    @FXML
     private Label quickStatus;
     @FXML
     private Label quickPrice;
+    @FXML
+    private Label quickType;
+    @FXML
+    private Label quickCategory;
+    @FXML
+    private Label quickCostPrice;
+    @FXML
+    private Label quickQuantity;
+    @FXML
+    private Label quickUnit;
 
     // UI components thiếu
     @FXML
@@ -91,8 +103,8 @@ public class SearchInventoryController {
     private Label countLabel;
 
     private final InventoriesController inventoriesController = new InventoriesController();
-    private ObservableList<InventoryRow> masterData = FXCollections.observableArrayList();
-    private FilteredList<InventoryRow> rowFilteredList;
+    private ObservableList<Inventory> masterData = FXCollections.observableArrayList();
+    private FilteredList<Inventory> rowFilteredList;
 
     @FXML
     public void initialize() throws IOException {
@@ -100,7 +112,6 @@ public class SearchInventoryController {
         InitTypeBox();
         InitCategoryBox();
         InitStatusBox();
-        InitSupplierBox();
         rowFilteredList = new FilteredList<>(masterData, predicate -> true);
         searchTextField.setOnAction(event -> updatePredicate());
         typeBox.setOnAction(event -> updatePredicate());
@@ -108,28 +119,7 @@ public class SearchInventoryController {
         lastUpdatedPicker.setOnAction(event -> updatePredicate());
         skuTextField.setOnAction(event -> updatePredicate());
         statusBox.setOnAction(event -> updatePredicate());
-        supplierBox.setOnAction(event -> updatePredicate());
         updatePredicate();
-    }
-
-    private void InitSupplierBox() {
-        Set<String> suppliers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        for (InventoryRow row : masterData) {
-            if (row != null) {
-                String supplier = row.getSupplier();
-                if (supplier != null) {
-                    supplier = supplier.trim();
-                    if (!supplier.isEmpty()) {
-                        suppliers.add(supplier);
-                    }
-                }
-            }
-        }
-        ObservableList<String> itemTypes = FXCollections.observableArrayList();
-        itemTypes.add("Suppliers");
-        itemTypes.addAll(suppliers);
-        supplierBox.setItems(itemTypes);
-        supplierBox.getSelectionModel().selectFirst();
     }
 
     private void InitStatusBox() {
@@ -150,9 +140,7 @@ public class SearchInventoryController {
         typeBox.getSelectionModel().selectFirst(); // Select "Type"
         categoryBox.getSelectionModel().selectFirst(); // Select "Category"
         statusBox.getSelectionModel().selectFirst(); // Select "Status"
-        supplierBox.getSelectionModel().selectFirst(); // Select "Suppliers"
         lastUpdatedPicker.setValue(null);
-
         updatePredicate();
     }
 
@@ -178,7 +166,6 @@ public class SearchInventoryController {
         priceColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getUnitPrice()));
         lastUpdatedColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getLastUpdated()));
         skuColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getSku()));
-        supplierColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getSupplier()));
         statusColumn.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getStockStatus()));
 
         masterData = inventoriesController.loadInventory(AppConfig.TEST_DATA_TXT);
@@ -193,7 +180,7 @@ public class SearchInventoryController {
 
     private void InitCategoryBox() {
         Set<String> categories = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        for (InventoryRow row : masterData) {
+        for (Inventory row : masterData) {
             if (row != null) {
                 String category = row.getCategory();
                 if (category != null) {
@@ -213,7 +200,7 @@ public class SearchInventoryController {
 
     private void InitTypeBox() {
         Set<String> types = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        for (InventoryRow row : masterData) {
+        for (Inventory row : masterData) {
             if (row != null) {
                 String type = row.getType();
                 if (type != null) {
@@ -234,9 +221,6 @@ public class SearchInventoryController {
     // Sau dùng database sẽ sửa ở hàm này thành hàm gọi liên kết đến db t
     // InventoriesController
     private void updatePredicate() {
-        String supplierSelected = supplierBox.getSelectionModel().getSelectedItem();
-        boolean allSuppliers = (supplierSelected == null || supplierSelected.equalsIgnoreCase("Suppliers")); // ✅ SỬA:
-
         String keyword = searchTextField.getText() == null ? "" : searchTextField.getText().trim().toLowerCase();
         String skuKeyword = skuTextField.getText() == null ? "" : skuTextField.getText().trim().toLowerCase();
 
@@ -252,13 +236,9 @@ public class SearchInventoryController {
         boolean allStatuses = (statusSelected == null || statusSelected.equalsIgnoreCase("Status"));
 
         rowFilteredList.setPredicate(row -> {
-            boolean matchSupplier = allSuppliers ||
-                    (row.getSupplier() != null && row.getSupplier().equalsIgnoreCase(supplierSelected));
-
             boolean matchKeyword = keyword.isEmpty() ||
                     (row.getName() != null && row.getName().toLowerCase().contains(keyword));
 
-            // ✅ SỬA: Search by SKU (không phải ID!)
             boolean matchSku = skuKeyword.isEmpty() ||
                     (row.getSku() != null && row.getSku().toLowerCase().contains(skuKeyword));
 
@@ -275,38 +255,49 @@ public class SearchInventoryController {
                     (row.getStockStatus() != null && row.getStockStatus().equalsIgnoreCase(statusSelected));
 
             // ✅ SỬA: matchSku (không phải mathSku!)
-            return matchSku && matchType && matchKeyword && matchCategory && matchDate && matchStatus && matchSupplier;
+            return matchSku && matchType && matchKeyword && matchCategory && matchDate && matchStatus;
         });
 
         inventoryTable.setItems(rowFilteredList);
         updateCountLabel();
     }
 
-    private void updateDetail(InventoryRow row) {
+    private void updateDetail(Inventory row) {
         if (row == null) {
             itemName.setText("");
             itemDescription.setText("");
 
-            // ✅ SỬA: Dùng setText() cho Label
             quickSku.setText("");
-            quickSupplier.setText("");
             quickStatus.setText("");
             quickPrice.setText("");
+            quickType.setText("");
+            quickCategory.setText("");
+            quickCostPrice.setText("");
+            quickQuantity.setText("");
+            quickUnit.setText("");
             return;
         }
 
         itemName.setText(row.getName());
         itemDescription.setText("Nothing to describe");
 
-        // ✅ SỬA: Dùng setText() cho Label
         quickSku.setText(row.getSku() != null ? row.getSku() : "N/A");
-        quickSupplier.setText(row.getSupplier() != null ? row.getSupplier() : "N/A");
         quickStatus.setText(row.getStockStatus() != null ? row.getStockStatus() : "N/A");
+        quickType.setText(row.getType() != null ? row.getType() : "N/A");
+        quickCategory.setText(row.getCategory() != null ? row.getCategory() : "N/A");
+        quickQuantity.setText(row.getQuantity() >= 0 ? String.valueOf(row.getQuantity()) : "0");
+        quickUnit.setText(row.getUnit() != null ? row.getUnit() : "N/A");
 
         if (row.getUnitPrice() != null) {
             quickPrice.setText(String.format("%,d VND", row.getUnitPrice()));
         } else {
             quickPrice.setText("0 VND");
+        }
+
+        if (row.getPriceCost() != null) {
+            quickCostPrice.setText(String.format("%,d VND", row.getPriceCost()));
+        } else {
+            quickCostPrice.setText("N/A");
         }
     }
 

@@ -4,75 +4,208 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.oop.Control.StockMovementController"
-            prefHeight="600.0" prefWidth="900.0">
+<BorderPane xmlns="http://javafx.com/javafx" 
+            xmlns:fx="http://javafx.com/fxml" 
+            fx:controller="org.example.oop.Control.StockMovementController" 
+            prefHeight="750.0" 
+            prefWidth="1200.0">
 
-    <!-- TOP: Movement Form -->
+    <!-- TOP: Header & Filters -->
     <top>
-        <VBox spacing="10" BorderPane.alignment="CENTER">
-            <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
-
-            <Label text="Record Stock Movement" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-
-            <GridPane hgap="10" vgap="10">
-                <Label text="Product:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <ComboBox fx:id="productBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-                <Label text="Movement Type:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-                <ComboBox fx:id="movementTypeBox" prefWidth="150" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-
-                <Label text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <TextField fx:id="quantityField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-
-                <Label text="Reason:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <TextField fx:id="reasonField" prefWidth="200" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
-
-                <Label text="From Location:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                <TextField fx:id="locationFromField" promptText="For TRANSFER" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-
-                <Label text="To Location:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <TextField fx:id="locationToField" promptText="For TRANSFER" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
-            </GridPane>
-
-            <HBox spacing="10" alignment="CENTER">
-                <Button fx:id="saveButton" text="Save Movement" onAction="#onSaveButton"
-                        style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
-                <Button fx:id="clearButton" text="Clear" onAction="#onClearButton"/>
+        <VBox spacing="15">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="Stock Movement Management" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="statsLabel" text="Total: 0 | In: 0 | Out: 0"/>
+            </HBox>
+            
+            <Separator/>
+            
+            <!-- Filters Row -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Label text="Filter by:" style="-fx-font-weight: bold;"/>
+                
+                <VBox spacing="5">
+                    <Label text="Product"/>
+                    <ComboBox fx:id="filterProductBox" promptText="All Products" prefWidth="180"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Move Type"/>
+                    <ComboBox fx:id="filterMoveTypeBox" promptText="All Types" prefWidth="150"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Date From"/>
+                    <DatePicker fx:id="filterDateFrom" promptText="From date" prefWidth="140"/>
+                </VBox>
+                
+                <VBox spacing="5">
+                    <Label text="Date To"/>
+                    <DatePicker fx:id="filterDateTo" promptText="To date" prefWidth="140"/>
+                </VBox>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <Button text="Filter" onAction="#onFilterButton"/>
+                <Button text="Reset" onAction="#onResetFilterButton"/>
             </HBox>
         </VBox>
     </top>
 
-    <!-- CENTER: History Table -->
+    <!-- CENTER: Split between Form and Table -->
     <center>
-        <VBox spacing="10" BorderPane.alignment="CENTER">
-            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <SplitPane dividerPositions="0.35" BorderPane.alignment="CENTER">
+            
+            <!-- LEFT: Form Panel -->
+            <VBox spacing="15">
+                <padding><Insets top="10" right="15" bottom="10" left="15"/></padding>
+                
+                <Label text="Record New Movement" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                
+                <Separator/>
+                
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="15">
+                        
+                        <!-- Product Selection -->
+                        <VBox spacing="5">
+                            <Label text="Product *" style="-fx-font-weight: bold;"/>
+                            <ComboBox fx:id="productBox" promptText="Type or select product..." 
+                                     prefWidth="300" maxWidth="Infinity" editable="true"/>
+                            <Label fx:id="currentQtyLabel" text="Current Qty: -"/>
+                        </VBox>
+                        
+                        <!-- Movement Type & Quantity -->
+                        <HBox spacing="10">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Move Type *" style="-fx-font-weight: bold;"/>
+                                <ComboBox fx:id="moveTypeBox" promptText="Select type..." 
+                                         prefWidth="145" maxWidth="Infinity"/>
+                            </VBox>
+                            
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Quantity *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="qtyField" promptText="Enter qty..." 
+                                          prefWidth="145" maxWidth="Infinity"/>
+                                <Label text="Use + for IN, - for OUT"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Reference Information -->
+                        <VBox spacing="5">
+                            <Label text="Reference" style="-fx-font-weight: bold;"/>
+                            <HBox spacing="10">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Table"/>
+                                    <ComboBox fx:id="refTableBox" promptText="e.g., Payments" 
+                                             prefWidth="145" maxWidth="Infinity" editable="true"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Ref ID"/>
+                                    <TextField fx:id="refIdField" promptText="Optional" 
+                                              prefWidth="145" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- Batch & Expiry Information -->
+                        <VBox spacing="5">
+                            <Label text="Batch Information" style="-fx-font-weight: bold;"/>
+                            <HBox spacing="10">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Batch No"/>
+                                    <TextField fx:id="batchNoField" promptText="e.g., BATCH001" 
+                                              maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <Label text="Expiry Date"/>
+                                    <DatePicker fx:id="expiryDatePicker" promptText="Select date" 
+                                               maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- Serial Number -->
+                        <VBox spacing="5">
+                            <Label text="Serial Number (for devices)" style="-fx-font-weight: bold;"/>
+                            <TextField fx:id="serialNoField" promptText="e.g., SN123456789" 
+                                      maxWidth="Infinity"/>
+                        </VBox>
+                        
+                        <Separator/>
+                        
+                        <!-- Action Buttons -->
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button fx:id="saveButton" text="Save Movement" 
+                                   onAction="#onSaveButton" prefWidth="150"/>
+                            <Button fx:id="clearButton" text="Clear" 
+                                   onAction="#onClearButton" prefWidth="100"/>
+                        </HBox>
+                        
+                        <!-- Status Label -->
+                        <Label fx:id="statusLabel" text="" wrapText="true"/>
+                        
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+            
+            <!-- RIGHT: History Table -->
+            <VBox spacing="10">
+                <padding><Insets top="10" right="15" bottom="10" left="15"/></padding>
+                
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Movement History" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Refresh" onAction="#onRefreshButton"/>
+                    <Button text="Export" onAction="#onExportButton"/>
+                </HBox>
+                
+                <Separator/>
 
-            <Label text="Movement History" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-
-            <TableView fx:id="movementTable" VBox.vgrow="ALWAYS">
-                <columns>
-                    <TableColumn fx:id="idColumn" text="ID" prefWidth="50"/>
-                    <TableColumn fx:id="productColumn" text="Product" prefWidth="150"/>
-                    <TableColumn fx:id="typeColumn" text="Type" prefWidth="100"/>
-                    <TableColumn fx:id="qtyBeforeColumn" text="Qty Before" prefWidth="80"/>
-                    <TableColumn fx:id="qtyChangeColumn" text="Qty Change" prefWidth="80"/>
-                    <TableColumn fx:id="qtyAfterColumn" text="Qty After" prefWidth="80"/>
-                    <TableColumn fx:id="locationFromColumn" text="Location From" prefWidth="100"/>
-                    <TableColumn fx:id="locationToColumn" text="Location To" prefWidth="100"/>
-                    <TableColumn fx:id="reasonColumn" text="Reason" prefWidth="150"/>
-                    <TableColumn fx:id="movedAtColumn" text="Moved At" prefWidth="130"/>
-                    <TableColumn fx:id="movedByColumn" text="Moved By" prefWidth="100"/>
-                </columns>
-            </TableView>
-        </VBox>
+                <TableView fx:id="movementTable"
+                           VBox.vgrow="ALWAYS"
+                           >
+                    <columns>
+                        <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="productIdColumn" text="Product ID" prefWidth="100"/>
+                        <TableColumn fx:id="productNameColumn" text="Product Name" prefWidth="180"/>
+                        <TableColumn fx:id="qtyColumn" text="Qty" prefWidth="70"/>
+                        <TableColumn fx:id="moveTypeColumn" text="Move Type" prefWidth="120"/>
+                        <TableColumn fx:id="refTableColumn" text="Ref Table" prefWidth="120"/>
+                        <TableColumn fx:id="refIdColumn" text="Ref ID" prefWidth="90"/>
+                        <TableColumn fx:id="batchNoColumn" text="Batch No" prefWidth="120"/>
+                        <TableColumn fx:id="expiryDateColumn" text="Expiry" prefWidth="120"/>
+                        <TableColumn fx:id="serialNoColumn" text="Serial No" prefWidth="150"/>
+                        <TableColumn fx:id="movedAtColumn" text="Moved At" prefWidth="160"/>
+                        <TableColumn fx:id="movedByColumn" text="By User" prefWidth="100"/>
+                        <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="120"/>
+                    </columns>
+                    
+                    <placeholder>
+                        <VBox alignment="CENTER" spacing="10">
+                            <Label text="No movements recorded yet"/>
+                            <Label text="Start by adding a new movement above"/>
+                        </VBox>
+                    </placeholder>
+                </TableView>
+            </VBox>
+            
+        </SplitPane>
     </center>
 
-    <!-- BOTTOM: Status -->
+    <!-- BOTTOM: Footer with Statistics -->
     <bottom>
-        <HBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
-            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-            <Label fx:id="statusLabel" text="Ready to record movements"/>
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <Label fx:id="footerStatusLabel" text="Ready"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="totalMovementsLabel" text="Total Movements: 0"/>
+            <Separator orientation="VERTICAL"/>
+            <Label fx:id="selectedProductLabel" text="Selected: None"/>
         </HBox>
     </bottom>
 
