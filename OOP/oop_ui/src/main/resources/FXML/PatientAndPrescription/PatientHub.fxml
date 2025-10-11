@@ -2,6 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
@@ -30,7 +32,18 @@
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
-                <TextField promptText="Tìm kiếm bệnh nhân..." />
+                <TextField promptText="Tìm kiếm theo tên hoặc ID..." />
+
+                <ComboBox fx:id="genderFilter" maxWidth="1.7976931348623157E308" promptText="Lọc theo giới tính" />
+                <HBox spacing="5.0">
+                    <children>
+                        <DatePicker fx:id="dobFromPicker" prefWidth="150.0" promptText="Sinh từ ngày" />
+                        <DatePicker fx:id="dobToPicker" prefWidth="150.0" promptText="Đến ngày" />
+                    </children>
+                </HBox>
+                <Button fx:id="applyFilterButton" maxWidth="1.7976931348623157E308" text="Áp dụng Lọc" />
+
+
                 <ListView fx:id="patientListView" VBox.vgrow="ALWAYS" />
             </children>
         </VBox>
@@ -97,9 +110,9 @@
                                                 <Insets bottom="10" top="5" />
                                             </padding>
                                             <children>
-                                                <Button text="+ Thêm" />
-                                                <Button text="Sửa" />
-                                                <Button text="Xóa" />
+                                                <Button text="+ Thêm"/>
+                                                <Button text="Sửa"/>
+                                                <Button text="Xóa"/>
                                             </children>
                                         </HBox>
                                     </top>
