@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="560.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.AddPatientViewController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <top>
+        <Label text="Thêm Hồ Sơ Bệnh Nhân Mới" BorderPane.alignment="CENTER">
+            <font>
+                <Font name="System Bold" size="22.0" />
+            </font>
+            <BorderPane.margin>
+                <Insets bottom="25.0" />
+            </BorderPane.margin>
+        </Label>
+    </top>
+
+    <center>
+        <GridPane hgap="10.0" vgap="15.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="NEVER" prefWidth="120.0" />
+                <ColumnConstraints hgrow="SOMETIMES" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="35.0" />
+                <RowConstraints minHeight="10.0" prefHeight="80.0" />
+            </rowConstraints>
+
+            <Label text="Họ và Tên:" GridPane.rowIndex="0" />
+            <TextField fx:id="nameField" promptText="Nhập họ và tên bệnh nhân" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <Label text="Ngày sinh:" GridPane.rowIndex="1" />
+            <DatePicker fx:id="dobPicker" prefWidth="450.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <Label text="Giới tính:" GridPane.rowIndex="2" />
+            <ComboBox fx:id="genderComboBox" prefWidth="450.0" promptText="Chọn giới tính..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+            <Label text="Địa chỉ:" GridPane.rowIndex="3" />
+            <TextField fx:id="addressField" promptText="Nhập địa chỉ" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+            <Label text="Số điện thoại:" GridPane.rowIndex="4" />
+            <TextField fx:id="phoneField" promptText="Nhập số điện thoại" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+            <Label text="Email:" GridPane.rowIndex="5" />
+            <TextField fx:id="emailField" promptText="Nhập email (nếu có)" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+            <Label text="Ghi chú:" GridPane.rowIndex="6" />
+            <TextArea fx:id="notesArea" promptText="Thêm ghi chú về bệnh nhân (nếu có)" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15.0">
+            <BorderPane.margin>
+                <Insets top="30.0" />
+            </BorderPane.margin>
+            <children>
+                <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="90.0" text="Hủy" onAction="#onCancelButton" />
+                <Button fx:id="saveAndCloseButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" onAction="#onSaveAndCloseButton" text="Lưu &amp; Đóng" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
