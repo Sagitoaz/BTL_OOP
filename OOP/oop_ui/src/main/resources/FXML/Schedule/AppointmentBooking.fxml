@@ -1,14 +1,178 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.oop.Control.Schedule.AppointmentBookingController"
-            prefHeight="400.0" prefWidth="600.0">
 
-</AnchorPane>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="12.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+         <children>
+            <Label text="Đặt lịch khám" />
+            <TextField fx:id="patientQuickSearch" promptText="Tên/Email/Sđt" />
+            <Button fx:id="btnNewPatient" mnemonicParsing="false" text="Thêm bệnh nhân" />
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+            <ComboBox fx:id="cboCurrentUser" prefWidth="150.0" />
+         </children>
+      </HBox>
+   </top>
+   <left>
+      <VBox prefHeight="200.0" prefWidth="320.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+         <children>
+            <Label text="Bệnh nhân" />
+            <TextField fx:id="txtPatientKeyword" promptText="Tìm tên/sđt" />
+            <TableView fx:id="tblPatients" prefHeight="200.0" prefWidth="220.0">
+              <columns>
+                <TableColumn prefWidth="102.3999605178833" text="Tên" />
+                <TableColumn prefWidth="87.99996948242188" text="SĐT" />
+                  <TableColumn prefWidth="104.80000305175781" text="Năm sinh" />
+              </columns>
+            </TableView>
+            <Button fx:id="btnSelectPatient" mnemonicParsing="false" text="Chọn" />
+            <Separator prefWidth="200.0" />
+            <TitledPane prefHeight="200.0" prefWidth="200.0" text="Thông tin chi tiết">
+               <content>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="132.39999389648438" minWidth="10.0" prefWidth="90.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.3999938964844" minWidth="10.0" prefWidth="186.00000000000003" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Họ tên" />
+                        <Label text="SĐT" GridPane.rowIndex="1" />
+                        <Label text="Email" GridPane.rowIndex="2" />
+                        <Label text="Bảo hiểm" GridPane.rowIndex="3" />
+                        <Label text="Ghi chú" GridPane.rowIndex="4" />
+                        <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="Tên" GridPane.columnIndex="1" />
+                        <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="SĐT" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="Email" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="Bảo hiểm" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" promptText="Ghi chú" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                     </children>
+                  </GridPane>
+               </content>
+            </TitledPane>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" spacing="12.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+         <children>
+            <TitledPane text="Thông tin lịch hẹn">
+               <content>
+                  <GridPane hgap="12.0" vgap="10.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="297.20001220703125" minWidth="10.0" prefWidth="178.79997253417972" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="486.00001525878906" minWidth="10.0" prefWidth="425.2000274658203" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Bác sĩ" />
+                        <Label text="Ngày" GridPane.rowIndex="1" />
+                        <Label text="Loại khám" GridPane.rowIndex="2" />
+                        <Label text="Ghi chú" GridPane.rowIndex="3" />
+                        <ComboBox fx:id="cboDoctor" prefHeight="26.0" prefWidth="437.0" GridPane.columnIndex="1" />
+                        <DatePicker fx:id="dpDate" prefHeight="26.0" prefWidth="441.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="cboVisitType" prefHeight="26.0" prefWidth="437.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextArea fx:id="txtNotes" editable="false" prefHeight="200.0" prefRowCount="2" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     </children>
+                  </GridPane>
+               </content>
+            </TitledPane>
+            <SplitPane dividerPositions="0.55" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+               <items>
+                  <TableView fx:id="tblAvailableSlots" prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                      <TableColumn prefWidth="130.0" text="Bắt đầu" />
+                      <TableColumn prefWidth="130.0" text="Kết thúc" />
+                        <TableColumn prefWidth="130.0" text="Kéo dài" />
+                        <TableColumn prefWidth="130.0" text="Phòng" />
+                        <TableColumn prefWidth="112.79996337890623" text="Trạng thái" />
+                    </columns>
+                  </TableView>
+                  <TableView fx:id="tblDoctorAgenda" prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                      <TableColumn prefWidth="160.0" text="Giờ" />
+                      <TableColumn prefWidth="160.0" text="Bệnh nhân" />
+                        <TableColumn prefWidth="160.0" text="Loại" />
+                        <TableColumn prefWidth="154.39999999999998" text="Trạng thái" />
+                    </columns>
+                  </TableView>
+               </items>
+            </SplitPane>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Button fx:id="btnCheck" mnemonicParsing="false" text="Kiểm tra lịch" />
+                  <Button fx:id="btnBook" defaultButton="true" disable="true" mnemonicParsing="false" text="Đặt lịch" />
+                  <Button fx:id="btnClear" mnemonicParsing="false" text="Làm mới" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+   <right>
+      <VBox prefHeight="200.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
+         </padding>
+         <children>
+            <Label text="Lịch bác sĩ" />
+            <DatePicker fx:id="dpQuickJump" />
+            <ListView fx:id="lvwDayAgenda" prefHeight="200.0" prefWidth="200.0" />
+            <Button fx:id="btnOpenCalendar" mnemonicParsing="false" text="Mở lịch" />
+         </children>
+      </VBox>
+   </right>
+   <bottom>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="12.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+         <children>
+            <Label fx:id="lblStatus" text="Sẵn sàng" />
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+            <ProgressIndicator fx:id="piLoading" progress="0.0" visible="false" />
+         </children>
+      </HBox>
+   </bottom>
+</BorderPane>
