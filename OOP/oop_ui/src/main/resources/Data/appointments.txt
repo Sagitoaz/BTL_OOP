@@ -1,0 +1,4 @@
+1|4|2|2025-10-15T09:00:00|SCHEDULED|Initial eye examination
+2|6|5|2025-10-16T10:30:00|CONFIRMED|Follow-up check
+3|4|2|2025-10-20T14:00:00|PENDING|Glaucoma screening
+
