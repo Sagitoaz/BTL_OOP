@@ -1,0 +1,6 @@
+1|SKU001|Eye Drops|Medication|15.50|100|ACTIVE
+2|SKU002|Contact Lenses|Supplies|25.00|50|ACTIVE
+3|SKU003|Reading Glasses|Accessories|45.00|30|ACTIVE
+4|SKU004|Eye Patch|Supplies|5.00|200|ACTIVE
+5|SKU005|Vitamin Supplements|Medication|20.00|75|INACTIVE
+
