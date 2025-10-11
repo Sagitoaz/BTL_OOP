@@ -69,8 +69,7 @@ public class Appointment {
         }
     }
 
-    @Override
-    public String toString() {
+    public String toDataString() {
         return id + "|" + customerId + "|" + doctorId + "|" +
                 startTime + "|" + endTime + "|" + appointmentStatus.getCode() + "|" +
                 appointmentType.getCode() + "|" + notes + "|" +
@@ -79,5 +78,29 @@ public class Appointment {
 
     public int getId() {
         return id;
+    }
+
+    public int getDoctorId() {
+        return doctorId;
+    }
+
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public AppointmentStatus getAppointmentStatus() {
+        return appointmentStatus;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
