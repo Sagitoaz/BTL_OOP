@@ -14,10 +14,11 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<ScrollPane fitToWidth="true" prefHeight="800.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PrescriptionEditorController">
     <content>
         <VBox spacing="15.0">
             <padding>
@@ -42,6 +43,10 @@
                     <TextField fx:id="doctorNameField" GridPane.columnIndex="3" />
                     <Label text="Ngày khám:" GridPane.rowIndex="1" />
                     <DatePicker fx:id="examDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
                 <TitledPane collapsible="false" text="Lý do đến khám &amp; Tiền sử">
                     <content>
@@ -75,52 +80,53 @@
                             <padding>
                                 <Insets top="10" />
                             </padding>
-                            <GridPane hgap="8" vgap="8">
+                            <GridPane hgap="5" vgap="8">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="NEVER" />
+                                </columnConstraints>
+
                                 <Label text="" GridPane.columnIndex="0" />
-                                <Label text="SPH" GridPane.columnIndex="1">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <Label text="CYL" GridPane.columnIndex="2">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <Label text="AXIS" GridPane.columnIndex="3">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <Label text="PRISM" GridPane.columnIndex="4">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <Label text="BASE" GridPane.columnIndex="5">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <Label text="ADD" GridPane.columnIndex="6">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
+                                <Label text="SPH" GridPane.columnIndex="1" />
+                                <Label text="CYL" GridPane.columnIndex="2" />
+                                <Label text="AXIS" GridPane.columnIndex="3" />
+                                <Label text="VA" GridPane.columnIndex="4" />
+                                <Label text="PRISM" GridPane.columnIndex="5" />
+                                <Label text="BASE" GridPane.columnIndex="6" />
+                                <Label text="ADD" GridPane.columnIndex="7" />
+
                                 <Label text="Mắt Phải (OD)" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <TextField fx:id="sphOdField" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                <TextField fx:id="cylOdField" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                <TextField fx:id="axisOdField" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                <TextField fx:id="prismOdField" promptText="#.##" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                <ComboBox fx:id="baseOdCombo" promptText="In/Out/Up/Down" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                <TextField fx:id="addOdField" promptText="+#.##" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Label>
+                                <TextField fx:id="sphOdField" prefWidth="70" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <TextField fx:id="cylOdField" prefWidth="70" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                <TextField fx:id="axisOdField" prefWidth="70" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                <TextField fx:id="vaOdField" prefWidth="70" promptText="20/20" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                <TextField fx:id="prismOdField" prefWidth="70" promptText="#.##" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                <ComboBox fx:id="baseOdCombo" prefWidth="110" promptText="In/Out/Up/Down" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                <TextField fx:id="addOdField" prefWidth="70" promptText="+#.##" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+
                                 <Label text="Mắt Trái (OS)" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
-                                <TextField fx:id="sphOsField" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <TextField fx:id="cylOsField" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                <TextField fx:id="axisOsField" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                <TextField fx:id="prismOsField" promptText="#.##" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                <ComboBox fx:id="baseOsCombo" promptText="In/Out/Up/Down" GridPane.columnIndex="5" GridPane.rowIndex="2" />
-                                <TextField fx:id="addOsField" promptText="+#.##" GridPane.columnIndex="6" GridPane.rowIndex="2" />
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Label>
+                                <TextField fx:id="sphOsField" prefWidth="70" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <TextField fx:id="cylOsField" prefWidth="70" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                <TextField fx:id="axisOsField" prefWidth="70" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                <TextField fx:id="vaOsField" prefWidth="70" promptText="20/20" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                <TextField fx:id="prismOsField" prefWidth="70" promptText="#.##" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                                <ComboBox fx:id="baseOsCombo" prefWidth="110" promptText="In/Out/Up/Down" GridPane.columnIndex="6" GridPane.rowIndex="2" />
+                                <TextField fx:id="addOsField" prefWidth="70" promptText="+#.##" GridPane.columnIndex="7" GridPane.rowIndex="2" />
+                        <rowConstraints>
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                        </rowConstraints>
                             </GridPane>
                             <Separator />
                             <HBox alignment="CENTER_LEFT" spacing="20">
@@ -130,11 +136,25 @@
                                 <DatePicker fx:id="expiryDatePicker" />
                             </HBox>
                             <Separator />
+                            <Label text="Ghi chú thêm cho đơn kính:">
+                                <font><Font name="System Bold" size="12.0" /></font>
+                            </Label>
+                            <TextArea fx:id="prescriptionNotesArea" prefHeight="80" promptText="VD: Mài mỏng chiết suất cao, ưu tiên tròng nhẹ..." wrapText="true" />
+
+                            <Separator />
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <children>
+                                    <Label text="Loại tròng kính (Lens Type):">
+                                        <font><Font name="System Bold" size="12.0" /></font>
+                                    </Label>
+                                    <ComboBox fx:id="lensTypeCombo" prefWidth="200.0" promptText="Chọn loại tròng kính" />
+                                </children>
+                            </HBox>
+
                             <VBox spacing="10">
                                 <Label text="Tư vấn Tròng kính (Lens Recommendations):">
-                                    <font>
-                                        <Font name="System Bold" size="12.0" />
-                                    </font></Label>
+                                    <font><Font name="System Bold" size="12.0" /></font>
+                                </Label>
                                 <GridPane hgap="20" vgap="5">
                                     <columnConstraints>
                                         <ColumnConstraints />
@@ -144,7 +164,19 @@
                                     <CheckBox fx:id="blueLightCheck" text="Lọc ánh sáng xanh (Blue Light Filter)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                     <CheckBox fx:id="uvCheck" text="Chống tia UV (UV Protection)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <CheckBox fx:id="photochromicCheck" text="Đổi màu (Photochromic)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                           <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
+                           </rowConstraints>
                                 </GridPane>
+                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding-top: 10;">
+                                    <children>
+                                        <Label text="Chất liệu đề nghị:">
+                                            <font><Font name="System Bold" size="12.0" /></font>
+                                        </Label>
+                                        <ComboBox fx:id="materialCombo" prefWidth="250.0" promptText="Chọn chất liệu/chiết suất" />
+                                    </children>
+                                </HBox>
                             </VBox>
                         </VBox>
                     </content>
@@ -165,7 +197,7 @@
                 <HBox alignment="CENTER_RIGHT" spacing="15.0">
                     <children>
                         <Button prefWidth="100" text="Hủy" />
-                        <Button prefWidth="150" text="Lưu Buổi Khám" />
+                        <Button prefWidth="150" text="Lưu Đơn Khám" />
                         <Button prefWidth="180" text="Lưu &amp; In Đơn Kính" />
                     </children>
                 </HBox>

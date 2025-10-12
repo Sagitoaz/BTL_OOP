@@ -5,7 +5,19 @@ import java.util.Objects;
 
 public class MedicalHistory {
     public enum Status{
-        ACTIVE, RESOLVED, ONGOING, RECURRENT, UNKNOWN
+        ACTIVE("Cấp tính"),
+        RESOLVED("Đã khỏi"),
+        ONGOING("Mạn tính"),
+        RECURRENT("Tái phát"),
+        UNKNOWN("Không rõ");
+        private final String displayName;
+        Status(String displayName) {
+            this.displayName = displayName;
+        }
+        @Override
+        public String toString() {
+            return displayName;
+        }
     }
     private int id;
     private int patientRecordId;

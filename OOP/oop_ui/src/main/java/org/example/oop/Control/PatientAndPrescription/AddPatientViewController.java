@@ -56,10 +56,9 @@ public class AddPatientViewController implements Initializable
         String email = emailField.getText();
         String notes = notesArea.getText();
 
-        newPatientRecord = new PatientRecord(222, name, 111, dob, gender, address, phone, email, notes);
+        newPatientRecord = new PatientRecord(222, name, dob, gender, address, phone, email, notes);
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
-
     }
     public PatientRecord getNewPatientRecord(){
         return newPatientRecord;

@@ -14,7 +14,6 @@ public class PatientRecord {
     }
     private int id;
     private String namePatient;
-    private int patientId;
     private LocalDate dob;
     private Gender gender;
     private String address;
@@ -23,13 +22,12 @@ public class PatientRecord {
     private String notes;
     private List<SpectaclePrescription> prescriptionList;
     private List<MedicalHistory> medicalHistoryList;
-    public PatientRecord(int id, String namePatient,int patientId, LocalDate dob, Gender gender, String address, String phoneNumber, String email, String allergies) {
+    public PatientRecord(int id, String namePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email, String allergies) {
         if(id <= 0){
             throw new IllegalArgumentException("id must be > 0");
         }
         this.id = id;
         this.namePatient = namePatient;
-        this.patientId = patientId;
         this.dob = dob;
         this.gender = gender;
         this.address = address;
@@ -100,7 +98,7 @@ public class PatientRecord {
     // Data id|name|patientId|dob|gender|address|phone|email|note
     public String toDataString(){
         String dobString = (this.dob == null ) ? "": this.dob.toString();
-        return String.join("|", String.valueOf(this.id),  toSafeString(this.namePatient), String.valueOf(patientId), dobString, gender.name(), toSafeString(this.address), toSafeString(this.phoneNumber), toSafeString(this.email));
+        return String.join("|", String.valueOf(this.id),  toSafeString(this.namePatient), dobString, gender.name(), toSafeString(this.address), toSafeString(this.phoneNumber), toSafeString(this.email));
     }
     // Ham so sanh
     @Override
@@ -115,20 +113,19 @@ public class PatientRecord {
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
         String namePatient = (fields[1].equalsIgnoreCase("null") || fields[1].isBlank())? null : fields[1];
-        int patientId = Integer.parseInt(fields[2]);
         LocalDate dob = null;
         try{
             dob = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
         }
         catch(Exception e){
         }
-        Gender gender = (fields[3].equalsIgnoreCase("null") || fields[3].isBlank()) ? Gender.KHÁC : Gender.valueOf(fields[3].toUpperCase());
-        String address = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? null : fields[4];
-        String phoneNumber = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];
-        String email = (fields[6].equalsIgnoreCase("null") || fields[6].isBlank()) ? null : fields[6];
-        String note = (fields[7].equalsIgnoreCase("null") || fields[7].isBlank()) ? null : fields[7];
+        Gender gender = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? Gender.KHÁC : Gender.valueOf(fields[2].toUpperCase());
+        String address = (fields[3].equalsIgnoreCase("null") || fields[3].isBlank()) ? null : fields[3];
+        String phoneNumber = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? null : fields[4];
+        String email = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];
+        String note = (fields[6].equalsIgnoreCase("null") || fields[6].isBlank()) ? null : fields[6];
 
-        return new PatientRecord(id, namePatient,patientId, dob, gender, address, phoneNumber, email, note);
+        return new PatientRecord(id, namePatient, dob, gender, address, phoneNumber, email, note);
     }
     // Ham In ra de debug
     @Override

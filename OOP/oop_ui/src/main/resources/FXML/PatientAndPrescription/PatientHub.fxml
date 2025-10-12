@@ -166,7 +166,7 @@
                                     <top>
                                         <HBox alignment="CENTER_RIGHT" prefHeight="50.0">
                                             <children>
-                                                <Button text="+ Bắt đầu Buổi Khám Mới" />
+                                                <Button onAction="#onAddNewPrescription" text="+ Thêm Hồ sơ khám mới" />
                                             </children>
                                         </HBox>
                                     </top>

@@ -44,6 +44,7 @@ public class PatientHubController  implements Initializable  {
     private Button applyFilterButton;
     @FXML
     private Button resetFilterButton;
+    //--Tổng quan--
     @FXML
     private Label patientNameLabel;
     @FXML
@@ -64,8 +65,6 @@ public class PatientHubController  implements Initializable  {
     private TextArea notesArea;
 
 
-
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         patientRecordList = FXCollections.observableArrayList();
@@ -73,13 +72,13 @@ public class PatientHubController  implements Initializable  {
         // Thêm dữ liệu mẫu
         for(int i = 0; i < 30; i++){
             patientRecordsData.add(
-                    new PatientRecord(i + 99, "Duong Tri Dung", 101, LocalDate.of(1990, 1, 1), PatientRecord.Gender.NAM, "123 Main St",
+                    new PatientRecord(i + 99, "Duong Tri Dung", LocalDate.of(1990, 1, 1), PatientRecord.Gender.NAM, "123 Main St",
                             "0123456789", "dung@gmail.com", "Healthy"));
             patientRecordsData.add(
-                    new PatientRecord(i + 999, "Tran Van Hau", 102, LocalDate.of(2009, 1, 1), PatientRecord.Gender.NỮ, "123 Main St",
+                    new PatientRecord(i + 999, "Tran Van Hau", LocalDate.of(2009, 1, 1), PatientRecord.Gender.NỮ, "123 Main St",
                             "0917576767", "hau@gmail.com", "36"));
             patientRecordsData.add(
-                    new PatientRecord(i + 9999, "Nguyen Van Toan", 103, LocalDate.of(2005, 1, 1), PatientRecord.Gender.KHÁC, "123 Main St",
+                    new PatientRecord(i + 9999, "Nguyen Van Toan", LocalDate.of(2005, 1, 1), PatientRecord.Gender.KHÁC, "123 Main St",
                             "0123456789", "dung@gmail.com", "Vy"));
         }
         patientRecordList.addAll(patientRecordsData);
@@ -206,6 +205,29 @@ public class PatientHubController  implements Initializable  {
     public int getNextPatientId(){
         int nxtId = patientRecordsData.size() + 100;
         return nxtId + 1;
+    }
+
+    @FXML
+    private void onAddNewPrescription(ActionEvent event)throws IOException {
+        try{
+            // Kiem tra xem co dang tro den benh nhan nao khong
+            if(patientNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")){
+                return;
+            }
+            FXMLLoader loader= new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
+
+            Stage stage = new Stage();
+            stage.setTitle("Đơn khám bệnh nhân");
+            stage.setScene(new Scene(loader.load()));
+            PrescriptionEditorController prescriptionEditorController = loader.getController();
+            prescriptionEditorController.initData(patientNameLabel.getText(), Integer.parseInt( patientIdValueLabel.getText()));
+            stage.centerOnScreen();
+            stage.showAndWait();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+
+        }
     }
 
 
