@@ -22,7 +22,8 @@ public class Schedule {
         ArrayList<TimeSlot> slots = new ArrayList<>();
         LocalTime current = wh.getStartTime();
         int id = 1;
-        while (current.plusMinutes(defaultDuration).isBefore(wh.getEndTime()) || current.plusMinutes(defaultDuration).equals(wh.getEndTime())) {
+        while (current.plusMinutes(defaultDuration).isBefore(wh.getEndTime())
+                || current.plusMinutes(defaultDuration).equals(wh.getEndTime())) {
             LocalTime end = current.plusMinutes(defaultDuration);
             TimeSlot slot = new TimeSlot(id++, current, end, defaultDuration, "", true);
             slots.add(slot);

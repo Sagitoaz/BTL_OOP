@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AppointmentRepository {
-    private static final String DATA_FILE = "src/main/resources/TestData/ScheduleTestData/Appointments.txt";
+    private static final String DATA_FILE = "data/ScheduleTestData/Appointments.txt";
     private ArrayList<Appointment> appointments;
     private int nextId;
 
