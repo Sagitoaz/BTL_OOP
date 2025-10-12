@@ -51,9 +51,9 @@ public class UserRepository implements DataRepository<User> {
     }
 
     @Override
-    public Optional<User> findById(String id) {
+    public Optional<User> findById(int id) {
         return findAll().stream()
-                .filter(u -> u.getId().equals(id))
+                .filter(u -> u.getId() == id)
                 .findFirst();
     }
 
@@ -63,6 +63,7 @@ public class UserRepository implements DataRepository<User> {
             return fileManager.readLines(FILENAME).stream()
                     .filter(line -> line != null && !line.trim().isEmpty() && !line.trim().startsWith("#"))
                     .map(User::fromFileFormat)
+                    .filter(user -> user != null) // Filter out null users from invalid lines
                     .collect(Collectors.toList());
         } catch (IOException e) {
             return new ArrayList<>();
@@ -79,7 +80,7 @@ public class UserRepository implements DataRepository<User> {
                             return line;
                         }
                         User u = User.fromFileFormat(line);
-                        return u.getId().equals(user.getId()) ? user.toFileFormat() : line;
+                        return u.getId() == user.getId() ? user.toFileFormat() : line;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, updated);
@@ -89,7 +90,7 @@ public class UserRepository implements DataRepository<User> {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(int id) {
         try {
             List<String> lines = fileManager.readLines(FILENAME);
             List<String> filtered = lines.stream()
@@ -97,7 +98,7 @@ public class UserRepository implements DataRepository<User> {
                         if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
                             return true;
                         }
-                        return !User.fromFileFormat(line).getId().equals(id);
+                        return User.fromFileFormat(line).getId() != id;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, filtered);
@@ -107,7 +108,7 @@ public class UserRepository implements DataRepository<User> {
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(int id) {
         return findById(id).isPresent();
     }
 

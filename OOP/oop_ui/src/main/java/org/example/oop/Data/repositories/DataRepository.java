@@ -21,7 +21,7 @@ public interface DataRepository<T> {
      * @param id ID của entity
      * @return Optional chứa entity nếu tìm thấy, rỗng nếu không
      */
-    Optional<T> findById(String id);
+    Optional<T> findById(int id);
 
     /**
      * Lấy tất cả entities.
@@ -39,14 +39,14 @@ public interface DataRepository<T> {
      * Xóa entity theo ID.
      * @param id ID của entity cần xóa
      */
-    void delete(String id);
+    void delete(int id);
 
     /**
      * Kiểm tra xem entity có tồn tại theo ID không.
      * @param id ID của entity
      * @return true nếu tồn tại, false nếu không
      */
-    boolean exists(String id);
+    boolean exists(int id);
 
     /**
      * Đếm số lượng entities.

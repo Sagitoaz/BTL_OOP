@@ -51,9 +51,9 @@ public class AppointmentRepository implements DataRepository<Appointment> {
     }
 
     @Override
-    public Optional<Appointment> findById(String id) {
+    public Optional<Appointment> findById(int id) {
         return findAll().stream()
-                .filter(a -> a.getId().equals(id))
+                .filter(a -> a.getId() == id)
                 .findFirst();
     }
 
@@ -79,7 +79,7 @@ public class AppointmentRepository implements DataRepository<Appointment> {
                             return line;
                         }
                         Appointment a = Appointment.fromFileFormat(line);
-                        return a.getId().equals(appointment.getId()) ? appointment.toFileFormat() : line;
+                        return a.getId() == appointment.getId() ? appointment.toFileFormat() : line;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, updated);
@@ -89,7 +89,7 @@ public class AppointmentRepository implements DataRepository<Appointment> {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(int id) {
         try {
             List<String> lines = fileManager.readLines(FILENAME);
             List<String> filtered = lines.stream()
@@ -97,7 +97,7 @@ public class AppointmentRepository implements DataRepository<Appointment> {
                         if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
                             return true;
                         }
-                        return !Appointment.fromFileFormat(line).getId().equals(id);
+                        return Appointment.fromFileFormat(line).getId() != id;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, filtered);
@@ -107,7 +107,7 @@ public class AppointmentRepository implements DataRepository<Appointment> {
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(int id) {
         return findById(id).isPresent();
     }
 

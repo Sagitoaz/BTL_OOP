@@ -50,9 +50,9 @@ public class ProductRepository implements DataRepository<Product> {
     }
 
     @Override
-    public Optional<Product> findById(String id) {
+    public Optional<Product> findById(int id) {
         return findAll().stream()
-                .filter(p -> p.getId().equals(id))
+                .filter(p -> p.getId() == id)
                 .findFirst();
     }
 
@@ -78,7 +78,7 @@ public class ProductRepository implements DataRepository<Product> {
                             return line;
                         }
                         Product p = Product.fromFileFormat(line);
-                        return p.getId().equals(product.getId()) ? product.toFileFormat() : line;
+                        return p.getId() == product.getId() ? product.toFileFormat() : line;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, updated);
@@ -88,7 +88,7 @@ public class ProductRepository implements DataRepository<Product> {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(int id) {
         try {
             List<String> lines = fileManager.readLines(FILENAME);
             List<String> filtered = lines.stream()
@@ -96,7 +96,7 @@ public class ProductRepository implements DataRepository<Product> {
                         if (line == null || line.trim().isEmpty() || line.trim().startsWith("#")) {
                             return true;
                         }
-                        return !Product.fromFileFormat(line).getId().equals(id);
+                        return Product.fromFileFormat(line).getId() != id;
                     })
                     .collect(Collectors.toList());
             fileManager.writeLines(FILENAME, filtered);
@@ -106,7 +106,7 @@ public class ProductRepository implements DataRepository<Product> {
     }
 
     @Override
-    public boolean exists(String id) {
+    public boolean exists(int id) {
         return findById(id).isPresent();
     }
 
