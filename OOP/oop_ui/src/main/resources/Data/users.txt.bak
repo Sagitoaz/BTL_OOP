@@ -1,0 +1,5 @@
+999|testadmin|e8wK5x4wc6jrzYNmR2/i9Q==:Y6wLeFUK4BeanaPnL5FB1BIRoQwytOpduR2SRTlSUNw=|ADMIN|test@test.com|Test Admin|0123456789|2025-10-10T10:00:00|true
+998|testdoctor|xyn2antbVIKQCte7WI/gSg==:roktU2r2fTgFrxB3swPJRA0KFkR3shiqX6Mvcvu6Ymk=|DOCTOR|testdoc@test.com|Test Doctor|0987654321|2025-10-10T10:00:00|true
+String testAdmin = "999|testadmin|" + PasswordService.hashPasswordWithSalt("Test123!") + "|ADMIN|test@test.com|Test Admin|0123456789|2025-10-10T10:00:00|true";
+String testDoctor = "998|testdoctor|" + PasswordService.hashPasswordWithSalt("Doctor123!") + "|DOCTOR|testdoc@test.com|Test Doctor|0987654321|2025-10-10T10:00:00|true";
+test222 Matkhau1@

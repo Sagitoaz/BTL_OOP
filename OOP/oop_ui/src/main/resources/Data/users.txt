@@ -1,0 +1,13 @@
+﻿1|admin|Ez5pIX1BvJtKIk9JawVbgw==:K18SoIeQakWH3gbe1sfLK/vnECD8fcG7a6hH42jFLSI=|ADMIN|admin@clinic.com|Admin User|0123456789|2025-10-10T10:00:00|true
+2|doctor1|pass456|DOCTOR|doctor@clinic.com|Dr. John|0987654321|2025-10-11T23:08:05.396851400|true
+3|staff1|pass789|STAFF|staff@clinic.com|Jane Staff|0111111111|2025-10-11T23:08:05.396851400|true
+5|doctor2|LIgEHofj4pTsJui6OiVCiw==:HLUTirhA/V8NEqOOOq+H57lUuNQGj0n5/rCJp97esGo=|DOCTOR|doctor2@clinic.com|Dr. Jane Smith|0987654322|2025-10-10T10:00:00|true
+6|patient2|l9eJmwvl9S3+mdhlKFL9Jw==:RXalP16Bo06ZIQxNkoGiuRAlf6XvszAwtjddXZWY2X0=|PATIENT|patient2@clinic.com|Alice Patient|0222222223|2025-10-10T10:00:00|true
+P9|toan123|V1hhKzRoi8qA8la46Pvvsw==:ehg1WRtxj2GqjKLQpwgGs3UOHO0FTkDUvvyG9ZdH00Q=|PATIENT|toan@gmail.com|Minh To�n|0334470295|2025-10-10T13:35:34.379506100|true
+P11|toanadmin|dR7feTrwI/VUQBmRqiCSOA==:aZZHnlYQsK6Pvh287MuAiabjl59/i1BhY0m5liY6M40=|PATIENT|tian@gmail.com|Toan|0334470295|2025-10-10T19:35:53.586882600|true
+999|testadmin|TGMgBBeRpCmkJGEoW+8uQQ==:QQCEg08D9DiNDIe7SWuf8OktXUyyYxN2TOPAtUeWkbw=|ADMIN|test@test.com|Test Admin|0123456789|2025-10-10T10:00:00|true
+998|testdoctor|19CEjcjdTLJXXUdwF8lLuA==:DucUo0H57wSwYeaeBVCtoeZcmgmmPYrLeOngP3xwTcE=|DOCTOR|testdoc@test.com|Test Doctor|0987654321|2025-10-10T10:00:00|true
+P12|test222|jIDYnfwQCZpufaXbBRy0Kg==:6lTA7fNP3vGtvNFNvG5S2GxgRyUDokfl1968zaygOO0=|PATIENT|qt8y9@gmail.com|ằ|0334470295|2025-10-11T20:05:13.396033|true
+TEST1|testadmin|pass|ADMIN|test@test.com|Test Admin|888|2025-10-11T23:07:00.712578800|true
+1|admin|password123|ADMIN|admin@clinic.com|Updated Admin|0123456789|2025-10-11T23:08:05.396851400|true
+2|doctor1|pass456|DOCTOR|doctor@clinic.com|Dr. John|0987654321|2025-10-11T23:08:05.396851400|true
