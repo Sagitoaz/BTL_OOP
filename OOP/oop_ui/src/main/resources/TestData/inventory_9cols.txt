@@ -1,9 +1,9 @@
 id,name,type,category,quantity,unit,unitPrice,priceCost,lastUpdated,sku
-1,Paracetamol 500mg,Medication,Painkiller,1500,tablet,2000,1200,2025-10-11,MED-PAR-500
+1,Paracetamol 500mg,Medication,Painkiller,1511,tablet,2000,1200,2025-10-11,MED-PAR-500
 2,Ibuprofen 400mg,null,Anti-inflammatory,800,tablet,3500,2100,2025-10-11,MED-IBU-400
 3,Amoxicillin 250mg,Medication,Drug,600,capsule,5000,3500,2025-10-11,MED-AMO-250
 4,Vitamin C 1000mg,Medication,Supplement,2000,tablet,1500,900,2024-01-16,MED-VIT-C1K
-5,Aspirin 100mg,Medication,Cardiovascular,1200,tablet,2500,1500,2025-10-11,MED-ASP-100
+5,Aspirin 100mg,Medication,Cardiovascular,1204,tablet,2500,1500,2025-10-11,MED-ASP-100
 6,Blood Pressure Monitor,Equipment,Diagnostic,45,unit,850000,650000,2024-01-10,EQP-BPM-001
 7,Digital Thermometer,Equipment,Diagnostic,120,unit,150000,100000,2025-10-11,EQP-THM-DIG
 8,Stethoscope,Equipment,Diagnostic,30,unit,450000,320000,2024-01-11,EQP-STH-001

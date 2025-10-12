@@ -1,287 +1,331 @@
-//package org.example.oop.Control;
-//
-//import java.io.IOException;
-//import java.time.LocalDateTime;
-//import java.time.format.DateTimeFormatter;
-//
-//import org.example.oop.Model.Inventory.Inventory;
-//import org.example.oop.Model.Inventory.StockMovement;
-//import org.example.oop.Utils.AppConfig;
-//
-//import javafx.beans.property.ReadOnlyObjectWrapper;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.event.ActionEvent;
-//import javafx.fxml.FXML;
-//import javafx.scene.control.Alert;
-//import javafx.scene.control.Button;
-//import javafx.scene.control.ComboBox;
-//import javafx.scene.control.Label;
-//import javafx.scene.control.TableColumn;
-//import javafx.scene.control.TableView;
-//import javafx.scene.control.TextField;
-//
-//public class StockMovementController {
-//
-//     // Form fields
-//     @FXML
-//     private ComboBox<String> productBox; // List products
-//     @FXML
-//     private ComboBox<String> movementTypeBox; // IN, OUT, TRANSFER
-//     @FXML
-//     private TextField quantityField;
-//     @FXML
-//     private TextField reasonField;
-//     @FXML
-//     private TextField locationFromField; // For TRANSFER
-//     @FXML
-//     private TextField locationToField; // For TRANSFER
-//
-//     // Buttons
-//     @FXML
-//     private Button saveButton;
-//     @FXML
-//     private Button clearButton;
-//
-//     // Status
-//     @FXML
-//     private Label statusLabel;
-//
-//     // Table
-//     @FXML
-//     private TableView<StockMovement> movementTable;
-//     @FXML
-//     private TableColumn<StockMovement, Integer> idColumn;
-//     @FXML
-//     private TableColumn<StockMovement, Integer> productColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> typeColumn;
-//     @FXML
-//     private TableColumn<StockMovement, Integer> qtyBeforeColumn;
-//     @FXML
-//     private TableColumn<StockMovement, Integer> qtyChangeColumn;
-//     @FXML
-//     private TableColumn<StockMovement, Integer> qtyAfterColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> locationFromColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> locationToColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> reasonColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> movedAtColumn;
-//     @FXML
-//     private TableColumn<StockMovement, String> movedByColumn;
-//
-//     // Data
-//     private ObservableList<StockMovement> movementList = FXCollections.observableArrayList();
-//     private ObservableList<Inventory> productList = FXCollections.observableArrayList();
-//     private InventoriesController inventoriesController = new InventoriesController();
-//
-//     @FXML
-//     public void initialize() throws IOException {
-//          initMovementTypeBox();
-//          loadProducts();
-//          setupTable();
-//          loadMovements();
-//     }
-//
-//     @FXML
-//     void onSaveButton(ActionEvent event) {
-//          try {
-//               // 1. Validate input
-//               if (!validateForm()) {
-//                    showStatus("Vui lòng điền đầy đủ thông tin!", true);
-//                    return;
-//               }
-//
-//               // 2. Lấy thông tin
-//               String productName = productBox.getValue();
-//               String type = movementTypeBox.getValue();
-//               int quantity = Integer.parseInt(quantityField.getText());
-//
-//               // 3. Tìm product hiện tại
-//               Inventory currentProduct = findProduct(productName);
-//               if (currentProduct == null) {
-//                    showStatus("Không tìm thấy sản phẩm!", true);
-//                    return;
-//               }
-//
-//               int quantityBefore = currentProduct.getQuantity();
-//
-//               // 4. Tính số lượng mới
-//               int quantityAfter = quantityBefore;
-//               switch (type) {
-//                    case "IN":
-//                         quantityAfter = quantityBefore + quantity; // Nhập: TĂNG
-//                         break;
-//                    case "OUT":
-//                         quantityAfter = quantityBefore - quantity; // Xuất: GIẢM
-//                         if (quantityAfter < 0) {
-//                              showError("Không đủ hàng! Hiện có: " + quantityBefore + ", Yêu cầu: " + quantity);
-//                              return;
-//                         }
-//                         break;
-//                    case "TRANSFER":
-//                         quantityAfter = quantityBefore; // Chuyển: KHÔNG ĐỔI tổng
-//                         break;
-//                    case "ADJUSTMENT":
-//                         quantityAfter = quantityBefore + quantity; // Điều chỉnh (có thể âm/dương)
-//                         break;
-//                    default:
-//                         showStatus("Loại giao dịch không hợp lệ!", true);
-//                         return;
-//               }
-//
-//               // 5. Tạo movement record
-//               StockMovement movement = new StockMovement();
-//               movement.setId(getNextMovementId());
-//               movement.setProductId(currentProduct.getId());
-//               movement.setMovementType(type);
-//               movement.setQuantityBefore(quantityBefore);
-//               movement.setQuantityChange(quantity);
-//               movement.setQuantityAfter(quantityAfter);
-//               movement.setReason(reasonField.getText());
-//               movement.setMovedAt(LocalDateTime.now());
-//               movement.setMovedBy("ADMIN"); // TODO: Get from current user session
-//
-//               // Set location for TRANSFER
-//               if ("TRANSFER".equals(type)) {
-//                    movement.setLocationFrom(locationFromField.getText());
-//                    movement.setLocationTo(locationToField.getText());
-//               }
-//
-//               // 6. Add to list
-//               movementList.add(movement);
-//
-//               // 7. Cập nhật inventory quantity
-//               currentProduct.setQuantity(quantityAfter);
-//
-//               // 8. Refresh UI
-//               movementTable.refresh();
-//               clearForm();
-//               showStatus("Lưu giao dịch thành công!", false);
-//
-//          } catch (NumberFormatException e) {
-//               showError("Số lượng không hợp lệ!");
-//          } catch (Exception e) {
-//               showError("Lỗi: " + e.getMessage());
-//          }
-//     }
-//
-//     @FXML
-//     void onClearButton(ActionEvent event) {
-//          clearForm();
-//     }
-//
-//     private void setupTable() {
-//          // Setup columns
-//          idColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getId()));
-//          productColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getProductId()));
-//          typeColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getMovementType()));
-//          qtyBeforeColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantityBefore()));
-//          qtyChangeColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantityChange()));
-//          qtyAfterColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getQuantityAfter()));
-//          locationFromColumn
-//                    .setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getLocationFrom()));
-//          locationToColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getLocationTo()));
-//          reasonColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getReason()));
-//
-//          movedAtColumn.setCellValueFactory(data -> {
-//               LocalDateTime dt = data.getValue().getMovedAt();
-//               String formatted = dt != null ? dt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "";
-//               return new ReadOnlyObjectWrapper<>(formatted);
-//          });
-//
-//          movedByColumn.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getMovedBy()));
-//
-//          movementTable.setItems(movementList);
-//     }
-//
-//     private void initMovementTypeBox() {
-//          movementTypeBox.setItems(FXCollections.observableArrayList(
-//                    "IN", "OUT", "TRANSFER", "ADJUSTMENT"));
-//          movementTypeBox.getSelectionModel().selectFirst();
-//     }
-//
-//     private void loadProducts() throws IOException {
-//          // Load products from inventory
-//          productList = inventoriesController.loadInventory(AppConfig.TEST_DATA_TXT);
-//
-//          // Populate productBox with product names
-//          ObservableList<String> productNames = FXCollections.observableArrayList();
-//          for (Inventory row : productList) {
-//               productNames.add(row.getName());
-//          }
-//          productBox.setItems(productNames);
-//     }
-//
-//     private void loadMovements() {
-//          // TODO: Load movements from file if needed
-//          // For now, start with empty list
-//          movementList.clear();
-//     }
-//
-//     private Inventory findProduct(String productName) {
-//          for (Inventory row : productList) {
-//               if (row.getName().equals(productName)) {
-//                    return row;
-//               }
-//          }
-//          return null;
-//     }
-//
-//     private boolean validateForm() {
-//          if (productBox.getValue() == null || productBox.getValue().isEmpty()) {
-//               return false;
-//          }
-//          if (movementTypeBox.getValue() == null || movementTypeBox.getValue().isEmpty()) {
-//               return false;
-//          }
-//          if (quantityField.getText() == null || quantityField.getText().trim().isEmpty()) {
-//               return false;
-//          }
-//          try {
-//               int qty = Integer.parseInt(quantityField.getText().trim());
-//               if (qty <= 0) {
-//                    return false;
-//               }
-//          } catch (NumberFormatException e) {
-//               return false;
-//          }
-//          return true;
-//     }
-//
-//     private void clearForm() {
-//          productBox.getSelectionModel().clearSelection();
-//          movementTypeBox.getSelectionModel().selectFirst();
-//          quantityField.clear();
-//          reasonField.clear();
-//          locationFromField.clear();
-//          locationToField.clear();
-//     }
-//
-//     private void showStatus(String message, boolean isError) {
-//          if (statusLabel != null) {
-//               statusLabel.setText(message);
-//               statusLabel.setStyle(isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;");
-//          }
-//     }
-//
-//     private void showError(String message) {
-//          Alert alert = new Alert(Alert.AlertType.ERROR);
-//          alert.setTitle("Lỗi");
-//          alert.setHeaderText(null);
-//          alert.setContentText(message);
-//          alert.showAndWait();
-//
-//          showStatus(message, true);
-//     }
-//
-//     private int getNextMovementId() {
-//          return movementList.stream()
-//                    .mapToInt(StockMovement::getId)
-//                    .max()
-//                    .orElse(0) + 1;
-//     }
-//}
+package org.example.oop.Control;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.example.oop.Model.Inventory.StockMovement;
+import org.example.oop.Repository.StockMovementRepository;
+import org.example.oop.Service.InventoryService;
+import org.example.oop.Service.StockMovementService;
+
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+
+public class StockMovementController {
+
+     // ===== Header & Filter Section =====
+     @FXML
+     private Label statsLabel;
+     @FXML
+     private ComboBox<String> filterProductBox;
+     @FXML
+     private ComboBox<String> filterMoveTypeBox;
+     @FXML
+     private DatePicker filterDateFrom;
+     @FXML
+     private DatePicker filterDateTo;
+
+     // ===== Left Panel - Record New Movement =====
+     @FXML
+     private ComboBox<String> productBox;
+     @FXML
+     private Label currentQtyLabel;
+
+     @FXML
+     private ComboBox<String> moveTypeBox;
+     @FXML
+     private TextField qtyField;
+
+     @FXML
+     private ComboBox<String> refTableBox;
+     @FXML
+     private TextField refIdField;
+     @FXML
+     TextField noteField;
+     @FXML
+     private TextField batchNoField;
+     @FXML
+     private DatePicker expiryDatePicker;
+
+     @FXML
+     private TextField serialNoField;
+     @FXML
+     private TextField movedbyField1;
+     @FXML
+     private DatePicker movedatDatePicker1;
+     @FXML
+     private Button saveButton;
+     @FXML
+     private Button clearButton;
+
+     @FXML
+     private Label statusLabel;
+
+     // ===== Right Panel - Movement History Table =====
+     @FXML
+     private TableView<StockMovement> movementTable;
+
+     @FXML
+     private TableColumn<StockMovement, Integer> idColumn;
+     @FXML
+     private TableColumn<StockMovement, Integer> productIdColumn;
+     @FXML
+     private TableColumn<StockMovement, Integer> qtyColumn;
+     @FXML
+     private TableColumn<StockMovement, String> moveTypeColumn;
+     @FXML
+     private TableColumn<StockMovement, String> refTableColumn;
+     @FXML
+     private TableColumn<StockMovement, Integer> refIdColumn;
+     @FXML
+     private TableColumn<StockMovement, String> batchNoColumn;
+     @FXML
+     private TableColumn<StockMovement, String> expiryDateColumn;
+     @FXML
+     private TableColumn<StockMovement, String> serialNoColumn;
+     @FXML
+     private TableColumn<StockMovement, String> movedAtColumn;
+     @FXML
+     private TableColumn<StockMovement, String> movedByColumn;
+     @FXML
+     private TableColumn<StockMovement, String> noteColumn;
+     @FXML
+     private TableColumn<StockMovement, Void> actionsColumn;
+
+     // ===== Bottom - Footer =====
+     @FXML
+     private Label footerStatusLabel;
+     @FXML
+     private Label totalMovementsLabel;
+     @FXML
+     private Label selectedProductLabel;
+
+     private final StockMovementService movementService = new StockMovementService();
+     private final InventoryService inventoryService = new InventoryService();
+     private final StockMovementRepository movementRepo = new StockMovementRepository();
+     private StockMovement selectMovement = null;
+
+     private final ObservableList<StockMovement> masterData = FXCollections.observableArrayList();
+     private final DateTimeFormatter DT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+     // ====== Event Handlers (declared in FXML) ======
+     @FXML
+     private void onFilterButton() {
+          // TODO: implement filter logic
+     }
+
+     @FXML
+     private void onResetFilterButton() {
+          // TODO: reset filters
+     }
+
+     @FXML
+     private void onSaveButton() {
+          try {
+               if (productBox.getValue() == null || productBox.getValue().trim().isEmpty()) {
+                    statsLabel.setText("❌ Vui lòng chọn sản phẩm");
+                    return;
+               }
+               if (moveTypeBox.getValue() == null) {
+                    statusLabel.setText("❌ Vui lòng chọn loại giao dịch");
+                    return;
+               }
+
+               if (qtyField.getText() == null || qtyField.getText().trim().isEmpty()) {
+                    statusLabel.setText("❌ Vui lòng nhập số lượng");
+                    return;
+               }
+               int productId = Integer.parseInt(productBox.getValue().split(" - ")[0]);
+               String moveType = moveTypeBox.getValue().toUpperCase();
+               int qty = Integer.parseInt(qtyField.getText());
+               String refTable = refTableBox.getValue();
+               Integer refId = refIdField.getText().trim().isEmpty() ? null : Integer.parseInt(refIdField.getText());
+               String batchNo = batchNoField.getText().trim().isEmpty() ? null : batchNoField.getText();
+               LocalDate expiryDate = expiryDatePicker.getValue();
+               String serialNo = serialNoField.getText().trim().isEmpty() ? null : serialNoField.getText();
+               int movedBy = Integer.parseInt(movedbyField1.getText());
+               LocalDateTime movedAt = movedatDatePicker1.getValue().atStartOfDay();
+               String note = noteField.getText();
+               StockMovement movement = movementService.recordMovementByType(
+                         productId, qty, moveType, refTable, refId,
+                         batchNo, expiryDate, serialNo, movedBy, note);
+
+               statusLabel.setText("✅ Đã lưu movement ID: " + movement.getId());
+               // clearForm();
+               loadData(); // Refresh table
+
+          } catch (NumberFormatException e) {
+               statusLabel.setText("❌ Lỗi định dạng số: " + e.getMessage());
+          } catch (Exception e) {
+               statusLabel.setText("❌ Lỗi lưu dữ liệu: " + e.getMessage());
+               e.printStackTrace();
+          }
+     }
+
+     @FXML
+     private void onClearButton() {
+          // TODO: clear input form
+     }
+
+     @FXML
+     private void onRefreshButton() {
+          try {
+               loadData();
+          } catch (IOException e) {
+               e.printStackTrace();
+               statusLabel.setText("Lỗi refresh dữ liệu: " + e.getMessage());
+          }
+     }
+
+     @FXML
+     private void onExportButton() {
+          // TODO: export table data
+     }
+
+     // ====== IMPORTANT: Ensure initialize is discovered by FXMLLoader ======
+     @FXML
+     public void initialize() {
+          System.out.println("🚀 StockMovementController initializing...");
+          try {
+               initTable();
+               loadData();
+          } catch (Exception e) {
+               System.err.println("❌ Initialization error: " + e.getMessage());
+               e.printStackTrace();
+               if (statusLabel != null)
+                    statusLabel.setText("Initialization failed: " + e.getMessage());
+          }
+     }
+
+     private void loadData() throws IOException {
+          System.out.println("🔄 Loading stock movement data...");
+
+          // Move type combo for left panel
+          var moveTypes = FXCollections.observableArrayList(
+                    "purchase", "sale", "return_in", "return_out",
+                    "adjustment", "consume", "transfer");
+          moveTypeBox.setItems(moveTypes);
+
+          // Filter move type
+          filterMoveTypeBox.setItems(moveTypes);
+
+          // Load table data
+          try {
+               masterData.clear();
+               ObservableList<StockMovement> loadedData = movementRepo.loadAll();
+               masterData.addAll(loadedData);
+               System.out.println("✅ Loaded movements: " + masterData.size());
+
+               // Debug: print first few records
+               for (int i = 0; i < Math.min(3, masterData.size()); i++) {
+                    StockMovement m = masterData.get(i);
+                    System.out.println("  Movement " + (i + 1) + ": ID=" + m.getId() + ", ProductID=" + m.getProductId()
+                              + ", Qty=" + m.getQty());
+               }
+
+          } catch (Exception e) {
+               System.err.println("❌ Error loading stock movements: " + e.getMessage());
+               e.printStackTrace();
+               if (statusLabel != null) {
+                    statusLabel.setText("Error loading data: " + e.getMessage());
+               }
+          }
+
+          // Optional: update footer
+          if (totalMovementsLabel != null) {
+               totalMovementsLabel.setText("Total: " + masterData.size());
+          }
+
+          // Bind items (safe to set here; initTable will set factories)
+          movementTable.setItems(masterData);
+
+          System.out.println("📊 Table items set: " + movementTable.getItems().size());
+     }
+
+     private void initTable() {
+          System.out.println(
+                    "✅ StockMovementController.initTable(): Setting up table with " + masterData.size() + " items");
+
+          idColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(d.getValue().getId()));
+          productIdColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(d.getValue().getProductId()));
+          qtyColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(d.getValue().getQty()));
+
+          // MovementType -> String (enum name), safe-null
+          moveTypeColumn.setCellValueFactory(d -> {
+               Object moveType = d.getValue().getMoveType();
+               String moveTypeStr;
+               if (moveType == null) {
+                    moveTypeStr = "";
+               } else if (moveType instanceof Enum<?>) {
+                    moveTypeStr = ((Enum<?>) moveType).name();
+               } else {
+                    moveTypeStr = moveType.toString();
+               }
+               return new ReadOnlyObjectWrapper<>(moveTypeStr);
+          });
+
+          refTableColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(nz(d.getValue().getRefTable())));
+          refIdColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(d.getValue().getRefId()));
+          batchNoColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(nz(d.getValue().getBatchNo())));
+
+          expiryDateColumn.setCellValueFactory(d -> {
+               var date = d.getValue().getExpiryDate();
+               String formattedDate = (date != null) ? date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : "";
+               return new ReadOnlyObjectWrapper<>(formattedDate);
+          });
+
+          serialNoColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(nz(d.getValue().getSerialNo())));
+
+          movedAtColumn.setCellValueFactory(d -> {
+               var t = d.getValue().getMovedAt();
+               return new ReadOnlyObjectWrapper<>(t == null ? "" : t.format(DT));
+          });
+
+          movedByColumn
+                    .setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(String.valueOf(d.getValue().getMovedBy())));
+
+          noteColumn.setCellValueFactory(d -> new ReadOnlyObjectWrapper<>(nz(d.getValue().getNote())));
+
+          // Product name column: để tạm rỗng (tránh phụ thuộc hàm service cụ thể)
+          // Nếu bạn có InventoryService.getNameById(int), hãy mở comment dưới:
+          // productNameColumn.setCellValueFactory(d ->
+          // new ReadOnlyObjectWrapper<>(safeGetProductName(d.getValue().getProductId()))
+          // );
+
+          movementTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+               selectMovement = newSel;
+               if (selectedProductLabel != null) {
+                    selectedProductLabel.setText(newSel == null ? "" : "Selected ID: " + newSel.getId());
+               }
+          });
+
+          System.out.println("✅ StockMovementController.initTable(): Table setup complete!");
+     }
+
+     // ====== Helpers ======
+     private static String nz(String s) {
+          return (s == null) ? "" : s;
+     }
+
+     @SuppressWarnings("unused")
+     private String safeGetProductName(int productId) {
+          try {
+               // Ví dụ nếu có hàm:
+               // return inventoryService.getNameById(productId);
+               return "";
+          } catch (Exception e) {
+               return "";
+          }
+     }
+}

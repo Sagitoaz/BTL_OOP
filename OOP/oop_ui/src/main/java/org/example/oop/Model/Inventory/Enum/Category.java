@@ -1,4 +1,4 @@
-package org.example.oop.Model.Inventory;
+package org.example.oop.Model.Inventory.Enum;
 
 /**
  * Enum định nghĩa các danh mục sản phẩm

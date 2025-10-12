@@ -1,13 +1,18 @@
-package org.example.oop.Control;
+package org.example.oop.Repository;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.oop.Model.Inventory.Inventory;
@@ -16,7 +21,7 @@ import org.example.oop.Utils.AppConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-public class InventoriesController {
+public class InventoryRepository {
     public ObservableList<Inventory> loadInventory(String path) throws IOException {
         InputStream input = getClass().getResourceAsStream(path);
         if (input == null) {
@@ -138,4 +143,61 @@ public class InventoriesController {
                 .findFirst()
                 .orElse(null);
     }
+
+    public void upsertQty(int productId, int qtyChange) throws IOException {
+        String absolutePath = "c:/BTL_OOP/BTL_OOP/OOP/oop_ui/src/main/resources" + AppConfig.TEST_DATA_TXT;
+        File file = new File(absolutePath);
+
+        List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+        List<String> newLines = new ArrayList<>();
+
+        if (lines.isEmpty())
+            return;
+        newLines.add(lines.get(0)); // dòng header
+
+        for (int i = 1; i < lines.size(); i++) {
+            String line = lines.get(i);
+            String[] parts = line.split(",", -1);
+            if (parts.length < 10)
+                continue;
+
+            int id = Integer.parseInt(parts[0].trim());
+            int quantity = Integer.parseInt(parts[4].trim());
+
+            if (id == productId) {
+                quantity += qtyChange;
+                parts[4] = String.valueOf(quantity);
+            }
+            newLines.add(String.join(",", parts));
+        }
+
+        Files.write(file.toPath(), newLines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public synchronized int getQty(int productId) {
+        File f = new File(AppConfig.TEST_DATA_TXT);
+        if (!f.exists())
+            return 0;
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.isBlank())
+                    continue;
+                String[] p = line.split("\\|", -1);
+                if (p.length < 2)
+                    continue;
+                int pid = Integer.parseInt(p[0].trim());
+                if (pid == productId) {
+                    return Integer.parseInt(p[4].trim());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading " + AppConfig.TEST_DATA_TXT, e);
+        }
+        return 0;
+    }
+
 }

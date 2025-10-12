@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.example.oop.Model.Inventory.Inventory;
+import org.example.oop.Repository.InventoryRepository;
 import org.example.oop.Utils.AppConfig;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -102,7 +103,7 @@ public class SearchInventoryController {
     @FXML
     private Label countLabel;
 
-    private final InventoriesController inventoriesController = new InventoriesController();
+    private final InventoryRepository inventoriesController = new InventoryRepository();
     private ObservableList<Inventory> masterData = FXCollections.observableArrayList();
     private FilteredList<Inventory> rowFilteredList;
 

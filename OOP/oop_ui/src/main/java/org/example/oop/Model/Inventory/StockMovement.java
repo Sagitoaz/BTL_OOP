@@ -3,6 +3,8 @@ package org.example.oop.Model.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.example.oop.Model.Inventory.Enum.MovementType;
+
 /**
  * Model quản lý các giao dịch xuất nhập kho
  * Khớp với database schema: Stock_Movements table
@@ -11,7 +13,7 @@ public class StockMovement {
     private int id;
     private int productId;
     private int qty; // >0 nhập, <0 xuất
-    private String moveType; // purchase, sale, return_in, return_out, adjustment, consume, transfer
+    private MovementType moveType;
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
     private Integer refId; // ID của chứng từ nguồn
     private String batchNo; // Số lô
@@ -19,6 +21,7 @@ public class StockMovement {
     private String serialNo; // Số serial (cho thiết bị y tế)
     private LocalDateTime movedAt;
     private int movedBy; // ID người thực hiện (int, not String)
+    private String note = null;
 
     // Constructors
     public StockMovement() {
@@ -30,7 +33,7 @@ public class StockMovement {
         this.id = id;
         this.productId = productId;
         this.qty = qty;
-        this.moveType = moveType;
+        this.moveType = MovementType.valueOf(moveType);
         this.refTable = refTable;
         this.refId = refId;
         this.batchNo = batchNo;
@@ -66,10 +69,14 @@ public class StockMovement {
     }
 
     public String getMoveType() {
-        return moveType;
+        return moveType != null ? moveType.name() : null;
     }
 
     public void setMoveType(String moveType) {
+        this.moveType = MovementType.valueOf(moveType);
+    }
+
+    public void setMoveType(MovementType moveType) {
         this.moveType = moveType;
     }
 
@@ -134,7 +141,7 @@ public class StockMovement {
         if (productId <= 0) {
             return false;
         }
-        if (moveType == null || moveType.trim().isEmpty()) {
+        if (moveType == null) {
             return false;
         }
         if (qty == 0) {
@@ -167,61 +174,74 @@ public class StockMovement {
         return Math.abs(qty);
     }
 
-    // File I/O methods
-    /**
-     * Chuyển đổi object sang dòng text để lưu file
-     * Format:
-     * id|productId|qty|moveType|refTable|refId|batchNo|expiryDate|serialNo|movedAt|movedBy
-     */
-    public String toFileString() {
-        return id + "|" +
-                productId + "|" +
-                qty + "|" +
-                (moveType != null ? moveType : "") + "|" +
-                (refTable != null ? refTable : "") + "|" +
-                (refId != null ? refId : "") + "|" +
-                (batchNo != null ? batchNo : "") + "|" +
-                (expiryDate != null ? expiryDate.toString() : "") + "|" +
-                (serialNo != null ? serialNo : "") + "|" +
-                (movedAt != null ? movedAt.toString() : "") + "|" +
-                movedBy;
+    public void setNote(String note) {
+        this.note = note;
     }
 
-    /**
-     * Tạo object từ dòng text đọc từ file
-     * Format:
-     * id|productId|qty|moveType|refTable|refId|batchNo|expiryDate|serialNo|movedAt|movedBy
-     */
-    public static StockMovement fromFileString(String line) {
-        if (line == null || line.trim().isEmpty()) {
-            return null;
-        }
+    public String getNote() {
+        return note;
+    }
 
-        String[] parts = line.split("\\|", -1); // -1 để giữ empty strings
-        if (parts.length < 11) {
-            return null;
-        }
+    public String toDataString() {
+        // rỗng -> ""
+        String refIdStr = (refId == null) ? "" : String.valueOf(refId);
+        String expiryStr = (expiryDate == null) ? "" : expiryDate.toString();
 
-        try {
-            StockMovement movement = new StockMovement();
-            movement.setId(Integer.parseInt(parts[0]));
-            movement.setProductId(Integer.parseInt(parts[1]));
-            movement.setQty(Integer.parseInt(parts[2]));
-            movement.setMoveType(parts[3].isEmpty() ? null : parts[3]);
-            movement.setRefTable(parts[4].isEmpty() ? null : parts[4]);
-            movement.setRefId(parts[5].isEmpty() ? null : Integer.parseInt(parts[5]));
-            movement.setBatchNo(parts[6].isEmpty() ? null : parts[6]);
-            movement.setExpiryDate(parts[7].isEmpty() ? null : LocalDate.parse(parts[7]));
-            movement.setSerialNo(parts[8].isEmpty() ? null : parts[8]);
-            movement.setMovedAt(parts[9].isEmpty() ? null : LocalDateTime.parse(parts[9]));
-            movement.setMovedBy(Integer.parseInt(parts[10]));
+        // thay '|' trong note bằng ' ' để tránh vỡ cột
+        String safeNote = note == null ? "" : note.replace("|", " ");
 
-            return movement;
-        } catch (Exception e) {
-            System.err.println("Error parsing StockMovement from line: " + line);
-            e.printStackTrace();
-            return null;
-        }
+        return String.join("|",
+                String.valueOf(id),
+                String.valueOf(productId),
+                String.valueOf(qty),
+                moveType.name(),
+                nullToEmpty(refTable),
+                refIdStr,
+                nullToEmpty(batchNo),
+                expiryStr,
+                nullToEmpty(serialNo),
+                movedAt.toString(), // ISO-8601
+                String.valueOf(movedBy),
+                safeNote);
+    }
+
+    public static StockMovement fromDataString(String line) {
+        String[] p = line.split("\\|", -1);
+        // đảm bảo đủ 12 cột
+        if (p.length < 12)
+            throw new IllegalArgumentException("Invalid line: " + line);
+
+        StockMovement m = new StockMovement();
+        int i = 0;
+        m.id = Integer.parseInt(p[i++]);
+        m.productId = Integer.parseInt(p[i++]);
+        m.qty = Integer.parseInt(p[i++]);
+        m.moveType = MovementType.valueOf(p[i++]);
+
+        m.refTable = emptyToNull(p[i++]);
+        String refIdStr = p[i++];
+        m.refId = refIdStr.isBlank() ? null : Integer.valueOf(refIdStr);
+
+        m.batchNo = emptyToNull(p[i++]);
+
+        String expiryStr = p[i++];
+        m.expiryDate = expiryStr.isBlank() ? null : LocalDate.parse(expiryStr);
+
+        m.serialNo = emptyToNull(p[i++]);
+
+        m.movedAt = LocalDateTime.parse(p[i++]);
+        m.movedBy = Integer.parseInt(p[i++]);
+
+        m.note = emptyToNull(p[i++]);
+        return m;
+    }
+
+    private static String nullToEmpty(String s) {
+        return s == null ? "" : s;
+    }
+
+    private static String emptyToNull(String s) {
+        return (s == null || s.isEmpty()) ? null : s;
     }
 
     @Override
@@ -239,5 +259,10 @@ public class StockMovement {
                 ", movedAt=" + movedAt +
                 ", movedBy=" + movedBy +
                 '}';
+    }
+
+    public Object getCategory() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getCategory'");
     }
 }

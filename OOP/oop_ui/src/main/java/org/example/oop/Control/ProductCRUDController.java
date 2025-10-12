@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import org.example.oop.Model.Inventory.Inventory;
+import org.example.oop.Repository.InventoryRepository;
 import org.example.oop.Utils.AppConfig;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -85,7 +86,7 @@ public class ProductCRUDController {
 
      // === Data ===
      private ObservableList<Inventory> productList = FXCollections.observableArrayList();
-     private InventoriesController inventoriesController = new InventoriesController();
+     private InventoryRepository inventoriesController = new InventoryRepository();
      private Inventory selectedProduct = null;
      private FilteredList<Inventory> filteredData;
      private SortedList<Inventory> sortedData;
