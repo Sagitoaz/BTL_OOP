@@ -27,7 +27,7 @@ public class Admin extends User {
      * - username dùng để đăng nhập; đảm bảo tính duy nhất và hợp lệ.
      * - Không lưu mật khẩu ở dạng plain text ở tầng lưu trữ trong môi trường thực tế.
      */
-    public Admin(String id, String username, String password,
+    public Admin(int id, String username, String password,
                  String email, String fullName, String phone) {
         super(id, username, password, UserRole.ADMIN, email, fullName, phone);
     }

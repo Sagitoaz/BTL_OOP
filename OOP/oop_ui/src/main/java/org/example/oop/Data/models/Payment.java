@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * - Nếu cần hỗ trợ tiền tệ phức tạp, cân nhắc dùng BigDecimal thay vì double để tránh lỗi làm tròn.
  */
 public class Payment {
-    private String id;
+    private int id;
     private String code;
     private String customerId;
     private String cashierId;
@@ -37,7 +37,7 @@ public class Payment {
     /**
      * Constructor for creating a new Payment instance.
      */
-    public Payment(String id, String code, String customerId, String cashierId,
+    public Payment(int id, String code, String customerId, String cashierId,
                    LocalDateTime issuedAt, int subtotal, int discount, int taxTotal,
                    int rounding, int grandTotal, PaymentMethod paymentMethod,
                    double amountPaid, String note, LocalDateTime createdAt) {
@@ -59,11 +59,11 @@ public class Payment {
 
     // Getters and Setters
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -174,7 +174,7 @@ public class Payment {
     // Convert to file format: id|code|customerId|cashierId|issuedAt|subtotal|discount|taxTotal|rounding|grandTotal|paymentMethod|amountPaid|note|createdAt
     public String toFileFormat() {
         return String.join("|",
-                id, code, customerId, cashierId, issuedAt.toString(),
+                String.valueOf(id), code, customerId, cashierId, issuedAt.toString(),
                 String.valueOf(subtotal), String.valueOf(discount), String.valueOf(taxTotal),
                 String.valueOf(rounding), String.valueOf(grandTotal), paymentMethod.name(),
                 String.valueOf(amountPaid), note, createdAt.toString()
@@ -185,7 +185,7 @@ public class Payment {
     public static Payment fromFileFormat(String line) {
         String[] parts = line.split("\\|");
         return new Payment(
-                parts[0], parts[1], parts[2], parts[3], LocalDateTime.parse(parts[4]),
+                Integer.parseInt(parts[0]), parts[1], parts[2], parts[3], LocalDateTime.parse(parts[4]),
                 Integer.parseInt(parts[5]), Integer.parseInt(parts[6]), Integer.parseInt(parts[7]),
                 Integer.parseInt(parts[8]), Integer.parseInt(parts[9]), PaymentMethod.valueOf(parts[10]),
                 Double.parseDouble(parts[11]), parts[12], LocalDateTime.parse(parts[13])
@@ -195,7 +195,7 @@ public class Payment {
     @Override
     public String toString() {
         return "Payment{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", code='" + code + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", cashierId='" + cashierId + '\'' +

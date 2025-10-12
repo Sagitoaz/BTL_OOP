@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * - Xử lý ngoại lệ khi parse dữ liệu từ file (NumberFormatException, DateTimeParseException, ArrayIndexOutOfBoundsException).
  */
 public class Product {
-    private String id;
+    private int id;
     private String sku;
     private String name;
     private ProductCategory category;
@@ -33,7 +33,7 @@ public class Product {
     /**
      * Constructor for creating a new Product instance.
      */
-    public Product(String id, String sku, String name, ProductCategory category,
+    public Product(int id, String sku, String name, ProductCategory category,
                    String unit, int priceCost, int priceRetail, boolean isActive, String note,
                    LocalDateTime createdAt) {
         this.id = id;
@@ -50,11 +50,11 @@ public class Product {
 
     // Getters and Setters
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -133,7 +133,7 @@ public class Product {
     // Convert to file format: id|sku|name|category|unit|priceCost|priceRetail|isActive|note|createdAt
     public String toFileFormat() {
         return String.join("|",
-                id, sku, name, category.name(), unit,
+                String.valueOf(id), sku, name, category.name(), unit,
                 String.valueOf(priceCost), String.valueOf(priceRetail), String.valueOf(isActive),
                 note, createdAt.toString()
         );
@@ -143,7 +143,7 @@ public class Product {
     public static Product fromFileFormat(String line) {
         String[] parts = line.split("\\|");
         return new Product(
-                parts[0], parts[1], parts[2], ProductCategory.valueOf(parts[3]), parts[4],
+                Integer.parseInt(parts[0]), parts[1], parts[2], ProductCategory.valueOf(parts[3]), parts[4],
                 Integer.parseInt(parts[5]), Integer.parseInt(parts[6]), Boolean.parseBoolean(parts[7]),
                 parts[8], LocalDateTime.parse(parts[9])
         );
@@ -152,7 +152,7 @@ public class Product {
     @Override
     public String toString() {
         return "Product{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
                 ", category=" + category +

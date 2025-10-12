@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  * - Xử lý lỗi parse (ArrayIndexOutOfBoundsException, DateTimeParseException, IllegalArgumentException) khi đọc file thực tế.
  */
 public class Appointment {
-    private String id;
+    private int id;
     private String customerId;
     private String doctorId;
     private AppointmentType appointmentType;
@@ -36,7 +36,7 @@ public class Appointment {
      * Constructor khởi tạo một Appointment.
      * - Thường được gọi khi đọc dữ liệu từ file/DB hoặc khi tạo mới trong UI.
      */
-    public Appointment(String id, String customerId, String doctorId, AppointmentType appointmentType,
+    public Appointment(int id, String customerId, String doctorId, AppointmentType appointmentType,
                        String notes, LocalDateTime startTime, LocalDateTime endTime,
                        AppointmentStatus status, String createdBy, String updatedBy,
                        LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -56,11 +56,11 @@ public class Appointment {
 
     // Getters and Setters
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -155,7 +155,7 @@ public class Appointment {
     // Convert to file format: id|customerId|doctorId|appointmentType|notes|startTime|endTime|status|createdBy|updatedBy|createdAt|updatedAt
     public String toFileFormat() {
         return String.join("|",
-                id, customerId, doctorId, appointmentType.name(), notes,
+                String.valueOf(id), customerId, doctorId, appointmentType.name(), notes,
                 startTime.toString(), endTime.toString(), status.name(),
                 createdBy, updatedBy, createdAt.toString(), updatedAt.toString()
         );
@@ -165,7 +165,7 @@ public class Appointment {
     public static Appointment fromFileFormat(String line) {
         String[] parts = line.split("\\|");
         return new Appointment(
-                parts[0], parts[1], parts[2], AppointmentType.valueOf(parts[3]), parts[4],
+                Integer.parseInt(parts[0]), parts[1], parts[2], AppointmentType.valueOf(parts[3]), parts[4],
                 LocalDateTime.parse(parts[5]), LocalDateTime.parse(parts[6]), AppointmentStatus.valueOf(parts[7]),
                 parts[8], parts[9], LocalDateTime.parse(parts[10]), LocalDateTime.parse(parts[11])
         );
@@ -174,7 +174,7 @@ public class Appointment {
     @Override
     public String toString() {
         return "Appointment{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", customerId='" + customerId + '\'' +
                 ", doctorId='" + doctorId + '\'' +
                 ", appointmentType=" + appointmentType +

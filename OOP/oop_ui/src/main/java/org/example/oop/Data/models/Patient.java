@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  *   và đồng bộ với nơi lưu/đọc dữ liệu (repository và toFileFormat/fromFileFormat nếu có).
  */
 public class Patient extends User {
-    public Patient(String id, String username, String password,
+    public Patient(int id, String username, String password,
                    String email, String fullName, String phone) {
         super(id, username, password, UserRole.PATIENT, email, fullName, phone);
     }

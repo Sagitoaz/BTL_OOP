@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
   - createdAt được khởi tạo tự động khi tạo đối tượng, dùng để audit/kiểm tra.
 */
 public abstract class User {
-    protected String id;
+    protected int id;
     protected String username;
     protected String password; // Will be hashed for security
     protected UserRole role;
@@ -36,7 +36,7 @@ public abstract class User {
     // - Dùng khi khởi tạo user mới trong bộ nhớ (chưa chắc đã lưu vào file/DB).
     // - createdAt được gán LocalDateTime.now() ở đây, nên khi parse từ file, createdAt cần được
     //   overwrite nếu muốn giữ timestamp gốc (hiện fromFileFormat không làm điều đó).
-    public User(String id, String username, String password, UserRole role,
+    public User(int id, String username, String password, UserRole role,
                 String email, String fullName, String phone) {
         this.id = id;
         this.username = username;
@@ -55,7 +55,7 @@ public abstract class User {
      * Gets the unique identifier for this user.
      * @return The user's ID as a String.
      */
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -63,7 +63,7 @@ public abstract class User {
      * Sets the unique identifier for this user.
      * @param id The new ID to set.
      */
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -204,7 +204,7 @@ public abstract class User {
     // - Trường createdAt chuyển thành String bằng toString(); khi parse lại cần dùng LocalDateTime.parse
     public String toFileFormat() {
         return String.join("|",
-                id, username, password, role.name(), email, fullName, phone,
+                String.valueOf(id), username, password, role.name(), email, fullName, phone,
                 createdAt.toString(), String.valueOf(active)
         );
     }
@@ -217,14 +217,30 @@ public abstract class User {
     // - Hàm hiện tại khởi tạo đối tượng con (Admin/Doctor/Staff/Patient) nhưng không gán createdAt và active
     //   từ file; nếu muốn giữ timestamp và trạng thái, cần chỉnh lại constructor hoặc gọi setter sau khi tạo.
     public static User fromFileFormat(String line) {
+        // Remove BOM if present and trim whitespace
+        line = line.replace("\uFEFF", "").trim();
+        if (line.isEmpty()) {
+            return null;
+        }
+
         String[] parts = line.split("\\|");
+        if (parts.length < 7) {
+            return null; // Skip invalid lines
+        }
+
+        // Trim each part to remove any whitespace
+        for (int i = 0; i < parts.length; i++) {
+            parts[i] = parts[i].trim();
+        }
+
+        int id = Integer.parseInt(parts[0]);
         UserRole role = UserRole.valueOf(parts[3]);
 
         switch (role) {
-            case ADMIN: return new Admin(parts[0], parts[1], parts[2], parts[4], parts[5], parts[6]);
-            case DOCTOR: return new Doctor(parts[0], parts[1], parts[2], parts[4], parts[5], parts[6]);
-            case STAFF: return new Staff(parts[0], parts[1], parts[2], parts[4], parts[5], parts[6]);
-            case PATIENT: return new Patient(parts[0], parts[1], parts[2], parts[4], parts[5], parts[6]);
+            case ADMIN: return new Admin(id, parts[1], parts[2], parts[4], parts[5], parts[6]);
+            case DOCTOR: return new Doctor(id, parts[1], parts[2], parts[4], parts[5], parts[6]);
+            case STAFF: return new Staff(id, parts[1], parts[2], parts[4], parts[5], parts[6]);
+            case PATIENT: return new Patient(id, parts[1], parts[2], parts[4], parts[5], parts[6]);
             default: throw new IllegalArgumentException("Unknown role: " + role);
         }
     }
@@ -233,7 +249,7 @@ public abstract class User {
     @Override
     public String toString() {
         return "User{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", username='" + username + '\'' +
                 ", role=" + role +
                 ", email='" + email + '\'' +

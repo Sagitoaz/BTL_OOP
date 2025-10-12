@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * - Nếu cần thêm thông tin (ví dụ department, shift), mở rộng model và cập nhật nơi lưu/đọc dữ liệu.
  */
 public class Staff extends User {
-    public Staff(String id, String username, String password,
+    public Staff(int id, String username, String password,
                  String email, String fullName, String phone) {
         super(id, username, password, UserRole.STAFF, email, fullName, phone);
     }
