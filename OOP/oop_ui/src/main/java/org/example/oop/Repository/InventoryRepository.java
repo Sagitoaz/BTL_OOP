@@ -144,6 +144,13 @@ public class InventoryRepository {
                 .orElse(null);
     }
 
+    public Inventory searchByName(ObservableList<Inventory> inventoryList, String name) {
+        return inventoryList.stream()
+                .filter(inventory -> name.equalsIgnoreCase(inventory.getName()))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void upsertQty(int productId, int qtyChange) throws IOException {
         String absolutePath = "c:/BTL_OOP/BTL_OOP/OOP/oop_ui/src/main/resources" + AppConfig.TEST_DATA_TXT;
         File file = new File(absolutePath);

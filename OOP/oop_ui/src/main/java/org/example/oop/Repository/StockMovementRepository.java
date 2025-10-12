@@ -18,6 +18,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class StockMovementRepository {
+     private final InventoryRepository inventories = new InventoryRepository();
 
      public ObservableList<StockMovement> loadAll() {
           ObservableList<StockMovement> list = FXCollections.observableArrayList();
