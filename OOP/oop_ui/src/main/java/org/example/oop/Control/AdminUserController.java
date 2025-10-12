@@ -159,7 +159,7 @@ public class AdminUserController implements Initializable {
      * - Không hiển thị mật khẩu (đặt rỗng) để tránh rò rỉ.
      */
     private void populateFields(User user) {
-        txtId.setText(user.getId());
+        txtId.setText(String.valueOf(user.getId()));
         txtUsername.setText(user.getUsername());
         txtPassword.setText(""); // Không hiển thị mật khẩu
         txtFullName.setText(user.getFullName());
@@ -179,7 +179,14 @@ public class AdminUserController implements Initializable {
     @FXML
     void handleAdd(ActionEvent event) {
         try {
-            String id = txtId.getText().trim();
+            String idStr = txtId.getText().trim();
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                showAlert("Error", "ID must be a valid integer.");
+                return;
+            }
             String username = txtUsername.getText().trim();
             String password = txtPassword.getText().trim();
             String fullName = txtFullName.getText().trim();
@@ -189,7 +196,7 @@ public class AdminUserController implements Initializable {
             boolean active = chkActive.isSelected();
 
             // Validate các trường bắt buộc
-            if (id.isEmpty() || username.isEmpty() || password.isEmpty() || fullName.isEmpty() || email.isEmpty() || role == null) {
+            if (idStr.isEmpty() || username.isEmpty() || password.isEmpty() || fullName.isEmpty() || email.isEmpty() || role == null) {
                 showAlert("Error", "Please fill all required fields.");
                 return;
             }
@@ -317,7 +324,7 @@ public class AdminUserController implements Initializable {
      * Factory method: Tạo instance subclass User theo role
      * - Mục đích để dễ mở rộng nếu từng role có logic/thuộc tính khác nhau
      */
-    private User createUserInstance(String id, String username, String password, UserRole role, String email, String fullName, String phone) {
+    private User createUserInstance(int id, String username, String password, UserRole role, String email, String fullName, String phone) {
         switch (role) {
             case ADMIN:
                 return new org.example.oop.Data.models.Admin(id, username, password, email, fullName, phone);

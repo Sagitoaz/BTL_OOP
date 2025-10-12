@@ -151,16 +151,16 @@ public class SignUpController implements Initializable {
 
     // Gán ID tiếp theo cho user mới
     // ID mới = ID lớn nhất hiện có + 1
-    private String getNextUserId() {
+    private int getNextUserId() {
         UserRepository repo = new UserRepository();
         long count = repo.count();
-        return "P" + (count + 1);
+        return (int) (count + 1);
     }
 
     // Lưu thông tin user mới
     private boolean saveNewUser(String username, String password, String fullName, String email, String phone) {
         try {
-            String newId = getNextUserId();
+            int newId = getNextUserId();
             String hashedPassword = AuthServiceWrapper.hashPasswordWithSalt(password);
             Patient patient = new Patient(newId, username, hashedPassword, email, fullName, phone);
             UserRepository repo = new UserRepository();
