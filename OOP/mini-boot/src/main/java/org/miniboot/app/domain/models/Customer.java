@@ -6,9 +6,10 @@ import java.time.LocalDateTime;
 /**
  * Customer model - khách hàng/bệnh nhân
  * Theo database mới: bảng Customers thay thế cho Patient
+ * Đã cập nhật để tương thích với OOP_UI: sử dụng int cho ID
  */
 public class Customer implements User {
-    private String id;
+    private int id;
     private String username;
     private String password;
     private String firstname;
@@ -23,7 +24,7 @@ public class Customer implements User {
 
     public Customer() {}
 
-    public Customer(String id, String username, String password, String firstname, String lastname,
+    public Customer(int id, String username, String password, String firstname, String lastname,
                     String phone, String email, LocalDate dob, String gender, String address,
                     String note, LocalDateTime createdAt) {
         this.id = id;
@@ -41,18 +42,18 @@ public class Customer implements User {
     }
 
     @Override
-    public String getRole() {
-        return "CUSTOMER";
+    public UserRole getUserRole() {
+        return UserRole.CUSTOMER;
     }
 
-    // Getters and Setters
+    // Implement User interface methods
     @Override
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -76,6 +77,49 @@ public class Customer implements User {
         this.password = password;
     }
 
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public boolean isActive() {
+        return true; // Customer mặc định luôn active
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        // Customer không có trường active, nên không làm gì
+    }
+
+    @Override
+    public String getFullName() {
+        return firstname + " " + lastname;
+    }
+
+    @Override
+    public void setFullName(String fullName) {
+        String[] parts = fullName.split(" ", 2);
+        this.firstname = parts[0];
+        this.lastname = parts.length > 1 ? parts[1] : "";
+    }
+
+    @Override
+    public String getPhone() {
+        return phone;
+    }
+
+    @Override
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    // Customer-specific getters and setters
     public String getFirstname() {
         return firstname;
     }
@@ -90,28 +134,6 @@ public class Customer implements User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
-    }
-
-    public String getFullName() {
-        return firstname + " " + lastname;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public LocalDate getDob() {
@@ -155,13 +177,15 @@ public class Customer implements User {
     }
 
     @Override
-    public boolean isActive() {
-        return true; // Customer không có trường isActive
-    }
-
-    @Override
-    public void setActive(boolean active) {
-        // Customer không có trường isActive
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", gender='" + gender + '\'' +
+                '}';
     }
 }
-

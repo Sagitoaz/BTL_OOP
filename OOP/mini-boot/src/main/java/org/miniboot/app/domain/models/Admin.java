@@ -3,9 +3,10 @@ package org.miniboot.app.domain.models;
 /**
  * Admin model - quản trị viên hệ thống
  * Theo database mới: bảng Admins
+ * Đã cập nhật để tương thích với OOP_UI: sử dụng int cho ID
  */
 public class Admin implements User {
-    private String id;
+    private int id;
     private String username;
     private String password; // hash
     private String email;
@@ -13,7 +14,7 @@ public class Admin implements User {
 
     public Admin() {}
 
-    public Admin(String id, String username, String password, String email, boolean active) {
+    public Admin(int id, String username, String password, String email, boolean active) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -22,18 +23,18 @@ public class Admin implements User {
     }
 
     @Override
-    public String getRole() {
-        return "ADMIN";
+    public UserRole getUserRole() {
+        return UserRole.ADMIN;
     }
 
     // Getters and Setters
     @Override
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -76,5 +77,14 @@ public class Admin implements User {
     public void setActive(boolean active) {
         this.active = active;
     }
-}
 
+    @Override
+    public String toString() {
+        return "Admin{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", active=" + active +
+                '}';
+    }
+}

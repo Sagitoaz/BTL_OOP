@@ -27,13 +27,13 @@ import java.util.Optional;
  * 2) Cách lấy path parameter
  *    - Router sẽ match pattern như "/users/:id" và extract giá trị vào
  *      request.tags map (key = tên biến trong pattern, ví dụ "id").
- *    - Khi cần lấy id từ path, dùng: String id = request.tags.get("id");
- *    - Luôn validate (null/empty) trước khi sử dụng.
+ *    - Khi cần lấy id từ path, dùng: String idStr = request.tags.get("id"); int id = Integer.parseInt(idStr);
+ *    - Luôn validate (null/empty/number format) trước khi sử dụng.
  *
  * 3) Cách đọc và parse body
  *    - Đọc toàn bộ body bằng request.bodyText() (UTF-8 string).
  *    - Dùng Json.parseMap(body) để parse thành Map<String,Object>.
- *    - Phải cast từng trường về kiểu mong muốn (String, Boolean, ...).
+ *    - Phải cast từng trường về kiểu mong muốn (String, Boolean, Number...).
  *    - Không giả định các trường luôn tồn tại — kiểm tra bằng containsKey hoặc null checks.
  *
  * 4) Quy ước trả về (HTTP + JSON)
@@ -42,9 +42,8 @@ import java.util.Optional;
  *    - Tránh trả thông tin nhạy cảm (như password) trong response; hiện tại hàm trả toàn bộ đối tượng User — nếu User chứa password, cân nhắc loại bỏ hoặc mask field đó trước khi trả.
  *
  * 5) Lưu ý về bảo mật và production
- *    - Hiện tại mật khẩu đang được lưu trực tiếp từ input vào User.password (plain-text).
- *      Trong môi trường thực tế phải băm mật khẩu trước khi lưu (bcrypt/argon2) và không trả password về client.
- *    - ID hiện được tạo bằng timestamp; tốt hơn nên dùng UUID hoặc ID do DB cấp để tránh xung đột.
+ *    - Mật khẩu được băm bằng BCrypt trước khi lưu và không trả password về client.
+ *    - ID được tạo tự động tăng dần; trong DB thực tế sẽ được DB engine quản lý.
  *    - Repository hiện đọc/ghi file (UserRepository) — không phù hợp với hệ thống lớn. Nên chuyển sang DB để đảm bảo concurrency, atomicity và performance.
  *
  * 6) Xử lý lỗi và báo lỗi
@@ -55,10 +54,10 @@ import java.util.Optional;
  *    - Trước khi tạo hoặc đổi username, kiểm tra repository.findByUsername để tránh duplicate.
  *    - Khi update username, nếu đổi sang username mới thì cũng kiểm tra trùng lặp.
  *
- * 8) Các điểm nâng cấp (gợi ý)
- *    - Thêm validation chặt chẽ hơn (email format, password strength) trước khi accept create/update.
- *    - Không trả về User object chứa password; tạo DTO/View object để trả về client.
- *    - Sử dụng transactions nếu repository hỗ trợ (DB) để rollback khi lỗi.
+ * 8) Tương thích với OOP_UI
+ *    - ID sử dụng kiểu int thay vì String để tương thích với UI
+ *    - UserRole được xử lý theo enum định nghĩa trong OOP_UI
+ *    - Các model Admin, Employee, Customer tương thích với định nghĩa trong OOP_UI
  */
 
 /**
@@ -69,9 +68,10 @@ import java.util.Optional;
  * - PUT /users/:id: Update existing user
  * - DELETE /users/:id: Delete user
  *
- * Đã cập nhật theo database mới:
+ * Đã cập nhật theo database và OOP_UI:
  * - User giờ là interface với 3 implementation: Admin, Employee, Customer
  * - POST /users yêu cầu trường "userType" để xác định loại user cần tạo
+ * - ID sử dụng kiểu int thay vì String để tương thích với OOP_UI
  */
 public class UserController {
 
@@ -105,9 +105,16 @@ public class UserController {
      */
     private static HttpResponse getUserById(HttpRequest request) {
         try {
-            String id = request.tags.get("id");
-            if (id == null || id.trim().isEmpty()) {
+            String idStr = request.tags.get("id");
+            if (idStr == null || idStr.trim().isEmpty()) {
                 return Json.error(400, "Missing user ID");
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                return Json.error(400, "Invalid user ID format");
             }
 
             Optional<User> userOpt = userRepository.findById(id);
@@ -146,7 +153,8 @@ public class UserController {
                 return Json.error(409, "Username already exists: " + username);
             }
 
-            String id = String.valueOf(System.currentTimeMillis());
+            // Tạo ID tự động tăng dần (tương thích với OOP_UI)
+            int id = generateNextId();
             User newUser;
 
             switch (userType.toLowerCase()) {
@@ -170,21 +178,21 @@ public class UserController {
         }
     }
 
-    private static Admin createAdmin(String id, String username, String password, Map<String, Object> data) {
+    private static Admin createAdmin(int id, String username, String password, Map<String, Object> data) {
         Admin admin = new Admin();
         admin.setId(id);
         admin.setUsername(username);
-        admin.setPassword(hashPassword(password));
+        admin.setPassword(hashPassword(password)); // Hash password từ plain text input
         admin.setEmail((String) data.get("email"));
         admin.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
         return admin;
     }
 
-    private static Employee createEmployee(String id, String username, String password, Map<String, Object> data) {
+    private static Employee createEmployee(int id, String username, String password, Map<String, Object> data) {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setUsername(username);
-        employee.setPassword(hashPassword(password));
+        employee.setPassword(hashPassword(password)); // Hash password từ plain text input
         employee.setFirstname((String) data.get("firstname"));
         employee.setLastname((String) data.get("lastname"));
         employee.setAvatar((String) data.get("avatar"));
@@ -197,11 +205,11 @@ public class UserController {
         return employee;
     }
 
-    private static Customer createCustomer(String id, String username, String password, Map<String, Object> data) {
+    private static Customer createCustomer(int id, String username, String password, Map<String, Object> data) {
         Customer customer = new Customer();
         customer.setId(id);
         customer.setUsername(username);
-        customer.setPassword(hashPassword(password));
+        customer.setPassword(hashPassword(password)); // Hash password từ plain text input
         customer.setFirstname((String) data.get("firstname"));
         customer.setLastname((String) data.get("lastname"));
         customer.setPhone((String) data.get("phone"));
@@ -226,9 +234,16 @@ public class UserController {
      */
     private static HttpResponse updateUser(HttpRequest request) {
         try {
-            String id = request.tags.get("id");
-            if (id == null || id.trim().isEmpty()) {
+            String idStr = request.tags.get("id");
+            if (idStr == null || idStr.trim().isEmpty()) {
                 return Json.error(400, "Missing user ID");
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                return Json.error(400, "Invalid user ID format");
             }
 
             Optional<User> existingUserOpt = userRepository.findById(id);
@@ -249,8 +264,11 @@ public class UserController {
                 }
                 user.setUsername(newUsername);
             }
-            if (data.containsKey("password")) {
-                user.setPassword(hashPassword((String) data.get("password")));
+            // CHỈ hash password nếu user cung cấp password mới (plain text)
+            if (data.containsKey("password") && data.get("password") != null) {
+                String newPassword = (String) data.get("password");
+                // Chỉ hash nếu password không phải đã là hash (có thể check độ dài hoặc format)
+                user.setPassword(hashPassword(newPassword));
             }
             if (data.containsKey("email")) {
                 user.setEmail((String) data.get("email"));
@@ -261,17 +279,16 @@ public class UserController {
 
             // Update specific fields based on user type
             if (user instanceof Admin) {
-                // Admin has no additional fields to update
-            } else if (user instanceof Employee) {
-                Employee emp = (Employee) user;
+                // Admin only has common fields (username, password, email, active)
+                // No additional fields to update
+            } else if (user instanceof Employee emp) {
                 if (data.containsKey("firstname")) emp.setFirstname((String) data.get("firstname"));
                 if (data.containsKey("lastname")) emp.setLastname((String) data.get("lastname"));
                 if (data.containsKey("avatar")) emp.setAvatar((String) data.get("avatar"));
                 if (data.containsKey("role")) emp.setEmployeeRole((String) data.get("role"));
                 if (data.containsKey("licenseNo")) emp.setLicenseNo((String) data.get("licenseNo"));
                 if (data.containsKey("phone")) emp.setPhone((String) data.get("phone"));
-            } else if (user instanceof Customer) {
-                Customer cust = (Customer) user;
+            } else if (user instanceof Customer cust) {
                 if (data.containsKey("firstname")) cust.setFirstname((String) data.get("firstname"));
                 if (data.containsKey("lastname")) cust.setLastname((String) data.get("lastname"));
                 if (data.containsKey("phone")) cust.setPhone((String) data.get("phone"));
@@ -296,9 +313,16 @@ public class UserController {
      */
     private static HttpResponse deleteUser(HttpRequest request) {
         try {
-            String id = request.tags.get("id");
-            if (id == null || id.trim().isEmpty()) {
+            String idStr = request.tags.get("id");
+            if (idStr == null || idStr.trim().isEmpty()) {
                 return Json.error(400, "Missing user ID");
+            }
+
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException e) {
+                return Json.error(400, "Invalid user ID format");
             }
 
             boolean deleted = userRepository.deleteById(id);
@@ -314,5 +338,21 @@ public class UserController {
 
     private static String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(10, password.toCharArray());
+    }
+
+    /**
+     * Tạo ID tự động tăng dần (tương thích với OOP_UI)
+     * Trong thực tế sẽ được DB engine quản lý
+     */
+    private static int generateNextId() {
+        // Lấy ID lớn nhất hiện có và tăng lên 1
+        List<User> allUsers = userRepository.findAll();
+        int maxId = 0;
+        for (User user : allUsers) {
+            if (user.getId() > maxId) {
+                maxId = user.getId();
+            }
+        }
+        return maxId + 1;
     }
 }

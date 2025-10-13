@@ -60,6 +60,14 @@
           <useModulePath>false</useModulePath>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec.plugin.version}</version>
+        <configuration>
+          <mainClass>org.miniboot.app.ServerMain</mainClass>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>

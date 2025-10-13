@@ -20,15 +20,18 @@ import java.util.Optional;
  * Đã cập nhật theo database mới:
  * - Đọc từ 3 file riêng biệt: admins.txt, employees.txt, customers.txt
  * - User giờ là interface, trả về Admin/Employee/Customer cụ thể
+ * - ID sử dụng kiểu int thay vì String để tương thích với OOP_UI
  * - Format file:
  *   + admins.txt: id|username|password|email|is_active
  *   + employees.txt: id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at
  *   + customers.txt: id|username|password|firstname|lastname|phone|email|dob|gender|address|note|created_at
  */
 public class UserRepository {
-    private static final String ADMINS_FILE = "oop_ui/src/main/resources/Data/admins.txt";
-    private static final String EMPLOYEES_FILE = "oop_ui/src/main/resources/Data/employees.txt";
-    private static final String CUSTOMERS_FILE = "oop_ui/src/main/resources/Data/customers.txt";
+    // Sửa đường dẫn để tương thích với cấu trúc thư mục thực tế
+    private static final String DATA_DIR = System.getProperty("user.dir") + "\\oop_ui\\src\\main\\resources\\Data\\";
+    private static final String ADMINS_FILE = DATA_DIR + "admins.txt";
+    private static final String EMPLOYEES_FILE = DATA_DIR + "employees.txt";
+    private static final String CUSTOMERS_FILE = DATA_DIR + "customers.txt";
 
     /**
      * Find all users from all 3 tables
@@ -42,28 +45,139 @@ public class UserRepository {
     }
 
     /**
+     * Find user by ID (search across all 3 tables)
+     */
+    public Optional<User> findById(int id) {
+        // Tìm trong admins
+        for (Admin admin : loadAdmins()) {
+            if (admin.getId() == id) {
+                return Optional.of(admin);
+            }
+        }
+
+        // Tìm trong employees
+        for (Employee employee : loadEmployees()) {
+            if (employee.getId() == id) {
+                return Optional.of(employee);
+            }
+        }
+
+        // Tìm trong customers
+        for (Customer customer : loadCustomers()) {
+            if (customer.getId() == id) {
+                return Optional.of(customer);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Find user by username (search across all 3 tables)
+     */
+    public Optional<User> findByUsername(String username) {
+        // Tìm trong admins
+        for (Admin admin : loadAdmins()) {
+            if (username.equals(admin.getUsername())) {
+                return Optional.of(admin);
+            }
+        }
+
+        // Tìm trong employees
+        for (Employee employee : loadEmployees()) {
+            if (username.equals(employee.getUsername())) {
+                return Optional.of(employee);
+            }
+        }
+
+        // Tìm trong customers
+        for (Customer customer : loadCustomers()) {
+            if (username.equals(customer.getUsername())) {
+                return Optional.of(customer);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Save user (determine which file based on user type)
+     */
+    public void save(User user) {
+        if (user instanceof Admin) {
+            saveAdmin((Admin) user);
+        } else if (user instanceof Employee) {
+            saveEmployee((Employee) user);
+        } else if (user instanceof Customer) {
+            saveCustomer((Customer) user);
+        }
+    }
+
+    /**
+     * Delete user by ID (search and delete from appropriate file)
+     */
+    public boolean deleteById(int id) {
+        // Tìm và xóa từ admins
+        List<Admin> admins = loadAdmins();
+        for (int i = 0; i < admins.size(); i++) {
+            if (admins.get(i).getId() == id) {
+                admins.remove(i);
+                saveAllAdmins(admins);
+                return true;
+            }
+        }
+
+        // Tìm và xóa từ employees
+        List<Employee> employees = loadEmployees();
+        for (int i = 0; i < employees.size(); i++) {
+            if (employees.get(i).getId() == id) {
+                employees.remove(i);
+                saveAllEmployees(employees);
+                return true;
+            }
+        }
+
+        // Tìm và xóa từ customers
+        List<Customer> customers = loadCustomers();
+        for (int i = 0; i < customers.size(); i++) {
+            if (customers.get(i).getId() == id) {
+                customers.remove(i);
+                saveAllCustomers(customers);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Load admins from admins.txt
      * Format: id|username|password|email|is_active
      */
     private List<Admin> loadAdmins() {
         List<Admin> admins = new ArrayList<>();
         try {
+            if (!Files.exists(Paths.get(ADMINS_FILE))) {
+                return admins;
+            }
+
             List<String> lines = Files.readAllLines(Paths.get(ADMINS_FILE));
             for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
                 if (parts.length >= 5) {
                     Admin admin = new Admin();
-                    admin.setId(parts[0]);
+                    admin.setId(Integer.parseInt(parts[0]));
                     admin.setUsername(parts[1]);
                     admin.setPassword(parts[2]);
-                    admin.setEmail(parts[3].isEmpty() ? null : parts[3]);
+                    admin.setEmail(parts[3]);
                     admin.setActive(Boolean.parseBoolean(parts[4]));
                     admins.add(admin);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading admins file: " + e.getMessage());
+            System.err.println("Error loading admins: " + e.getMessage());
         }
         return admins;
     }
@@ -75,29 +189,36 @@ public class UserRepository {
     private List<Employee> loadEmployees() {
         List<Employee> employees = new ArrayList<>();
         try {
+            if (!Files.exists(Paths.get(EMPLOYEES_FILE))) {
+                return employees;
+            }
+
             List<String> lines = Files.readAllLines(Paths.get(EMPLOYEES_FILE));
             for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
                 if (parts.length >= 12) {
                     Employee employee = new Employee();
-                    employee.setId(parts[0]);
+                    employee.setId(Integer.parseInt(parts[0]));
                     employee.setUsername(parts[1]);
                     employee.setPassword(parts[2]);
                     employee.setFirstname(parts[3]);
                     employee.setLastname(parts[4]);
-                    employee.setAvatar(parts[5].isEmpty() ? null : parts[5]);
+                    employee.setAvatar(parts[5]);
                     employee.setEmployeeRole(parts[6]);
-                    employee.setLicenseNo(parts[7].isEmpty() ? null : parts[7]);
-                    employee.setEmail(parts[8].isEmpty() ? null : parts[8]);
-                    employee.setPhone(parts[9].isEmpty() ? null : parts[9]);
+                    employee.setLicenseNo(parts[7]);
+                    employee.setEmail(parts[8]);
+                    employee.setPhone(parts[9]);
                     employee.setActive(Boolean.parseBoolean(parts[10]));
-                    employee.setCreatedAt(parts[11].isEmpty() ? null : LocalDateTime.parse(parts[11]));
+                    if (!parts[11].isEmpty()) {
+                        employee.setCreatedAt(LocalDateTime.parse(parts[11]));
+                    }
                     employees.add(employee);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading employees file: " + e.getMessage());
+            System.err.println("Error loading employees: " + e.getMessage());
         }
         return employees;
     }
@@ -109,200 +230,173 @@ public class UserRepository {
     private List<Customer> loadCustomers() {
         List<Customer> customers = new ArrayList<>();
         try {
+            if (!Files.exists(Paths.get(CUSTOMERS_FILE))) {
+                return customers;
+            }
+
             List<String> lines = Files.readAllLines(Paths.get(CUSTOMERS_FILE));
             for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
                 if (parts.length >= 12) {
                     Customer customer = new Customer();
-                    customer.setId(parts[0]);
+                    customer.setId(Integer.parseInt(parts[0]));
                     customer.setUsername(parts[1]);
                     customer.setPassword(parts[2]);
                     customer.setFirstname(parts[3]);
                     customer.setLastname(parts[4]);
-                    customer.setPhone(parts[5].isEmpty() ? null : parts[5]);
-                    customer.setEmail(parts[6].isEmpty() ? null : parts[6]);
-                    customer.setDob(parts[7].isEmpty() ? null : LocalDate.parse(parts[7]));
-                    customer.setGender(parts[8].isEmpty() ? null : parts[8]);
-                    customer.setAddress(parts[9].isEmpty() ? null : parts[9]);
-                    customer.setNote(parts[10].isEmpty() ? null : parts[10]);
-                    customer.setCreatedAt(parts[11].isEmpty() ? null : LocalDateTime.parse(parts[11]));
+                    customer.setPhone(parts[5]);
+                    customer.setEmail(parts[6]);
+                    if (!parts[7].isEmpty()) {
+                        customer.setDob(LocalDate.parse(parts[7]));
+                    }
+                    customer.setGender(parts[8]);
+                    customer.setAddress(parts[9]);
+                    customer.setNote(parts[10]);
+                    if (!parts[11].isEmpty()) {
+                        customer.setCreatedAt(LocalDateTime.parse(parts[11]));
+                    }
                     customers.add(customer);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading customers file: " + e.getMessage());
+            System.err.println("Error loading customers: " + e.getMessage());
         }
         return customers;
     }
 
-    /**
-     * Find user by ID
-     */
-    public Optional<User> findById(String id) {
-        return findAll().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
-    }
-
-    /**
-     * Find user by username
-     */
-    public Optional<User> findByUsername(String username) {
-        return findAll().stream()
-                .filter(user -> user.getUsername().equals(username))
-                .findFirst();
-    }
-
-    /**
-     * Save user (create or update)
-     * Xác định loại user dựa trên instance và lưu vào file tương ứng
-     */
-    public User save(User user) {
-        if (user instanceof Admin) {
-            return saveAdmin((Admin) user);
-        } else if (user instanceof Employee) {
-            return saveEmployee((Employee) user);
-        } else if (user instanceof Customer) {
-            return saveCustomer((Customer) user);
-        }
-        throw new IllegalArgumentException("Unknown user type: " + user.getClass().getName());
-    }
-
-    private Admin saveAdmin(Admin admin) {
+    private void saveAdmin(Admin admin) {
         List<Admin> admins = loadAdmins();
-        admins.removeIf(a -> a.getId().equals(admin.getId()));
-        admins.add(admin);
-        writeAdminsToFile(admins);
-        return admin;
+
+        // Update existing or add new
+        boolean found = false;
+        for (int i = 0; i < admins.size(); i++) {
+            if (admins.get(i).getId() == admin.getId()) {
+                admins.set(i, admin);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            admins.add(admin);
+        }
+
+        saveAllAdmins(admins);
     }
 
-    private Employee saveEmployee(Employee employee) {
+    private void saveEmployee(Employee employee) {
         List<Employee> employees = loadEmployees();
-        employees.removeIf(e -> e.getId().equals(employee.getId()));
-        employees.add(employee);
-        writeEmployeesToFile(employees);
-        return employee;
+
+        // Update existing or add new
+        boolean found = false;
+        for (int i = 0; i < employees.size(); i++) {
+            if (employees.get(i).getId() == employee.getId()) {
+                employees.set(i, employee);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            employees.add(employee);
+        }
+
+        saveAllEmployees(employees);
     }
 
-    private Customer saveCustomer(Customer customer) {
+    private void saveCustomer(Customer customer) {
         List<Customer> customers = loadCustomers();
-        customers.removeIf(c -> c.getId().equals(customer.getId()));
-        customers.add(customer);
-        writeCustomersToFile(customers);
-        return customer;
+
+        // Update existing or add new
+        boolean found = false;
+        for (int i = 0; i < customers.size(); i++) {
+            if (customers.get(i).getId() == customer.getId()) {
+                customers.set(i, customer);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            customers.add(customer);
+        }
+
+        saveAllCustomers(customers);
     }
 
-    /**
-     * Delete user by ID
-     */
-    public boolean deleteById(String id) {
-        boolean deleted = false;
-
-        List<Admin> admins = loadAdmins();
-        if (admins.removeIf(a -> a.getId().equals(id))) {
-            writeAdminsToFile(admins);
-            deleted = true;
-        }
-
-        List<Employee> employees = loadEmployees();
-        if (employees.removeIf(e -> e.getId().equals(id))) {
-            writeEmployeesToFile(employees);
-            deleted = true;
-        }
-
-        List<Customer> customers = loadCustomers();
-        if (customers.removeIf(c -> c.getId().equals(id))) {
-            writeCustomersToFile(customers);
-            deleted = true;
-        }
-
-        return deleted;
-    }
-
-    /**
-     * Write admins to file
-     * Format: id|username|password|email|is_active
-     */
-    private void writeAdminsToFile(List<Admin> admins) {
-        List<String> lines = new ArrayList<>();
-        lines.add("# id|username|password|email|is_active");
-        for (Admin admin : admins) {
-            String line = String.join("|",
+    private void saveAllAdmins(List<Admin> admins) {
+        try {
+            Files.createDirectories(Paths.get(ADMINS_FILE).getParent());
+            List<String> lines = new ArrayList<>();
+            for (Admin admin : admins) {
+                String line = String.format("%d|%s|%s|%s|%s",
                     admin.getId(),
                     admin.getUsername(),
                     admin.getPassword(),
                     admin.getEmail() != null ? admin.getEmail() : "",
-                    String.valueOf(admin.isActive())
-            );
-            lines.add(line);
-        }
-        try {
+                    admin.isActive()
+                );
+                lines.add(line);
+            }
             Files.write(Paths.get(ADMINS_FILE), lines);
         } catch (IOException e) {
-            System.err.println("Error writing admins file: " + e.getMessage());
+            System.err.println("Error saving admins: " + e.getMessage());
         }
     }
 
-    /**
-     * Write employees to file
-     * Format: id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at
-     */
-    private void writeEmployeesToFile(List<Employee> employees) {
-        List<String> lines = new ArrayList<>();
-        lines.add("# id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at");
-        for (Employee emp : employees) {
-            String line = String.join("|",
-                    emp.getId(),
-                    emp.getUsername(),
-                    emp.getPassword(),
-                    emp.getFirstname(),
-                    emp.getLastname(),
-                    emp.getAvatar() != null ? emp.getAvatar() : "",
-                    emp.getEmployeeRole(),
-                    emp.getLicenseNo() != null ? emp.getLicenseNo() : "",
-                    emp.getEmail() != null ? emp.getEmail() : "",
-                    emp.getPhone() != null ? emp.getPhone() : "",
-                    String.valueOf(emp.isActive()),
-                    emp.getCreatedAt() != null ? emp.getCreatedAt().toString() : ""
-            );
-            lines.add(line);
-        }
+    private void saveAllEmployees(List<Employee> employees) {
         try {
+            Files.createDirectories(Paths.get(EMPLOYEES_FILE).getParent());
+            List<String> lines = new ArrayList<>();
+            for (Employee employee : employees) {
+                String line = String.format("%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+                    employee.getId(),
+                    employee.getUsername(),
+                    employee.getPassword(),
+                    employee.getFirstname() != null ? employee.getFirstname() : "",
+                    employee.getLastname() != null ? employee.getLastname() : "",
+                    employee.getAvatar() != null ? employee.getAvatar() : "",
+                    employee.getEmployeeRole() != null ? employee.getEmployeeRole() : "",
+                    employee.getLicenseNo() != null ? employee.getLicenseNo() : "",
+                    employee.getEmail() != null ? employee.getEmail() : "",
+                    employee.getPhone() != null ? employee.getPhone() : "",
+                    employee.isActive(),
+                    employee.getCreatedAt() != null ? employee.getCreatedAt().toString() : ""
+                );
+                lines.add(line);
+            }
             Files.write(Paths.get(EMPLOYEES_FILE), lines);
         } catch (IOException e) {
-            System.err.println("Error writing employees file: " + e.getMessage());
+            System.err.println("Error saving employees: " + e.getMessage());
         }
     }
 
-    /**
-     * Write customers to file
-     * Format: id|username|password|firstname|lastname|phone|email|dob|gender|address|note|created_at
-     */
-    private void writeCustomersToFile(List<Customer> customers) {
-        List<String> lines = new ArrayList<>();
-        lines.add("# id|username|password|firstname|lastname|phone|email|dob|gender|address|note|created_at");
-        for (Customer cust : customers) {
-            String line = String.join("|",
-                    cust.getId(),
-                    cust.getUsername(),
-                    cust.getPassword(),
-                    cust.getFirstname(),
-                    cust.getLastname(),
-                    cust.getPhone() != null ? cust.getPhone() : "",
-                    cust.getEmail() != null ? cust.getEmail() : "",
-                    cust.getDob() != null ? cust.getDob().toString() : "",
-                    cust.getGender() != null ? cust.getGender() : "",
-                    cust.getAddress() != null ? cust.getAddress() : "",
-                    cust.getNote() != null ? cust.getNote() : "",
-                    cust.getCreatedAt() != null ? cust.getCreatedAt().toString() : ""
-            );
-            lines.add(line);
-        }
+    private void saveAllCustomers(List<Customer> customers) {
         try {
+            Files.createDirectories(Paths.get(CUSTOMERS_FILE).getParent());
+            List<String> lines = new ArrayList<>();
+            for (Customer customer : customers) {
+                String line = String.format("%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+                    customer.getId(),
+                    customer.getUsername(),
+                    customer.getPassword(),
+                    customer.getFirstname() != null ? customer.getFirstname() : "",
+                    customer.getLastname() != null ? customer.getLastname() : "",
+                    customer.getPhone() != null ? customer.getPhone() : "",
+                    customer.getEmail() != null ? customer.getEmail() : "",
+                    customer.getDob() != null ? customer.getDob().toString() : "",
+                    customer.getGender() != null ? customer.getGender() : "",
+                    customer.getAddress() != null ? customer.getAddress() : "",
+                    customer.getNote() != null ? customer.getNote() : "",
+                    customer.getCreatedAt() != null ? customer.getCreatedAt().toString() : ""
+                );
+                lines.add(line);
+            }
             Files.write(Paths.get(CUSTOMERS_FILE), lines);
         } catch (IOException e) {
-            System.err.println("Error writing customers file: " + e.getMessage());
+            System.err.println("Error saving customers: " + e.getMessage());
         }
     }
 }

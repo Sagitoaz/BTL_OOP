@@ -5,6 +5,7 @@ import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.EchoController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.HelloController;
+import org.miniboot.app.controllers.UserController;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.AppointmentRepository;
@@ -82,6 +83,7 @@ public class ServerMain {
         EchoController.mount(router);   // EchoController cũng vậy
         // mount các controller
         AuthController.mount(router);
+        UserController.mount(router);
 
         // Khởi động server
         HttpServer server = new HttpServer(port, router);
