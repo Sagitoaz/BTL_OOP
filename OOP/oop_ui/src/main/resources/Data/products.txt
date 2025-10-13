@@ -1,6 +1,33 @@
-1|SKU001|Eye Drops|Medication|15.50|100|ACTIVE
-2|SKU002|Contact Lenses|Supplies|25.00|50|ACTIVE
-3|SKU003|Reading Glasses|Accessories|45.00|30|ACTIVE
-4|SKU004|Eye Patch|Supplies|5.00|200|ACTIVE
-5|SKU005|Vitamin Supplements|Medication|20.00|75|INACTIVE
+1|FRM-001|Ray-Ban Classic Aviator|frame|piece|1200000|2500000|true|25|BATCH-FRM-001|||Premium metal frame|2025-09-01T10:00:00
+2|FRM-002|Oakley Sports Frame|frame|piece|1500000|3000000|true|15|BATCH-FRM-002|||Durable sports frame|2025-09-01T10:00:00
+3|FRM-003|Gucci Designer Frame|frame|piece|2000000|4500000|true|10|BATCH-FRM-003|||Luxury designer frame|2025-09-01T10:00:00
+4|FRM-004|Kids Cartoon Frame|frame|piece|300000|600000|true|30|BATCH-FRM-004|||Colorful kids frame|2025-09-05T10:00:00
+5|FRM-005|Titanium Lightweight Frame|frame|piece|1800000|3500000|true|20|BATCH-FRM-005|||Ultra-light titanium|2025-09-05T10:00:00
+6|LNS-001|CR-39 Single Vision Lens|lens|pair|200000|500000|true|100|BATCH-LNS-001|||Standard optical lens|2025-09-01T10:00:00
+7|LNS-002|Polycarbonate Lens|lens|pair|300000|700000|true|80|BATCH-LNS-002|||Impact resistant|2025-09-01T10:00:00
+8|LNS-003|High-Index 1.67 Lens|lens|pair|500000|1200000|true|50|BATCH-LNS-003|||Thin lens for high prescription|2025-09-02T10:00:00
+9|LNS-004|Progressive Lens|lens|pair|800000|1800000|true|40|BATCH-LNS-004|||Multi-focal lens|2025-09-02T10:00:00
+10|LNS-005|Photochromic Lens|lens|pair|600000|1400000|true|60|BATCH-LNS-005|||Auto-tinting lens|2025-09-03T10:00:00
+11|LNS-006|Blue Light Filter Lens|lens|pair|400000|900000|true|70|BATCH-LNS-006|||Computer protection|2025-09-03T10:00:00
+12|CNT-001|Daily Disposable Contact Lens|contact_lens|box|150000|350000|true|200|BATCH-CNT-001|2026-12-31||30 lenses per box|2025-09-01T10:00:00
+13|CNT-002|Monthly Contact Lens|contact_lens|box|200000|450000|true|150|BATCH-CNT-002|2026-10-31||6 lenses per box|2025-09-01T10:00:00
+14|CNT-003|Colored Contact Lens|contact_lens|box|250000|550000|true|100|BATCH-CNT-003|2026-11-30||Cosmetic lens|2025-09-04T10:00:00
+15|CNT-004|Toric Contact Lens|contact_lens|box|300000|650000|true|80|BATCH-CNT-004|2026-12-31||For astigmatism|2025-09-04T10:00:00
+16|MCH-001|Auto Refractometer|machine|unit|50000000|0|true|2||AR-2024-001|Medical device|2025-08-01T10:00:00
+17|MCH-002|Slit Lamp Microscope|machine|unit|80000000|0|true|3||SL-2024-001|Examination equipment|2025-08-01T10:00:00
+18|MCH-003|Tonometer|machine|unit|30000000|0|true|2||TM-2024-001|Glaucoma testing|2025-08-01T10:00:00
+19|MCH-004|Phoropter|machine|unit|45000000|0|true|4||PH-2024-001|Refraction testing|2025-08-01T10:00:00
+20|CON-001|Eye Drops - Refresh Tears|consumable|bottle|50000|120000|true|500|BATCH-CON-001|2026-06-30||Artificial tears|2025-09-01T10:00:00
+21|CON-002|Antibiotic Eye Drops|consumable|bottle|80000|180000|true|300|BATCH-CON-002|2026-03-31||Prescription required|2025-09-01T10:00:00
+22|CON-003|Contact Lens Solution|consumable|bottle|60000|150000|true|400|BATCH-CON-003|2026-12-31||Multi-purpose solution|2025-09-02T10:00:00
+23|CON-004|Lens Cleaning Wipes|consumable|box|30000|80000|true|600|BATCH-CON-004|2027-01-31||50 wipes per box|2025-09-02T10:00:00
+24|CON-005|Eye Patch|consumable|piece|5000|15000|true|1000|BATCH-CON-005|||Sterile eye patch|2025-09-03T10:00:00
+25|CON-006|Cotton Swabs|consumable|box|10000|25000|true|800|BATCH-CON-006|||100 pieces per box|2025-09-03T10:00:00
+26|SRV-001|Eye Examination|service|visit|0|300000|true|0||||Basic eye check|2025-09-01T10:00:00
+27|SRV-002|Comprehensive Eye Exam|service|visit|0|500000|true|0||||Full diagnostic exam|2025-09-01T10:00:00
+28|SRV-003|Contact Lens Fitting|service|visit|0|400000|true|0||||Professional fitting|2025-09-01T10:00:00
+29|SRV-004|Glaucoma Screening|service|visit|0|600000|true|0||||Specialized test|2025-09-02T10:00:00
+30|SRV-005|Cataract Surgery Consultation|service|visit|0|800000|true|0||||Pre-op consultation|2025-09-02T10:00:00
+31|FRM-006|Reading Glasses +1.00|frame|piece|150000|350000|false|5|BATCH-FRM-006|||Discontinued model|2025-08-15T10:00:00
+32|CON-007|Vitamin Eye Supplements|consumable|bottle|100000|250000|false|20|BATCH-CON-007|2025-12-31||Out of stock soon|2025-09-01T10:00:00
 

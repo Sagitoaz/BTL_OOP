@@ -1,0 +1,2 @@
+# id|username|password|email|is_active (admin123)
+1|admin|Ez5pIX1BvJtKIk9JawVbgw==:ZFooYdkYWQDhqHr0cwdHg+sbLmUVSS2+WKtp7Uo+Y4s=|admin@clinic.com|true
