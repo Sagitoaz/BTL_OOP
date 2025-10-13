@@ -1,22 +1,11 @@
 package org.example.oop.Data.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * Lớp Product - đại diện cho một sản phẩm trong kho của phòng khám.
- *
- * Ghi chú dành cho người duy trì:
- * - Các trường chính: id, sku, name, category, unit, priceCost, priceRetail, isActive, note, createdAt.
- * - Giá trị tiền được lưu dưới dạng int (đơn vị nhỏ nhất, ví dụ đồng), cân nhắc đổi sang long nếu cần.
- * - createdAt dùng để audit; khi parse từ file cần đảm bảo định dạng ISO-8601.
- *
- * Định dạng lưu file:
- * - toFileFormat() trả về chuỗi phân cách bởi '|': id|sku|name|category|unit|priceCost|priceRetail|isActive|note|createdAt
- * - fromFileFormat() giả sử file có đầy đủ 10 phần và dùng parse/parseInt/Boolean.parseBoolean cho các trường tương ứng.
- *
- * Lưu ý khi mở rộng:
- * - Nếu thêm trường mới, cập nhật cả toFileFormat() và fromFileFormat().
- * - Xử lý ngoại lệ khi parse dữ liệu từ file (NumberFormatException, DateTimeParseException, ArrayIndexOutOfBoundsException).
+ * Theo database mới: thêm qty_on_hand, batch_no, expiry_date, serial_no
  */
 public class Product {
     private int id;
@@ -24,17 +13,22 @@ public class Product {
     private String name;
     private ProductCategory category;
     private String unit;
-    private int priceCost;
-    private int priceRetail;
+    private int priceCost; // giá nhập
+    private int priceRetail; // giá bán lẻ mặc định
     private boolean isActive;
+    private int qtyOnHand; // số lượng tồn kho
+    private String batchNo; // NULL nếu không quản theo lô
+    private LocalDate expiryDate;
+    private String serialNo;
     private String note;
     private LocalDateTime createdAt;
 
     /**
-     * Constructor for creating a new Product instance.
+     * Constructor đầy đủ
      */
-    public Product(int id, String sku, String name, ProductCategory category,
-                   String unit, int priceCost, int priceRetail, boolean isActive, String note,
+    public Product(int id, String sku, String name, ProductCategory category, String unit,
+                   int priceCost, int priceRetail, boolean isActive, int qtyOnHand,
+                   String batchNo, LocalDate expiryDate, String serialNo, String note,
                    LocalDateTime createdAt) {
         this.id = id;
         this.sku = sku;
@@ -44,12 +38,24 @@ public class Product {
         this.priceCost = priceCost;
         this.priceRetail = priceRetail;
         this.isActive = isActive;
+        this.qtyOnHand = qtyOnHand;
+        this.batchNo = batchNo;
+        this.expiryDate = expiryDate;
+        this.serialNo = serialNo;
         this.note = note;
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
+    /**
+     * Constructor đơn giản cho sản phẩm mới
+     */
+    public Product(int id, String sku, String name, ProductCategory category, String unit,
+                   int priceCost, int priceRetail) {
+        this(id, sku, name, category, unit, priceCost, priceRetail, true, 0,
+             null, null, null, null, LocalDateTime.now());
+    }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -114,6 +120,38 @@ public class Product {
         isActive = active;
     }
 
+    public int getQtyOnHand() {
+        return qtyOnHand;
+    }
+
+    public void setQtyOnHand(int qtyOnHand) {
+        this.qtyOnHand = qtyOnHand;
+    }
+
+    public String getBatchNo() {
+        return batchNo;
+    }
+
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    public String getSerialNo() {
+        return serialNo;
+    }
+
+    public void setSerialNo(String serialNo) {
+        this.serialNo = serialNo;
+    }
+
     public String getNote() {
         return note;
     }
@@ -130,38 +168,55 @@ public class Product {
         this.createdAt = createdAt;
     }
 
-    // Convert to file format: id|sku|name|category|unit|priceCost|priceRetail|isActive|note|createdAt
+    /**
+     * Chuyển đổi Product thành chuỗi để lưu vào file
+     * Format: id|sku|name|category|unit|price_cost|price_retail|is_active|qty_on_hand|batch_no|expiry_date|serial_no|note|created_at
+     */
     public String toFileFormat() {
         return String.join("|",
-                String.valueOf(id), sku, name, category.name(), unit,
-                String.valueOf(priceCost), String.valueOf(priceRetail), String.valueOf(isActive),
-                note, createdAt.toString()
+                String.valueOf(id),
+                sku,
+                name,
+                category.getValue(),
+                unit != null ? unit : "",
+                String.valueOf(priceCost),
+                String.valueOf(priceRetail),
+                String.valueOf(isActive),
+                String.valueOf(qtyOnHand),
+                batchNo != null ? batchNo : "",
+                expiryDate != null ? expiryDate.toString() : "",
+                serialNo != null ? serialNo : "",
+                note != null ? note : "",
+                createdAt.toString()
         );
     }
 
-    // Parse from file format
+    /**
+     * Tạo Product từ chuỗi trong file
+     * Format: id|sku|name|category|unit|price_cost|price_retail|is_active|qty_on_hand|batch_no|expiry_date|serial_no|note|created_at
+     */
     public static Product fromFileFormat(String line) {
-        String[] parts = line.split("\\|");
-        return new Product(
-                Integer.parseInt(parts[0]), parts[1], parts[2], ProductCategory.valueOf(parts[3]), parts[4],
-                Integer.parseInt(parts[5]), Integer.parseInt(parts[6]), Boolean.parseBoolean(parts[7]),
-                parts[8], LocalDateTime.parse(parts[9])
-        );
-    }
+        String[] parts = line.split("\\|", -1);
+        if (parts.length < 14) {
+            throw new IllegalArgumentException("Invalid product format: " + line);
+        }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", sku='" + sku + '\'' +
-                ", name='" + name + '\'' +
-                ", category=" + category +
-                ", unit='" + unit + '\'' +
-                ", priceCost=" + priceCost +
-                ", priceRetail=" + priceRetail +
-                ", isActive=" + isActive +
-                ", note='" + note + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
+        int id = Integer.parseInt(parts[0]);
+        String sku = parts[1];
+        String name = parts[2];
+        ProductCategory category = ProductCategory.fromValue(parts[3]);
+        String unit = parts[4].isEmpty() ? null : parts[4];
+        int priceCost = Integer.parseInt(parts[5]);
+        int priceRetail = Integer.parseInt(parts[6]);
+        boolean isActive = Boolean.parseBoolean(parts[7]);
+        int qtyOnHand = Integer.parseInt(parts[8]);
+        String batchNo = parts[9].isEmpty() ? null : parts[9];
+        LocalDate expiryDate = parts[10].isEmpty() ? null : LocalDate.parse(parts[10]);
+        String serialNo = parts[11].isEmpty() ? null : parts[11];
+        String note = parts[12].isEmpty() ? null : parts[12];
+        LocalDateTime createdAt = LocalDateTime.parse(parts[13]);
+
+        return new Product(id, sku, name, category, unit, priceCost, priceRetail,
+                isActive, qtyOnHand, batchNo, expiryDate, serialNo, note, createdAt);
     }
 }

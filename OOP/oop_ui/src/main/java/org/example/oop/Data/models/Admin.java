@@ -3,69 +3,101 @@ package org.example.oop.Data.models;
 import java.time.LocalDateTime;
 
 /**
- * Lớp Admin - đại diện cho người dùng quản trị trong hệ thống.
- * Quản trị viên có quyền cao nhất và có thể thực hiện các thao tác hệ thống
- * như quản lý người dùng, cấu hình hệ thống, và tạo báo cáo.
- * Lớp này kế thừa User và mặc định gán role là ADMIN.
+ * Lớp Admin - đại diện cho người quản trị trong hệ thống.
+ * Theo database mới, Admin là bảng riêng biệt không kế thừa.
  */
-
-/*
-  Ghi chú cho người duy trì:
-  - Admin mở rộng User với các hành vi dành riêng cho quản trị viên.
-  - Các phương thức hiện tại là khung (placeholder) để triển khai nghiệp vụ quản trị.
-  - Nếu cần thêm thuộc tính riêng cho Admin (ví dụ adminLevel), hãy khai báo và đồng bộ
-    với nơi tạo/lưu dữ liệu tương ứng.
-*/
-public class Admin extends User {
+public class Admin implements User {
+    private int id;
+    private String username;
+    private String password; // hash
+    private String email;
+    private boolean isActive;
 
     /**
-     * Tạo đối tượng Admin mới.
-     * Gọi constructor của lớp cha và gán role = ADMIN.
-     *
-     * Lưu ý vận hành:
-     * - id nên là duy nhất trong hệ thống.
-     * - username dùng để đăng nhập; đảm bảo tính duy nhất và hợp lệ.
-     * - Không lưu mật khẩu ở dạng plain text ở tầng lưu trữ trong môi trường thực tế.
+     * Constructor đầy đủ
      */
-    public Admin(int id, String username, String password,
-                 String email, String fullName, String phone) {
-        super(id, username, password, UserRole.ADMIN, email, fullName, phone);
+    public Admin(int id, String username, String password, String email, boolean isActive) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.isActive = isActive;
     }
 
     /**
-     * Khung chức năng quản lý người dùng dành cho Admin.
-     *
-     * Hướng dẫn triển khai:
-     * - Thực hiện validate dữ liệu trước khi thay đổi user.
-     * - Gọi repository/service để lưu thay đổi và xử lý transaction nếu cần.
-     * - Ghi audit log cho các hành động quản trị để phục vụ truy vết.
+     * Constructor cho admin mới (mặc định isActive = true)
      */
+    public Admin(int id, String username, String password, String email) {
+        this(id, username, password, email, true);
+    }
+
+    // Implement User interface
+    @Override
+    public UserRole getUserRole() {
+        return UserRole.ADMIN;
+    }
+
+    // Getters and Setters
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    // Business methods
     public void manageUsers() {
-        // TODO: Triển khai logic quản lý người dùng (tạo, cập nhật, vô hiệu hóa, thay đổi vai trò...)
-        System.out.println("Admin " + getFullName() + " is managing users.");
+        System.out.println("Admin " + username + " is managing users.");
     }
 
-    /**
-     * Khung chức năng tạo báo cáo hệ thống.
-     *
-     * Hướng dẫn triển khai:
-     * - Tách logic xuất báo cáo ra service riêng.
-     * - Hỗ trợ các định dạng xuất (CSV, PDF) và kiểm soát truy cập khi xem/lưu báo cáo.
-     */
     public void generateReports() {
-        // TODO: Triển khai logic tạo báo cáo
-        System.out.println("Admin " + getFullName() + " is generating reports.");
+        System.out.println("Admin " + username + " is generating reports.");
     }
 
-    /**
-     * Khung chức năng cấu hình hệ thống.
-     *
-     * Lưu ý:
-     * - Thay đổi cấu hình có thể ảnh hưởng rộng; cần kiểm soát truy cập và audit.
-     * - Khi triển khai, cân nhắc dùng pattern Command/Service để hỗ trợ rollback nếu cần.
-     */
     public void configureSystem() {
-        // TODO: Triển khai logic cấu hình hệ thống
-        System.out.println("Admin " + getFullName() + " is configuring the system.");
+        System.out.println("Admin " + username + " is configuring the system.");
     }
 }

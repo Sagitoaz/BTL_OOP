@@ -4,43 +4,35 @@ import java.time.LocalDateTime;
 
 /**
  * Lớp Payment - đại diện cho một giao dịch thanh toán trong hệ thống.
- *
- * Ghi chú cho người duy trì:
- * - Trường issuedAt/createdAt là LocalDateTime, dùng để lưu thời điểm phát sinh và thời điểm ghi nhận.
- * - Các trường tiền tệ lưu dưới dạng int/double tùy mục đích; cân nhắc đơn vị và làm tròn khi hiển thị/khấu trừ.
- * - paymentMethod là enum PaymentMethod; nếu mở rộng phương thức thanh toán, cập nhật enum và nơi parse.
- *
- * Định dạng lưu file:
- * - toFileFormat() trả về: id|code|customerId|cashierId|issuedAt|subtotal|discount|taxTotal|rounding|grandTotal|paymentMethod|amountPaid|note|createdAt
- * - fromFileFormat() giả sử file có đủ 14 phần và dùng LocalDateTime.parse/Integer.parseDouble/... để parse.
- *
- * Lưu ý khi sửa đổi:
- * - Xử lý ngoại lệ khi đọc file thực tế (NumberFormatException, DateTimeParseException, ArrayIndexOutOfBoundsException).
- * - Nếu cần hỗ trợ tiền tệ phức tạp, cân nhắc dùng BigDecimal thay vì double để tránh lỗi làm tròn.
+ * Theo database mới: customer_id có thể NULL, cashier_id là int ref to Employees
  */
 public class Payment {
     private int id;
-    private String code;
-    private String customerId;
-    private String cashierId;
+    private String code; // Số chứng từ/in biên lai
+    private Integer customerId; // null khi chưa đk tài khoản
+    private int cashierId; // id của employee
     private LocalDateTime issuedAt;
+
+    // Tổng tiền
     private int subtotal;
     private int discount;
     private int taxTotal;
     private int rounding;
     private int grandTotal;
+
+    // Thanh toán 1 lần tại quầy
     private PaymentMethod paymentMethod;
-    private double amountPaid;
+    private double amountPaid; // = grand_total khi thanh toán xong
+
     private String note;
     private LocalDateTime createdAt;
 
     /**
-     * Constructor for creating a new Payment instance.
+     * Constructor đầy đủ
      */
-    public Payment(int id, String code, String customerId, String cashierId,
-                   LocalDateTime issuedAt, int subtotal, int discount, int taxTotal,
-                   int rounding, int grandTotal, PaymentMethod paymentMethod,
-                   double amountPaid, String note, LocalDateTime createdAt) {
+    public Payment(int id, String code, Integer customerId, int cashierId, LocalDateTime issuedAt,
+                   int subtotal, int discount, int taxTotal, int rounding, int grandTotal,
+                   PaymentMethod paymentMethod, double amountPaid, String note, LocalDateTime createdAt) {
         this.id = id;
         this.code = code;
         this.customerId = customerId;
@@ -57,8 +49,18 @@ public class Payment {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
+    /**
+     * Constructor cho payment mới
+     */
+    public Payment(int id, String code, Integer customerId, int cashierId,
+                   int subtotal, int discount, int taxTotal, int rounding, int grandTotal,
+                   PaymentMethod paymentMethod) {
+        this(id, code, customerId, cashierId, LocalDateTime.now(),
+             subtotal, discount, taxTotal, rounding, grandTotal,
+             paymentMethod, 0.0, null, LocalDateTime.now());
+    }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -75,19 +77,19 @@ public class Payment {
         this.code = code;
     }
 
-    public String getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 
-    public String getCashierId() {
+    public int getCashierId() {
         return cashierId;
     }
 
-    public void setCashierId(String cashierId) {
+    public void setCashierId(int cashierId) {
         this.cashierId = cashierId;
     }
 
@@ -171,44 +173,56 @@ public class Payment {
         this.createdAt = createdAt;
     }
 
-    // Convert to file format: id|code|customerId|cashierId|issuedAt|subtotal|discount|taxTotal|rounding|grandTotal|paymentMethod|amountPaid|note|createdAt
+    /**
+     * Chuyển đổi Payment thành chuỗi để lưu vào file
+     * Format: id|code|customer_id|cashier_id|issued_at|subtotal|discount|tax_total|rounding|grand_total|payment_method|amount_paid|note|created_at
+     */
     public String toFileFormat() {
         return String.join("|",
-                String.valueOf(id), code, customerId, cashierId, issuedAt.toString(),
-                String.valueOf(subtotal), String.valueOf(discount), String.valueOf(taxTotal),
-                String.valueOf(rounding), String.valueOf(grandTotal), paymentMethod.name(),
-                String.valueOf(amountPaid), note, createdAt.toString()
+                String.valueOf(id),
+                code != null ? code : "",
+                customerId != null ? String.valueOf(customerId) : "",
+                String.valueOf(cashierId),
+                issuedAt.toString(),
+                String.valueOf(subtotal),
+                String.valueOf(discount),
+                String.valueOf(taxTotal),
+                String.valueOf(rounding),
+                String.valueOf(grandTotal),
+                paymentMethod != null ? paymentMethod.getValue() : "",
+                String.valueOf(amountPaid),
+                note != null ? note : "",
+                createdAt.toString()
         );
     }
 
-    // Parse from file format
+    /**
+     * Tạo Payment từ chuỗi trong file
+     * Format: id|code|customer_id|cashier_id|issued_at|subtotal|discount|tax_total|rounding|grand_total|payment_method|amount_paid|note|created_at
+     */
     public static Payment fromFileFormat(String line) {
-        String[] parts = line.split("\\|");
-        return new Payment(
-                Integer.parseInt(parts[0]), parts[1], parts[2], parts[3], LocalDateTime.parse(parts[4]),
-                Integer.parseInt(parts[5]), Integer.parseInt(parts[6]), Integer.parseInt(parts[7]),
-                Integer.parseInt(parts[8]), Integer.parseInt(parts[9]), PaymentMethod.valueOf(parts[10]),
-                Double.parseDouble(parts[11]), parts[12], LocalDateTime.parse(parts[13])
-        );
-    }
+        String[] parts = line.split("\\|", -1);
+        if (parts.length < 14) {
+            throw new IllegalArgumentException("Invalid payment format: " + line);
+        }
 
-    @Override
-    public String toString() {
-        return "Payment{" +
-                "id=" + id +
-                ", code='" + code + '\'' +
-                ", customerId='" + customerId + '\'' +
-                ", cashierId='" + cashierId + '\'' +
-                ", issuedAt=" + issuedAt +
-                ", subtotal=" + subtotal +
-                ", discount=" + discount +
-                ", taxTotal=" + taxTotal +
-                ", rounding=" + rounding +
-                ", grandTotal=" + grandTotal +
-                ", paymentMethod=" + paymentMethod +
-                ", amountPaid=" + amountPaid +
-                ", note='" + note + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
+        int id = Integer.parseInt(parts[0]);
+        String code = parts[1].isEmpty() ? null : parts[1];
+        Integer customerId = parts[2].isEmpty() ? null : Integer.parseInt(parts[2]);
+        int cashierId = Integer.parseInt(parts[3]);
+        LocalDateTime issuedAt = LocalDateTime.parse(parts[4]);
+        int subtotal = Integer.parseInt(parts[5]);
+        int discount = Integer.parseInt(parts[6]);
+        int taxTotal = Integer.parseInt(parts[7]);
+        int rounding = Integer.parseInt(parts[8]);
+        int grandTotal = Integer.parseInt(parts[9]);
+        PaymentMethod paymentMethod = parts[10].isEmpty() ? null : PaymentMethod.fromValue(parts[10]);
+        double amountPaid = Double.parseDouble(parts[11]);
+        String note = parts[12].isEmpty() ? null : parts[12];
+        LocalDateTime createdAt = LocalDateTime.parse(parts[13]);
+
+        return new Payment(id, code, customerId, cashierId, issuedAt,
+                subtotal, discount, taxTotal, rounding, grandTotal,
+                paymentMethod, amountPaid, note, createdAt);
     }
 }

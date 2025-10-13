@@ -4,42 +4,26 @@ import java.time.LocalDateTime;
 
 /**
  * Lớp Appointment - đại diện cho một lịch hẹn trong hệ thống phòng khám mắt.
- *
- * Ghi chú quan trọng dành cho người duy trì:
- * - Trường startTime/endTime dùng LocalDateTime để biểu diễn thời điểm bắt đầu/kết thúc.
- * - status, appointmentType là enum; khi thay đổi enum cần đồng bộ với file dữ liệu.
- * - createdAt/updatedAt được sử dụng để audit; khi parse từ file cần đảm bảo format ISO-8601.
- *
- * Định dạng lưu file:
- * - toFileFormat() trả về chuỗi phân cách bởi '|' theo thứ tự: id|customerId|doctorId|appointmentType|notes|startTime|endTime|status|createdBy|updatedBy|createdAt|updatedAt
- * - fromFileFormat() giả sử file có đủ 12 phần và sử dụng LocalDateTime.parse cho start/end/created/updated.
- *
- * Lưu ý khi sửa đổi:
- * - Nếu thay đổi thứ tự hoặc thêm trường, hãy cập nhật đồng thời toFileFormat() và fromFileFormat().
- * - Xử lý lỗi parse (ArrayIndexOutOfBoundsException, DateTimeParseException, IllegalArgumentException) khi đọc file thực tế.
+ * Theo database mới: customer_id và doctor_id là int, status có thêm giá trị mới
  */
 public class Appointment {
     private int id;
-    private String customerId;
-    private String doctorId;
+    private int customerId; // int ref to Customers.id
+    private int doctorId; // int ref to Employees.id (MUST be role='doctor')
     private AppointmentType appointmentType;
     private String notes;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private AppointmentStatus status;
-    private String createdBy;
-    private String updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     /**
-     * Constructor khởi tạo một Appointment.
-     * - Thường được gọi khi đọc dữ liệu từ file/DB hoặc khi tạo mới trong UI.
+     * Constructor đầy đủ
      */
-    public Appointment(int id, String customerId, String doctorId, AppointmentType appointmentType,
+    public Appointment(int id, int customerId, int doctorId, AppointmentType appointmentType,
                        String notes, LocalDateTime startTime, LocalDateTime endTime,
-                       AppointmentStatus status, String createdBy, String updatedBy,
-                       LocalDateTime createdAt, LocalDateTime updatedAt) {
+                       AppointmentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.customerId = customerId;
         this.doctorId = doctorId;
@@ -48,14 +32,20 @@ public class Appointment {
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = status;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    // Getters and Setters
+    /**
+     * Constructor cho appointment mới
+     */
+    public Appointment(int id, int customerId, int doctorId, AppointmentType appointmentType,
+                       LocalDateTime startTime, LocalDateTime endTime) {
+        this(id, customerId, doctorId, appointmentType, null, startTime, endTime,
+             AppointmentStatus.SCHEDULED, LocalDateTime.now(), LocalDateTime.now());
+    }
 
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -64,19 +54,19 @@ public class Appointment {
         this.id = id;
     }
 
-    public String getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(String customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 
-    public String getDoctorId() {
+    public int getDoctorId() {
         return doctorId;
     }
 
-    public void setDoctorId(String doctorId) {
+    public void setDoctorId(int doctorId) {
         this.doctorId = doctorId;
     }
 
@@ -120,22 +110,6 @@ public class Appointment {
         this.status = status;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -152,40 +126,48 @@ public class Appointment {
         this.updatedAt = updatedAt;
     }
 
-    // Convert to file format: id|customerId|doctorId|appointmentType|notes|startTime|endTime|status|createdBy|updatedBy|createdAt|updatedAt
+    /**
+     * Chuyển đổi Appointment thành chuỗi để lưu vào file
+     * Format: id|customerId|doctorId|appointmentType|notes|startTime|endTime|status|createdAt|updatedAt
+     */
     public String toFileFormat() {
         return String.join("|",
-                String.valueOf(id), customerId, doctorId, appointmentType.name(), notes,
-                startTime.toString(), endTime.toString(), status.name(),
-                createdBy, updatedBy, createdAt.toString(), updatedAt.toString()
+                String.valueOf(id),
+                String.valueOf(customerId),
+                String.valueOf(doctorId),
+                appointmentType.getValue(),
+                notes != null ? notes : "",
+                startTime.toString(),
+                endTime.toString(),
+                status.getValue(),
+                createdAt.toString(),
+                updatedAt != null ? updatedAt.toString() : ""
         );
     }
 
-    // Parse from file format
+    /**
+     * Tạo Appointment từ chuỗi trong file
+     * Format: id|customerId|doctorId|appointmentType|notes|startTime|endTime|status|createdAt|updatedAt
+     */
     public static Appointment fromFileFormat(String line) {
-        String[] parts = line.split("\\|");
-        return new Appointment(
-                Integer.parseInt(parts[0]), parts[1], parts[2], AppointmentType.valueOf(parts[3]), parts[4],
-                LocalDateTime.parse(parts[5]), LocalDateTime.parse(parts[6]), AppointmentStatus.valueOf(parts[7]),
-                parts[8], parts[9], LocalDateTime.parse(parts[10]), LocalDateTime.parse(parts[11])
-        );
-    }
+        String[] parts = line.split("\\|", -1);
+        if (parts.length < 9) {
+            throw new IllegalArgumentException("Invalid appointment format: " + line);
+        }
 
-    @Override
-    public String toString() {
-        return "Appointment{" +
-                "id=" + id +
-                ", customerId='" + customerId + '\'' +
-                ", doctorId='" + doctorId + '\'' +
-                ", appointmentType=" + appointmentType +
-                ", notes='" + notes + '\'' +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", status=" + status +
-                ", createdBy='" + createdBy + '\'' +
-                ", updatedBy='" + updatedBy + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+        int id = Integer.parseInt(parts[0]);
+        int customerId = Integer.parseInt(parts[1]);
+        int doctorId = Integer.parseInt(parts[2]);
+        AppointmentType type = AppointmentType.fromValue(parts[3]);
+        String notes = parts[4].isEmpty() ? null : parts[4];
+        LocalDateTime startTime = LocalDateTime.parse(parts[5]);
+        LocalDateTime endTime = LocalDateTime.parse(parts[6]);
+        AppointmentStatus status = AppointmentStatus.fromValue(parts[7]);
+        LocalDateTime createdAt = LocalDateTime.parse(parts[8]);
+        LocalDateTime updatedAt = parts.length > 9 && !parts[9].isEmpty()
+                ? LocalDateTime.parse(parts[9]) : null;
+
+        return new Appointment(id, customerId, doctorId, type, notes,
+                startTime, endTime, status, createdAt, updatedAt);
     }
 }

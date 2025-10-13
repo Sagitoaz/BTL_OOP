@@ -2,14 +2,33 @@ package org.example.oop.Data.models;
 
 /**
  * AppointmentType - loại hình lịch hẹn trong hệ thống.
- *
- * Ghi chú cho người duy trì:
- * - Các giá trị biểu diễn mục đích lịch: VISIT (khám thường), TEST (xét nghiệm), SURGERY (phẫu thuật).
- * - Nếu thêm loại lịch mới, cập nhật nơi xử lý lịch, UI và định dạng file nếu cần lưu loại này.
- * - Tránh đổi tên các giá trị hiện có để không làm hỏng dữ liệu đã lưu trước đó.
+ * Theo database: enum('visit','test','surgery')
  */
 public enum AppointmentType {
-    VISIT,
-    TEST,
-    SURGERY
+    VISIT("visit"),
+    TEST("test"),
+    SURGERY("surgery");
+
+    private final String value;
+
+    AppointmentType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static AppointmentType fromString(String text) {
+        for (AppointmentType type : AppointmentType.values()) {
+            if (type.value.equalsIgnoreCase(text)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("No AppointmentType with value " + text + " found");
+    }
+
+    public static AppointmentType fromValue(String value) {
+        return fromString(value);
+    }
 }

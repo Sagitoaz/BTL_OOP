@@ -1,19 +1,34 @@
 package org.example.oop.Data.models;
 
 /**
- * MoveType - loại giao dịch kho (inventory movement).
- *
- * Ghi chú cho người duy trì:
- * - Các giá trị biểu diễn các loại di chuyển hàng: nhập mua, bán, trả lại, điều chỉnh, tiêu hao, chuyển kho.
- * - Nếu mở rộng chức năng quản kho, đảm bảo cập nhật logic xử lý tương ứng (tồn kho, báo cáo, lịch sử giao dịch).
- * - Giá trị enum được lưu/so sánh trong file/DB; không đổi tên các giá trị nếu không muốn phá vỡ dữ liệu cũ.
+ * MoveType - loại giao dịch xuất nhập kho.
+ * Theo database: enum('purchase','sale','return_in','return_out','adjustment','consume','transfer')
  */
 public enum MoveType {
-    PURCHASE,
-    SALE,
-    RETURN_IN,
-    RETURN_OUT,
-    ADJUSTMENT,
-    CONSUME,
-    TRANSFER
+    PURCHASE("purchase"),
+    SALE("sale"),
+    RETURN_IN("return_in"),
+    RETURN_OUT("return_out"),
+    ADJUSTMENT("adjustment"),
+    CONSUME("consume"),
+    TRANSFER("transfer");
+
+    private final String value;
+
+    MoveType(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static MoveType fromString(String text) {
+        for (MoveType type : MoveType.values()) {
+            if (type.value.equalsIgnoreCase(text)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("No MoveType with value " + text + " found");
+    }
 }
