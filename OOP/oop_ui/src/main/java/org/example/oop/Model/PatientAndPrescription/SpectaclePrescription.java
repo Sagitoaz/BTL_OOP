@@ -1,13 +1,9 @@
 package org.example.oop.Model.PatientAndPrescription;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class SpectaclePrescription {
-    public enum Status {
-        CÒN_HẠN, HẾT_HẠN, KHÁC
-    }
 
     public enum Lens_Type {
         SINGLE_VISION("Đơn tròng"),
@@ -62,13 +58,11 @@ public class SpectaclePrescription {
 
     // --- ID Fields ---
     private int id;
-    private int doctorId;
-    private int patientId;
     private int appointmentId;
 
     // --- Examination Info ---
-    private LocalDate dateIssued;
-    private LocalDate expiryDate;
+    private LocalDate created_at;
+    private LocalDate updated_at;
     private String chiefComplaint;
     private String refractionNotes;
 
@@ -105,27 +99,23 @@ public class SpectaclePrescription {
     private String diagnosis;
     private String plan;
 
-    // --- Signature & Status ---
+    // --- Signature ---
     private LocalDate signedAt;
     private int signedBy;
-    private Status status;
     private Lens_Type lens_type;
 
-    // Constructor đã được cập nhật
-    public SpectaclePrescription(int id, int doctorId, int patientId, int appointmentId, LocalDate dateIssued, LocalDate expiryDate,
+    // Constructor đã được cập nhật - bỏ expiryDate vì không có trong toDataString()
+    public SpectaclePrescription(int id, int appointmentId, LocalDate dateIssued,
                                  String chiefComplaint, String refractionNotes,
                                  double sph_od, double cyl_od, int axis_od, String va_od, double prism_od, Base base_od, double add_od,
                                  double sph_os, double cyl_os, int axis_os, String va_os, double prism_os, Base base_os, double add_os,
                                  double pd, Material material, String notes,
                                  boolean hasAntiReflectiveCoating, boolean hasBlueLightFilter, boolean hasUvProtection, boolean isPhotochromic,
                                  String diagnosis, String plan,
-                                 LocalDate signedAt, int signedBy, Status status, Lens_Type lens_type) {
+                                 LocalDate signedAt, int signedBy, Lens_Type lens_type) {
         this.id = id;
-        this.doctorId = doctorId;
-        this.patientId = patientId;
         this.appointmentId = appointmentId;
-        this.dateIssued = dateIssued;
-        this.expiryDate = expiryDate;
+        this.created_at = dateIssued;
         this.chiefComplaint = chiefComplaint;
         this.refractionNotes = refractionNotes;
         this.sph_od = sph_od;
@@ -153,18 +143,15 @@ public class SpectaclePrescription {
         this.plan = plan;
         this.signedAt = signedAt;
         this.signedBy = signedBy;
-        this.status = status;
         this.lens_type = lens_type;
     }
+
 
     // --- Getters cho tất cả các trường ---
 
     public int getId() { return id; }
-    public int getDoctorId() { return doctorId; }
-    public int getPatientId() { return patientId; }
     public int getAppointmentId() { return appointmentId; }
-    public LocalDate getDateIssued() { return dateIssued; }
-    public LocalDate getExpiryDate() { return expiryDate; }
+    public LocalDate getCreated_at() { return created_at; }
     public String getChiefComplaint() { return chiefComplaint; }
     public String getRefractionNotes() { return refractionNotes; }
     public double getSph_od() { return sph_od; }
@@ -194,31 +181,13 @@ public class SpectaclePrescription {
     public int getSignedBy() { return signedBy; }
 
     public Lens_Type getLens_type() { return lens_type; }
-    public Status getStatus() {
-        LocalDate now = LocalDate.now();
-        if(now.isAfter(expiryDate)){
-            status = Status.HẾT_HẠN;
-        }
-        else{
-            if(expiryDate == null){
-                status = Status.KHÁC;
-            }
-            else{
-                status = Status.CÒN_HẠN;
-            }
-        }
-        return status;
-    }
 
 
 
     public String toDataString() {
         return id + "|" +
-                doctorId + "|" +
-                patientId + "|" +
                 appointmentId + "|" +
-                (dateIssued != null ? dateIssued : "") + "|" +
-                (expiryDate != null ? expiryDate : "") + "|" +
+                (created_at != null ? created_at : "") + "|" +
                 (chiefComplaint != null ? chiefComplaint : "") + "|" +
                 (refractionNotes != null ? refractionNotes : "") + "|" +
                 sph_od + "|" +
@@ -246,7 +215,6 @@ public class SpectaclePrescription {
                 (plan != null ? plan : "") + "|" +
                 (signedAt != null ? signedAt : "") + "|" +
                 signedBy + "|" +
-                (status != null ? status.name() : "") + "|" +
                 (lens_type != null ? lens_type.name() : "");
     }
 
@@ -254,56 +222,67 @@ public class SpectaclePrescription {
     public static SpectaclePrescription fromDataString(String line) {
         String[] fields = line.split("\\|", -1);
 
+        // Đọc theo đúng thứ tự trong toDataString()
         int id = Integer.parseInt(fields[0]);
-        int doctorId = Integer.parseInt(fields[1]);
-        int patientId = Integer.parseInt(fields[2]);
-        int appointmentId = Integer.parseInt(fields[3]);
-        LocalDate dateIssued = (fields[4].isEmpty() || fields[4].equals("null")) ? null : LocalDate.parse(fields[4]);
-        LocalDate expiryDate = (fields[5].isEmpty() || fields[5].equals("null")) ? null : LocalDate.parse(fields[5]);
-        String chiefComplaint = (fields[6].isEmpty() || fields[6].equalsIgnoreCase("null")) ? null : fields[6];
-        String refractionNotes = (fields[7].isEmpty() || fields[7].equalsIgnoreCase("null")) ? null : fields[7];
-        double sph_od = (fields[8].isEmpty() || fields[8].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[8]);
-        double cyl_od = (fields[9].isEmpty() || fields[9].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[9]);
-        int axis_od = (fields[10].isEmpty() || fields[10].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[10]);
-        String va_od = (fields[11].isEmpty() || fields[11].equalsIgnoreCase("null")) ? null : fields[11];
-        double prism_od = (fields[12].isEmpty() || fields[12].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[12]);
-        Base base_od = (fields[13].isEmpty() || fields[13].equalsIgnoreCase("null")) ? null : Base.valueOf(fields[13]);
-        double add_od = (fields[14].isEmpty() || fields[14].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[14]);
-        double sph_os = (fields[15].isEmpty() || fields[15].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[15]);
-        double cyl_os = (fields[16].isEmpty() || fields[16].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[16]);
-        int axis_os = (fields[17].isEmpty() || fields[17].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[17]);
-        String va_os = (fields[18].isEmpty() || fields[18].equalsIgnoreCase("null")) ? null : fields[18];
-        double prism_os = (fields[19].isEmpty() || fields[19].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[19]);
-        Base base_os = (fields[20].isEmpty() || fields[20].equalsIgnoreCase("null")) ? null : Base.valueOf(fields[20]);
-        double add_os = (fields[21].isEmpty() || fields[21].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[21]);
-        double pd = (fields[22].isEmpty() || fields[22].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[22]);
-        Material material = (fields[23].isEmpty() || fields[23].equalsIgnoreCase("null")) ? null : Material.valueOf(fields[23]);
-        String notes = (fields[24].isEmpty() || fields[24].equalsIgnoreCase("null")) ? null : fields[24];
-        boolean hasAntiReflectiveCoating = Boolean.parseBoolean(fields[25]);
-        boolean hasBlueLightFilter = Boolean.parseBoolean(fields[26]);
-        boolean hasUvProtection = Boolean.parseBoolean(fields[27]);
-        boolean isPhotochromic = Boolean.parseBoolean(fields[28]);
-        String diagnosis = (fields[29].isEmpty() || fields[29].equalsIgnoreCase("null")) ? null : fields[29];
-        String plan = (fields[30].isEmpty() || fields[30].equalsIgnoreCase("null")) ? null : fields[30];
-        LocalDate signedAt = (fields[31].isEmpty() || fields[31].equalsIgnoreCase("null")) ? null : LocalDate.parse(fields[31]);
-        int signedBy = (fields[32].isEmpty() || fields[32].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[32]);
-        Status status = (fields[33].isEmpty() || fields[33].equalsIgnoreCase("null")) ? null : Status.valueOf(fields[33].toUpperCase());
-        Lens_Type lens_type = (fields[34].isEmpty() || fields[34].equalsIgnoreCase("null")) ? Lens_Type.OTHER : Lens_Type.valueOf(fields[34].toUpperCase());
+        int appointmentId = Integer.parseInt(fields[1]);
+        LocalDate created_at = (fields[2].isEmpty() || fields[2].equals("null")) ? null : LocalDate.parse(fields[2]);
+        String chiefComplaint = (fields[3].isEmpty() || fields[3].equalsIgnoreCase("null")) ? null : fields[3]; // Index 3
+        String refractionNotes = (fields[4].isEmpty() || fields[4].equalsIgnoreCase("null")) ? null : fields[4]; // Index 4
+
+        // OD (Right Eye) - Index 5-11
+        double sph_od = (fields[5].isEmpty() || fields[5].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[5]);
+        double cyl_od = (fields[6].isEmpty() || fields[6].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[6]);
+        int axis_od = (fields[7].isEmpty() || fields[7].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[7]);
+        String va_od = (fields[8].isEmpty() || fields[8].equalsIgnoreCase("null")) ? null : fields[8];
+        double prism_od = (fields[9].isEmpty() || fields[9].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[9]);
+        Base base_od = (fields[10].isEmpty() || fields[10].equalsIgnoreCase("null")) ? null : Base.valueOf(fields[10]);
+        double add_od = (fields[11].isEmpty() || fields[11].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[11]);
+
+        // OS (Left Eye) - Index 12-18
+        double sph_os = (fields[12].isEmpty() || fields[12].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[12]);
+        double cyl_os = (fields[13].isEmpty() || fields[13].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[13]);
+        int axis_os = (fields[14].isEmpty() || fields[14].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[14]);
+        String va_os = (fields[15].isEmpty() || fields[15].equalsIgnoreCase("null")) ? null : fields[15];
+        double prism_os = (fields[16].isEmpty() || fields[16].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[16]);
+        Base base_os = (fields[17].isEmpty() || fields[17].equalsIgnoreCase("null")) ? null : Base.valueOf(fields[17]);
+        double add_os = (fields[18].isEmpty() || fields[18].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[18]);
+
+        // General Details - Index 19-21
+        double pd = (fields[19].isEmpty() || fields[19].equalsIgnoreCase("null")) ? 0 : Double.parseDouble(fields[19]);
+        Material material = (fields[20].isEmpty() || fields[20].equalsIgnoreCase("null")) ? null : Material.valueOf(fields[20]);
+        String notes = (fields[21].isEmpty() || fields[21].equalsIgnoreCase("null")) ? null : fields[21];
+
+        // Lens Features - Index 22-25
+        boolean hasAntiReflectiveCoating = Boolean.parseBoolean(fields[22]);
+        boolean hasBlueLightFilter = Boolean.parseBoolean(fields[23]);
+        boolean hasUvProtection = Boolean.parseBoolean(fields[24]);
+        boolean isPhotochromic = Boolean.parseBoolean(fields[25]);
+
+        // Diagnosis & Plan - Index 26-27
+        String diagnosis = (fields[26].isEmpty() || fields[26].equalsIgnoreCase("null")) ? null : fields[26];
+        String plan = (fields[27].isEmpty() || fields[27].equalsIgnoreCase("null")) ? null : fields[27];
+
+        // Signature - Index 28-30
+        LocalDate signedAt = (fields[28].isEmpty() || fields[28].equalsIgnoreCase("null")) ? null : LocalDate.parse(fields[28]);
+        int signedBy = (fields[29].isEmpty() || fields[29].equalsIgnoreCase("null")) ? 0 : Integer.parseInt(fields[29]);
+        Lens_Type lens_type = (fields[30].isEmpty() || fields[30].equalsIgnoreCase("null")) ? Lens_Type.OTHER : Lens_Type.valueOf(fields[30].toUpperCase());
 
         return new SpectaclePrescription(
-                id, doctorId, patientId, appointmentId, dateIssued, expiryDate, chiefComplaint, refractionNotes,
+                id, appointmentId, created_at, chiefComplaint, refractionNotes,
                 sph_od, cyl_od, axis_od, va_od, prism_od, base_od, add_od,
                 sph_os, cyl_os, axis_os, va_os, prism_os, base_os, add_os,
                 pd, material, notes,
                 hasAntiReflectiveCoating, hasBlueLightFilter, hasUvProtection, isPhotochromic,
                 diagnosis, plan,
-                signedAt, signedBy, status, lens_type
+                signedAt, signedBy, lens_type
         );
     }
 
+
+
     @Override
     public String toString() {
-        return "Prescription{id=" + id + ", patientId=" + patientId + ", appointmentId=" + appointmentId + ", doctorId=" + doctorId + "}";
+        return "Prescription{id=" + id +  ", appointmentId=" + appointmentId + "}";
     }
 
     @Override

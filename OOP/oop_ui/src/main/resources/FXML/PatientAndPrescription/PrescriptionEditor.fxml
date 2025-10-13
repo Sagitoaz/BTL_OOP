@@ -43,10 +43,10 @@
                     <TextField fx:id="doctorNameField" GridPane.columnIndex="3" />
                     <Label text="Ngày khám:" GridPane.rowIndex="1" />
                     <DatePicker fx:id="examDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-               <rowConstraints>
-                  <RowConstraints />
-                  <RowConstraints />
-               </rowConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
                 </GridPane>
                 <TitledPane collapsible="false" text="Lý do đến khám &amp; Tiền sử">
                     <content>
@@ -122,18 +122,16 @@
                                 <TextField fx:id="prismOsField" prefWidth="70" promptText="#.##" GridPane.columnIndex="5" GridPane.rowIndex="2" />
                                 <ComboBox fx:id="baseOsCombo" prefWidth="110" promptText="In/Out/Up/Down" GridPane.columnIndex="6" GridPane.rowIndex="2" />
                                 <TextField fx:id="addOsField" prefWidth="70" promptText="+#.##" GridPane.columnIndex="7" GridPane.rowIndex="2" />
-                        <rowConstraints>
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                        </rowConstraints>
+                                <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                </rowConstraints>
                             </GridPane>
                             <Separator />
                             <HBox alignment="CENTER_LEFT" spacing="20">
                                 <Label text="PD (Khoảng cách đồng tử):" />
                                 <TextField fx:id="pdField" prefWidth="100" promptText="## mm" />
-                                <Label text="Ngày hết hạn đơn:" />
-                                <DatePicker fx:id="expiryDatePicker" />
                             </HBox>
                             <Separator />
                             <Label text="Ghi chú thêm cho đơn kính:">
@@ -164,10 +162,10 @@
                                     <CheckBox fx:id="blueLightCheck" text="Lọc ánh sáng xanh (Blue Light Filter)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                     <CheckBox fx:id="uvCheck" text="Chống tia UV (UV Protection)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <CheckBox fx:id="photochromicCheck" text="Đổi màu (Photochromic)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                           <rowConstraints>
-                              <RowConstraints />
-                              <RowConstraints />
-                           </rowConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints />
+                                        <RowConstraints />
+                                    </rowConstraints>
                                 </GridPane>
                                 <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding-top: 10;">
                                     <children>

@@ -60,16 +60,13 @@ public class PathPattern {
             Segment segment = null;
             // Tao cac segment
             if (!path.isEmpty()) {
-                if(path.charAt(0) == ':') {
-
-                    segment = new Segment(Type.VARIABLE, path.substring(1));
+                if(path.charAt(0) == '{' && path.charAt(path.length()-1) == '}'){
+                    segment = new Segment(Type.VARIABLE, path.substring(1, path.length()-1));
                 }
                 else{
                     segment = new Segment(Type.STATIC, path);
                 }
-
                 _segments.add(segment);
-
             }
 
         }

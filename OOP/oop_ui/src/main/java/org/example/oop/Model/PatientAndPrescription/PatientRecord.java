@@ -13,7 +13,8 @@ public class PatientRecord {
         NAM, NỮ, KHÁC;
     }
     private int id;
-    private String namePatient;
+    private String firstNamePatient;
+    private String lastNamePatient;
     private LocalDate dob;
     private Gender gender;
     private String address;
@@ -22,12 +23,14 @@ public class PatientRecord {
     private String notes;
     private List<SpectaclePrescription> prescriptionList;
     private List<MedicalHistory> medicalHistoryList;
-    public PatientRecord(int id, String namePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email, String allergies) {
+
+    public PatientRecord(int id, String firstNamePatient, String lastNamePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email, String allergies) {
         if(id <= 0){
             throw new IllegalArgumentException("id must be > 0");
         }
         this.id = id;
-        this.namePatient = namePatient;
+        this.firstNamePatient = firstNamePatient;
+        this.lastNamePatient = lastNamePatient;
         this.dob = dob;
         this.gender = gender;
         this.address = address;
@@ -37,12 +40,76 @@ public class PatientRecord {
         this.medicalHistoryList = new ArrayList<>();
         this.notes = allergies;
     }
+
+    // Constructor với namePatient để backward compatibility
+    public PatientRecord(int id, String namePatient, LocalDate dob, Gender gender, String address, String phoneNumber, String email, String allergies) {
+        if(id <= 0){
+            throw new IllegalArgumentException("id must be > 0");
+        }
+        this.id = id;
+        setNamePatient(namePatient); // Sử dụng setter để parse tên
+        this.dob = dob;
+        this.gender = gender;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.prescriptionList = new ArrayList<>();
+        this.medicalHistoryList = new ArrayList<>();
+        this.notes = allergies;
+    }
+
     public int getId(){
         return id;
     }
-    public String getNamePatient(){
-        return namePatient;
+
+    public String getFirstNamePatient(){
+        return firstNamePatient;
     }
+
+    public void setFirstNamePatient(String firstNamePatient){
+        this.firstNamePatient = firstNamePatient;
+    }
+
+    public String getLastNamePatient(){
+        return lastNamePatient;
+    }
+
+    public void setLastNamePatient(String lastNamePatient){
+        this.lastNamePatient = lastNamePatient;
+    }
+
+    // Method để lấy tên đầy đủ (backward compatibility)
+    public String getNamePatient(){
+        if (lastNamePatient == null && firstNamePatient == null) {
+            return null;
+        }
+        if (lastNamePatient == null) {
+            return firstNamePatient;
+        }
+        if (firstNamePatient == null) {
+            return lastNamePatient;
+        }
+        return lastNamePatient + " " + firstNamePatient;
+    }
+
+    // Method để set tên đầy đủ (backward compatibility)
+    public void setNamePatient(String fullName) {
+        if (fullName == null || fullName.trim().isEmpty()) {
+            this.firstNamePatient = null;
+            this.lastNamePatient = null;
+            return;
+        }
+
+        String[] nameParts = fullName.trim().split("\\s+", 2);
+        if (nameParts.length == 1) {
+            this.firstNamePatient = nameParts[0];
+            this.lastNamePatient = null;
+        } else {
+            this.lastNamePatient = nameParts[0];  // Họ
+            this.firstNamePatient = nameParts[1]; // Tên
+        }
+    }
+
     public LocalDate getDob(){
         return dob;
     }
@@ -95,10 +162,10 @@ public class PatientRecord {
         return s;
     }
 
-    // Data id|name|patientId|dob|gender|address|phone|email|note
+    // Data id|firstName|lastName|dob|gender|address|phone|email|note
     public String toDataString(){
         String dobString = (this.dob == null ) ? "": this.dob.toString();
-        return String.join("|", String.valueOf(this.id),  toSafeString(this.namePatient), dobString, gender.name(), toSafeString(this.address), toSafeString(this.phoneNumber), toSafeString(this.email));
+        return String.join("|", String.valueOf(this.id), toSafeString(this.firstNamePatient), toSafeString(this.lastNamePatient), dobString, gender.name(), toSafeString(this.address), toSafeString(this.phoneNumber), toSafeString(this.email), toSafeString(this.notes));
     }
     // Ham so sanh
     @Override
@@ -108,30 +175,33 @@ public class PatientRecord {
         return this.id == ((PatientRecord)o).id;
     }
     // Doc Data tu file
-    // Data id|name|patientId|dob|gender|address|phone|email|note
+    // Data id|firstName|lastName|dob|gender|address|phone|email|note
     public static PatientRecord fromDataString(String line){
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
-        String namePatient = (fields[1].equalsIgnoreCase("null") || fields[1].isBlank())? null : fields[1];
+        String firstNamePatient = (fields[1].equalsIgnoreCase("null") || fields[1].isBlank())? null : fields[1];
+        String lastNamePatient = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank())? null : fields[2];
         LocalDate dob = null;
         try{
-            dob = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? null : LocalDate.parse(fields[2]);
+            dob = (fields[3].equalsIgnoreCase("null") || fields[3].isBlank()) ? null : LocalDate.parse(fields[3]);
         }
         catch(Exception e){
         }
-        Gender gender = (fields[2].equalsIgnoreCase("null") || fields[2].isBlank()) ? Gender.KHÁC : Gender.valueOf(fields[2].toUpperCase());
-        String address = (fields[3].equalsIgnoreCase("null") || fields[3].isBlank()) ? null : fields[3];
-        String phoneNumber = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? null : fields[4];
-        String email = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];
-        String note = (fields[6].equalsIgnoreCase("null") || fields[6].isBlank()) ? null : fields[6];
+        Gender gender = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? Gender.KHÁC : Gender.valueOf(fields[4].toUpperCase());
+        String address = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];
+        String phoneNumber = (fields[6].equalsIgnoreCase("null") || fields[6].isBlank()) ? null : fields[6];
+        String email = (fields[7].equalsIgnoreCase("null") || fields[7].isBlank()) ? null : fields[7];
+        String note = (fields.length > 8 && !fields[8].equalsIgnoreCase("null") && !fields[8].isBlank()) ? fields[8] : null;
 
-        return new PatientRecord(id, namePatient, dob, gender, address, phoneNumber, email, note);
+        return new PatientRecord(id, firstNamePatient, lastNamePatient, dob, gender, address, phoneNumber, email, note);
     }
+
     // Ham In ra de debug
     @Override
     public String toString() {
-        return id + "." + namePatient;
+        return id + "." + getNamePatient();
     }
+
     @Override
     public int hashCode(){
         return Objects.hash(id);
@@ -141,4 +211,3 @@ public class PatientRecord {
 
 
 }
-
