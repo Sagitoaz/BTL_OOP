@@ -1,8 +1,9 @@
-package org.example.oop.Data.repositories;
+package org.example.oop.Data.Repositories;
 
-import org.example.oop.Data.models.Appointment;
+import org.example.oop.Model.Schedule.Appointment;
 import org.example.oop.Data.storage.*;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,12 @@ public class AppointmentRepository implements DataRepository<Appointment> {
         return findAll().stream()
                 .filter(a -> a.getId() == id)
                 .findFirst();
+    }
+
+    public List<Appointment> findByDoctorAndDate(int doctorId, LocalDate date) {
+        return findAll().stream().filter(a -> a.getDoctorId() == doctorId)
+                .filter(a -> a.getStartTime().toLocalDate().equals(date))
+                .collect(Collectors.toList());
     }
 
     @Override

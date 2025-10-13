@@ -1,32 +1,34 @@
 package org.example.oop.Model.Schedule;
 
+/**
+ * AppointmentType - loại hình lịch hẹn trong hệ thống.
+ * Theo database: enum('visit','test','surgery')
+ */
 public enum AppointmentType {
-    VISIT("visit", "Khám tổng quát"),
-    TEST("test", "Đo, xét nghiệm mắt"),
-    SURGERY("surgery", "Phẫu thuật hoặc tiểu phẫu");
+    VISIT("visit"),
+    TEST("test"),
+    SURGERY("surgery");
 
-    private final String code;
-    private final String display;
+    private final String value;
 
-    AppointmentType(String code, String display) {
-        this.code = code;
-        this.display = display;
+    AppointmentType(String value) {
+        this.value = value;
     }
 
-    public String getCode() {
-        return code;
+    public String getValue() {
+        return value;
     }
 
-    public String getDisplay() {
-        return display;
-    }
-
-    public static AppointmentType fromCode(String code) {
-        for (AppointmentType t : values()) {
-            if (t.code.equalsIgnoreCase(code)) {
-                return t;
+    public static AppointmentType fromString(String text) {
+        for (AppointmentType type : AppointmentType.values()) {
+            if (type.value.equalsIgnoreCase(text)) {
+                return type;
             }
         }
-        throw new IllegalArgumentException("Invalid appointment type: " + code);
+        throw new IllegalArgumentException("No AppointmentType with value " + text + " found");
+    }
+
+    public static AppointmentType fromValue(String value) {
+        return fromString(value);
     }
 }

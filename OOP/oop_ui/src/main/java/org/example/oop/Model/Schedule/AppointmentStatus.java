@@ -1,36 +1,38 @@
 package org.example.oop.Model.Schedule;
 
+/**
+ * AppointmentStatus - trạng thái của một lịch hẹn trong hệ thống.
+ * Theo database: enum('scheduled','confirmed','checked_in','in_progress','completed','cancelled','no_show')
+ */
 public enum AppointmentStatus {
-    SCHEDULED("scheduled", "Đã lên lịch"),
-    CONFIRMED("confirmed", "Đã xác nhận"),
-    CHECKED_IN("checked_in", "Đã đến khám"),
-    IN_PROGRESS("in_progress", "Đang khám"),
-    COMPLETED("completed", "Hoàn thành"),
-    CANCELLED("cancelled", "Đã hủy"),
-    NO_SHOW("no_show", "Vắng mặt");
+    SCHEDULED("scheduled"),
+    CONFIRMED("confirmed"),
+    CHECKED_IN("checked_in"),
+    IN_PROGRESS("in_progress"),
+    COMPLETED("completed"),
+    CANCELLED("cancelled"),
+    NO_SHOW("no_show");
 
-    private final String code;
-    private final String display;
+    private final String value;
 
-    AppointmentStatus(String code, String display) {
-        this.code = code;
-        this.display = display;
+    AppointmentStatus(String value) {
+        this.value = value;
     }
 
-    public String getCode() {
-        return code;
+    public String getValue() {
+        return value;
     }
 
-    public String getDisplay() {
-        return display;
-    }
-
-    public static AppointmentStatus fromCode(String code) {
-        for (AppointmentStatus s : values()) {
-            if (s.code.equalsIgnoreCase(code)) {
-                return s;
+    public static AppointmentStatus fromString(String text) {
+        for (AppointmentStatus status : AppointmentStatus.values()) {
+            if (status.value.equalsIgnoreCase(text)) {
+                return status;
             }
         }
-        throw new IllegalArgumentException("Invalid appointment status: " + code);
+        throw new IllegalArgumentException("No AppointmentStatus with value " + text + " found");
+    }
+
+    public static AppointmentStatus fromValue(String value) {
+        return fromString(value);
     }
 }

@@ -1,4 +1,4 @@
-package org.example.oop.Data.repositories;
+package org.example.oop.Data.Repositories;
 
 import java.util.List;
 import java.util.Optional;

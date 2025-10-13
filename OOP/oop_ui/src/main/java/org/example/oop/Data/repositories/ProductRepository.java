@@ -1,4 +1,4 @@
-package org.example.oop.Data.repositories;
+package org.example.oop.Data.Repositories;
 
 import org.example.oop.Data.models.Product;
 import org.example.oop.Data.storage.*;
