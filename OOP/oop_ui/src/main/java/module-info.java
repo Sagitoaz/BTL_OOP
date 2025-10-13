@@ -20,4 +20,8 @@ module org.example.oop {
     exports org.example.oop;
     exports org.example.oop.Model;
     opens org.example.oop.Model to javafx.fxml;
+    exports org.example.oop.Data.models;
+    exports org.example.oop.Data.repositories;
+    exports org.example.oop.Data.storage;
+    opens org.example.oop.Data.models to javafx.fxml;
 }
