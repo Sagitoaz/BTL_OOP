@@ -41,6 +41,12 @@
       <artifactId>mssql-jdbc</artifactId>
       <version>${mssql.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>at.favre.lib</groupId>
+      <artifactId>bcrypt</artifactId>
+      <version>0.10.2</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -51,6 +57,7 @@
         <version>3.11.0</version>
         <configuration>
           <release>17</release>
+          <useModulePath>false</useModulePath>
         </configuration>
       </plugin>
     </plugins>

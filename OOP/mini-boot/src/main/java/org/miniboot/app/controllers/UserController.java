@@ -1,5 +1,6 @@
 package org.miniboot.app.controllers;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.miniboot.app.domain.models.User;
 import org.miniboot.app.domain.models.Admin;
 import org.miniboot.app.domain.models.Employee;
@@ -173,7 +174,7 @@ public class UserController {
         Admin admin = new Admin();
         admin.setId(id);
         admin.setUsername(username);
-        admin.setPassword(password);
+        admin.setPassword(hashPassword(password));
         admin.setEmail((String) data.get("email"));
         admin.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
         return admin;
@@ -183,7 +184,7 @@ public class UserController {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setUsername(username);
-        employee.setPassword(password);
+        employee.setPassword(hashPassword(password));
         employee.setFirstname((String) data.get("firstname"));
         employee.setLastname((String) data.get("lastname"));
         employee.setAvatar((String) data.get("avatar"));
@@ -200,7 +201,7 @@ public class UserController {
         Customer customer = new Customer();
         customer.setId(id);
         customer.setUsername(username);
-        customer.setPassword(password);
+        customer.setPassword(hashPassword(password));
         customer.setFirstname((String) data.get("firstname"));
         customer.setLastname((String) data.get("lastname"));
         customer.setPhone((String) data.get("phone"));
@@ -249,7 +250,7 @@ public class UserController {
                 user.setUsername(newUsername);
             }
             if (data.containsKey("password")) {
-                user.setPassword((String) data.get("password"));
+                user.setPassword(hashPassword((String) data.get("password")));
             }
             if (data.containsKey("email")) {
                 user.setEmail((String) data.get("email"));
@@ -309,5 +310,9 @@ public class UserController {
         } catch (Exception e) {
             return Json.error(500, "Error deleting user: " + e.getMessage());
         }
+    }
+
+    private static String hashPassword(String password) {
+        return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 }
