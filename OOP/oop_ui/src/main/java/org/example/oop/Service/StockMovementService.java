@@ -183,4 +183,52 @@ public class StockMovementService {
                     throw new IllegalArgumentException("Unsupported movement type: " + moveType);
           }
      }
+
+     /**
+      * ✅ Cập nhật một movement đã tồn tại
+      * 
+      * @param movementId  ID của movement cần cập nhật
+      * @param productId   ID sản phẩm mới
+      * @param qty         Số lượng mới
+      * @param moveTypeStr Loại giao dịch mới
+      * @param refTable    Bảng tham chiếu mới
+      * @param refId       ID tham chiếu mới
+      * @param batchNo     Số lô mới
+      * @param expiryDate  Ngày hết hạn mới
+      * @param serialNo    Số serial mới
+      * @param movedBy     Người thực hiện mới
+      * @param note        Ghi chú mới
+      * @return true nếu cập nhật thành công
+      */
+     public boolean updateMovement(int movementId, int productId, int qty, String moveTypeStr,
+               String refTable, Integer refId, String batchNo, LocalDate expiryDate,
+               String serialNo, int movedBy, String note) throws IOException {
+
+          try {
+               // ✅ Tìm movement cần cập nhật
+               StockMovement existingMovement = movementRepo.findById(movementId);
+               if (existingMovement == null) {
+                    return false;
+               }
+
+               // ✅ Cập nhật thông tin movement
+               existingMovement.setProductId(productId);
+               existingMovement.setQty(qty);
+               existingMovement.setMoveType(MovementType.valueOf(moveTypeStr.toUpperCase()));
+               existingMovement.setRefTable(refTable);
+               existingMovement.setRefId(refId);
+               existingMovement.setBatchNo(batchNo);
+               existingMovement.setExpiryDate(expiryDate);
+               existingMovement.setSerialNo(serialNo);
+               existingMovement.setMovedBy(movedBy);
+               existingMovement.setNote(note);
+               // Giữ nguyên movedAt (không thay đổi timestamp gốc)
+
+               // ✅ Lưu vào repository
+               return movementRepo.update(existingMovement);
+
+          } catch (Exception e) {
+               throw new IOException("Error updating movement: " + e.getMessage(), e);
+          }
+     }
 }

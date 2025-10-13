@@ -72,7 +72,11 @@
             <VBox prefHeight="597.0" prefWidth="602.0" spacing="15">
                 <padding><Insets bottom="10" left="15" right="15" top="10" /></padding>
                 
-                <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Record New Movement" />
+                <!-- ✅ Mode Indicator -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="modeLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: green;" text="➕ ADD MODE" />
+                    <Region HBox.hgrow="ALWAYS" />
+                </HBox>
                 
                 <Separator />
                 

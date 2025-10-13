@@ -137,4 +137,61 @@ public class StockMovementRepository {
           }
           return out;
      }
+
+     /**
+      * ✅ Tìm movement theo ID
+      */
+     public StockMovement findById(int id) {
+          return loadAll().stream()
+                    .filter(m -> m.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+     }
+
+     /**
+      * ✅ Cập nhật movement (ghi đè toàn bộ file)
+      * Note: Đây là implementation đơn giản, trong thực tế nên tối ưu hơn
+      */
+     public synchronized boolean update(StockMovement updatedMovement) {
+          try {
+               // 1. Load tất cả movements
+               ObservableList<StockMovement> allMovements = loadAll();
+
+               // 2. Tìm và cập nhật movement
+               boolean found = false;
+               for (int i = 0; i < allMovements.size(); i++) {
+                    if (allMovements.get(i).getId() == updatedMovement.getId()) {
+                         allMovements.set(i, updatedMovement);
+                         found = true;
+                         break;
+                    }
+               }
+
+               if (!found) {
+                    return false;
+               }
+
+               // 3. Ghi đè toàn bộ file
+               File file = AppConfig.getStockDataFile();
+               file.getParentFile().mkdirs();
+
+               try (PrintWriter writer = new PrintWriter(
+                         new OutputStreamWriter(new FileOutputStream(file, false),
+                                   StandardCharsets.UTF_8))) {
+
+                    for (StockMovement m : allMovements) {
+                         writer.println(m.toDataString());
+                    }
+                    writer.flush();
+               }
+
+               System.out.println("✅ Updated movement ID: " + updatedMovement.getId());
+               return true;
+
+          } catch (Exception e) {
+               System.err.println("❌ Error updating movement: " + e.getMessage());
+               e.printStackTrace();
+               return false;
+          }
+     }
 }

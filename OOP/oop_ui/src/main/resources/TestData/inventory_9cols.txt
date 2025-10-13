@@ -1,11 +1,11 @@
 id,name,type,category,quantity,unit,unitPrice,priceCost,lastUpdated,sku
-1,Paracetamol 500mg,Medication,Painkiller,1511,tablet,2000,1200,2025-10-11,MED-PAR-500
-2,Ibuprofen 400mg,null,Anti-inflammatory,800,tablet,3500,2100,2025-10-11,MED-IBU-400
-3,Amoxicillin 250mg,Medication,Drug,600,capsule,5000,3500,2025-10-11,MED-AMO-250
+1,Paracetamol 500mg,Medication,Painkiller,2450,tablet,2000,1200,2025-10-11,MED-PAR-500
+2,Ibuprofen 400mg,null,Anti-inflammatory,802,tablet,3500,2100,2025-10-11,MED-IBU-400
+3,Amoxicillin 250mg,Medication,Drug,601,capsule,5000,3500,2025-10-11,MED-AMO-250
 4,Vitamin C 1000mg,Medication,Supplement,2000,tablet,1500,900,2024-01-16,MED-VIT-C1K
-5,Aspirin 100mg,Medication,Cardiovascular,1205,tablet,2500,1500,2025-10-11,MED-ASP-100
+5,Aspirin 100mg,Medication,Cardiovascular,1207,tablet,2500,1500,2025-10-11,MED-ASP-100
 6,Blood Pressure Monitor,Equipment,Diagnostic,45,unit,850000,650000,2024-01-10,EQP-BPM-001
-7,Digital Thermometer,Equipment,Diagnostic,120,unit,150000,100000,2025-10-11,EQP-THM-DIG
+7,Digital Thermometer,Equipment,Diagnostic,121,unit,150000,100000,2025-10-11,EQP-THM-DIG
 8,Stethoscope,Equipment,Diagnostic,30,unit,450000,320000,2024-01-11,EQP-STH-001
 9,Pulse Oximeter,Equipment,Diagnostic,60,unit,380000,280000,2024-01-14,EQP-POX-001
 10,ECG Machine,Equipment,Diagnostic,8,unit,12500000,10000000,2025-10-11,EQP-ECG-001
@@ -29,3 +29,4 @@ id,name,type,category,quantity,unit,unitPrice,priceCost,lastUpdated,sku
 28,Eye Drops Antibiotic,Medication,Ophthalmology,400,bottle,25000,18000,2024-01-15,MED-EYE-ABX
 29,Cotton Balls,Supplies,General,6000,piece,200,120,2024-01-16,SUP-COT-BAL
 30,Medical Tape,Supplies,Wound Care,1800,roll,4500,3000,2024-01-15,SUP-TAP-MED
+31,hieu,product,service,1,thang,100000000,0,2025-10-13,hiuhiu

@@ -20,7 +20,8 @@ public class InventoryService {
         if (!allowNegative && next < 0) {
             throw new IllegalStateException("Số lượng tồn kho âm: " + next);
         }
-        inventoryRepo.upsertQty(productId, (int) next);
+        // ✅ FIX: upsertQty nhận delta, không phải giá trị tuyệt đối
+        inventoryRepo.upsertQty(productId, delta);
         return (int) next;
     }
 

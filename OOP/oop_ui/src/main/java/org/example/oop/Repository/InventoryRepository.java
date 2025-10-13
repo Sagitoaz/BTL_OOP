@@ -146,7 +146,7 @@ public class InventoryRepository {
 
     public Inventory searchByName(ObservableList<Inventory> inventoryList, String name) {
         return inventoryList.stream()
-                .filter(inventory -> name.equalsIgnoreCase(inventory.getName()))
+                .filter(inventory -> name.toLowerCase().equalsIgnoreCase(inventory.getName().toLowerCase()))
                 .findFirst()
                 .orElse(null);
     }
@@ -182,7 +182,9 @@ public class InventoryRepository {
     }
 
     public synchronized int getQty(int productId) {
-        File f = new File(AppConfig.TEST_DATA_TXT);
+        // ✅ FIX: Sử dụng đường dẫn tuyệt đối như các phương thức khác
+        String absolutePath = "c:/BTL_OOP/BTL_OOP/OOP/oop_ui/src/main/resources" + AppConfig.TEST_DATA_TXT;
+        File f = new File(absolutePath);
         if (!f.exists())
             return 0;
 
@@ -190,21 +192,98 @@ public class InventoryRepository {
                 new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
 
             String line;
+            int idIdx = 0; // mặc định: id ở cột 0
+            Integer qtyIdx = null; // sẽ dò: onHand/qty/quantity/stock
+            boolean headerScanned = false;
+
+            // ---- Đọc dòng đầu để dò header (nếu có) ----
+            br.mark(1 << 16);
+            String first = br.readLine();
+            while (first != null && first.isBlank())
+                first = br.readLine();
+
+            if (first == null)
+                return 0;
+
+            // ✅ FIX: Sử dụng dấu phẩy thay vì |
+            String[] firstCols = first.split(",", -1);
+            boolean firstIdIsNumber = tryParseInt(safe(firstCols, 0)) != null;
+
+            if (!firstIdIsNumber) {
+                // Có header
+                headerScanned = true;
+                for (int i = 0; i < firstCols.length; i++) {
+                    String h = safe(firstCols, i).toLowerCase();
+                    if (h.equals("id") || h.equals("productid") || h.equals("product_id"))
+                        idIdx = i;
+                }
+                for (int i = 0; i < firstCols.length; i++) {
+                    String h = safe(firstCols, i).toLowerCase();
+                    if (h.equals("onhand") || h.equals("qty") || h.equals("quantity") ||
+                            h.equals("stock") || h.equals("stockonhand") || h.equals("on_hand")) {
+                        qtyIdx = i;
+                        break;
+                    }
+                }
+            }
+
+            // Nếu không có header → quay về đầu file
+            if (!headerScanned)
+                br.reset();
+
+            // ---- Duyệt từng dòng dữ liệu ----
             while ((line = br.readLine()) != null) {
                 if (line.isBlank())
                     continue;
-                String[] p = line.split("\\|", -1);
-                if (p.length < 2)
+                // ✅ FIX: Sử dụng dấu phẩy thay vì |
+                String[] p = line.split(",", -1);
+
+                Integer idVal = tryParseInt(safe(p, idIdx));
+                if (idVal == null)
+                    continue; // bỏ dòng rác/tiêu đề
+                if (idVal != productId)
                     continue;
-                int pid = Integer.parseInt(p[0].trim());
-                if (pid == productId) {
-                    return Integer.parseInt(p[4].trim());
+
+                Integer q;
+                if (qtyIdx != null && qtyIdx < p.length) {
+                    q = tryParseInt(safe(p, qtyIdx));
+                    if (q != null)
+                        return q;
                 }
+
+                // Fallback (không header hoặc header không có cột qty):
+                // 1) thử cột 4 như bạn đang dùng (quantity column)
+                if (p.length > 4) {
+                    q = tryParseInt(safe(p, 4));
+                    if (q != null)
+                        return q;
+                }
+                // 2) nếu vẫn fail, lấy "cột số cuối cùng" trong dòng làm qty
+                for (int i = p.length - 1; i >= 0; i--) {
+                    q = tryParseInt(safe(p, i));
+                    if (q != null)
+                        return q;
+                }
+                return 0;
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error reading " + AppConfig.TEST_DATA_TXT, e);
+            throw new RuntimeException("Error reading " + absolutePath, e);
         }
         return 0;
+    }
+
+    private static String safe(String[] arr, int i) {
+        return i >= 0 && i < arr.length ? arr[i].trim().replace("\uFEFF", "") : "";
+    }
+
+    private static Integer tryParseInt(String s) {
+        if (s == null || s.isEmpty())
+            return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 }
