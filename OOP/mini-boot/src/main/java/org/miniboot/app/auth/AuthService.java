@@ -6,23 +6,24 @@ import java.util.*;
 
 /**
  * AuthService: Xử lý logic xác thực người dùng
- * - Kiểm tra thông tin đăng nhập
+ * - Kiểm tra thông tin đăng nhập từ 3 bảng: Admins, Employees, Customers
  * - Tạo JWT token cho người dùng hợp lệ
  * - Quản lý phiên đăng nhập và quyền truy cập
  *
- * Ghi chú quan trọng cho người đọc:
- * - Dữ liệu người dùng được lưu trong file text (USER_FILE) theo định dạng pipe-separated.
- *   Khi bảo trì/triển khai thực tế nên chuyển sang DB an toàn thay vì file text.
- * - Mật khẩu trong file được lưu ở dạng đã băm (salt:hash). Việc xác thực sử dụng PasswordService.
- * - Session được quản lý tạm thời qua SessionManager (in-memory). Với môi trường nhiều instance cần dùng store chia sẻ.
+ * Đã cập nhật theo database mới:
+ * - Đọc từ 3 file riêng biệt thay vì users.txt
+ * - Hỗ trợ 3 loại user: ADMIN, EMPLOYEE (doctor/nurse), CUSTOMER
  */
 public class AuthService {
     // Singleton để đảm bảo chỉ có một instance AuthService trong ứng dụng
     private static AuthService instance;
     // SessionManager: quản lý session (create/invalidate/get). Là một singleton bên trong.
     private static final SessionManager sessionManager = SessionManager.getInstance();
-    // Đường dẫn file chứa dữ liệu người dùng (format: id|username|password|role|email|fullName|phone|createdAt|active)
-    private static final String USER_FILE = "oop_ui/src/main/resources/Data/users.txt";
+
+    // Đường dẫn 3 file dữ liệu mới
+    private static final String ADMINS_FILE = "oop_ui/src/main/resources/Data/admins.txt";
+    private static final String EMPLOYEES_FILE = "oop_ui/src/main/resources/Data/employees.txt";
+    private static final String CUSTOMERS_FILE = "oop_ui/src/main/resources/Data/customers.txt";
 
     private AuthService() {}
 
@@ -35,16 +36,7 @@ public class AuthService {
 
     /**
      * Đăng nhập với tên đăng nhập và mật khẩu
-     *
-     * Luồng xử lý:
-     * 1. Tìm user theo username (đọc từ file)
-     * 2. Kiểm tra tài khoản active
-     * 3. Xác thực mật khẩu bằng PasswordService.verifyPassword
-     * 4. Nếu hợp lệ -> tạo session thông qua SessionManager và trả về sessionId
-     *
-     * Lưu ý bảo mật/triển khai:
-     * - Thông báo lỗi ở đây in ra console cho mục đích debug; trong production không nên in chi tiết (ví dụ: 'username không tồn tại') để tránh lộ thông tin.
-     * - Session hiện tại là in-memory (SessionManager). Nếu cần scale, đổi sang Redis hoặc store phân tán.
+     * Tìm kiếm trong cả 3 file: admins, employees, customers
      */
     public Optional<String> login(String username, String password) {
         try {
@@ -175,32 +167,111 @@ public class AuthService {
     }
 
     /**
-     * Tìm người dùng theo tên đăng nhập bằng cách đọc file USER_FILE.
-     * File được đọc từng dòng, mỗi dòng tách theo dấu '|'.
-     *
-     * Trả về Optional<UserData> nếu tìm thấy, Optional.empty nếu không tìm thấy hoặc có lỗi IO.
-     *
-     * Ghi chú: hiện tại hàm này đọc toàn bộ file mỗi lần gọi -> không hiệu quả cho hệ thống lớn.
-     * Nên cache hoặc dùng DB cho dữ liệu production.
+     * Tìm người dùng theo username từ cả 3 file
+     * Thứ tự tìm kiếm: Admins -> Employees -> Customers
      */
     private static Optional<UserData> findUserByUsername(String username) {
+        // Tìm trong Admins
+        Optional<UserData> admin = findInAdmins(username);
+        if (admin.isPresent()) return admin;
+
+        // Tìm trong Employees
+        Optional<UserData> employee = findInEmployees(username);
+        if (employee.isPresent()) return employee;
+
+        // Tìm trong Customers
+        Optional<UserData> customer = findInCustomers(username);
+        if (customer.isPresent()) return customer;
+
+        return Optional.empty();
+    }
+
+    /**
+     * Tìm trong file admins.txt
+     * Format: id|username|password|email|is_active
+     */
+    private static Optional<UserData> findInAdmins(String username) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(USER_FILE));
+            List<String> lines = Files.readAllLines(Paths.get(ADMINS_FILE));
             for (String line : lines) {
-                String[] parts = line.split("\\|");
-                // Kiểm tra độ dài mảng và username khớp
-                if (parts.length >= 9 && parts[1].equals(username)) {
-                    // parts mapping: id|username|password|role|email|fullName|phone|createdAt|active
+                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                String[] parts = line.split("\\|", -1);
+                if (parts.length >= 5 && parts[1].equals(username)) {
                     return Optional.of(new UserData(
-                        parts[0], parts[1], parts[2], parts[3],
-                        parts[4], parts[5], parts[6],
-                        Boolean.parseBoolean(parts[8])
+                        parts[0],                           // id
+                        parts[1],                           // username
+                        parts[2],                           // password (hashed)
+                        "ADMIN",                            // role
+                        parts[3],                           // email
+                        "Admin User",                       // fullName
+                        "",                                 // phone
+                        Boolean.parseBoolean(parts[4])      // active
                     ));
                 }
             }
         } catch (IOException e) {
-            // Ghi log lỗi đọc file; không ném tiếp để caller có thể xử lý an toàn
-            System.err.println("Error reading user file: " + e.getMessage());
+            System.err.println("Error reading admins file: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Tìm trong file employees.txt
+     * Format: id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at
+     */
+    private static Optional<UserData> findInEmployees(String username) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(EMPLOYEES_FILE));
+            for (String line : lines) {
+                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                String[] parts = line.split("\\|", -1);
+                if (parts.length >= 12 && parts[1].equals(username)) {
+                    String employeeRole = parts[6]; // "doctor" hoặc "nurse"
+                    String roleForSession = "EMPLOYEE"; // Hoặc có thể dùng "DOCTOR"/"NURSE" nếu cần phân biệt
+
+                    return Optional.of(new UserData(
+                        parts[0],                           // id
+                        parts[1],                           // username
+                        parts[2],                           // password (hashed)
+                        roleForSession,                     // role
+                        parts[8],                           // email
+                        parts[3] + " " + parts[4],          // fullName (firstname + lastname)
+                        parts[9],                           // phone
+                        Boolean.parseBoolean(parts[10])     // active
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading employees file: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Tìm trong file customers.txt
+     * Format: id|username|password|firstname|lastname|phone|email|dob|gender|address|note|created_at
+     */
+    private static Optional<UserData> findInCustomers(String username) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(CUSTOMERS_FILE));
+            for (String line : lines) {
+                if (line.trim().isEmpty() || line.startsWith("#")) continue;
+                String[] parts = line.split("\\|", -1);
+                if (parts.length >= 12 && parts[1].equals(username)) {
+                    return Optional.of(new UserData(
+                        parts[0],                           // id
+                        parts[1],                           // username
+                        parts[2],                           // password (hashed)
+                        "CUSTOMER",                         // role (hoặc "PATIENT")
+                        parts[6],                           // email
+                        parts[3] + " " + parts[4],          // fullName (firstname + lastname)
+                        parts[5],                           // phone
+                        true                                // active (customers không có trường is_active, mặc định true)
+                    ));
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading customers file: " + e.getMessage());
         }
         return Optional.empty();
     }

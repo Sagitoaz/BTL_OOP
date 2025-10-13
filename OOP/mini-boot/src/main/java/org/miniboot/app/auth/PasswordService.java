@@ -45,7 +45,7 @@ public class PasswordService {
             // Tạo MessageDigest cho SHA-256
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             // Cập nhật salt (byte) vào digest trước khi băm password
-            md.update(salt.getBytes());
+            md.update(Base64.getDecoder().decode(salt));
             // Thực hiện băm password
             byte[] hashedPassword = md.digest(password.getBytes());
             // Trả về kết quả đã mã hóa Base64 (dễ lưu vào file/DB)
