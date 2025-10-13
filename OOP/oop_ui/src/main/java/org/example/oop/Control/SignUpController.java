@@ -13,12 +13,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.example.oop.Data.models.Customer;
+import org.example.oop.Data.repositories.UserRepository;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -103,8 +102,8 @@ public class SignUpController implements Initializable {
             return "Username must be at least 3 characters";
         }
 
-        if (password.length() < 3) {
-            return "Password must be at least 3 characters";
+        if (!AuthServiceWrapper.isPasswordStrong(password)) {
+            return "Password must be at least 8 characters with uppercase, lowercase, number, and special character";
         }
 
         if (!password.equals(confirmPassword)) {
@@ -140,106 +139,43 @@ public class SignUpController implements Initializable {
 
     // Kiểm tra username đã tồn tại hay chưa
     private boolean isUsernameExists(String username) {
-        try (InputStream inputStream = getClass().getResourceAsStream("/User/user.txt")) {
-            if (inputStream == null) {
-                System.err.println("User file not found");
-                return false;
-            }
-
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.isEmpty()) continue;
-
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 2 && username.equals(parts[1])) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading user file for username check: " + e.getMessage());
-        }
-        return false;
+        UserRepository repo = new UserRepository();
+        return repo.findByUsername(username).isPresent();
     }
 
     // Kiểm tra email đã tồn tại hay chưa
     private boolean isEmailExists(String email) {
-        try (InputStream inputStream = getClass().getResourceAsStream("/User/user.txt")) {
-            if (inputStream == null) {
-                System.err.println("User file not found");
-                return false;
-            }
-
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.isEmpty()) continue;
-
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 7 && email.equals(parts[6])) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading user file for email check: " + e.getMessage());
-        }
-        return false;
+        UserRepository repo = new UserRepository();
+        return repo.findAll().stream().anyMatch(u -> u.getEmail().equals(email));
     }
 
     // Gán ID tiếp theo cho user mới
     // ID mới = ID lớn nhất hiện có + 1
     private int getNextUserId() {
-        int maxId = 0;
-        try (InputStream inputStream = getClass().getResourceAsStream("/User/user.txt")) {
-            if (inputStream == null) {
-                System.err.println("User file not found, starting with ID 1");
-                return 1;
-            }
-
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    line = line.trim();
-                    if (line.isEmpty()) continue;
-
-                    String[] parts = line.split("\\|");
-                    if (parts.length >= 1 && !parts[0].trim().isEmpty()) {
-                        try {
-                            int id = Integer.parseInt(parts[0].trim());
-                            maxId = Math.max(maxId, id);
-                        } catch (NumberFormatException e) {
-                            System.err.println("Invalid ID format in line: " + line);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading user file for ID generation: " + e.getMessage());
-        }
-        return maxId + 1;
+        UserRepository repo = new UserRepository();
+        long count = repo.count();
+        return (int) (count + 1);
     }
 
-    // Lưu thông tin user mới
-    private boolean saveNewUser(String username, String password, String fullName,
-                                String address, String email, String phone, String dob, String gender) {
+    // Lưu thông tin user mới - CẬP NHẬT: sử dụng Customer thay vì Patient
+    private boolean saveNewUser(String username, String password, String fullName, String email, String phone) {
         try {
             int newId = getNextUserId();
-            String phoneValue = phone.isEmpty() ? "null" : phone;
-            String dobValue = dob.isEmpty() ? "null" : dob;
-            String genderValue = gender == null || gender.isEmpty() ? "null" : gender;
+            String hashedPassword = AuthServiceWrapper.hashPasswordWithSalt(password);
 
-            String newUserLine = String.format("%d|%s|%s|patient|%s|%s|%s|%s|%s|%s%n",
-                    newId, username, password, fullName, address, email, phoneValue, dobValue, genderValue);
+            // Tách firstname và lastname từ fullName
+            String[] names = fullName.split(" ", 2);
+            String firstname = names.length > 0 ? names[0] : "";
+            String lastname = names.length > 1 ? names[1] : "";
 
-            String filePath = "src/main/resources/User/user.txt";
-            Files.write(Paths.get(filePath), newUserLine.getBytes(), StandardOpenOption.APPEND);
+            // Tạo Customer (thay thế Patient)
+            Customer customer = new Customer(newId, username, hashedPassword, firstname, lastname, phone, email);
+
+            UserRepository repo = new UserRepository();
+            repo.save(customer);
             return true;
-        } catch (IOException e) {
-            System.err.println("Error saving new user to file: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error saving new user: " + e.getMessage());
             return false;
         }
     }
@@ -256,10 +192,6 @@ public class SignUpController implements Initializable {
         String dob = dobTextField.getText().trim();
         String selectedGender = genderComboBox.getValue();
 
-        // Chuyển đổi từ tiếng Anh sang tiếng Việt để lưu
-        String gender = convertGenderToVietnamese(selectedGender);
-
-        // Kiểm tra lỗi - chỉ yêu cầu các trường bắt buộc
         // Nếu có lỗi sẽ hiện lỗi và dừng
         String validationError = validateSignUpInput(username, password, confirmPassword, fullName, address, email, phone);
         if (validationError != null) {
@@ -279,8 +211,7 @@ public class SignUpController implements Initializable {
             return;
         }
 
-        // Lưu user mới nếu hợp lệ
-        if (saveNewUser(username, password, fullName, address, email, phone, dob, gender)) {
+        if (saveNewUser(username, password, fullName, email, phone)) {
             setSuccessMessage("✓ Account created successfully! Redirecting to login...");
 
             new Thread(() -> {

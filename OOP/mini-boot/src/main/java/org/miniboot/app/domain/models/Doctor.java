@@ -1,16 +1,17 @@
 package org.miniboot.app.domain.models;
 
+/**
+ * Doctor model - alias cho Employee với role="doctor"
+ * Theo database mới: Doctor là Employee với role='doctor'
+ * Giữ lại class này để tương thích với code cũ
+ */
 public class Doctor {
     private int id;
     private String firstName, lastName, licenseNo;
 
-    //constructor mặc định
-    Doctor doctor;
-
     public Doctor() {
     }
 
-    //constructor tiện lợi
     public Doctor(int id, String firstName, String lastName, String licenseNo) {
         this.id = id;
         this.firstName = firstName;
@@ -18,7 +19,7 @@ public class Doctor {
         this.licenseNo = licenseNo;
     }
 
-    // getter & setter
+    // Getters & Setters
     public int getId() {
         return id;
     }
@@ -49,6 +50,10 @@ public class Doctor {
 
     public void setLicenseNo(String licenseNo) {
         this.licenseNo = licenseNo;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     @Override

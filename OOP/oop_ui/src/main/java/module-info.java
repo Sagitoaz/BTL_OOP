@@ -6,6 +6,9 @@ module org.example.oop {
     requires org.controlsfx.controls;
     requires jakarta.mail;
     requires java.desktop;
+    requires com.google.gson;
+
+    requires mini.boot;
 
     opens org.example.oop.View to javafx.fxml;
     exports org.example.oop.View;
@@ -17,4 +20,8 @@ module org.example.oop {
     exports org.example.oop;
     exports org.example.oop.Model;
     opens org.example.oop.Model to javafx.fxml;
+    exports org.example.oop.Data.models;
+    exports org.example.oop.Data.repositories;
+    exports org.example.oop.Data.storage;
+    opens org.example.oop.Data.models to javafx.fxml;
 }

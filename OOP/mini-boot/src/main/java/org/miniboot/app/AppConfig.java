@@ -16,6 +16,8 @@ public class AppConfig {
     // HTTP constants (giữ nguyên)
     public static String POST_KEY = "POST";
     public static String GET_KEY = "GET";
+    public static String PUT_KEY = "PUT";
+    public static String DELETE_KEY = "DELETE";
     public static String RES_CONTENT_TYPE_KEY = "content-type";
     public static String RES_CONTENT_LENGTH_KEY = "content-length";
     public static String RES_CONNECTION_KEY = "connection";

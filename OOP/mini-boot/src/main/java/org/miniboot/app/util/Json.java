@@ -109,4 +109,8 @@ public class Json {
         sb.append("\"");
         return sb.toString();
     }
+
+    public static Map<String, Object> parseMap(String body) throws IOException {
+        return fromString(body, Map.class);
+    }
 }

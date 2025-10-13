@@ -1,0 +1,11 @@
+# id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at
+2|doctor1|pass456|John|Smith|avatar_doctor1.jpg|doctor|MD-12345|doctor@clinic.com|0987654321|true|2025-10-01T08:00:00
+5|doctor2|LIgEHofj4pTsJui6OiVCiw==:HLUTirhA/V8NEqOOOq+H57lUuNQGj0n5/rCJp97esGo=|Jane|Smith|avatar_doctor2.jpg|doctor|MD-67890|doctor2@clinic.com|0987654322|true|2025-10-01T08:00:00
+998|testdoctor|19CEjcjdTLJXXUdwF8lLuA==:DucUo0H57wSwYeaeBVCtoeZcmgmmPYrLeOngP3xwTcE=|Test|Doctor|avatar_test.jpg|doctor|MD-99999|testdoc@test.com|0987654399|true|2025-10-01T08:00:00
+3|staff1|pass789|Jane|Doe||nurse||staff@clinic.com|0111111111|true|2025-10-01T08:00:00
+4|nurse1|Nk7Pl3Qm9Rt2Sv5Wx8Yz==:Uv4Yx1Ab6Cd9Ef2Gh5Jk8Mn1Pq4Rs7Tu0Vw3Xy6Za9Bc=|Emily|Johnson||nurse||nurse1@clinic.com|0333333333|true|2025-10-01T08:00:00
+6|nurse2|Gh4Jk7Mn0Pq3Rs6Tu9Vw==:Xy2Za5Bc8Cd1Ef4Gh7Jk0Mn3Pq6Rs9Tu2Vw5Xy8Za1Bc=|Michael|Brown||nurse||nurse2@clinic.com|0444444444|true|2025-10-01T08:00:00
+7|cashier1|Rs9Tu2Vw5Xy8Za1Bc4Cd==:Ef7Gh0Jk3Mn6Pq9Rs2Tu5Vw8Xy1Za4Bc7Cd0Ef3Gh6Jk=|Sarah|Wilson||nurse||cashier@clinic.com|0555555555|true|2025-10-01T08:00:00
+8|doctor3|Mn6Pq9Rs2Tu5Vw8Xy1Za==:Bc4Cd7Ef0Gh3Jk6Mn9Pq2Rs5Tu8Vw1Xy4Za7Bc0Cd3Ef=|David|Lee|avatar_doctor3.jpg|doctor|MD-11223|doctor3@clinic.com|0987654323|true|2025-10-02T08:00:00
+9|receptionist|Tu8Vw1Xy4Za7Bc0Cd3Ef==:Gh6Jk9Mn2Pq5Rs8Tu1Vw4Xy7Za0Bc3Cd6Ef9Gh2Jk5Mn=|Lisa|Anderson||nurse||reception@clinic.com|0666666666|true|2025-10-01T08:00:00
+
