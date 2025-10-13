@@ -7,73 +7,47 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.example.oop.Data.models.User;
-import org.example.oop.Data.models.UserRole;
+import org.example.oop.Data.models.*;
 import org.example.oop.Data.repositories.UserRepository;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * AdminUserController
+ * AdminUserController - Quản lý người dùng theo database mới
  *
- * Mục đích lớp:
- * - Quản lý giao diện admin cho chức năng quản lý người dùng (CRUD) trong ứng dụng JavaFX.
- * - Tương tác trực tiếp với UserRepository để đọc/ghi dữ liệu người dùng.
- *
- * Những điểm quan trọng cần lưu ý khi đọc/maintain code:
- * 1) JavaFX lifecycle:
- *    - Phương thức initialize() được gọi khi FXML được load; ở đây khởi tạo repository,
- *      thiết lập các cột bảng, nạp dữ liệu và đăng listener cho selection model của TableView.
- *
- * 2) Binding TableView/Columns:
- *    - Các TableColumn được cấu hình bằng PropertyValueFactory để ánh xạ tên thuộc tính của model User.
- *    - Đảm bảo tên trong PropertyValueFactory khớp với getter trong class User (ví dụ "username" -> getUsername()).
- *
- * 3) Path dữ liệu và repository:
- *    - UserRepository hiện tại thao tác trên file/nguồn cục bộ (được implement trong project). Với hệ thống lớn,
- *      nên chuyển sang DB.
- *
- * 4) Validation và UX:
- *    - Trước khi Add/Update phải validate các trường bắt buộc (id, username, password, fullName, email, role...).
- *    - Hiện tại mật khẩu được nhập trực tiếp và lưu vào model; trong môi trường production cần băm mật khẩu
- *      trước khi lưu (sử dụng PasswordService/bcrypt/argon2) và không hiển thị mật khẩu trên UI.
- *
- * 5) Security & Data leakage:
- *    - Không hiển thị mật khẩu khi populateFields (đặt rỗng PasswordField).
- *    - Tránh log hoặc showAlert chứa mật khẩu.
- *
- * 6) Concurrency / Threading:
- *    - Các thao tác repository hiện được gọi trực tiếp trong UI thread. Nếu thao tác I/O nặng cần chạy
- *      background task (Task/Service) để tránh block giao diện.
- *
- * 7) Error handling:
- *    - Hiện tại errors được báo bằng showAlert; cân nhắc dùng logger cho debug thông tin chi tiết.
+ * Cập nhật theo database version 2:
+ * - User giờ là interface, có 3 implementation: Admin, Employee, Customer
+ * - Employee có role: doctor/nurse (thay thế Doctor và Staff cũ)
+ * - Customer thay thế Patient
+ * - UserRole giờ chỉ có: ADMIN, EMPLOYEE, CUSTOMER
  */
 public class AdminUserController implements Initializable {
 
-    // === UI controls (được inject từ FXML) ===
+    // === UI controls ===
     @FXML
-    private TableView<User> userTable;
+    private TableView<UserDisplay> userTable;
 
     @FXML
-    private TableColumn<User, String> colId;
+    private TableColumn<UserDisplay, Integer> colId;
 
     @FXML
-    private TableColumn<User, String> colUsername;
+    private TableColumn<UserDisplay, String> colUsername;
 
     @FXML
-    private TableColumn<User, String> colFullName;
+    private TableColumn<UserDisplay, String> colFullName;
 
     @FXML
-    private TableColumn<User, String> colEmail;
+    private TableColumn<UserDisplay, String> colEmail;
 
     @FXML
-    private TableColumn<User, UserRole> colRole;
+    private TableColumn<UserDisplay, String> colRole;
 
     @FXML
-    private TableColumn<User, Boolean> colActive;
+    private TableColumn<UserDisplay, Boolean> colActive;
 
     @FXML
     private TextField txtId;
@@ -97,6 +71,12 @@ public class AdminUserController implements Initializable {
     private ComboBox<UserRole> cbRole;
 
     @FXML
+    private ComboBox<EmployeeRole> cbEmployeeRole; // Thêm cho Employee
+
+    @FXML
+    private TextField txtLicenseNo; // Thêm cho Doctor
+
+    @FXML
     private CheckBox chkActive;
 
     @FXML
@@ -111,17 +91,15 @@ public class AdminUserController implements Initializable {
     @FXML
     private Button btnClear;
 
-    // Repository và danh sách observable cho TableView
     private UserRepository userRepository;
-    private ObservableList<User> userList;
+    private ObservableList<UserDisplay> userList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         userRepository = new UserRepository();
         userList = FXCollections.observableArrayList();
 
-        // Thiết lập ánh xạ cột -> thuộc tính của model User
-        // Lưu ý: tên thuộc tính phải khớp với getter trong User class
+        // Setup columns
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
@@ -129,43 +107,78 @@ public class AdminUserController implements Initializable {
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
         colActive.setCellValueFactory(new PropertyValueFactory<>("active"));
 
-        // Cấu hình combobox role
+        // Setup comboboxes
         cbRole.setItems(FXCollections.observableArrayList(UserRole.values()));
+        cbEmployeeRole.setItems(FXCollections.observableArrayList(EmployeeRole.values()));
 
-        // Load dữ liệu ban đầu lên bảng
+        // Load data
         loadUsers();
 
-        // Listener khi chọn 1 hàng trong bảng: populate các field tương ứng
+        // Selection listener
         userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 populateFields(newSelection);
             }
         });
+
+        // Role change listener - show/hide employee role field
+        cbRole.valueProperty().addListener((obs, oldVal, newVal) -> {
+            boolean isEmployee = newVal == UserRole.EMPLOYEE;
+            cbEmployeeRole.setVisible(isEmployee);
+            cbEmployeeRole.setManaged(isEmployee);
+            txtLicenseNo.setVisible(isEmployee);
+            txtLicenseNo.setManaged(isEmployee);
+        });
     }
 
-    /**
-     * Load users từ repository và gán vào TableView.
-     * Chú ý: nếu repository thực hiện I/O nặng, nên gọi trong background thread.
-     */
     private void loadUsers() {
+        List<UserDisplay> displayList = new ArrayList<>();
+
+        // Load từ tất cả các repository (Admin, Employee, Customer)
+        // Vì UserRepository cũ chỉ load User, cần refactor để load cả 3 loại
+        // Tạm thời dùng cách này:
         List<User> users = userRepository.findAll();
+        for (User user : users) {
+            displayList.add(new UserDisplay(user));
+        }
+
         userList.clear();
-        userList.addAll(users);
+        userList.addAll(displayList);
         userTable.setItems(userList);
     }
 
-    /**
-     * Điền dữ liệu user vào các control form để người dùng có thể sửa.
-     * - Không hiển thị mật khẩu (đặt rỗng) để tránh rò rỉ.
-     */
-    private void populateFields(User user) {
+    private void populateFields(UserDisplay userDisplay) {
+        User user = userDisplay.getOriginalUser();
+
         txtId.setText(String.valueOf(user.getId()));
         txtUsername.setText(user.getUsername());
-        txtPassword.setText(""); // Không hiển thị mật khẩu
-        txtFullName.setText(user.getFullName());
+        txtPassword.setText(""); // Không hiển thị password
         txtEmail.setText(user.getEmail());
-        txtPhone.setText(user.getPhone());
-        cbRole.setValue(user.getRole());
+
+        if (user instanceof Admin) {
+            cbRole.setValue(UserRole.ADMIN);
+            txtFullName.setText("Admin");
+            txtPhone.setText("");
+            cbEmployeeRole.setVisible(false);
+            txtLicenseNo.setVisible(false);
+        } else if (user instanceof Employee) {
+            Employee emp = (Employee) user;
+            cbRole.setValue(UserRole.EMPLOYEE);
+            txtFullName.setText(emp.getFullName());
+            txtPhone.setText(emp.getPhone());
+            cbEmployeeRole.setValue(emp.getRole());
+            cbEmployeeRole.setVisible(true);
+            txtLicenseNo.setText(emp.getLicenseNo() != null ? emp.getLicenseNo() : "");
+            txtLicenseNo.setVisible(true);
+        } else if (user instanceof Customer) {
+            Customer cust = (Customer) user;
+            cbRole.setValue(UserRole.CUSTOMER);
+            txtFullName.setText(cust.getFullName());
+            txtPhone.setText(cust.getPhone());
+            cbEmployeeRole.setVisible(false);
+            txtLicenseNo.setVisible(false);
+        }
+
         chkActive.setSelected(user.isActive());
     }
 
@@ -187,28 +200,23 @@ public class AdminUserController implements Initializable {
                 showAlert("Error", "ID must be a valid integer.");
                 return;
             }
+
             String username = txtUsername.getText().trim();
             String password = txtPassword.getText().trim();
-            String fullName = txtFullName.getText().trim();
             String email = txtEmail.getText().trim();
-            String phone = txtPhone.getText().trim();
             UserRole role = cbRole.getValue();
-            boolean active = chkActive.isSelected();
 
-            // Validate các trường bắt buộc
-            if (idStr.isEmpty() || username.isEmpty() || password.isEmpty() || fullName.isEmpty() || email.isEmpty() || role == null) {
+            if (username.isEmpty() || password.isEmpty() || email.isEmpty() || role == null) {
                 showAlert("Error", "Please fill all required fields.");
                 return;
             }
 
-            // Tạo user instance theo role
-            User newUser = createUserInstance(id, username, password, role, email, fullName, phone);
-            newUser.setActive(active);
+            User newUser = createUserInstance(id, username, password, email, role);
+            if (newUser == null) {
+                return;
+            }
 
-            // Lưu user vào repository
             userRepository.save(newUser);
-
-            // Cập nhật giao diện
             loadUsers();
             clearFields();
             showAlert("Success", "User added successfully.");
@@ -225,41 +233,51 @@ public class AdminUserController implements Initializable {
      */
     @FXML
     void handleUpdate(ActionEvent event) {
-        User selectedUser = userTable.getSelectionModel().getSelectedItem();
-        if (selectedUser == null) {
+        UserDisplay selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
             showAlert("Error", "Please select a user to update.");
             return;
         }
 
         try {
+            User user = selected.getOriginalUser();
             String username = txtUsername.getText().trim();
             String password = txtPassword.getText().trim();
-            String fullName = txtFullName.getText().trim();
             String email = txtEmail.getText().trim();
-            String phone = txtPhone.getText().trim();
-            UserRole role = cbRole.getValue();
-            boolean active = chkActive.isSelected();
 
-            if (username.isEmpty() || fullName.isEmpty() || email.isEmpty() || role == null) {
+            if (username.isEmpty() || email.isEmpty()) {
                 showAlert("Error", "Please fill all required fields.");
                 return;
             }
 
-            // Cập nhật model
-            selectedUser.setUsername(username);
+            user.setUsername(username);
             if (!password.isEmpty()) {
-                selectedUser.setPassword(password); // Trong production: hash password trước khi lưu
+                user.setPassword(password);
             }
-            selectedUser.setFullName(fullName);
-            selectedUser.setEmail(email);
-            selectedUser.setPhone(phone);
-            selectedUser.setRole(role);
-            selectedUser.setActive(active);
+            user.setEmail(email);
 
-            // Gọi repository để cập nhật
-            userRepository.update(selectedUser);
+            // Update specific fields based on type
+            if (user instanceof Employee) {
+                Employee emp = (Employee) user;
+                String[] names = txtFullName.getText().trim().split(" ", 2);
+                emp.setFirstname(names.length > 0 ? names[0] : "");
+                emp.setLastname(names.length > 1 ? names[1] : "");
+                emp.setPhone(txtPhone.getText().trim());
+                if (cbEmployeeRole.getValue() != null) {
+                    emp.setRole(cbEmployeeRole.getValue());
+                }
+                emp.setLicenseNo(txtLicenseNo.getText().trim());
+            } else if (user instanceof Customer) {
+                Customer cust = (Customer) user;
+                String[] names = txtFullName.getText().trim().split(" ", 2);
+                cust.setFirstname(names.length > 0 ? names[0] : "");
+                cust.setLastname(names.length > 1 ? names[1] : "");
+                cust.setPhone(txtPhone.getText().trim());
+            }
 
-            // Refresh UI
+            user.setActive(chkActive.isSelected());
+
+            userRepository.update(user);
             loadUsers();
             clearFields();
             showAlert("Success", "User updated successfully.");
@@ -275,8 +293,8 @@ public class AdminUserController implements Initializable {
      */
     @FXML
     void handleDelete(ActionEvent event) {
-        User selectedUser = userTable.getSelectionModel().getSelectedItem();
-        if (selectedUser == null) {
+        UserDisplay selected = userTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
             showAlert("Error", "Please select a user to delete.");
             return;
         }
@@ -289,7 +307,7 @@ public class AdminUserController implements Initializable {
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 try {
-                    userRepository.delete(selectedUser.getId());
+                    userRepository.delete(selected.getId());
                     loadUsers();
                     clearFields();
                     showAlert("Success", "User deleted successfully.");
@@ -316,37 +334,109 @@ public class AdminUserController implements Initializable {
         txtEmail.setText("");
         txtPhone.setText("");
         cbRole.setValue(null);
+        cbEmployeeRole.setValue(null);
+        txtLicenseNo.setText("");
         chkActive.setSelected(true);
         userTable.getSelectionModel().clearSelection();
     }
 
     /**
-     * Factory method: Tạo instance subclass User theo role
-     * - Mục đích để dễ mở rộng nếu từng role có logic/thuộc tính khác nhau
+     * Tạo user instance theo role - CẬP NHẬT theo database mới
      */
-    private User createUserInstance(int id, String username, String password, UserRole role, String email, String fullName, String phone) {
+    private User createUserInstance(int id, String username, String password, String email, UserRole role) {
         switch (role) {
             case ADMIN:
-                return new org.example.oop.Data.models.Admin(id, username, password, email, fullName, phone);
-            case DOCTOR:
-                return new org.example.oop.Data.models.Doctor(id, username, password, email, fullName, phone);
-            case STAFF:
-                return new org.example.oop.Data.models.Staff(id, username, password, email, fullName, phone);
-            case PATIENT:
-                return new org.example.oop.Data.models.Patient(id, username, password, email, fullName, phone);
+                return new Admin(id, username, password, email, true);
+
+            case EMPLOYEE:
+                EmployeeRole empRole = cbEmployeeRole.getValue();
+                if (empRole == null) {
+                    showAlert("Error", "Please select employee role (Doctor/Nurse).");
+                    return null;
+                }
+                String fullName = txtFullName.getText().trim();
+                String[] names = fullName.split(" ", 2);
+                String firstname = names.length > 0 ? names[0] : "";
+                String lastname = names.length > 1 ? names[1] : "";
+                String phone = txtPhone.getText().trim();
+
+                Employee emp = new Employee(id, username, password, firstname, lastname, empRole, email, phone);
+                if (empRole == EmployeeRole.DOCTOR) {
+                    emp.setLicenseNo(txtLicenseNo.getText().trim());
+                }
+                return emp;
+
+            case CUSTOMER:
+                String custFullName = txtFullName.getText().trim();
+                String[] custNames = custFullName.split(" ", 2);
+                String custFirstname = custNames.length > 0 ? custNames[0] : "";
+                String custLastname = custNames.length > 1 ? custNames[1] : "";
+                String custPhone = txtPhone.getText().trim();
+
+                return new Customer(id, username, password, custFirstname, custLastname, custPhone, email);
+
             default:
                 throw new IllegalArgumentException("Unknown role: " + role);
         }
     }
 
-    /**
-     * Hiển thị Alert dialog (utility)
-     */
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Wrapper class để hiển thị User trong TableView
+     */
+    public static class UserDisplay {
+        private final User user;
+
+        public UserDisplay(User user) {
+            this.user = user;
+        }
+
+        public int getId() {
+            return user.getId();
+        }
+
+        public String getUsername() {
+            return user.getUsername();
+        }
+
+        public String getFullName() {
+            if (user instanceof Employee) {
+                return ((Employee) user).getFullName();
+            } else if (user instanceof Customer) {
+                return ((Customer) user).getFullName();
+            } else if (user instanceof Admin) {
+                return "Admin";
+            }
+            return "";
+        }
+
+        public String getEmail() {
+            return user.getEmail();
+        }
+
+        public String getRole() {
+            if (user instanceof Admin) return "Admin";
+            if (user instanceof Employee) {
+                Employee emp = (Employee) user;
+                return "Employee (" + emp.getRole().getValue() + ")";
+            }
+            if (user instanceof Customer) return "Customer";
+            return "";
+        }
+
+        public boolean isActive() {
+            return user.isActive();
+        }
+
+        public User getOriginalUser() {
+            return user;
+        }
     }
 }

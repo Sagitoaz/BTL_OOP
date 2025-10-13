@@ -13,7 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.example.oop.Data.models.Patient;
+import org.example.oop.Data.models.Customer;
 import org.example.oop.Data.repositories.UserRepository;
 
 import java.io.*;
@@ -157,14 +157,22 @@ public class SignUpController implements Initializable {
         return (int) (count + 1);
     }
 
-    // Lưu thông tin user mới
+    // Lưu thông tin user mới - CẬP NHẬT: sử dụng Customer thay vì Patient
     private boolean saveNewUser(String username, String password, String fullName, String email, String phone) {
         try {
             int newId = getNextUserId();
             String hashedPassword = AuthServiceWrapper.hashPasswordWithSalt(password);
-            Patient patient = new Patient(newId, username, hashedPassword, email, fullName, phone);
+
+            // Tách firstname và lastname từ fullName
+            String[] names = fullName.split(" ", 2);
+            String firstname = names.length > 0 ? names[0] : "";
+            String lastname = names.length > 1 ? names[1] : "";
+
+            // Tạo Customer (thay thế Patient)
+            Customer customer = new Customer(newId, username, hashedPassword, firstname, lastname, phone, email);
+
             UserRepository repo = new UserRepository();
-            repo.save(patient);
+            repo.save(customer);
             return true;
         } catch (Exception e) {
             System.err.println("Error saving new user: " + e.getMessage());
