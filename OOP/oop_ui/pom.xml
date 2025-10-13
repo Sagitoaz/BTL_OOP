@@ -64,18 +64,6 @@
             <artifactId>javafx-graphics</artifactId>
             <version>17.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>mini-boot</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>mini-boot</artifactId>
-            <version>1.0.0</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Mini-boot dependency for authentication -->
         <dependency>
             <groupId>org.example</groupId>
