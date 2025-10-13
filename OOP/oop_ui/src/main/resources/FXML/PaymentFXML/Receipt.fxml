@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox prefHeight="800" prefWidth="550.0" spacing="8.0"
+      xmlns="http://javafx.com/javafx/24.0.1"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.oop.Control.PaymentControl.ReceiptController"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://javafx.com/javafx/24.0.1 ">
+    <padding>
+        <Insets bottom="18.0" left="18.0" right="18.0" top="18.0"/>
+    </padding>
+    <children>
+        <VBox alignment="CENTER" spacing="2.0">
+            <children>
+                <Label style="-fx-font-size:16px; -fx-font-weight:bold;" text="PHÒNG KHÁM MẮT A TOÀN BÉO"/>
+                <Label style="-fx-font-size:11px;" text="Số 36/63 Đường Nem chua, phường Rau má, Thanh Hóa"/>
+            </children>
+        </VBox>
+        <Separator prefWidth="200.0"/>
+        <GridPane hgap="10" vgap="6">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="20.0"/>
+                <ColumnConstraints percentWidth="30.0"/>
+                <ColumnConstraints percentWidth="20.0"/>
+                <ColumnConstraints percentWidth="30.0"/>
+            </columnConstraints>
+            <children>
+                <Label text="Số phiếu:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Label fx:id="lblReceiptNo" text="RC-0001" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                <Label text="Ngày:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                <Label fx:id="lblDate" text="2025-10-10 10:00" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+                <Label text="Thu ngân:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Label fx:id="lblCashier" text="Nguyễn B" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Khách hàng:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                <Label fx:id="lblCustomer" text="Nguyễn A" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            </children>
+            <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints/>
+            </rowConstraints>
+        </GridPane>
+        <TableView fx:id="tableReceiptItems" prefHeight="350.0">
+            <columns>
+                <TableColumn fx:id="colIndex" prefWidth="52.6666259765625" text="#"/>
+                <TableColumn fx:id="colItemName" prefWidth="187.3333740234375" text="Mặt hàng/Dịch vụ"/>
+                <TableColumn fx:id="colQty" prefWidth="50.0" text="SL"/>
+                <TableColumn fx:id="colUnitPrice" prefWidth="100.0" text="Đơn giá"/>
+                <TableColumn fx:id="colAmount" prefWidth="120.0" text="Thành tiền"/>
+            </columns>
+        </TableView>
+        <Separator prefWidth="200.0"/>
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <children>
+                <Label prefHeight="17.0" prefWidth="126.0" text="Tổng tiền "/>
+                <Label text="Trả lại" GridPane.rowIndex="2"/>
+                <Label prefHeight="17.0" prefWidth="113.0" text="100000" GridPane.columnIndex="1"/>
+                <Label prefHeight="17.0" prefWidth="109.0" text="100000" GridPane.columnIndex="1"
+                       GridPane.rowIndex="1"/>
+                <Label prefHeight="17.0" prefWidth="111.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <Label text="Khách trả" GridPane.rowIndex="1"/>
+            </children>
+        </GridPane>
+        <VBox alignment="CENTER" spacing="4.0">
+            <children>
+                <Label text="Xin cảm ơn Quý khách!"/>
+                <Label text="Quét QR để nhận tư vấn &amp; bảo hành điện tử"/>
+                <Rectangle arcHeight="5.0" arcWidth="5.0" height="100.0" width="100.0">
+                    <fill>
+                        <Color opacity="0.1"/>
+                    </fill>
+                </Rectangle>
+            </children>
+        </VBox>
+    </children>
+</VBox>

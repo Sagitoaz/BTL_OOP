@@ -3,29 +3,33 @@ package org.example.oop.Model.PaymentModel;
 public enum PaymentMethod {
     CASH("CASH", "Tiền mặt"),
     CARD("CARD", "Thẻ"),
-    TRANSFER("TRASFER", "Chuyển khoản");
-    private final String name;
+    TRANSFER("TRANSFER", "Chuyển khoản");
+
+    private final String code;
     private final String display;
 
-    PaymentMethod(final String name, final String display) {
-        this.name = name;
+    PaymentMethod(String code, String display) {
+        this.code = code;
         this.display = display;
     }
 
-    public String getName() {
-        return name;
+    public static PaymentMethod fromCode(String code) {
+        for (PaymentMethod method : values()) {
+            if (method.code.equalsIgnoreCase(code)) return method;
+        }
+        throw new IllegalArgumentException("Unknown PaymentMethod: " + code);
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getDisplay() {
         return display;
     }
 
-    public static PaymentMethod getPaymentMethod(final String name) {
-        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
-            if (paymentMethod.getName().equals(name)) {
-                return paymentMethod;
-            }
-        }
-        throw new IllegalArgumentException("Unknown payment method: " + name);
+    @Override
+    public String toString() {
+        return display; // hiển thị đẹp trong ComboBox
     }
 }

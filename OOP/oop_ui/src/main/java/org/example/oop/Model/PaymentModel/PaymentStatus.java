@@ -1,9 +1,10 @@
 package org.example.oop.Model.PaymentModel;
 
 public enum PaymentStatus {
+    UNPAID("UNPAID", "Chưa thanh toán"),
     PENDING("PENDING", "Chờ xử lý"),
     PAID("PAID", "Hoàn tất"),
-    FAILED("FAILED", "Thất bại");
+    CANCELLED("CANCELLED", "Đã hủy");
 
     private final String code;
     private final String display;
@@ -22,7 +23,9 @@ public enum PaymentStatus {
     }
 
     public static PaymentStatus fromCode(String c) {
-        for (PaymentStatus s : values()) if (s.code.equals(c)) return s;
+        for (PaymentStatus s : values())
+            if (s.code.equals(c))
+                return s;
         throw new IllegalArgumentException("Unknown PaymentStatus: " + c);
     }
 }

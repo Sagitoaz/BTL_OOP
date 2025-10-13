@@ -16,8 +16,8 @@ public class Payment {
     private int cashierId;
     private Instant issuedAt;
     private int subtotal, discount, taxTotal, rounding, grandTotal;
-    private PaymentMethod paymentMethod;   // null khi chưa chốt
-    private BigDecimal amountPaid;         // null khi chưa chốt
+    private PaymentMethod paymentMethod; // null khi chưa chốt
+    private BigDecimal amountPaid; // null khi chưa chốt
     private String note;
     private Instant createdAt;
 
@@ -25,8 +25,8 @@ public class Payment {
     }
 
     public Payment(Integer id, String code, Integer customerId, int cashierId, Instant issuedAt,
-                   int subtotal, int discount, int taxTotal, int rounding, int grandTotal,
-                   PaymentMethod paymentMethod, BigDecimal amountPaid, String note, Instant createdAt) {
+            int subtotal, int discount, int taxTotal, int rounding, int grandTotal,
+            PaymentMethod paymentMethod, BigDecimal amountPaid, String note, Instant createdAt) {
         this.id = id;
         this.code = code;
         this.customerId = customerId;
@@ -43,12 +43,60 @@ public class Payment {
         this.createdAt = createdAt;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Integer getCustomerId() {
+        return customerId;
+    }
+
+    public int getCashierId() {
+        return cashierId;
+    }
+
+    public Instant getIssuedAt() {
+        return issuedAt;
+    }
+
+    public int getGrandTotal() {
+        return grandTotal;
+    }
+
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
 
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
     public BigDecimal getAmountPaid() {
         return amountPaid;
+    }
+
+    public void setAmountPaid(BigDecimal amountPaid) {
+        this.amountPaid = amountPaid;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
     /**
@@ -70,8 +118,7 @@ public class Payment {
                 paymentMethod == null ? "" : paymentMethod.name(),
                 amountPaid == null ? "" : amountPaid.toPlainString(),
                 note == null ? "" : note,
-                createdAt == null ? "" : createdAt.toString()
-        );
+                createdAt == null ? "" : createdAt.toString());
     }
 
     /**
@@ -104,14 +151,15 @@ public class Payment {
         return new Payment(
                 id, code, customerId, cashierId, issuedAt,
                 subtotal, discount, taxTotal, rounding, grandTotal,
-                paymentMethod, amountPaid, note, createdAt
-        );
+                paymentMethod, amountPaid, note, createdAt);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Payment payment = (Payment) o;
         return Objects.equals(code, payment.code);
     }

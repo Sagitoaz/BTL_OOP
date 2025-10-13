@@ -21,6 +21,31 @@ public class PaymentItem {
         this.totalLine = totalLine;
     }
 
+    public void setPaymentId(int paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public int getPaymentId() {
+        return paymentId;
+    }
+
+    // Và các getter để TableView có thể đọc dữ liệu
+    public String getDescription() {
+        return description;
+    }
+
+    public int getQty() {
+        return qty;
+    }
+
+    public int getUnitPrice() {
+        return unitPrice;
+    }
+
+    public int getTotalLine() {
+        return totalLine;
+    }
+
     /**
      * Chuyển đổi đối tượng thành chuỗi dữ liệu, phân tách bằng dấu '|'.
      */
@@ -73,4 +98,5 @@ public class PaymentItem {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }
