@@ -1,12 +1,17 @@
 package org.miniboot.app.controllers;
 
 import org.miniboot.app.domain.models.User;
+import org.miniboot.app.domain.models.Admin;
+import org.miniboot.app.domain.models.Employee;
+import org.miniboot.app.domain.models.Customer;
 import org.miniboot.app.domain.repo.UserRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,13 +64,13 @@ import java.util.Optional;
  * UserController: Controller xử lý các endpoint về quản lý người dùng
  * - GET /users: List all users
  * - GET /users/:id: Get user by ID
- * - POST /users: Create new user
+ * - POST /users: Create new user (Admin/Employee/Customer)
  * - PUT /users/:id: Update existing user
  * - DELETE /users/:id: Delete user
  *
- * Ghi chú (tiếng Việt):
- * - Các message trả về cho client và logs là tiếng Anh để tránh lỗi font trong terminal.
- * - Các comment giải thích logic quan trọng bằng tiếng Việt để người sau dễ hiểu.
+ * Đã cập nhật theo database mới:
+ * - User giờ là interface với 3 implementation: Admin, Employee, Customer
+ * - POST /users yêu cầu trường "userType" để xác định loại user cần tạo
  */
 public class UserController {
 
@@ -82,8 +87,7 @@ public class UserController {
 
     /**
      * GET /users
-     * Trả về danh sách tất cả người dùng.
-     * Chú giải: gọi repository.findAll(), trả về 200 với danh sách người dùng.
+     * Trả về danh sách tất cả người dùng từ cả 3 bảng (admins, employees, customers)
      */
     private static HttpResponse getAllUsers(HttpRequest request) {
         try {
@@ -97,7 +101,6 @@ public class UserController {
     /**
      * GET /users/:id
      * Lấy thông tin user theo ID (path param)
-     * Chú giải: ID lấy từ request.tags (Router đã extract path params vào tags).
      */
     private static HttpResponse getUserById(HttpRequest request) {
         try {
@@ -107,11 +110,8 @@ public class UserController {
             }
 
             Optional<User> userOpt = userRepository.findById(id);
-            if (userOpt.isPresent()) {
-                return Json.ok(userOpt.get());
-            } else {
-                return Json.error(404, "User not found with ID: " + id);
-            }
+            return userOpt.map(Json::ok)
+                    .orElseGet(() -> Json.error(404, "User not found with ID: " + id));
         } catch (Exception e) {
             return Json.error(500, "Error retrieving user: " + e.getMessage());
         }
@@ -120,44 +120,108 @@ public class UserController {
     /**
      * POST /users
      * Tạo người dùng mới từ JSON body.
-     * Body expected: {"username","password","role","email","fullName","phone","active"}
-     * Chú giải: validate required fields, check duplicate username, generate id và lưu.
+     * Body expected: {
+     *   "userType": "admin" | "employee" | "customer",
+     *   "username": "...",
+     *   "password": "...",
+     *   ... (các trường khác tùy theo userType)
+     * }
      */
     private static HttpResponse createUser(HttpRequest request) {
         try {
             String body = request.bodyText();
             Map<String, Object> data = Json.parseMap(body);
 
+            String userType = (String) data.get("userType");
             String username = (String) data.get("username");
             String password = (String) data.get("password");
-            String role = (String) data.get("role");
-            String email = (String) data.get("email");
-            String fullName = (String) data.get("fullName");
-            String phone = (String) data.get("phone");
-            Boolean active = data.containsKey("active") ? (Boolean) data.get("active") : null;
 
-            if (username == null || password == null || role == null || email == null || fullName == null) {
-                return Json.error(400, "Missing required fields: username, password, role, email, fullName");
+            if (userType == null || username == null || password == null) {
+                return Json.error(400, "Missing required fields: userType, username, password");
             }
 
+            // Check duplicate username
             if (userRepository.findByUsername(username).isPresent()) {
                 return Json.error(409, "Username already exists: " + username);
             }
 
             String id = String.valueOf(System.currentTimeMillis());
-            User newUser = new User(id, username, password, role, email, fullName, phone, active != null ? active : true);
-            userRepository.save(newUser);
+            User newUser;
 
+            switch (userType.toLowerCase()) {
+                case "admin":
+                    newUser = createAdmin(id, username, password, data);
+                    break;
+                case "employee":
+                    newUser = createEmployee(id, username, password, data);
+                    break;
+                case "customer":
+                    newUser = createCustomer(id, username, password, data);
+                    break;
+                default:
+                    return Json.error(400, "Invalid userType. Must be: admin, employee, or customer");
+            }
+
+            userRepository.save(newUser);
             return Json.ok(Map.of("message", "User created successfully", "user", newUser));
         } catch (Exception e) {
             return Json.error(500, "Error creating user: " + e.getMessage());
         }
     }
 
+    private static Admin createAdmin(String id, String username, String password, Map<String, Object> data) {
+        Admin admin = new Admin();
+        admin.setId(id);
+        admin.setUsername(username);
+        admin.setPassword(password);
+        admin.setEmail((String) data.get("email"));
+        admin.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
+        return admin;
+    }
+
+    private static Employee createEmployee(String id, String username, String password, Map<String, Object> data) {
+        Employee employee = new Employee();
+        employee.setId(id);
+        employee.setUsername(username);
+        employee.setPassword(password);
+        employee.setFirstname((String) data.get("firstname"));
+        employee.setLastname((String) data.get("lastname"));
+        employee.setAvatar((String) data.get("avatar"));
+        employee.setEmployeeRole((String) data.getOrDefault("role", "nurse"));
+        employee.setLicenseNo((String) data.get("licenseNo"));
+        employee.setEmail((String) data.get("email"));
+        employee.setPhone((String) data.get("phone"));
+        employee.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
+        employee.setCreatedAt(LocalDateTime.now());
+        return employee;
+    }
+
+    private static Customer createCustomer(String id, String username, String password, Map<String, Object> data) {
+        Customer customer = new Customer();
+        customer.setId(id);
+        customer.setUsername(username);
+        customer.setPassword(password);
+        customer.setFirstname((String) data.get("firstname"));
+        customer.setLastname((String) data.get("lastname"));
+        customer.setPhone((String) data.get("phone"));
+        customer.setEmail((String) data.get("email"));
+
+        // Parse dob if provided
+        if (data.containsKey("dob") && data.get("dob") != null) {
+            customer.setDob(LocalDate.parse((String) data.get("dob")));
+        }
+
+        customer.setGender((String) data.get("gender"));
+        customer.setAddress((String) data.get("address"));
+        customer.setNote((String) data.get("note"));
+        customer.setCreatedAt(LocalDateTime.now());
+        return customer;
+    }
+
     /**
      * PUT /users/:id
      * Cập nhật người dùng theo ID với các fields trong body.
-     * Chú giải: chỉ cập nhật những trường client cung cấp.
+     * Chỉ cập nhật những trường client cung cấp.
      */
     private static HttpResponse updateUser(HttpRequest request) {
         try {
@@ -167,18 +231,19 @@ public class UserController {
             }
 
             Optional<User> existingUserOpt = userRepository.findById(id);
-            if (!existingUserOpt.isPresent()) {
+            if (existingUserOpt.isEmpty()) {
                 return Json.error(404, "User not found with ID: " + id);
             }
 
             String body = request.bodyText();
             Map<String, Object> data = Json.parseMap(body);
-
             User user = existingUserOpt.get();
 
+            // Update common fields
             if (data.containsKey("username")) {
                 String newUsername = (String) data.get("username");
-                if (newUsername != null && !newUsername.equals(user.getUsername()) && userRepository.findByUsername(newUsername).isPresent()) {
+                if (newUsername != null && !newUsername.equals(user.getUsername())
+                        && userRepository.findByUsername(newUsername).isPresent()) {
                     return Json.error(409, "Username already exists: " + newUsername);
                 }
                 user.setUsername(newUsername);
@@ -186,20 +251,35 @@ public class UserController {
             if (data.containsKey("password")) {
                 user.setPassword((String) data.get("password"));
             }
-            if (data.containsKey("role")) {
-                user.setRole((String) data.get("role"));
-            }
             if (data.containsKey("email")) {
                 user.setEmail((String) data.get("email"));
             }
-            if (data.containsKey("fullName")) {
-                user.setFullName((String) data.get("fullName"));
-            }
-            if (data.containsKey("phone")) {
-                user.setPhone((String) data.get("phone"));
-            }
             if (data.containsKey("active")) {
                 user.setActive((Boolean) data.get("active"));
+            }
+
+            // Update specific fields based on user type
+            if (user instanceof Admin) {
+                // Admin has no additional fields to update
+            } else if (user instanceof Employee) {
+                Employee emp = (Employee) user;
+                if (data.containsKey("firstname")) emp.setFirstname((String) data.get("firstname"));
+                if (data.containsKey("lastname")) emp.setLastname((String) data.get("lastname"));
+                if (data.containsKey("avatar")) emp.setAvatar((String) data.get("avatar"));
+                if (data.containsKey("role")) emp.setEmployeeRole((String) data.get("role"));
+                if (data.containsKey("licenseNo")) emp.setLicenseNo((String) data.get("licenseNo"));
+                if (data.containsKey("phone")) emp.setPhone((String) data.get("phone"));
+            } else if (user instanceof Customer) {
+                Customer cust = (Customer) user;
+                if (data.containsKey("firstname")) cust.setFirstname((String) data.get("firstname"));
+                if (data.containsKey("lastname")) cust.setLastname((String) data.get("lastname"));
+                if (data.containsKey("phone")) cust.setPhone((String) data.get("phone"));
+                if (data.containsKey("dob") && data.get("dob") != null) {
+                    cust.setDob(LocalDate.parse((String) data.get("dob")));
+                }
+                if (data.containsKey("gender")) cust.setGender((String) data.get("gender"));
+                if (data.containsKey("address")) cust.setAddress((String) data.get("address"));
+                if (data.containsKey("note")) cust.setNote((String) data.get("note"));
             }
 
             userRepository.save(user);
