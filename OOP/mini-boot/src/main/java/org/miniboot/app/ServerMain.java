@@ -5,12 +5,15 @@ import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.EchoController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.HelloController;
+import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.InMemoryPatientRecordRepository;
 import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.PathPattern;
 import org.miniboot.app.router.Router;
@@ -18,6 +21,7 @@ import org.miniboot.app.router.middleware.AuthMiddlewareStub;
 import org.miniboot.app.router.middleware.CorsMiddleware;
 import org.miniboot.app.router.middleware.ErrorHandle;
 import org.miniboot.app.router.middleware.LoggingMiddleware;
+import org.miniboot.app.util.PatientDataSeeder;
 
 import java.util.Map;
 
@@ -52,11 +56,13 @@ public class ServerMain {
         apptRepo.save(
                 new Appointment(0, 2, "Lê Văn C", "11:00", "2025-12-31")
         );
+        CustomerRecordRepository customerRecordRepo = new InMemoryPatientRecordRepository();
+        customerRecordRepo.saveAll(PatientDataSeeder.createSamplePatients());
 
         // Tạo controllers
         DoctorController dc = new DoctorController(doctorRepo);
         AppointmentController ac = new AppointmentController(apptRepo);
-
+        CustomerRecordController crc = new CustomerRecordController(customerRecordRepo);
         // Tạo router và mount controllers
         Router router = new Router();
         router.use(new AuthMiddlewareStub());
@@ -64,7 +70,7 @@ public class ServerMain {
         router.use(new LoggingMiddleware());
         router.use(new ErrorHandle());
         router.get("/doctors", dc.getDoctors());
-
+        CustomerRecordController.mount(router, crc);
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
         HelloController.mount(router);  // HelloController sử dụng mount để thêm routes

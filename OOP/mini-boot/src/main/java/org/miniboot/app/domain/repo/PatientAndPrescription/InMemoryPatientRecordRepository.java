@@ -1,54 +1,53 @@
 package org.miniboot.app.domain.repo.PatientAndPrescription;
 
-import org.miniboot.app.domain.models.PatientRecord;
+import org.miniboot.app.domain.models.CustomerRecord;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-public class InMemoryPatientRecordRepository implements PatientRecordRepository {
-    private final Map<Integer, PatientRecord> patientsData = new ConcurrentHashMap<>();
+public class InMemoryPatientRecordRepository implements CustomerRecordRepository {
+    private final Map<Integer, CustomerRecord> patientsData = new ConcurrentHashMap<>();
     private AtomicInteger nextId = new AtomicInteger(0);
 
     @Override
-    public PatientRecord save(PatientRecord patient) {
-        if(patient.getId() <=0 ){
+    public CustomerRecord save(CustomerRecord customer) {
+        if(customer.getId() <=0 ){
             int id = nextId.incrementAndGet();
-            patient.setId(id);
+            customer.setId(id);
         }
-        patientsData.put(patient.getId(), patient);
-        return patient;
+        patientsData.put(customer.getId(), customer);
+        return customer;
     }
     @Override
-    public void saveAll(List<PatientRecord> patients) {
-        for (PatientRecord patient : patients) {
+    public void saveAll(List<CustomerRecord> customers) {
+        for (CustomerRecord patient : customers) {
             save(patient);
         }
     }
     @Override
-    public Optional<PatientRecord> findById(int id) {
+    public Optional<CustomerRecord> findById(int id) {
         return Optional.ofNullable(patientsData.get(id));
     }
     @Override
-    public List<PatientRecord> findAll() {
+    public List<CustomerRecord> findAll() {
         return new ArrayList<>(patientsData.values());
     }
     @Override
-    public List<PatientRecord> findByName(String name) {
+    public List<CustomerRecord> findByName(String name) {
         String lowerName = name.toLowerCase();
-        List<PatientRecord> res = new ArrayList<PatientRecord>();
-        for (PatientRecord patientRecord : patientsData.values()) {
-            if(patientRecord.getNamePatient().toLowerCase().contains(lowerName)){
+        List<CustomerRecord> res = new ArrayList<CustomerRecord>();
+        for (CustomerRecord patientRecord : patientsData.values()) {
+            if(patientRecord.getNameCustomer().toLowerCase().contains(lowerName)){
                 res.add(patientRecord);
             }
         }
         return res;
     }
     @Override
-    public Optional<PatientRecord> findByPhoneNumber(String phoneNumber) {
-        for (PatientRecord patientRecord : patientsData.values()) {
+    public Optional<CustomerRecord> findByPhoneNumber(String phoneNumber) {
+        for (CustomerRecord patientRecord : patientsData.values()) {
             if(patientRecord.getPhoneNumber().equals(phoneNumber)){
                 return Optional.of(patientRecord);
             }
@@ -56,8 +55,8 @@ public class InMemoryPatientRecordRepository implements PatientRecordRepository 
         return Optional.empty();
     }
     @Override
-    public Optional<PatientRecord> findByEmail(String email) {
-        for (PatientRecord patientRecord : patientsData.values()) {
+    public Optional<CustomerRecord> findByEmail(String email) {
+        for (CustomerRecord patientRecord : patientsData.values()) {
             if(patientRecord.getEmail().equals(email)){
                 return Optional.of(patientRecord);
             }
@@ -65,9 +64,9 @@ public class InMemoryPatientRecordRepository implements PatientRecordRepository 
         return Optional.empty();
     }
     @Override
-    public List<PatientRecord> findByGender(PatientRecord.Gender gender) {
-        List<PatientRecord> res = new ArrayList<PatientRecord>();
-        for (PatientRecord patientRecord : patientsData.values()) {
+    public List<CustomerRecord> findByGender(CustomerRecord.Gender gender) {
+        List<CustomerRecord> res = new ArrayList<CustomerRecord>();
+        for (CustomerRecord patientRecord : patientsData.values()) {
             if(patientRecord.getGender().equals(gender)){
                 res.add(patientRecord);
             }
@@ -75,9 +74,9 @@ public class InMemoryPatientRecordRepository implements PatientRecordRepository 
         return res;
     }
     @Override
-    public List<PatientRecord> findByDateFrom(LocalDate from){
-        List<PatientRecord> res = new ArrayList<PatientRecord>();
-        for (PatientRecord patientRecord : patientsData.values()) {
+    public List<CustomerRecord> findByDateFrom(LocalDate from){
+        List<CustomerRecord> res = new ArrayList<CustomerRecord>();
+        for (CustomerRecord patientRecord : patientsData.values()) {
             if(patientRecord.getDob() != null && (patientRecord.getDob().isEqual(from) || patientRecord.getDob().isAfter(from))){
                 res.add(patientRecord);
             }
@@ -85,9 +84,9 @@ public class InMemoryPatientRecordRepository implements PatientRecordRepository 
         return res;
     }
     @Override
-    public List<PatientRecord> findByDateTo(LocalDate to){
-        List<PatientRecord> res = new ArrayList<PatientRecord>();
-        for (PatientRecord patientRecord : patientsData.values()) {
+    public List<CustomerRecord> findByDateTo(LocalDate to){
+        List<CustomerRecord> res = new ArrayList<CustomerRecord>();
+        for (CustomerRecord patientRecord : patientsData.values()) {
             if(patientRecord.getDob() != null && (patientRecord.getDob().isEqual(to) || patientRecord.getDob().isBefore(to))){
                 res.add(patientRecord);
             }

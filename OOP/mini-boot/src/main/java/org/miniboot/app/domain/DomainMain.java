@@ -3,12 +3,15 @@ package org.miniboot.app.domain;
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.HelloController;
+import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.InMemoryAppointmentRepository;
 import org.miniboot.app.domain.repo.InMemoryDoctorRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.InMemoryPatientRecordRepository;
 import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.router.middleware.AuthMiddlewareStub;
@@ -16,6 +19,7 @@ import org.miniboot.app.router.middleware.CorsMiddleware;
 import org.miniboot.app.router.middleware.ErrorHandle;
 import org.miniboot.app.router.middleware.LoggingMiddleware;
 import org.miniboot.app.util.HttpStub;
+import org.miniboot.app.util.PatientDataSeeder;
 
 import java.util.*;
 
@@ -39,7 +43,8 @@ public class DomainMain {
         router.use(new LoggingMiddleware());
         router.use(new ErrorHandle());
 
-        
+        CustomerRecordRepository customerRecordRepository = new InMemoryPatientRecordRepository();
+        customerRecordRepository.saveAll(PatientDataSeeder.createSamplePatients());
         AppointmentRepository appointmentRepository = new InMemoryAppointmentRepository();
         appointmentRepository.save(
                 new Appointment(0, 1, "Dương Chí Dúng", "09:00", "2025-12-30")
@@ -55,11 +60,13 @@ public class DomainMain {
         );
 
         AppointmentController ac = new AppointmentController(appointmentRepository);
+        CustomerRecordController crc = new CustomerRecordController(customerRecordRepository);
 
         //router.get("/appointments", ac.getAppointments());
         HttpStub stub = new HttpStub(router);
         HelloController.mount(router);
         DoctorController.mount(router, dc);
+        CustomerRecordController.mount(router, crc);
         //doctor
         var restList = stub.get("/hello");
         System.out.println("LIST => " + restList.status() + " " + restList.body());

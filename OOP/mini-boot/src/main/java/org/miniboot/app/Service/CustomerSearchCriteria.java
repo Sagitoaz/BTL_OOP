@@ -1,16 +1,16 @@
 package org.miniboot.app.Service;
 
-import org.miniboot.app.domain.models.PatientRecord;
+import org.miniboot.app.domain.models.CustomerRecord;
 
 import java.time.LocalDate;
 
-public class PatientSearchCriteria {
+public class CustomerSearchCriteria {
     private String searchKey;
-    private PatientRecord.Gender gender;
+    private CustomerRecord.Gender gender;
     private LocalDate dateFrom;
     private LocalDate dateTo;
 
-    public PatientSearchCriteria(String searchKey, PatientRecord.Gender gender
+    public CustomerSearchCriteria(String searchKey, CustomerRecord.Gender gender
                                  , LocalDate dateFrom, LocalDate dateTo) {
         this.searchKey = searchKey;
         this.gender = gender;
@@ -22,7 +22,7 @@ public class PatientSearchCriteria {
     public String getSearchKey() {
         return searchKey;
     }
-    public PatientRecord.Gender getGender() {
+    public CustomerRecord.Gender getGender() {
         return gender;
     }
     public LocalDate getDateFrom() {

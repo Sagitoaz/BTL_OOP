@@ -2,19 +2,16 @@ package org.miniboot.app.domain.models;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
-public class PatientRecord {
+public class CustomerRecord {
     public enum Gender {
         NAM, NỮ, KHÁC;
     }
 
     private int id;
-    private String firstNamePatient;
-    private String lastNamePatient;
+    private String firstNameCustomer;
+    private String lastNameCustomer;
     private LocalDate dob;
     private Gender gender;
     private String address;
@@ -24,27 +21,17 @@ public class PatientRecord {
 
 
     // Constructor mặc định cho JSON serialization
-    public PatientRecord() {
-        // this.prescriptionList = new ArrayList<>();
-        // this.medicalHistoryList = new ArrayList<>();
-    }
-
-    public PatientRecord(int id, String firstNamePatient, String lastNamePatient, LocalDate dob, Gender gender,
-                        String address, String phoneNumber, String email, String notes) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("id must be > 0");
-        }
+    public CustomerRecord(int id, String firstNameCustomer, String lastNameCustomer, LocalDate dob, Gender gender,
+                          String address, String phoneNumber, String email, String notes) {
         this.id = id;
-        this.firstNamePatient = firstNamePatient;
-        this.lastNamePatient = lastNamePatient;
+        this.firstNameCustomer = firstNameCustomer;
+        this.lastNameCustomer = lastNameCustomer;
         this.dob = dob;
         this.gender = gender;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.notes = notes;
-        // this.prescriptionList = new ArrayList<>();
-        // this.medicalHistoryList = new ArrayList<>();
     }
 
     public int getId() {
@@ -55,51 +42,51 @@ public class PatientRecord {
         this.id = id;
     }
 
-    public String getFirstNamePatient() {
-        return firstNamePatient;
+    public String getFirstNameCustomer() {
+        return firstNameCustomer;
     }
 
-    public void setFirstNamePatient(String firstNamePatient) {
-        this.firstNamePatient = firstNamePatient;
+    public void setFirstNameCustomer(String firstNameCustomer) {
+        this.firstNameCustomer = firstNameCustomer;
     }
 
-    public String getLastNamePatient() {
-        return lastNamePatient;
+    public String getLastNameCustomer() {
+        return lastNameCustomer;
     }
 
-    public void setLastNamePatient(String lastNamePatient) {
-        this.lastNamePatient = lastNamePatient;
+    public void setLastNameCustomer(String lastNameCustomer) {
+        this.lastNameCustomer = lastNameCustomer;
     }
 
     // Thêm method để lấy tên đầy đủ (backward compatibility)
-    public String getNamePatient() {
-        if (lastNamePatient == null && firstNamePatient == null) {
+    public String getNameCustomer() {
+        if (lastNameCustomer == null && firstNameCustomer == null) {
             return null;
         }
-        if (lastNamePatient == null) {
-            return firstNamePatient;
+        if (lastNameCustomer == null) {
+            return firstNameCustomer;
         }
-        if (firstNamePatient == null) {
-            return lastNamePatient;
+        if (firstNameCustomer == null) {
+            return lastNameCustomer;
         }
-        return lastNamePatient + " " + firstNamePatient;
+        return lastNameCustomer + " " + firstNameCustomer;
     }
 
     // Method để set tên đầy đủ (backward compatibility)
-    public void setNamePatient(String fullName) {
+    public void setNameCustomer(String fullName) {
         if (fullName == null || fullName.trim().isEmpty()) {
-            this.firstNamePatient = null;
-            this.lastNamePatient = null;
+            this.firstNameCustomer = null;
+            this.lastNameCustomer = null;
             return;
         }
 
         String[] nameParts = fullName.trim().split("\\s+", 2);
         if (nameParts.length == 1) {
-            this.firstNamePatient = nameParts[0];
-            this.lastNamePatient = null;
+            this.firstNameCustomer = nameParts[0];
+            this.lastNameCustomer = null;
         } else {
-            this.lastNamePatient = nameParts[0];  // Họ
-            this.firstNamePatient = nameParts[1]; // Tên
+            this.lastNameCustomer = nameParts[0];  // Họ
+            this.firstNameCustomer = nameParts[1]; // Tên
         }
     }
 
@@ -170,8 +157,8 @@ public class PatientRecord {
         String dobString = (this.dob == null) ? "" : this.dob.toString();
         return String.join("|",
             String.valueOf(this.id),
-            toSafeString(this.firstNamePatient),
-            toSafeString(this.lastNamePatient),
+            toSafeString(this.firstNameCustomer),
+            toSafeString(this.lastNameCustomer),
             dobString,
             gender.name(),
             toSafeString(this.address),
@@ -183,7 +170,7 @@ public class PatientRecord {
 
     // Doc Data tu file
     // Data id|firstName|lastName|dob|gender|address|phone|email|note
-    public static PatientRecord fromDataString(String line) {
+    public static CustomerRecord fromDataString(String line) {
         String[] fields = line.split("\\|", -1);
         int id = Integer.parseInt(fields[0]);
         String firstNamePatient = (fields[1].equalsIgnoreCase("null") || fields[1].isBlank()) ? null : fields[1];
@@ -208,7 +195,7 @@ public class PatientRecord {
         String email = (fields[7].equalsIgnoreCase("null") || fields[7].isBlank()) ? null : fields[7];
         String note = (fields.length > 8 && !fields[8].equalsIgnoreCase("null") && !fields[8].isBlank()) ? fields[8] : null;
 
-        return new PatientRecord(id, firstNamePatient, lastNamePatient, dob, gender, address, phoneNumber, email, note);
+        return new CustomerRecord(id, firstNamePatient, lastNamePatient, dob, gender, address, phoneNumber, email, note);
     }
 
     // Ham so sanh
@@ -216,13 +203,13 @@ public class PatientRecord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        return this.id == ((PatientRecord) o).id;
+        return this.id == ((CustomerRecord) o).id;
     }
 
     // Ham In ra de debug
     @Override
     public String toString() {
-        return id + "." + getNamePatient();
+        return id + "." + getNameCustomer();
     }
 
     @Override
