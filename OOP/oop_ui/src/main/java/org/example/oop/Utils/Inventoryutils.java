@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.example.oop.Model.Inventory.Inventory;
 
-public class InventoryUtils {
+public class Inventoryutils {
     /**
      * Calculate total stock value
      * Tính tổng giá trị tồn kho (quantity * price_cost)

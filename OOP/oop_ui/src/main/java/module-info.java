@@ -8,6 +8,9 @@ module org.example.oop {
     requires java.desktop;
     requires javafx.base;
 
+    // HTTP client for REST API calls
+    requires java.net.http;
+
     opens org.example.oop.View to javafx.fxml;
 
     exports org.example.oop.View;

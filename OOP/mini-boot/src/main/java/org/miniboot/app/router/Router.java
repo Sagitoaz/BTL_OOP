@@ -1,12 +1,12 @@
 package org.miniboot.app.router;
 
+import java.util.ArrayList;
+import java.util.function.Function;
+
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.http.HttpServer;
-
-import java.util.ArrayList;
-import java.util.function.Function;
 
 public class Router {
     private static class Route {
@@ -51,27 +51,45 @@ public class Router {
         post(path, handler, false);
     }
 
+    public void put(String path, Function<HttpRequest, HttpResponse> handler, boolean isProtected) {
+        routes.add(new Route("PUT", path, handler, isProtected));
+    }
+
+    public void put(String path, Function<HttpRequest, HttpResponse> handler) {
+        put(path, handler, false);
+    }
+
+    public void delete(String path, Function<HttpRequest, HttpResponse> handler, boolean isProtected) {
+        routes.add(new Route("DELETE", path, handler, isProtected));
+    }
+
+    public void delete(String path, Function<HttpRequest, HttpResponse> handler) {
+        delete(path, handler, false);
+    }
+
     public HttpResponse dispatch(HttpRequest request) throws Exception {
         Handler h = null;
         for (Route route : routes) {
             if (route.path.match(request.path)) {
 
-                if (!route.method.equalsIgnoreCase(request.method)){
-                    h = req ->{throw new HttpServer.MethodNotAllowed(); } ;
-                }
-                else{
+                if (!route.method.equalsIgnoreCase(request.method)) {
+                    h = req -> {
+                        throw new HttpServer.MethodNotAllowed();
+                    };
+                } else {
                     request.tags.put("protected", String.valueOf(route.isProtected));
                     h = req -> route.handler.apply(req);
                 }
 
-
                 break;
             }
         }
-        if(h == null){
-            h = req -> {throw new HttpServer.NotFound(); } ;
+        if (h == null) {
+            h = req -> {
+                throw new HttpServer.NotFound();
+            };
         }
-        //Boc middleware tu cuoi ve dau
+        // Boc middleware tu cuoi ve dau
         for (int i = middlewares.size() - 1; i >= 0; --i) {
             h = middlewares.get(i).apply(h);
         }

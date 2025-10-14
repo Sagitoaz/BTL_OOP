@@ -1,28 +1,20 @@
 package org.example.oop.Control;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.example.oop.Model.Inventory.InitialStockLine;
 import org.example.oop.Model.Inventory.Inventory;
-import org.example.oop.Model.Inventory.StockMovement;
-import org.example.oop.Repository.InventoryRepository;
-import org.example.oop.Repository.StockMovementRepository;
-import org.example.oop.Service.InventoryService;
-import org.example.oop.Service.StockMovementService;
-import org.example.oop.Utils.AppConfig;
+import org.example.oop.Utils.ApiClient;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -101,11 +93,8 @@ public class AddInventoryController {
      @FXML
      private Button btnClose;
 
-     // ===== SERVICES & REPOSITORIES =====
-     private final InventoryRepository inventoryRepo = new InventoryRepository();
-     private final InventoryService inventoryService = new InventoryService();
-     private final StockMovementRepository stockMovementRepo = new StockMovementRepository();
-     private final StockMovementService stockMovementService = new StockMovementService();
+     // ===== API CLIENT =====
+     private final ApiClient apiClient = ApiClient.getInstance();
 
      // ===== DATA =====
      private ObservableList<Inventory> allInventories = FXCollections.observableArrayList();
@@ -377,16 +366,146 @@ public class AddInventoryController {
      }
 
      private void loadData() {
-          try {
-               allInventories = inventoryRepo.loadInventory(AppConfig.TEST_DATA_TXT);
-               ObservableList<String> productNames = FXCollections.observableArrayList();
-               for (Inventory inv : allInventories) {
-                    productNames.add(inv.getName() + " (" + inv.getSku() + ")");
+          updateStatus("🔄 Đang tải dữ liệu sản phẩm...");
+
+          apiClient.getAsync("/api/inventory", response -> {
+               if (response.isSuccess()) {
+                    try {
+                         // Parse JSON response to get inventory list
+                         String jsonData = response.getData();
+                         allInventories = parseInventoryListFromJson(jsonData);
+
+                         ObservableList<String> productNames = FXCollections.observableArrayList();
+                         for (Inventory inv : allInventories) {
+                              productNames.add(inv.getName() + " (" + inv.getSku() + ")");
+                         }
+                         cbInitProduct.setItems(productNames);
+                         updateStatus("✅ Đã tải " + allInventories.size() + " sản phẩm");
+
+                    } catch (Exception e) {
+                         updateStatus("❌ Lỗi phân tích dữ liệu: " + e.getMessage());
+                         e.printStackTrace();
+                    }
+               } else {
+                    updateStatus("❌ Không thể tải dữ liệu sản phẩm: " + response.getErrorMessage());
                }
-               cbInitProduct.setItems(productNames);
-          } catch (IOException e) {
-               updateStatus("❌ Error loading data: " + e.getMessage());
-               e.printStackTrace();
+          }, errorMessage -> {
+               updateStatus("❌ Lỗi kết nối API: " + errorMessage);
+               // Fallback to empty list
+               allInventories = FXCollections.observableArrayList();
+               cbInitProduct.setItems(FXCollections.observableArrayList());
+          });
+     }
+
+     /**
+      * Simple JSON parser for inventory list (without external libraries)
+      */
+     private ObservableList<Inventory> parseInventoryListFromJson(String json) {
+          ObservableList<Inventory> inventories = FXCollections.observableArrayList();
+
+          try {
+               // Basic JSON parsing for inventory items
+               // Assume JSON format: {"items": [...], "totalItems": n}
+               if (json.contains("\"items\"")) {
+                    int itemsStart = json.indexOf("\"items\":[") + 9;
+                    int itemsEnd = json.indexOf("]", itemsStart);
+
+                    if (itemsStart > 8 && itemsEnd > itemsStart) {
+                         String itemsJson = json.substring(itemsStart, itemsEnd);
+                         String[] items = itemsJson.split("\\},\\s*\\{");
+
+                         for (String item : items) {
+                              if (!item.trim().isEmpty()) {
+                                   Inventory inventory = parseInventoryFromJson(item);
+                                   if (inventory != null) {
+                                        inventories.add(inventory);
+                                   }
+                              }
+                         }
+                    }
+               }
+
+          } catch (Exception e) {
+               System.err.println("Error parsing inventory JSON: " + e.getMessage());
+          }
+
+          return inventories;
+     }
+
+     /**
+      * Parse single inventory item from JSON
+      */
+     private Inventory parseInventoryFromJson(String json) {
+          try {
+               Inventory inventory = new Inventory();
+
+               // Simple field extraction
+               inventory.setId((int) extractLongField(json, "id", 0L));
+               inventory.setSku(extractStringField(json, "sku", ""));
+               inventory.setName(extractStringField(json, "name", ""));
+               inventory.setCategory(extractStringField(json, "category", ""));
+               inventory.setQuantity(extractIntField(json, "currentStock", 0));
+               inventory.setUnit(extractStringField(json, "unit", ""));
+               inventory.setPriceCost(extractIntField(json, "priceCost", 0));
+               inventory.setUnitPrice(extractIntField(json, "unitPrice", 0));
+               inventory.setActive(true); // Default
+               inventory.setType("product");
+               inventory.setCreatedAt(LocalDateTime.now());
+               inventory.setLastUpdated(LocalDate.now());
+
+               return inventory;
+
+          } catch (Exception e) {
+               System.err.println("Error parsing inventory item: " + e.getMessage());
+               return null;
+          }
+     }
+
+     // Simple JSON field extractors
+     private String extractStringField(String json, String field, String defaultValue) {
+          try {
+               String pattern = "\"" + field + "\":\"";
+               int start = json.indexOf(pattern);
+               if (start == -1)
+                    return defaultValue;
+
+               start += pattern.length();
+               int end = json.indexOf("\"", start);
+               if (end == -1)
+                    return defaultValue;
+
+               return json.substring(start, end);
+          } catch (Exception e) {
+               return defaultValue;
+          }
+     }
+
+     private long extractLongField(String json, String field, long defaultValue) {
+          try {
+               String pattern = "\"" + field + "\":";
+               int start = json.indexOf(pattern);
+               if (start == -1)
+                    return defaultValue;
+
+               start += pattern.length();
+               int end = json.indexOf(",", start);
+               if (end == -1)
+                    end = json.indexOf("}", start);
+               if (end == -1)
+                    return defaultValue;
+
+               String value = json.substring(start, end).trim();
+               return Long.parseLong(value);
+          } catch (Exception e) {
+               return defaultValue;
+          }
+     }
+
+     private int extractIntField(String json, String field, int defaultValue) {
+          try {
+               return (int) extractLongField(json, field, defaultValue);
+          } catch (Exception e) {
+               return defaultValue;
           }
      }
 
@@ -426,30 +545,70 @@ public class AddInventoryController {
                int priceCost = parseNonNegativeIntOrAlert(tfPriceCost, "Giá vốn", 0);
                int priceRetail = parseNonNegativeIntOrAlert(tfPriceRetail, "Giá bán lẻ", 0);
 
-               Inventory inventory = new Inventory();
-               inventory.setSku(tfSku.getText().trim());
-               inventory.setName(tfName.getText().trim());
-               inventory.setType("product");
-               inventory.setCategory(cbCategory.getValue());
-               inventory.setQuantity(0);
-               inventory.setUnit(tfUnit.getText().trim());
-               inventory.setPriceCost(priceCost);
-               inventory.setUnitPrice(priceRetail);
-               inventory.setActive(chkActive.isSelected());
-               inventory.setLastUpdated(LocalDate.now());
-               inventory.setCreatedAt(LocalDateTime.now());
-               inventory.setNote(taNote.getText().trim());
+               // Build JSON for API request
+               String jsonBody = new ApiClient.JsonBuilder()
+                         .add("sku", tfSku.getText().trim())
+                         .add("name", tfName.getText().trim())
+                         .add("category", cbCategory.getValue())
+                         .add("unit", tfUnit.getText().trim())
+                         .add("priceCost", priceCost)
+                         .add("unitPrice", priceRetail)
+                         .add("minStock", 10) // Default min stock
+                         .add("maxStock", 1000) // Default max stock
+                         .add("description", taNote.getText().trim())
+                         .build();
 
-               inventoryRepo.AddInventory(allInventories, inventory);
-               inventoryRepo.saveInventory(allInventories, AppConfig.TEST_DATA_TXT);
+               updateStatus("🔄 Đang lưu sản phẩm...");
+               btnSaveProduct.setDisable(true);
 
-               savedProduct = inventory;
-               tfId.setText(String.valueOf(inventory.getId()));
-               String productDisplay = inventory.getName() + " (" + inventory.getSku() + ")";
-               cbInitProduct.getItems().add(productDisplay);
-               cbInitProduct.setValue(productDisplay);
+               apiClient.postAsync("/api/inventory", jsonBody, response -> {
+                    btnSaveProduct.setDisable(false);
 
-               updateStatus("✅ Đã lưu sản phẩm: " + inventory.getName() + " (ID: " + inventory.getId() + ")");
+                    if (response.isSuccess()) {
+                         try {
+                              // Parse response to get created inventory
+                              Inventory inventory = parseInventoryFromJson(response.getData());
+                              if (inventory != null) {
+                                   savedProduct = inventory;
+                                   tfId.setText(String.valueOf(inventory.getId()));
+
+                                   // Add to local list and dropdown
+                                   allInventories.add(inventory);
+                                   String productDisplay = inventory.getName() + " (" + inventory.getSku() + ")";
+                                   cbInitProduct.getItems().add(productDisplay);
+                                   cbInitProduct.setValue(productDisplay);
+
+                                   updateStatus("✅ Đã lưu sản phẩm: " + inventory.getName() + " (ID: "
+                                             + inventory.getId() + ")");
+                              } else {
+                                   updateStatus("✅ Sản phẩm đã được lưu thành công");
+                              }
+                         } catch (Exception e) {
+                              updateStatus("✅ Sản phẩm đã lưu, nhưng có lỗi khi cập nhật giao diện");
+                              e.printStackTrace();
+                         }
+                    } else {
+                         updateStatus("❌ Lỗi lưu sản phẩm: " + response.getErrorMessage());
+
+                         // Show detailed error dialog
+                         Alert alert = new Alert(Alert.AlertType.ERROR);
+                         alert.setTitle("Lỗi lưu sản phẩm");
+                         alert.setHeaderText("Không thể lưu sản phẩm mới");
+                         alert.setContentText(response.getErrorMessage());
+                         alert.showAndWait();
+                    }
+               }, errorMessage -> {
+                    btnSaveProduct.setDisable(false);
+                    updateStatus("❌ Lỗi kết nối API: " + errorMessage);
+
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Lỗi kết nối");
+                    alert.setHeaderText("Không thể kết nối đến server");
+                    alert.setContentText(
+                              "Chi tiết: " + errorMessage + "\n\nVui lòng kiểm tra kết nối mạng và server backend.");
+                    alert.showAndWait();
+               });
+
           } catch (IllegalArgumentException ex) {
                // Đã hiện Alert + focus trong helper → dừng lại
           } catch (Exception e) {
@@ -593,30 +752,66 @@ public class AddInventoryController {
                     return;
                }
 
-               List<StockMovement> movements = new ArrayList<>();
-               int totalQty = 0;
+               final int totalQty = calculateTotalQty();
+               final Inventory finalSelectedProduct = selectedProduct;
 
-               for (InitialStockLine line : initialStockLines) {
-                    int q = Math.max(0, line.getQty());
-                    if (q > 0) {
-                         int movementId = stockMovementRepo.nextId() + movements.size();
-                         StockMovement movement = line.toStockMovement(
-                                   selectedProduct.getId(), movedBy, movedAt, movementId);
-                         movements.add(movement);
-                         totalQty += q;
-                    }
-               }
-               if (movements.isEmpty()) {
+               if (totalQty <= 0) {
                     updateStatus("❌ Không có dòng nào có số lượng > 0");
                     return;
                }
 
-               for (StockMovement m : movements)
-                    stockMovementRepo.save(m);
-               inventoryRepo.upsertQty(selectedProduct.getId(), totalQty);
+               // Build JSON for initial stock API call
+               String jsonBody = new ApiClient.JsonBuilder()
+                         .add("qty", totalQty)
+                         .add("note", "Initial stock from UI - " + initialStockLines.size() + " batches")
+                         .add("batchNo", "INITIAL-" + System.currentTimeMillis())
+                         .build();
 
-               updateStatus("✅ Đã lưu " + movements.size() + " dòng tồn kho ban đầu, tổng: " + totalQty);
-               resetInitialStock();
+               updateStatus("🔄 Đang lưu tồn kho ban đầu...");
+               btnSaveInitialStock.setDisable(true);
+
+               String endpoint = "/api/inventory/" + selectedProduct.getId() + "/initial-stock";
+
+               apiClient.postAsync(endpoint, jsonBody, response -> {
+                    btnSaveInitialStock.setDisable(false);
+
+                    if (response.isSuccess()) {
+                         updateStatus("✅ Đã lưu tồn kho ban đầu: " + totalQty + " đơn vị cho sản phẩm "
+                                   + finalSelectedProduct.getName());
+
+                         // Update local inventory quantity
+                         finalSelectedProduct.setQuantity(finalSelectedProduct.getQuantity() + totalQty);
+
+                         resetInitialStock();
+
+                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                         alert.setTitle("Thành công");
+                         alert.setHeaderText("Đã lưu tồn kho ban đầu");
+                         alert.setContentText(
+                                   "Đã thêm " + totalQty + " đơn vị cho sản phẩm " + finalSelectedProduct.getName());
+                         alert.showAndWait();
+
+                    } else {
+                         updateStatus("❌ Lỗi lưu tồn kho: " + response.getErrorMessage());
+
+                         Alert alert = new Alert(Alert.AlertType.ERROR);
+                         alert.setTitle("Lỗi lưu tồn kho");
+                         alert.setHeaderText("Không thể lưu tồn kho ban đầu");
+                         alert.setContentText(response.getErrorMessage());
+                         alert.showAndWait();
+                    }
+               }, errorMessage -> {
+                    btnSaveInitialStock.setDisable(false);
+                    updateStatus("❌ Lỗi kết nối API: " + errorMessage);
+
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Lỗi kết nối");
+                    alert.setHeaderText("Không thể kết nối đến server");
+                    alert.setContentText(
+                              "Chi tiết: " + errorMessage + "\n\nVui lòng kiểm tra kết nối mạng và server backend.");
+                    alert.showAndWait();
+               });
+
           } catch (IllegalArgumentException ex) {
                // Đã hiện Alert & focus trong helper → chỉ dừng lại
           } catch (Exception e) {
@@ -694,12 +889,16 @@ public class AddInventoryController {
 
      private void updateTotalQty() {
           try {
-               int total = initialStockLines.stream().mapToInt(InitialStockLine::getQty).sum();
+               int total = calculateTotalQty();
                lblInitTotalQty.setText(String.valueOf(total));
           } catch (Exception e) {
                updateStatus("❌ Lỗi cập nhật tổng số lượng: " + e.getMessage());
                lblInitTotalQty.setText("0");
           }
+     }
+
+     private int calculateTotalQty() {
+          return initialStockLines.stream().mapToInt(line -> Math.max(0, line.getQty())).sum();
      }
 
      private void updateStatus(String message) {

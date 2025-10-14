@@ -7,7 +7,7 @@ import java.util.Properties;
 public class AppConfig {
     // Defaults
     public static String HTTP_PORT = "8080";
-    public static int MAX_BODY_BYTES = 1_000_000;   // 1MB
+    public static int MAX_BODY_BYTES = 1_000_000; // 1MB
     public static int WORKER_THREADS = 64;
 
     // Keys
@@ -35,7 +35,7 @@ public class AppConfig {
     public static String RESPONSE_405 = "Method Not Allowed";
     public static String RESPONSE_500 = "Internal Server Error";
     public static String HTTP_TYPE = "HTTP/1.1";
-    //Map Errors
+    // Map Errors
     public static final Map<Integer, String> RESPONSE_REASON = Map.ofEntries(
             Map.entry(200, "OK"),
             Map.entry(201, "Created"),
@@ -51,43 +51,57 @@ public class AppConfig {
             Map.entry(413, "Payload Too Large"),
             Map.entry(500, "Internal Server Error"),
             Map.entry(501, "Not Implemented"),
-            Map.entry(503, "Service Unavailable")
-    );
+            Map.entry(503, "Service Unavailable"));
 
-    //Utils
+    // Utils
     public static String JSON_PRETTY_KEY = "JSON_PRETTY";
     public static String JSON_PRETTY_DEFAULT = "false";
     public static String LOG_LEVEL_KEY = "LOG_LEVEL";
     public static String LOG_LEVEL_DEFAULT = "INFO";
 
-    //Math
+    // Math
     public static int MAX_INTEGER_VALUE = 10000000;
+
+    // Data file paths
+    public static String STOCK_TEST_DATA_TXT = "/TestData/stock_movements.txt";
+    public static String INVENTORY_TEST_DATA_TXT = "/TestData/inventory_9cols.txt";
+
+    public static java.io.File getStockDataFile() {
+        return new java.io.File("data/stock_movements.txt");
+    }
+
+    public static java.io.File getInventoryDataFile() {
+        return new java.io.File("data/inventory.txt");
+    }
+
     // load tại startup
     public static void load() {
         Properties p = new Properties();
 
         // 1) file properties (tùy chọn)
-        String path = System.getProperty("APP_PROPS", System.getenv().getOrDefault("APP_PROPS",""));
+        String path = System.getProperty("APP_PROPS", System.getenv().getOrDefault("APP_PROPS", ""));
         if (!path.isBlank()) {
             try (FileInputStream fis = new FileInputStream(path)) {
                 p.load(fis);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         // helper
-        java.util.function.BiFunction<String,String,String> pick = (key, defVal) -> {
+        java.util.function.BiFunction<String, String, String> pick = (key, defVal) -> {
             String sys = System.getProperty(key);
-            if (sys != null) return sys;
+            if (sys != null)
+                return sys;
             String env = System.getenv(key);
-            if (env != null) return env;
+            if (env != null)
+                return env;
             String file = p.getProperty(key);
             return file != null ? file : defVal;
         };
 
-        HTTP_PORT      = pick.apply("PORT", HTTP_PORT);
+        HTTP_PORT = pick.apply("PORT", HTTP_PORT);
         MAX_BODY_BYTES = Integer.parseInt(pick.apply("MAX_BODY_BYTES", String.valueOf(MAX_BODY_BYTES)));
         WORKER_THREADS = Integer.parseInt(pick.apply("WORKER_THREADS", String.valueOf(WORKER_THREADS)));
     }
-
 
 }
