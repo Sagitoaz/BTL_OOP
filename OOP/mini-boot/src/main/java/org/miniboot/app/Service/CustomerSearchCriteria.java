@@ -32,6 +32,6 @@ public class CustomerSearchCriteria {
         return dateTo;
     }
     public boolean isEmpty() {
-        return (searchKey == null || searchKey.isEmpty()) && (gender == null && dateFrom == null && dateTo == null);
+        return (searchKey == null || searchKey.isEmpty()) && (gender == null || dateFrom == null || dateTo == null);
     }
 }

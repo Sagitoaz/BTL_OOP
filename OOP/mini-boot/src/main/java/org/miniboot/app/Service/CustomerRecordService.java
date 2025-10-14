@@ -17,7 +17,7 @@ public class CustomerRecordService {
     }
 
     private boolean matchCriteria(CustomerRecord customerRecord, CustomerSearchCriteria criteria) {
-        if(criteria.getSearchKey() != null ){
+        if(criteria.getSearchKey() != null || criteria.isEmpty()){
 
             String lowerKey = criteria.getSearchKey().trim().toLowerCase();
             if(!(customerRecord.getNameCustomer().toLowerCase().contains(lowerKey) ||
@@ -35,7 +35,7 @@ public class CustomerRecordService {
 
         }
         if(criteria.getGender() != null){
-            if(!customerRecord.getGender().equals(criteria.getGender())){
+            if(customerRecord.getGender() != criteria.getGender()){
                 return false;
             }
         }

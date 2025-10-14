@@ -1,4 +1,5 @@
 package org.example.oop.Control.PatientAndPrescription;
+
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -67,7 +68,20 @@ public class PatientHubController  implements Initializable  {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         patientRecordList = FXCollections.observableArrayList();
-
+        patientRecordsData = new ArrayList<>();
+        // Thêm dữ liệu mẫu
+        for(int i = 0; i < 30; i++){
+            patientRecordsData.add(
+                    new PatientRecord(i + 99, "Duong Tri Dung", LocalDate.of(1990, 1, 1), PatientRecord.Gender.NAM, "123 Main St",
+                            "0123456789", "dung@gmail.com", "Healthy"));
+            patientRecordsData.add(
+                    new PatientRecord(i + 999, "Tran Van Hau", LocalDate.of(2009, 1, 1), PatientRecord.Gender.NỮ, "123 Main St",
+                            "0917576767", "hau@gmail.com", "36"));
+            patientRecordsData.add(
+                    new PatientRecord(i + 9999, "Nguyen Van Toan", LocalDate.of(2005, 1, 1), PatientRecord.Gender.KHÁC, "123 Main St",
+                            "0123456789", "dung@gmail.com", "Vy"));
+        }
+        patientRecordList.addAll(patientRecordsData);
         patientListView.setItems(patientRecordList);
         patientListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {;
             setCurrentPatient(newValue);
