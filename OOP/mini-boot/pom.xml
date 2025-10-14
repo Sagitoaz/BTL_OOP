@@ -12,6 +12,7 @@
     <gson.version>2.10.1</gson.version>
     <java-jwt.version>4.4.0</java-jwt.version>
     <mssql.version>12.6.1.jre11</mssql.version>
+    <postgresql.version>42.7.3</postgresql.version>
     <maven.compiler.release>17</maven.compiler.release>
     <exec.plugin.version>3.1.0</exec.plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,6 +41,13 @@
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
       <version>${mssql.version}</version>
+    </dependency>
+
+    <!-- PostgreSQL Driver for Supabase -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.version}</version>
     </dependency>
   </dependencies>
 
