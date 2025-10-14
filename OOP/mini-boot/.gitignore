@@ -37,3 +37,12 @@ build/
 
 ### Mac OS ###
 .DS_Store
+### Application Configuration ###
+# Dont commit real password
+application.properties
+# Commit file template
+!application.properties.example
+
+# Environment files
+.env
+.env.local
