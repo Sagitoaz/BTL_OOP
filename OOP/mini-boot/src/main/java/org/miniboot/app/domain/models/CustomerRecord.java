@@ -15,7 +15,7 @@ public class CustomerRecord {
     private LocalDate dob;
     private Gender gender;
     private String address;
-    private String phoneNumber;
+    private String phone;
     private String email;
     private String notes;
 
@@ -31,7 +31,7 @@ public class CustomerRecord {
         this.dob = dob;
         this.gender = gender;
         this.address = address;
-        this.phoneNumber = phoneNumber;
+        this.phone = phoneNumber;
         this.email = email;
         this.notes = notes;
     }
@@ -123,12 +123,12 @@ public class CustomerRecord {
         this.address = address;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getEmail() {

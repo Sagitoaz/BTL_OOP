@@ -48,7 +48,7 @@ public class InMemoryPatientRecordRepository implements CustomerRecordRepository
     @Override
     public Optional<CustomerRecord> findByPhoneNumber(String phoneNumber) {
         for (CustomerRecord patientRecord : patientsData.values()) {
-            if(patientRecord.getPhoneNumber().equals(phoneNumber)){
+            if(patientRecord.getPhone().equals(phoneNumber)){
                 return Optional.of(patientRecord);
             }
         }

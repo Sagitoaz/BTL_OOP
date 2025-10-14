@@ -21,7 +21,7 @@ public class CustomerRecordService {
 
             String lowerKey = criteria.getSearchKey().trim().toLowerCase();
             if(!(customerRecord.getNameCustomer().toLowerCase().contains(lowerKey) ||
-                 customerRecord.getPhoneNumber().toLowerCase().equals(lowerKey))){
+                 customerRecord.getPhone().toLowerCase().equals(lowerKey))){
                 try{
                     int id = Integer.parseInt(lowerKey);
                     if(customerRecord.getId() != id){
