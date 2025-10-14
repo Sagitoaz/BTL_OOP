@@ -2,13 +2,8 @@ package org.example.oop.Repository;
 
 import org.example.oop.Model.PaymentModel.Payment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Collections;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,17 +11,13 @@ import java.util.List;
  * Chịu trách nhiệm đọc, ghi, và quản lý ID từ file Payment.txt.
  */
 public class PaymentRepository {
-
-    private static final String RESOURCE_PATH = "/data/payment.txt";
-    }
+    private static final String RESOURCE_PATH = "/Data/payment.txt";
 
     /**
      * Tìm ID lớn nhất hiện có trong file để tạo ID tiếp theo.
      *
      * @return ID tiếp theo có thể sử dụng.
      */
-    private int getNextId() {
-
     private int getNextId() {
         int maxId = 0;
         try (BufferedReader br = new BufferedReader(
@@ -63,14 +54,34 @@ public class PaymentRepository {
 
         String dataLine = payment.toDataString();
 
-        try {
-            String filePath = "src/main/resources" + RESOURCE_PATH;
-            Files.write(Paths.get(filePath), Collections.singletonList(dataLine), StandardOpenOption.APPEND,
-                    StandardOpenOption.CREATE);
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(getClass().getResource(RESOURCE_PATH).getFile(), true))) {
+            writer.write(dataLine);
+            writer.newLine();
             return nextId;
         } catch (IOException e) {
             System.err.println("Lỗi khi ghi vào file Payment.txt: " + e.getMessage());
             return -1; // Trả về -1 để báo hiệu lỗi
+        }
+    }
+
+    /**
+     * Tìm tất cả các payment trong hệ thống.
+     *
+     * @return Danh sách các payment
+     */
+    public List<Payment> findAll() {
+        List<Payment> payments = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                payments.add(Payment.fromDataString(line));
+            }
+            return payments;
+        } catch (IOException e) {
+            System.err.println("Lỗi khi đọc file Payment.txt: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -134,9 +145,12 @@ public class PaymentRepository {
         }
 
         // Ghi lại toàn bộ file
-        try {
-            String filePath = "src/main/resources" + RESOURCE_PATH;
-            Files.write(Paths.get(filePath), lines);
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(getClass().getResource(RESOURCE_PATH).getFile()))) {
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
             return true;
         } catch (IOException e) {
             System.err.println("Lỗi khi cập nhật file Payment.txt: " + e.getMessage());

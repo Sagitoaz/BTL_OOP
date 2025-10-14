@@ -3,26 +3,21 @@ package org.example.oop.Repository;
 import org.example.oop.Model.PaymentModel.PaymentStatus;
 import org.example.oop.Model.PaymentModel.PaymentStatusLog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class PaymentStatusLogRepository {
-    private static final String RESOURCE_PATH = "/data/payment_status_log.txt";
-    }
+    private static final String RESOURCE_PATH = "/Data/payment_status_log.txt";
 
     public PaymentStatus findCurrentStatus(int paymentId) {
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
             PaymentStatusLog latestLog = null;
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 PaymentStatusLog log = PaymentStatusLog.fromDataString(line);
                 if (log.getPaymentId() == paymentId) {
                     if (latestLog == null || log.getChangedAt().isAfter(latestLog.getChangedAt())) {
@@ -39,9 +34,10 @@ public class PaymentStatusLogRepository {
 
     public List<PaymentStatusLog> findAllByPaymentId(int paymentId) {
         List<PaymentStatusLog> logs = new ArrayList<>();
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 PaymentStatusLog log = PaymentStatusLog.fromDataString(line);
                 if (log.getPaymentId() == paymentId) {
                     logs.add(log);
@@ -61,9 +57,10 @@ public class PaymentStatusLogRepository {
                     Instant.now(), log.getStatus());
         }
 
-        String line = log.toDataString();
-        try {
-            Files.write(filePath, (line + "\n").getBytes(), StandardOpenOption.APPEND);
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(getClass().getResource(RESOURCE_PATH).getFile(), true))) {
+            writer.write(log.toDataString());
+            writer.newLine();
             return true;
         } catch (IOException e) {
             System.err.println("Lỗi khi ghi file payment_status_log.txt: " + e.getMessage());
@@ -73,9 +70,10 @@ public class PaymentStatusLogRepository {
 
     private int getNextId() {
         int maxId = 0;
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 if (parts.length > 0 && !parts[0].isEmpty()) {
                     try {

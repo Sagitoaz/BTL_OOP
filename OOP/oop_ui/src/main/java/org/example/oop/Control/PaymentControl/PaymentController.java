@@ -99,15 +99,26 @@ public class PaymentController implements Initializable {
                 return;
             }
 
-            currentItems = itemRepository.findByPaymentId(id);
-
             PaymentStatus status = statusLogRepository.findCurrentStatus(id);
+
+            // Kiểm tra trạng thái thanh toán
             if (status == PaymentStatus.PAID) {
                 showAlert(Alert.AlertType.WARNING, "Đã thanh toán", "Hóa đơn này đã được thanh toán trước đó");
                 handleReset();
                 return;
+            } else if (status == PaymentStatus.CANCELLED) {
+                showAlert(Alert.AlertType.WARNING, "Đã hủy", "Hóa đơn này đã bị hủy");
+                handleReset();
+                return;
+            } else if (status != PaymentStatus.PENDING) {
+                showAlert(Alert.AlertType.WARNING, "Không thể thanh toán",
+                        "Hóa đơn này không ở trạng thái chờ thanh toán");
+                handleReset();
+                return;
             }
 
+            // Chỉ load thông tin chi tiết nếu hóa đơn đang ở trạng thái PENDING
+            currentItems = itemRepository.findByPaymentId(id);
             updatePaymentDisplay();
 
         } catch (NumberFormatException e) {

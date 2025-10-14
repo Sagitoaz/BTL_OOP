@@ -2,12 +2,7 @@ package org.example.oop.Repository;
 
 import org.example.oop.Model.PaymentModel.PaymentItem;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,14 +49,12 @@ public class PaymentItemRepository {
             return; // Không làm gì nếu danh sách rỗng
         }
 
-        List<String> lines = new ArrayList<>();
-        for (PaymentItem item : items) {
-            lines.add(item.toDataString());
-        }
-
-        try {
-            String filePath = "src/main/resources" + RESOURCE_PATH;
-            Files.write(Paths.get(filePath), lines, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+        try (BufferedWriter writer = new BufferedWriter(
+                new FileWriter(getClass().getResource(RESOURCE_PATH).getFile(), true))) {
+            for (PaymentItem item : items) {
+                writer.write(item.toDataString());
+                writer.newLine();
+            }
         } catch (IOException e) {
             System.err.println("Lỗi khi ghi vào file PaymentItem.txt: " + e.getMessage());
         }
