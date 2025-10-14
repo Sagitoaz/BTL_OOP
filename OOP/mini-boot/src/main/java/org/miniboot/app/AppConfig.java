@@ -60,6 +60,11 @@ public class AppConfig {
     public static String LOG_LEVEL_KEY = "LOG_LEVEL";
     public static String LOG_LEVEL_DEFAULT = "INFO";
 
+    // Database Config Keys (used by DatabaseConfig)
+    public static String DB_URL_KEY = "DB_URL";
+    public static String DB_USER_KEY = "DB_USER";
+    public static String DB_PASSWORD_KEY = "DB_PASSWORD";
+
     //Math
     public static int MAX_INTEGER_VALUE = 10000000;
     // load tại startup
