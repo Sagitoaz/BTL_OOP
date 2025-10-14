@@ -8,8 +8,6 @@ module org.example.oop {
     requires java.desktop;
     requires com.google.gson;
 
-    requires mini.boot;
-
     opens org.example.oop.View to javafx.fxml;
     exports org.example.oop.View;
 
