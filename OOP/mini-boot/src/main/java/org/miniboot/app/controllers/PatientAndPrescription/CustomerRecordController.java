@@ -26,8 +26,8 @@ public class CustomerRecordController {
     }
 
     public static void mount(org.miniboot.app.router.Router router, CustomerRecordController prc) {
-        router.get("/customers/getCustomers", prc.getCustomer());
-        router.post("/customers/createNewCustomer", prc.createCustomer());
+        router.get("/customers", prc.getCustomer());
+        router.post("/customers", prc.createCustomer());
     }
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
