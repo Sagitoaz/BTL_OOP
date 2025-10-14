@@ -1,39 +1,51 @@
 package org.example.oop.Control;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
 
 public class ChangePasswordController {
 
-    @FXML private PasswordField pfNew, pfConfirm;
-    @FXML private TextField tfCurrent, tfAccount, tfNew, tfConfirm; // show/hide
-    @FXML private ProgressBar pbStrength;
-    @FXML private Label lblStrength, lblError, test;
-    @FXML private CheckBox cbShow;
-    @FXML private Button btnSave, btnCancel;
-    @FXML private Hyperlink linkForgot;
-
     // ===== CHỈ DÙNG 1 FILE DUY NHẤT =====
-    private static final Path USER_FILE = Paths.get("data", "user.txt");
-
+    private static final Path USER_FILE = Paths.get("Data", "user.txt");
     // Chỉ số cột (đúng với định dạng: id|username|password|role|fullName|province|email|phone|dob|gender)
     private static final int COL_USERNAME = 1;
     private static final int COL_PASSWORD = 2;
+    @FXML
+    private PasswordField pfNew, pfConfirm;
+    @FXML
+    private TextField tfCurrent, tfAccount, tfNew, tfConfirm; // show/hide
+    @FXML
+    private ProgressBar pbStrength;
+    @FXML
+    private Label lblStrength, lblError, test;
+    @FXML
+    private CheckBox cbShow;
+    @FXML
+    private Button btnSave, btnCancel;
+    @FXML
+    private Hyperlink linkForgot;
 
-    // Trạng thái đổi mật khẩu (để báo lỗi cụ thể)
-    private enum ChangePasswordStatus { OK, USER_NOT_FOUND, WRONG_CURRENT, IO_ERROR }
+    // ====== HÀM TIỆN ÍCH / DEBUG ======
+    private static String getCol(List<String> cols, int idx) {
+        return (idx >= 0 && idx < cols.size()) ? cols.get(idx) : null;
+    }
+
+    private static void setCol(List<String> cols, int idx, String value) {
+        while (cols.size() <= idx) cols.add("");
+        cols.set(idx, value == null ? "" : value);
+    }
 
     @FXML
     private void initialize() {
@@ -52,14 +64,15 @@ public class ChangePasswordController {
 
         pfNew.textProperty().addListener((obs, oldV, newV) -> checkPasswordStrength(newV));
     }
+
     // ====== SỰ KIỆN ======
     @FXML
     private void onSave() {
         lblError.setText("");
         String username = safe(tfAccount.getText());
-        String current  = safe(tfCurrent.getText());
-        String newPass  = safe(pfNew.getText());
-        String confirm  = safe(pfConfirm.getText());
+        String current = safe(tfCurrent.getText());
+        String newPass = safe(pfNew.getText());
+        String confirm = safe(pfConfirm.getText());
 
         if (username.isEmpty() || current.isEmpty() || newPass.isEmpty() || confirm.isEmpty()) {
             lblError.setText("Vui lòng nhập đầy đủ thông tin!");
@@ -80,15 +93,18 @@ public class ChangePasswordController {
                 clearFields();
             }
             case USER_NOT_FOUND -> lblError.setText("Không tìm thấy tài khoản.");
-            case WRONG_CURRENT  -> lblError.setText("Mật khẩu hiện tại không đúng.");
-            case IO_ERROR       -> lblError.setText("Lỗi đọc/ghi file. Kiểm tra quyền ghi & đường dẫn.");
+            case WRONG_CURRENT -> lblError.setText("Mật khẩu hiện tại không đúng.");
+            case IO_ERROR -> lblError.setText("Lỗi đọc/ghi file. Kiểm tra quyền ghi & đường dẫn.");
         }
     }
+
     @FXML
     private void onCancel() {
         clearFields();
         lblError.setText("");
     }
+    // ====== LOGIC ĐỌC/GHI TRÊN data/user.txt ======
+
     @FXML
     private void onForgot(ActionEvent event) {
         try {
@@ -103,8 +119,10 @@ public class ChangePasswordController {
             lblError.setText("Không thể mở màn hình Quên mật khẩu.");
         }
     }
-    // ====== LOGIC ĐỌC/GHI TRÊN data/user.txt ======
-    /** Đổi mật khẩu trên file nhiều cột, giữ nguyên các cột khác */
+
+    /**
+     * Đổi mật khẩu trên file nhiều cột, giữ nguyên các cột khác
+     */
     private ChangePasswordStatus changePassword(Path path, String username, String current, String newPass) {
         try {
             LinkedHashMap<String, List<String>> map = readAllRecords(path);
@@ -123,7 +141,9 @@ public class ChangePasswordController {
         }
     }
 
-    /** Đọc toàn bộ file thành Map<username, list cột>, giữ nguyên thứ tự dòng */
+    /**
+     * Đọc toàn bộ file thành Map<username, list cột>, giữ nguyên thứ tự dòng
+     */
     private LinkedHashMap<String, List<String>> readAllRecords(Path path) throws IOException {
         LinkedHashMap<String, List<String>> map = new LinkedHashMap<>();
         if (!Files.exists(path)) return map;
@@ -145,7 +165,10 @@ public class ChangePasswordController {
         }
         return map;
     }
-    /** Ghi an toàn: file tạm -> move (giữ định dạng nhiều cột) */
+
+    /**
+     * Ghi an toàn: file tạm -> move (giữ định dạng nhiều cột)
+     */
     private void writeAllRecords(Path path, Collection<List<String>> records) throws IOException {
         Path parent = path.getParent();
         if (parent != null) Files.createDirectories(parent);
@@ -165,14 +188,7 @@ public class ChangePasswordController {
             Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
         }
     }
-    // ====== HÀM TIỆN ÍCH / DEBUG ======
-    private static String getCol(List<String> cols, int idx) {
-        return (idx >= 0 && idx < cols.size()) ? cols.get(idx) : null;
-    }
-    private static void setCol(List<String> cols, int idx, String value) {
-        while (cols.size() <= idx) cols.add("");
-        cols.set(idx, value == null ? "" : value);
-    }
+
     // ====== HÀM PHỤ UI ======
     private void checkPasswordStrength(String password) {
         int score = 0;
@@ -182,10 +198,11 @@ public class ChangePasswordController {
         if (password != null && password.matches(".*\\d.*")) score++;
         if (password != null && password.matches(".*[!@#$%^&*()].*")) score++;
         pbStrength.setProgress(0.2 * score);
-        if (score <= 2)       lblStrength.setText("Yếu");
-        else if (score == 3)  lblStrength.setText("Trung bình");
-        else                  lblStrength.setText("Mạnh");
+        if (score <= 2) lblStrength.setText("Yếu");
+        else if (score == 3) lblStrength.setText("Trung bình");
+        else lblStrength.setText("Mạnh");
     }
+
     private void clearFields() {
         tfCurrent.clear();
         pfNew.clear();
@@ -194,5 +211,10 @@ public class ChangePasswordController {
         lblStrength.setText("");
     }
 
-    private String safe(String s) { return s == null ? "" : s.trim(); }
+    private String safe(String s) {
+        return s == null ? "" : s.trim();
+    }
+
+    // Trạng thái đổi mật khẩu (để báo lỗi cụ thể)
+    private enum ChangePasswordStatus {OK, USER_NOT_FOUND, WRONG_CURRENT, IO_ERROR}
 }

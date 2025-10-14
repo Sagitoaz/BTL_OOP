@@ -1,16 +1,16 @@
 package org.example.oop.Repository;
 
-
 import org.example.oop.Model.PaymentModel.PaymentItem;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Lớp Repository quản lý việc truy cập dữ liệu cho PaymentItem.
@@ -18,23 +18,7 @@ import java.util.stream.Collectors;
  * giúp Controller không cần quan tâm đến cách dữ liệu được lưu trữ.
  */
 public class PaymentItemRepository {
-
-    // Đường dẫn tới file dữ liệu. Trong thực tế, nên đưa vào file cấu hình.
-    private final Path filePath = Paths.get("src/main/resources/data/payment_item.txt");
-
-    /**
-     * Constructor đảm bảo file dữ liệu tồn tại khi repository được khởi tạo.
-     */
-    public PaymentItemRepository() {
-        try {
-            if (!Files.exists(filePath)) {
-                Files.createFile(filePath);
-            }
-        } catch (IOException e) {
-            // Trong ứng dụng thực tế, nên sử dụng một framework ghi log chuyên nghiệp
-            System.err.println("Lỗi nghiêm trọng khi khởi tạo file PaymentItem.txt: " + e.getMessage());
-        }
-    }
+    private static final String RESOURCE_PATH = "/Data/payment_item.txt";
 
     /**
      * Tìm tất cả các PaymentItem thuộc về một hóa đơn (Payment) cụ thể.
@@ -43,11 +27,17 @@ public class PaymentItemRepository {
      * @return Danh sách các PaymentItem tìm thấy. Trả về danh sách rỗng nếu có lỗi.
      */
     public List<PaymentItem> findByPaymentId(int paymentId) {
-        try {
-            return Files.lines(filePath)
-                    .map(PaymentItem::fromDataString)
-                    .filter(item -> item.getPaymentId() == paymentId)
-                    .collect(Collectors.toList());
+        List<PaymentItem> items = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                PaymentItem item = PaymentItem.fromDataString(line);
+                if (item.getPaymentId() == paymentId) {
+                    items.add(item);
+                }
+            }
+            return items;
         } catch (IOException e) {
             System.err.println("Lỗi khi đọc file PaymentItem.txt: " + e.getMessage());
             return Collections.emptyList(); // An toàn hơn là trả về null
@@ -64,12 +54,14 @@ public class PaymentItemRepository {
             return; // Không làm gì nếu danh sách rỗng
         }
 
-        List<String> lines = items.stream()
-                .map(PaymentItem::toDataString)
-                .collect(Collectors.toList());
+        List<String> lines = new ArrayList<>();
+        for (PaymentItem item : items) {
+            lines.add(item.toDataString());
+        }
+
         try {
-            // Ghi tất cả các dòng vào cuối file, tạo file nếu chưa có
-            Files.write(filePath, lines, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+            String filePath = "src/main/resources" + RESOURCE_PATH;
+            Files.write(Paths.get(filePath), lines, StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         } catch (IOException e) {
             System.err.println("Lỗi khi ghi vào file PaymentItem.txt: " + e.getMessage());
         }

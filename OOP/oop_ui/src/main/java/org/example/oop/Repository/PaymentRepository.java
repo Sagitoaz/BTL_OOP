@@ -2,9 +2,10 @@ package org.example.oop.Repository;
 
 import org.example.oop.Model.PaymentModel.Payment;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
@@ -16,16 +17,7 @@ import java.util.List;
  */
 public class PaymentRepository {
 
-    private final Path filePath = Paths.get("src/main/resources/data/payment.txt");
-
-    public PaymentRepository() {
-        try {
-            if (!Files.exists(filePath)) {
-                Files.createFile(filePath);
-            }
-        } catch (IOException e) {
-            System.err.println("Lỗi nghiêm trọng khi khởi tạo file Payment.txt: " + e.getMessage());
-        }
+    private static final String RESOURCE_PATH = "/data/payment.txt";
     }
 
     /**
@@ -34,13 +26,24 @@ public class PaymentRepository {
      * @return ID tiếp theo có thể sử dụng.
      */
     private int getNextId() {
-        try {
-            return Files.lines(filePath)
-                    .map(line -> line.split("\\|")[0]) // Lấy phần ID từ mỗi dòng
-                    .filter(idStr -> !idStr.isEmpty())
-                    .mapToInt(Integer::parseInt)
-                    .max()
-                    .orElse(0) + 1; // Nếu file rỗng, bắt đầu từ 1
+
+    private int getNextId() {
+        int maxId = 0;
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length > 0 && !parts[0].isEmpty()) {
+                    try {
+                        int id = Integer.parseInt(parts[0].trim());
+                        maxId = Math.max(maxId, id);
+                    } catch (NumberFormatException e) {
+                        System.err.println("Lỗi định dạng ID trong dòng: " + line);
+                    }
+                }
+            }
+            return maxId + 1;
         } catch (IOException e) {
             System.err.println("Lỗi khi đọc file Payment.txt để lấy ID: " + e.getMessage());
             return 1; // Trả về 1 nếu có lỗi
@@ -61,7 +64,8 @@ public class PaymentRepository {
         String dataLine = payment.toDataString();
 
         try {
-            Files.write(filePath, Collections.singletonList(dataLine), StandardOpenOption.APPEND,
+            String filePath = "src/main/resources" + RESOURCE_PATH;
+            Files.write(Paths.get(filePath), Collections.singletonList(dataLine), StandardOpenOption.APPEND,
                     StandardOpenOption.CREATE);
             return nextId;
         } catch (IOException e) {
@@ -77,12 +81,16 @@ public class PaymentRepository {
      * @return Payment nếu tìm thấy, null nếu không
      */
     public Payment findById(int id) {
-        try {
-            return Files.lines(filePath)
-                    .map(Payment::fromDataString)
-                    .filter(p -> p.getId() == id)
-                    .findFirst()
-                    .orElse(null);
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                Payment payment = Payment.fromDataString(line);
+                if (payment.getId() == id) {
+                    return payment;
+                }
+            }
+            return null;
         } catch (IOException e) {
             System.err.println("Lỗi khi đọc file Payment.txt: " + e.getMessage());
             return null;
@@ -100,29 +108,36 @@ public class PaymentRepository {
             return false;
         }
 
-        try {
-            // Đọc tất cả các dòng
-            List<String> lines = Files.readAllLines(filePath);
+        List<String> lines = new ArrayList<>();
+        boolean found = false;
 
-            // Tìm và thay thế dòng cần cập nhật
-            boolean found = false;
-            for (int i = 0; i < lines.size(); i++) {
-                String[] parts = lines.get(i).split("\\|");
+        // Đọc tất cả các dòng
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(getClass().getResourceAsStream(RESOURCE_PATH)))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
                 if (parts[0].equals(String.valueOf(payment.getId()))) {
-                    lines.set(i, payment.toDataString());
+                    lines.add(payment.toDataString());
                     found = true;
-                    break;
+                } else {
+                    lines.add(line);
                 }
             }
+        } catch (IOException e) {
+            System.err.println("Lỗi khi đọc file Payment.txt: " + e.getMessage());
+            return false;
+        }
 
-            if (!found) {
-                return false;
-            }
+        if (!found) {
+            return false;
+        }
 
-            // Ghi lại toàn bộ file
-            Files.write(filePath, lines);
+        // Ghi lại toàn bộ file
+        try {
+            String filePath = "src/main/resources" + RESOURCE_PATH;
+            Files.write(Paths.get(filePath), lines);
             return true;
-
         } catch (IOException e) {
             System.err.println("Lỗi khi cập nhật file Payment.txt: " + e.getMessage());
             return false;
