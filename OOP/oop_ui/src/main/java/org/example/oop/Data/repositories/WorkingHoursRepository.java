@@ -1,4 +1,4 @@
-package org.example.oop.Data.Repositories;
+package org.example.oop.Data.repositories;
 
 import org.example.oop.Model.Schedule.WorkingHours;
 

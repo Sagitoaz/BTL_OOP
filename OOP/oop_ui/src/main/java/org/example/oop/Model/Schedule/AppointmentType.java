@@ -7,7 +7,8 @@ package org.example.oop.Model.Schedule;
 public enum AppointmentType {
     VISIT("visit"),
     TEST("test"),
-    SURGERY("surgery");
+    SURGERY("surgery"),
+    BLOCKED("blocked"); // Thêm cho blocking appointments
 
     private final String value;
 

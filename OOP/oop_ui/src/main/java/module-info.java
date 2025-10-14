@@ -15,6 +15,9 @@ module org.example.oop {
 
     opens org.example.oop.Control to javafx.fxml;
     exports org.example.oop.Control;
+    
+    opens org.example.oop.Control.Schedule to javafx.fxml;
+    exports org.example.oop.Control.Schedule;
 
     opens org.example.oop to javafx.fxml;
     exports org.example.oop;
@@ -26,4 +29,6 @@ module org.example.oop {
     opens org.example.oop.Data.models to javafx.fxml;
     exports org.example.oop.Model.Schedule;
     opens org.example.oop.Model.Schedule to javafx.fxml;
+    exports org.example.oop.Services;
+    opens org.example.oop.Services to javafx.fxml;
 }

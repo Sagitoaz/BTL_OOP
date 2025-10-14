@@ -21,7 +21,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.DoctorScheduleController">
    <top>
       <HBox prefHeight="100.0" prefWidth="200.0" spacing="12.0" BorderPane.alignment="CENTER">
          <padding>
@@ -48,16 +48,16 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="8.0" HBox.hgrow="ALWAYS">
                <children>
-                  <DatePicker />
-                  <ToggleButton mnemonicParsing="false" text="Ngày" />
-                  <ToggleButton mnemonicParsing="false" text="Tuần" />
-                  <Button mnemonicParsing="false" text="Hôm nay" />
+                  <DatePicker fx:id="datePicker" />
+                  <ToggleButton mnemonicParsing="false" text="Ngày" fx:id="dayViewBtn" onAction="#onDayView" />
+                  <ToggleButton mnemonicParsing="false" text="Tuần" fx:id="weekViewBtn" onAction="#onWeekView" />
+                  <Button mnemonicParsing="false" text="Hôm nay" fx:id="todayBtn" onAction="#onToday" />
                </children>
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="8.0" HBox.hgrow="ALWAYS">
                <children>
-                  <TextField prefWidth="240.0" />
-                  <Button mnemonicParsing="false" text="Thêm lịch" />
+                  <TextField prefWidth="240.0" fx:id="searchField" />
+                  <Button mnemonicParsing="false" text="Thêm lịch" fx:id="addScheduleBtn" onAction="#onAddSchedule" />
                </children>
                <padding>
                   <Insets right="15.0" />
@@ -84,25 +84,25 @@
                               <Label text="Ngày làm việc" />
                               <FlowPane columnHalignment="CENTER" hgap="8.0" prefHeight="54.0" prefWidth="248.0" vgap="8.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Thứ 2" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 3" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 4" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 5" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 6" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 7" />
-                                    <CheckBox mnemonicParsing="false" text="Chủ nhật" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 2" fx:id="mondayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 3" fx:id="tuesdayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 4" fx:id="wednesdayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 5" fx:id="thursdayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 6" fx:id="fridayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Thứ 7" fx:id="saturdayChk" />
+                                    <CheckBox mnemonicParsing="false" text="Chủ nhật" fx:id="sundayChk" />
                                  </children>
                               </FlowPane>
                               <Separator prefWidth="200.0" />
                               <Label text="Thiết lập ca" />
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="8.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Sáng" />
-                                    <CheckBox mnemonicParsing="false" text="Chiều" />
-                                    <CheckBox mnemonicParsing="false" text="Tối" />
+                                    <CheckBox mnemonicParsing="false" text="Sáng" fx:id="morningShiftChk" />
+                                    <CheckBox mnemonicParsing="false" text="Chiều" fx:id="afternoonShiftChk" />
+                                    <CheckBox mnemonicParsing="false" text="Tối" fx:id="eveningShiftChk" />
                                  </children>
                               </HBox>
-                              <Button mnemonicParsing="false" text="Áp dụng" />
+                              <Button mnemonicParsing="false" text="Áp dụng" fx:id="applyShiftBtn" onAction="#onApplyShift" />
                            </children>
                         </VBox>
                      </content>
@@ -114,18 +114,18 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
                            <children>
-                              <CheckBox mnemonicParsing="false" text="Trống" />
-                              <CheckBox mnemonicParsing="false" text="Đã đặt" />
-                              <CheckBox mnemonicParsing="false" text="Đang khám" />
-                              <CheckBox mnemonicParsing="false" text="Hoàn thành" />
-                              <CheckBox mnemonicParsing="false" text="Đã hủy" />
+                              <CheckBox mnemonicParsing="false" text="Trống" fx:id="emptyChk" />
+                              <CheckBox mnemonicParsing="false" text="Đã đặt" fx:id="bookedChk" />
+                              <CheckBox mnemonicParsing="false" text="Đang khám" fx:id="inProgressChk" />
+                              <CheckBox mnemonicParsing="false" text="Hoàn thành" fx:id="completedChk" />
+                              <CheckBox mnemonicParsing="false" text="Đã hủy" fx:id="cancelledChk" />
                            </children>
                         </VBox>
                      </content>
                   </TitledPane>
                   <TitledPane expanded="false" text="Xung đột">
                      <content>
-                        <ListView prefHeight="290.0" prefWidth="269.0" />
+                        <ListView prefHeight="290.0" prefWidth="269.0" fx:id="conflictList" />
                      </content>
                   </TitledPane>
                </children>
@@ -142,7 +142,7 @@
                   </VBox>
                   <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="698.0" prefWidth="900.0">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1400.0" prefWidth="200.0" />
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1400.0" prefWidth="200.0" fx:id="schedulePane" />
                     </content>
                   </ScrollPane>
                </children>
@@ -156,10 +156,10 @@
             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
          </padding>
          <children>
-            <Button mnemonicParsing="false" text="Lưu lịch" />
-            <Button mnemonicParsing="false" text="Xuất PDF" />
-            <Button mnemonicParsing="false" text="Hoàn tác" />
-            <Button mnemonicParsing="false" text="Làm lại" />
+            <Button mnemonicParsing="false" text="Lưu lịch" fx:id="saveBtn" onAction="#onSave" />
+            <Button mnemonicParsing="false" text="Xuất PDF" fx:id="exportPdfBtn" onAction="#onExportPdf" />
+            <Button mnemonicParsing="false" text="Hoàn tác" fx:id="undoBtn" onAction="#onUndo" />
+            <Button mnemonicParsing="false" text="Làm lại" fx:id="redoBtn" onAction="#onRedo" />
          </children>
       </HBox>
    </bottom>

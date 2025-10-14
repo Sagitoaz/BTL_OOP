@@ -1,12 +1,13 @@
-package org.miniboot.app.services;
-
-import org.miniboot.app.domain.models.Appointment;
-import org.miniboot.app.domain.repo.AppointmentRepository;
+package org.example.oop.Services;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.example.oop.Data.repositories.AppointmentRepository;
+import org.example.oop.Model.Schedule.Appointment;
 
 public class ConflictResolver {
     private final AppointmentRepository appointmentRepository;
@@ -18,46 +19,51 @@ public class ConflictResolver {
     /**
      * Kiểm tra conflict cho appointment mới
      */
-    public List<String> detectTimeConflict(Appointment newAppt) {
+    public List<String> detectTimeConflict(Appointment newAppointment) {
         List<String> conflicts = new ArrayList<>();
-        List<Appointment> existedAppointments = appointmentRepository.findAll().stream()
-                .filter(apt -> apt.getDoctorId() == newAppt.getDoctorId())
-                .filter(apt -> apt.getStartTime().toLocalDate().equals(newAppt.getStartTime().toLocalDate()))
-                .filter(apt -> !apt.getStatus().equals("cancelled"))
-                .toList();
 
-        for (Appointment existed : existedAppointments) {
-            if (isTimeOverlap(newAppt.getStartTime(), newAppt.getEndTime(),
-                    existed.getStartTime(), existed.getEndTime())) {
+        List<Appointment> existingAppointments = appointmentRepository.findAll()
+                .stream()
+                .filter(apt -> apt.getDoctorId() == newAppointment.getDoctorId())
+                .filter(apt -> apt.getStartTime().toLocalDate().equals(newAppointment.getStartTime().toLocalDate()))
+                .filter(apt -> apt.getStatus() != org.example.oop.Model.Schedule.AppointmentStatus.CANCELLED)
+                .collect(Collectors.toList());
+
+        for (Appointment existing : existingAppointments) {
+            if (isTimeOverlap(newAppointment.getStartTime(), newAppointment.getEndTime(),
+                    existing.getStartTime(), existing.getEndTime())) {
                 conflicts.add("Conflict with existing appointment: " +
-                        existed.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
-                        "-" + existed.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                        existing.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                        "-" + existing.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
             }
         }
+
         return conflicts;
     }
 
     /**
-     * Kiểm tra conflict khi reschedule
+     * Kiểm tra conflict khi reschedule (loại trừ chính appointment đang reschedule)
      */
     public List<String> detectTimeConflictForReschedule(Appointment appointment) {
         List<String> conflicts = new ArrayList<>();
 
-        List<Appointment> existedAppointments = appointmentRepository.findAll().stream()
+        List<Appointment> existingAppointments = appointmentRepository.findAll()
+                .stream()
                 .filter(apt -> apt.getDoctorId() == appointment.getDoctorId())
-                .filter(apt -> apt.getId() != appointment.getId())
+                .filter(apt -> apt.getId() != appointment.getId()) // Loại trừ chính nó
                 .filter(apt -> apt.getStartTime().toLocalDate().equals(appointment.getStartTime().toLocalDate()))
-                .filter(apt -> !apt.getStatus().equals("cancelled"))
-                .toList();
+                .filter(apt -> apt.getStatus() != org.example.oop.Model.Schedule.AppointmentStatus.CANCELLED)
+                .collect(Collectors.toList());
 
-        for (Appointment existed : existedAppointments) {
+        for (Appointment existing : existingAppointments) {
             if (isTimeOverlap(appointment.getStartTime(), appointment.getEndTime(),
-                    existed.getStartTime(), existed.getEndTime())) {
+                    existing.getStartTime(), existing.getEndTime())) {
                 conflicts.add("Reschedule conflict with: " +
-                        existed.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
-                        "-" + existed.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                        existing.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                        "-" + existing.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
             }
         }
+
         return conflicts;
     }
 
@@ -67,18 +73,19 @@ public class ConflictResolver {
     public List<String> suggestAlternativeSlots(int doctorId, String date) {
         List<String> availableSlots = new ArrayList<>();
 
-        // Working hours: 8:00 - 17:00
+        // Giả định working hours: 8:00 - 17:00 (có thể đọc từ file)
         LocalDateTime workStart = LocalDateTime.parse(date + "T08:00:00");
         LocalDateTime workEnd = LocalDateTime.parse(date + "T17:00:00");
 
         // Lấy appointments đã book trong ngày
-        List<Appointment> bookedAppointments = appointmentRepository.findAll().stream()
+        List<Appointment> bookedAppointments = appointmentRepository.findAll()
+                .stream()
                 .filter(apt -> apt.getDoctorId() == doctorId)
                 .filter(apt -> apt.getStartTime().toLocalDate().toString().equals(date))
-                .filter(apt -> !apt.getStatus().equals("cancelled"))
-                .toList();
+                .filter(apt -> apt.getStatus() != org.example.oop.Model.Schedule.AppointmentStatus.CANCELLED)
+                .collect(Collectors.toList());
 
-        // Tạo slots mỗi 30 phút 1 slot và check available
+        // Tạo slots 30 phút và check available
         LocalDateTime currentSlot = workStart;
         while (currentSlot.plusMinutes(30).isBefore(workEnd) || currentSlot.plusMinutes(30).isEqual(workEnd)) {
             LocalDateTime slotEnd = currentSlot.plusMinutes(30);
@@ -103,15 +110,16 @@ public class ConflictResolver {
     }
 
     /**
-     * Validate đơn giản có conflict không dựa trên time overlap
+     * Validate đơn giản có conflict không
      */
     public boolean validateScheduleConflict(int doctorId, LocalDateTime start, LocalDateTime end) {
-        List<Appointment> conflicts = appointmentRepository.findAll().stream()
+        List<Appointment> conflicts = appointmentRepository.findAll()
+                .stream()
                 .filter(apt -> apt.getDoctorId() == doctorId)
                 .filter(apt -> apt.getStartTime().toLocalDate().equals(start.toLocalDate()))
-                .filter(apt -> !apt.getStatus().equals("cancelled"))
+                .filter(apt -> apt.getStatus() != org.example.oop.Model.Schedule.AppointmentStatus.CANCELLED)
                 .filter(apt -> isTimeOverlap(start, end, apt.getStartTime(), apt.getEndTime()))
-                .toList();
+                .collect(Collectors.toList());
 
         return conflicts.isEmpty();
     }
@@ -123,5 +131,4 @@ public class ConflictResolver {
                                   LocalDateTime start2, LocalDateTime end2) {
         return start1.isBefore(end2) && start2.isBefore(end1);
     }
-
 }

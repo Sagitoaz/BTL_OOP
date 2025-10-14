@@ -24,7 +24,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentManagementController">
     <top>
         <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER_LEFT">
             <padding>
@@ -39,12 +39,12 @@
                         <ComboBox prefWidth="150.0" promptText="Phòng (nếu có)" fx:id="roomFilter" />
                         <ComboBox prefWidth="150.0" promptText="Trạng thái" fx:id="statusFilter" />
                         <TextField promptText="Tìm BN/SĐT/Mã hẹn" fx:id="qSearch" />
-                        <Button mnemonicParsing="false" text="Lọc" fx:id="applyFilterBtn" />
-                        <Button mnemonicParsing="false" text="Xóa lọc" fx:id="resetFilterBtn" />
+                        <Button mnemonicParsing="false" text="Lọc" fx:id="applyFilterBtn" onAction="#onApplyFilter" />
+                        <Button mnemonicParsing="false" text="Xóa lọc" fx:id="resetFilterBtn" onAction="#onResetFilter" />
                         <Region prefHeight="26.0" prefWidth="835.0" />
-                        <Button mnemonicParsing="false" text="Tạo hẹn" fx:id="createBtn" />
-                        <Button mnemonicParsing="false" text="Duyệt" fx:id="confirmBtn" />
-                        <Button mnemonicParsing="false" text="Hủy" fx:id="cancelBtn" />
+                        <Button mnemonicParsing="false" text="Tạo hẹn" fx:id="createBtn" onAction="#onCreate" />
+                        <Button mnemonicParsing="false" text="Duyệt" fx:id="confirmBtn" onAction="#onConfirm" />
+                        <Button mnemonicParsing="false" text="Hủy" fx:id="cancelBtn" onAction="#onCancel" />
                         <MenuButton mnemonicParsing="false" text="Thao tác khác" fx:id="moreActionsBtn">
                             <items>
                                 <MenuItem mnemonicParsing="false" text="Chuyển bác sĩ..." />
@@ -70,7 +70,7 @@
                                 <Label text="Danh sách hẹn" />
                                 <Region prefHeight="200.0" prefWidth="578.0" HBox.hgrow="ALWAYS" />
                                 <CheckBox mnemonicParsing="false" text="Chỉ hiện xung đột" />
-                                <Button mnemonicParsing="false" text="Làm mới" fx:id="refreshBtn" />
+                                <Button mnemonicParsing="false" text="Làm mới" fx:id="refreshBtn" onAction="#onRefresh" />
                             </children>
                         </HBox>
                         <TableView prefHeight="200.0" prefWidth="730.0" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS" fx:id="appointmentTable">
@@ -118,7 +118,7 @@
                                                 <HBox spacing="8.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
                                                     <children>
                                                         <TextField fx:id="patientField" editable="false" HBox.hgrow="ALWAYS" />
-                                                        <Button text="Chọn..." fx:id="choosePatientBtn" />
+                                                        <Button text="Chọn..." fx:id="choosePatientBtn" onAction="#onChoosePatient" />
                                                     </children>
                                                 </HBox>
                                                 <Label text="Bác sĩ" GridPane.rowIndex="5" GridPane.columnIndex="0" />
@@ -135,9 +135,9 @@
                                         </GridPane>
                                         <HBox alignment="CENTER_RIGHT" spacing="8.0" VBox.vgrow="ALWAYS">
                                             <children>
-                                                <Button text="Lưu thay đổi" fx:id="saveBtn" />
-                                                <Button text="Hoàn tác" fx:id="revertBtn" />
-                                                <Button text="Xóa hẹn" fx:id="deleteBtn" />
+                                                <Button text="Lưu thay đổi" fx:id="saveBtn" onAction="#onSave" />
+                                                <Button text="Hoàn tác" fx:id="revertBtn" onAction="#onRevert" />
+                                                <Button text="Xóa hẹn" fx:id="deleteBtn" onAction="#onDelete" />
                                             </children>
                                         </HBox>
                                     </children>
@@ -155,8 +155,8 @@
                                         <ListView fx:id="timelineList" VBox.vgrow="ALWAYS" />
                                         <HBox alignment="CENTER_RIGHT" spacing="8.0">
                                             <children>
-                                                <Button text="Gửi SMS nhắc hẹn" fx:id="sendSmsBtn" />
-                                                <Button text="Gửi Email" fx:id="sendEmailBtn" />
+                                                <Button text="Gửi SMS nhắc hẹn" fx:id="sendSmsBtn" onAction="#onSendSms" />
+                                                <Button text="Gửi Email" fx:id="sendEmailBtn" onAction="#onSendEmail" />
                                             </children>
                                         </HBox>
                                     </children>
@@ -173,7 +173,7 @@
                                         <TextArea fx:id="extraNoteArea" VBox.vgrow="ALWAYS" />
                                         <HBox alignment="CENTER_RIGHT" spacing="8.0">
                                             <children>
-                                                <Button text="Lưu ghi chú" fx:id="saveNoteBtn" />
+                                                <Button text="Lưu ghi chú" fx:id="saveNoteBtn" onAction="#onSaveNote" />
                                             </children>
                                         </HBox>
                                     </children>
@@ -193,11 +193,11 @@
             <children>
                 <Label fx:id="lblSummary" text="Tổng: 0 hẹn | Hiển thị: 0" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="firstPageBtn" text="⟪" />
-                <Button fx:id="prevPageBtn" text="‹" />
+                <Button fx:id="firstPageBtn" text="⟪" onAction="#onFirstPage" />
+                <Button fx:id="prevPageBtn" text="‹" onAction="#onPrevPage" />
                 <Label fx:id="lblPage" text="Trang 1/1" />
-                <Button fx:id="nextPageBtn" text="›" />
-                <Button fx:id="lastPageBtn" text="⟫" />
+                <Button fx:id="nextPageBtn" text="›" onAction="#onNextPage" />
+                <Button fx:id="lastPageBtn" text="⟫" onAction="#onLastPage" />
             </children>
         </HBox>
     </bottom>
