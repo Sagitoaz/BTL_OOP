@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class CustomerRecord {
     public enum Gender {
-        NAM, NỮ, KHÁC;
+        MALE, FEMALE, OTHER;
     }
 
     private int id;
@@ -19,8 +19,12 @@ public class CustomerRecord {
     private String email;
     private String notes;
 
+    // Constructor mặc định cho JSON deserialization
+    public CustomerRecord() {
 
-    // Constructor mặc định cho JSON serialization
+    }
+
+    // Constructor đầy đủ tham số
     public CustomerRecord(int id, String firstNameCustomer, String lastNameCustomer, LocalDate dob, Gender gender,
                           String address, String phoneNumber, String email, String notes) {
         this.id = id;
@@ -185,9 +189,9 @@ public class CustomerRecord {
 
         Gender gender;
         try {
-            gender = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? Gender.KHÁC : Gender.valueOf(fields[4].toUpperCase());
+            gender = (fields[4].equalsIgnoreCase("null") || fields[4].isBlank()) ? Gender.OTHER: Gender.valueOf(fields[4].toUpperCase());
         } catch (IllegalArgumentException e) {
-            gender = Gender.KHÁC;
+            gender = Gender.OTHER;
         }
 
         String address = (fields[5].equalsIgnoreCase("null") || fields[5].isBlank()) ? null : fields[5];

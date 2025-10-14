@@ -62,10 +62,11 @@ public class Router {
                 else{
                     request.tags.put("protected", String.valueOf(route.isProtected));
                     h = req -> route.handler.apply(req);
+                    break;
                 }
 
 
-                break;
+
             }
         }
         if(h == null){

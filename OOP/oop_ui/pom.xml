@@ -15,6 +15,13 @@
     </properties>
 
     <dependencies>
+        <!-- Thêm dependency đến project mini-boot -->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>mini-boot</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>

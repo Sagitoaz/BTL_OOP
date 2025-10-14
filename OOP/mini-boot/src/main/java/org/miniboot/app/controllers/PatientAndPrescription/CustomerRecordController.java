@@ -11,6 +11,7 @@ import org.miniboot.app.util.Json;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,8 +27,8 @@ public class CustomerRecordController {
     }
 
     public static void mount(org.miniboot.app.router.Router router, CustomerRecordController prc) {
-        router.get("/customers/getCustomers", prc.getCustomer());
-        router.post("/customers/createNewCustomer", prc.createCustomer());
+        router.get("/customers", prc.getCustomer());
+        router.post("/customers", prc.createCustomer());
     }
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
@@ -46,20 +47,20 @@ public class CustomerRecordController {
     }
     public Function<HttpRequest, HttpResponse> getCustomer() {
         return (HttpRequest req) -> {
-
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             Optional<String> searchKey = extractFirst(req.query, "searchKey");
             Optional<String> gender = extractFirst(req.query, "gender");
             Optional<LocalDate> dateFrom = extractFirst(req.query, "dateFrom")
                     .map(s -> {
                         try {
-                            return LocalDate.parse(s);
+                            return LocalDate.parse(s, dateTimeFormatter);
                         } catch (Exception e) {
                             return null;
                         }});
             Optional<LocalDate> dateTo = extractFirst(req.query, "dateTo")
                     .map(s ->{
                         try{
-                            return LocalDate.parse(s);
+                            return LocalDate.parse(s, dateTimeFormatter);
                         }
                         catch (Exception e){
                             return null;

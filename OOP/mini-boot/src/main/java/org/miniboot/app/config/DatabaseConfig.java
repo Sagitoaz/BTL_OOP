@@ -33,7 +33,7 @@ public class DatabaseConfig {
             "jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:6543/postgres");
         DB_USER = getConfig(AppConfig.DB_USER_KEY,
             "postgres.dwcpuomioxgqznusjewq");
-        DB_PASSWORD = getConfig(AppConfig.DB_PASSWORD_KEY, "");
+        DB_PASSWORD = getConfig(AppConfig.DB_PASSWORD_KEY, "Nguhotuongd23@");
         
         // Kiểm tra nếu password chưa được set
         if (DB_PASSWORD.isEmpty()) {
