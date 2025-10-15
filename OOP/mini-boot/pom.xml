@@ -61,6 +61,10 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgresql.version}</version>
+    <dependency>
+      <groupId>at.favre.lib</groupId>
+      <artifactId>bcrypt</artifactId>
+      <version>0.10.2</version>
     </dependency>
   </dependencies>
 
@@ -72,6 +76,14 @@
         <version>3.11.0</version>
         <configuration>
           <release>17</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec.plugin.version}</version>
+        <configuration>
+          <mainClass>org.miniboot.app.ServerMain</mainClass>
         </configuration>
       </plugin>
     </plugins>

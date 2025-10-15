@@ -1,5 +1,5 @@
 module mini.boot {
-    // Required modules for external dependencies
+    requires com.fasterxml.jackson.databind;
     requires com.google.gson;
     requires com.auth0.jwt;
     requires com.fasterxml.jackson.datatype.jsr310;
@@ -10,6 +10,9 @@ module mini.boot {
 
     // Export packages that will be used by other modules
     // Using 'transitive' to make domain models accessible to clients
+    requires com.microsoft.sqlserver.jdbc;
+    requires bcrypt;
+
     exports org.miniboot.app;
     exports org.miniboot.app.auth;
     exports org.miniboot.app.controllers;

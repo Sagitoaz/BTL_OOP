@@ -5,15 +5,16 @@ import java.time.LocalDateTime;
 /**
  * Employee model - nhân viên (doctor và nurse)
  * Theo database mới: bảng Employees với role enum('doctor','nurse')
+ * Đã cập nhật để tương thích với OOP_UI: sử dụng int cho ID
  */
 public class Employee implements User {
-    private String id;
+    private int id;
     private String username;
     private String password;
     private String firstname;
     private String lastname;
     private String avatar;
-    private String role; // "doctor" hoặc "nurse"
+    private String employeeRole; // "doctor" hoặc "nurse"
     private String licenseNo;
     private String email;
     private String phone;
@@ -22,8 +23,8 @@ public class Employee implements User {
 
     public Employee() {}
 
-    public Employee(String id, String username, String password, String firstname, String lastname,
-                    String avatar, String role, String licenseNo, String email, String phone,
+    public Employee(int id, String username, String password, String firstname, String lastname,
+                    String avatar, String employeeRole, String licenseNo, String email, String phone,
                     boolean active, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
@@ -31,7 +32,7 @@ public class Employee implements User {
         this.firstname = firstname;
         this.lastname = lastname;
         this.avatar = avatar;
-        this.role = role;
+        this.employeeRole = employeeRole;
         this.licenseNo = licenseNo;
         this.email = email;
         this.phone = phone;
@@ -39,36 +40,19 @@ public class Employee implements User {
         this.createdAt = createdAt;
     }
 
-    // Implement User interface
     @Override
-    public String getRole() {
-        return "EMPLOYEE"; // hoặc có thể return role field nếu cần phân biệt doctor/nurse
+    public UserRole getUserRole() {
+        return UserRole.EMPLOYEE;
     }
 
-    public String getEmployeeRole() {
-        return role; // "doctor" hoặc "nurse"
-    }
-
-    public void setEmployeeRole(String role) {
-        this.role = role;
-    }
-
-    public boolean isDoctor() {
-        return "doctor".equalsIgnoreCase(role);
-    }
-
-    public boolean isNurse() {
-        return "nurse".equalsIgnoreCase(role);
-    }
-
-    // Getters and Setters
+    // Implement User interface methods
     @Override
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -92,6 +76,49 @@ public class Employee implements User {
         this.password = password;
     }
 
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public String getFullName() {
+        return firstname + " " + lastname;
+    }
+
+    @Override
+    public void setFullName(String fullName) {
+        String[] parts = fullName.split(" ", 2);
+        this.firstname = parts[0];
+        this.lastname = parts.length > 1 ? parts[1] : "";
+    }
+
+    @Override
+    public String getPhone() {
+        return phone;
+    }
+
+    @Override
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    // Employee-specific getters and setters
     public String getFirstname() {
         return firstname;
     }
@@ -108,16 +135,20 @@ public class Employee implements User {
         this.lastname = lastname;
     }
 
-    public String getFullName() {
-        return firstname + " " + lastname;
-    }
-
     public String getAvatar() {
         return avatar;
     }
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getEmployeeRole() {
+        return employeeRole;
+    }
+
+    public void setEmployeeRole(String employeeRole) {
+        this.employeeRole = employeeRole;
     }
 
     public String getLicenseNo() {
@@ -128,34 +159,6 @@ public class Employee implements User {
         this.licenseNo = licenseNo;
     }
 
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -163,5 +166,18 @@ public class Employee implements User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-}
 
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", employeeRole='" + employeeRole + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", active=" + active +
+                '}';
+    }
+}
