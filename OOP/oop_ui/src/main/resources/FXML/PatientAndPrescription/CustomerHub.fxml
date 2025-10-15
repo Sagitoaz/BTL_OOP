@@ -22,7 +22,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.25" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PatientHubController">
+<SplitPane dividerPositions="0.25" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
     <items>
         <VBox spacing="10.0">
             <padding>
@@ -37,7 +37,7 @@
                             </font>
                         </Label>
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="addPatientButton" mnemonicParsing="false" onAction="#onAddPatientButton" text="+ Thêm Mới" />
+                        <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#onAddCustomerButton" text="+ Thêm Mới" />
                     </children>
                 </HBox>
                 <TextField fx:id = "searchField" promptText="Tìm kiếm theo tên hoặc ID..." />
@@ -60,7 +60,7 @@
                     </children>
                 </GridPane>
                 <Separator />
-                <ListView fx:id="patientListView" VBox.vgrow="ALWAYS" />
+                <ListView fx:id="customerListView" VBox.vgrow="ALWAYS" />
             </children>
         </VBox>
     </items>
@@ -76,7 +76,7 @@
                         <Insets bottom="10.0" />
                     </BorderPane.margin>
                     <children>
-                        <Label fx:id="patientNameLabel" text="[CHỌN BỆNH NHÂN]">
+                        <Label fx:id="customerNameLabel" text="[CHỌN BỆNH NHÂN]">
                             <font>
                                 <Font name="System Bold" size="24.0" />
                             </font>
@@ -90,13 +90,13 @@
                             </columnConstraints>
                             <children>
                                 <Label text="Mã BN:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Label fx:id="patientIdValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label fx:id="customerIdValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
                                 <Label text="Ngày sinh:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                <Label fx:id="patientDobValueLabel" text="..." GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                                <Label fx:id="customerDobValueLabel" text="..." GridPane.columnIndex="3" GridPane.rowIndex="0" />
                                 <Label text="Giới tính:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                <Label fx:id="patientGenderValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label fx:id="customerGenderValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 <Label text="Tuổi:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                <Label fx:id="patientAgeValueLabel" text="..." GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                <Label fx:id="customerAgeValueLabel" text="..." GridPane.columnIndex="3" GridPane.rowIndex="1" />
                             </children>
                             <VBox.margin>
                                 <Insets top="5.0" />

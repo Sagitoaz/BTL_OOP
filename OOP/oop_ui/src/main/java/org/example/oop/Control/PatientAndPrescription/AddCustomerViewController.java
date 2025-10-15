@@ -8,14 +8,13 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Model.PatientAndPrescription.PatientRecord;
+import org.example.oop.Model.PatientAndPrescription.CustomerRecord;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.ResourceBundle;
 
-public class AddPatientViewController implements Initializable
+public class AddCustomerViewController implements Initializable
 {
     @FXML
     private TextField nameField;
@@ -24,7 +23,7 @@ public class AddPatientViewController implements Initializable
     @FXML
     private DatePicker dobPicker;
     @FXML
-    private ComboBox<PatientRecord.Gender> genderComboBox;
+    private ComboBox<CustomerRecord.Gender> genderComboBox;
     @FXML
     private TextField addressField;
     @FXML
@@ -32,10 +31,10 @@ public class AddPatientViewController implements Initializable
     @FXML
     private TextArea notesArea;
 
-    private PatientRecord newPatientRecord = null;
+    private CustomerRecord newPatientRecord = null;
 
     public void initialize(URL url, ResourceBundle rb) {
-        genderComboBox.getItems().addAll(PatientRecord.Gender.NAM, PatientRecord.Gender.NỮ , PatientRecord.Gender.KHÁC);
+        genderComboBox.getItems().addAll(CustomerRecord.Gender.NAM, CustomerRecord.Gender.NỮ , CustomerRecord.Gender.KHÁC);
 
     }
 
@@ -51,16 +50,16 @@ public class AddPatientViewController implements Initializable
         String name = nameField.getText();
         String phone = phoneField.getText();
         LocalDate dob = dobPicker.getValue();
-        PatientRecord.Gender gender = genderComboBox.getValue();
+        CustomerRecord.Gender gender = genderComboBox.getValue();
         String address = addressField.getText();
         String email = emailField.getText();
         String notes = notesArea.getText();
 
-        newPatientRecord = new PatientRecord(222, name, dob, gender, address, phone, email, notes);
+        newPatientRecord = new CustomerRecord(222, name, dob, gender, address, phone, email, notes);
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
-    public PatientRecord getNewPatientRecord(){
+    public CustomerRecord getNewPatientRecord(){
         return newPatientRecord;
     }
 
