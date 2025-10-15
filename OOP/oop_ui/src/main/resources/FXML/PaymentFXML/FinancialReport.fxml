@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="820.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </padding>
+            <children>
+                <Label style="-fx-font-size:18px; -fx-font-weight:bold;" text="BÁO CÁO TÀI CHÍNH"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Từ:"/>
+                <DatePicker fx:id="dpFrom"/>
+                <Label text="Đến:"/>
+                <DatePicker fx:id="dpTo"/>
+                <Button fx:id="btnApply" mnemonicParsing="false" text="Áp dụng"/>
+                <Button fx:id="btnExportCsv" mnemonicParsing="false" text="Xuất CSV"/>
+                <Button fx:id="btnExportPdf" mnemonicParsing="false" text="Xuất PDF"/>
+            </children>
+        </HBox>
+    </top>
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <tabs>
+                <Tab text="Tổng quan">
+                    <content>
+                        <GridPane hgap="12" vgap="10">
+                            <padding>
+                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                            </padding>
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="25.0"/>
+                                <ColumnConstraints percentWidth="25.0"/>
+                                <ColumnConstraints percentWidth="25.0"/>
+                                <ColumnConstraints percentWidth="25.0"/>
+                            </columnConstraints>
+                            <children>
+                                <TitledPane expanded="true" text="Doanh thu" GridPane.columnIndex="0"
+                                            GridPane.columnSpan="2" GridPane.rowIndex="0">
+                                    <content>
+                                        <VBox spacing="8.0">
+                                            <padding>
+                                                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0"/>
+                                            </padding>
+                                            <children>
+                                                <LineChart fx:id="chartRevenue" prefHeight="260.0">
+                                                    <xAxis>
+                                                        <CategoryAxis label="Ngày" side="BOTTOM"/>
+                                                    </xAxis>
+                                                    <yAxis>
+                                                        <NumberAxis label="VNĐ" side="LEFT"/>
+                                                    </yAxis>
+                                                </LineChart>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane expanded="true" text="Phương thức thanh toán" GridPane.columnIndex="2"
+                                            GridPane.columnSpan="2" GridPane.rowIndex="0">
+                                    <content>
+                                        <PieChart fx:id="chartMethod" prefHeight="260.0"/>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane expanded="true" text="Top sản phẩm" GridPane.columnIndex="0"
+                                            GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                    <content>
+                                        <TableView fx:id="tableTopProducts" prefHeight="260.0">
+                                            <columns>
+                                                <TableColumn fx:id="colTopSKU" prefWidth="120.0" text="SKU"/>
+                                                <TableColumn fx:id="colTopName" prefWidth="220.0" text="Tên"/>
+                                                <TableColumn fx:id="colTopQuantity" prefWidth="120.0" text="Số lượng"/>
+                                                <TableColumn fx:id="colTopRevenue" prefWidth="140.0" text="Doanh thu"/>
+                                            </columns>
+                                        </TableView>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane text="Hiệu suất nhân viên" expanded="true" GridPane.columnIndex="2"
+                                            GridPane.columnSpan="2" GridPane.rowIndex="1">
+                                    <content>
+                                        <TableView fx:id="tableStaffPerf" prefHeight="260.0">
+                                            <columns>
+                                                <TableColumn fx:id="colStaffName" prefWidth="180.0" text="Nhân viên"/>
+                                                <TableColumn fx:id="colInvoiceCount" prefWidth="120.0"
+                                                             text="Số hóa đơn"/>
+                                                <TableColumn fx:id="colStaffRevenue" prefWidth="140.0"
+                                                             text="Doanh thu"/>
+                                                <TableColumn fx:id="colRefundRate" prefWidth="140.0"
+                                                             text="Tỷ lệ hoàn tiền"/>
+                                            </columns>
+                                        </TableView>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </GridPane>
+                    </content>
+                </Tab>
+                <Tab text="Theo ngày">
+                    <content>
+                        <VBox spacing="8.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                            <children>
+                                <LineChart fx:id="chartDailyRevenue" prefHeight="360.0">
+                                    <xAxis>
+                                        <CategoryAxis label="Ngày" side="BOTTOM"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="VNĐ" side="LEFT"/>
+                                    </yAxis>
+                                </LineChart>
+                                <TableView fx:id="tableDaily" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colDate" prefWidth="160.0" text="Ngày"/>
+                                        <TableColumn fx:id="colDailyInvoiceCount" prefWidth="120.0" text="Số HĐ"/>
+                                        <TableColumn fx:id="colDailyRevenue" prefWidth="160.0" text="Doanh thu"/>
+                                        <TableColumn fx:id="colDailyDiscount" prefWidth="140.0" text="Giảm giá"/>
+                                        <TableColumn fx:id="colDailyTax" prefWidth="120.0" text="Thuế"/>
+                                        <TableColumn fx:id="colDailyProfit" prefWidth="140.0" text="Lợi nhuận"/>
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab text="Theo phương thức">
+                    <content>
+                        <VBox spacing="8.0">
+                            <padding>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                            <children>
+                                <BarChart fx:id="chartByMethod" prefHeight="360.0">
+                                    <xAxis>
+                                        <CategoryAxis label="Phương thức" side="BOTTOM"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="VNĐ" side="LEFT"/>
+                                    </yAxis>
+                                </BarChart>
+                                <TableView fx:id="tableByMethod" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colMethodName" prefWidth="180.0" text="Phương thức"/>
+                                        <TableColumn fx:id="colTransactionCount" prefWidth="160.0" text="Số giao dịch"/>
+                                        <TableColumn fx:id="colMethodTotal" prefWidth="180.0" text="Tổng tiền"/>
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>
