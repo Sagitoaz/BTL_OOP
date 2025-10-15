@@ -1,19 +1,26 @@
 package org.miniboot.app.util;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.miniboot.app.AppConfig;
+import org.miniboot.app.http.HttpResponse;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.miniboot.app.http.HttpResponse;
-import org.miniboot.app.AppConfig;
-
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class Json {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     static {
+        // Thêm hỗ trợ Java 8 Date/Time (LocalDateTime, LocalDate, etc.)
+        MAPPER.registerModule(new JavaTimeModule());
+        
+        // Disable writing dates as timestamps (dùng ISO-8601 format)
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
         // cho phép in đẹp khi debug: bật/tắt qua env
         boolean pretty = Boolean.parseBoolean(System.getProperty(AppConfig.JSON_PRETTY_KEY,
                 System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY, AppConfig.JSON_PRETTY_DEFAULT)));

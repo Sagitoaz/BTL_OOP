@@ -9,6 +9,7 @@ module org.example.oop {
     requires com.google.gson;
 
     requires mini.boot;
+    requires java.net.http;
 
     opens org.example.oop.View to javafx.fxml;
     exports org.example.oop.View;
@@ -27,8 +28,6 @@ module org.example.oop {
     exports org.example.oop.Data.repositories;
     exports org.example.oop.Data.storage;
     opens org.example.oop.Data.models to javafx.fxml;
-    exports org.example.oop.Model.Schedule;
-    opens org.example.oop.Model.Schedule to javafx.fxml;
     exports org.example.oop.Services;
     opens org.example.oop.Services to javafx.fxml;
 }

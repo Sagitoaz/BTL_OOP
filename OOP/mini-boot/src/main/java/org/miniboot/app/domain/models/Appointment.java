@@ -3,32 +3,34 @@ package org.miniboot.app.domain.models;
 import java.time.LocalDateTime;
 
 /**
- * Appointment model - lịch hẹn
- * Theo database mới: customer_id và doctor_id là int, thêm nhiều trường mới
+ * Lớp Appointment - đại diện cho một lịch hẹn trong hệ thống phòng khám mắt.
+ * Theo database mới: customer_id và doctor_id là int, dùng ENUM cho type và status
  */
 public class Appointment {
     private int id;
-    private int customerId; // ref to Customers.id
-    private int doctorId; // ref to Employees.id (role='doctor')
-    private String appointmentType; // "visit", "test", "surgery"
+    private int customerId; // int ref to Customers.id
+    private int doctorId; // int ref to Employees.id (MUST be role='doctor')
+    private AppointmentType appointmentType;
     private String notes;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status; // "scheduled", "confirmed", "checked_in", etc.
+    private AppointmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Legacy field for backward compatibility
-    private String patientName;
-    private String date;
-
+    /**
+     * Constructor mặc định (cần cho Jackson/Gson)
+     */
     public Appointment() {
-        this.status = "scheduled";
+        this.status = AppointmentStatus.SCHEDULED;
     }
 
-    public Appointment(int id, int customerId, int doctorId, String appointmentType,
+    /**
+     * Constructor đầy đủ
+     */
+    public Appointment(int id, int customerId, int doctorId, AppointmentType appointmentType,
                        String notes, LocalDateTime startTime, LocalDateTime endTime,
-                       String status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                       AppointmentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.customerId = customerId;
         this.doctorId = doctorId;
@@ -36,9 +38,18 @@ public class Appointment {
         this.notes = notes;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = status != null ? status : "scheduled";
+        this.status = status != null ? status : AppointmentStatus.SCHEDULED;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    /**
+     * Constructor cho appointment mới
+     */
+    public Appointment(int id, int customerId, int doctorId, AppointmentType appointmentType,
+                       LocalDateTime startTime, LocalDateTime endTime) {
+        this(id, customerId, doctorId, appointmentType, null, startTime, endTime,
+             AppointmentStatus.SCHEDULED, LocalDateTime.now(), LocalDateTime.now());
     }
 
     // Getters and Setters
@@ -66,11 +77,11 @@ public class Appointment {
         this.doctorId = doctorId;
     }
 
-    public String getAppointmentType() {
+    public AppointmentType getAppointmentType() {
         return appointmentType;
     }
 
-    public void setAppointmentType(String appointmentType) {
+    public void setAppointmentType(AppointmentType appointmentType) {
         this.appointmentType = appointmentType;
     }
 
@@ -98,11 +109,11 @@ public class Appointment {
         this.endTime = endTime;
     }
 
-    public String getStatus() {
+    public AppointmentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
 
@@ -111,7 +122,8 @@ public class Appointment {
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        // Auto-set nếu null
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -119,23 +131,20 @@ public class Appointment {
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+        // Auto-set nếu null
+        this.updatedAt = updatedAt != null ? updatedAt : LocalDateTime.now();
     }
 
-    // Legacy fields for backward compatibility
-    public String getPatientName() {
-        return patientName;
-    }
-
-    public void setPatientName(String patientName) {
-        this.patientName = patientName;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + id +
+                ", customerId=" + customerId +
+                ", doctorId=" + doctorId +
+                ", appointmentType=" + appointmentType +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", status=" + status +
+                '}';
     }
 }

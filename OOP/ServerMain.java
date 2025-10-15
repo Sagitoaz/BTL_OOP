@@ -41,9 +41,9 @@ public class ServerMain {
         router.use(new ErrorHandle());
         router.get("/doctors", dc.getDoctors());
 
+        // Mount controllers
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
-        // mount các controller
         AuthController.mount(router);
 
         // Khởi động server

@@ -1,4 +1,7 @@
-package org.example.oop.Model.Schedule;
+package org.miniboot.app.domain.models;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * AppointmentType - loại hình lịch hẹn trong hệ thống.
@@ -16,10 +19,12 @@ public enum AppointmentType {
         this.value = value;
     }
 
+    @JsonValue // Jackson serialize bằng method này
     public String getValue() {
         return value;
     }
 
+    @JsonCreator // Jackson deserialize bằng method này
     public static AppointmentType fromString(String text) {
         for (AppointmentType type : AppointmentType.values()) {
             if (type.value.equalsIgnoreCase(text)) {

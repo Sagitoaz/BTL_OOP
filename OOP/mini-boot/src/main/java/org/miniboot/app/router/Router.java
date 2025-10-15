@@ -1,13 +1,13 @@
 package org.miniboot.app.router;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Function;
+
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.http.HttpServer;
-
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Function;
 
 public class Router {
     private static class Route {
@@ -74,6 +74,7 @@ public class Router {
             if (route.path.match(request.path)) {
 
                 if (!route.method.equalsIgnoreCase(request.method)){
+                    // Không break, tiếp tục tìm route khác có cùng path nhưng đúng method
                     h = req ->{throw new HttpServer.MethodNotAllowed(); } ;
                 }
                 else{
@@ -81,10 +82,8 @@ public class Router {
                     Map<String, String> params = route.path.extract(request.path);
                     request.tags.putAll(params);
                     h = req -> route.handler.apply(req);
+                    break; // Tìm được route đúng, dừng tìm
                 }
-
-
-                break;
             }
         }
         if(h == null){

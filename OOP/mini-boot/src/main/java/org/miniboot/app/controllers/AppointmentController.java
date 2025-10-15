@@ -1,6 +1,12 @@
 package org.miniboot.app.controllers;
 
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.repo.AppointmentRepository;
@@ -8,12 +14,6 @@ import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 
 public class AppointmentController {
     private final AppointmentRepository appointmentRepository;
@@ -37,10 +37,14 @@ public class AppointmentController {
         return (HttpRequest req) ->
         {
             try {
+                System.out.println("📥 Received body: " + new String(req.body, StandardCharsets.UTF_8));
                 Appointment appointment = Json.fromBytes(req.body, Appointment.class);
+                System.out.println("✅ Parsed appointment: " + appointment);
                 appointmentRepository.save(appointment);
                 return Json.created(appointment);
             } catch (Exception e) {
+                System.err.println("❌ Error creating appointment: " + e.getMessage());
+                e.printStackTrace();
                 return HttpResponse.of(400,
                         "text/plain; charset=utf-8",
                         AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
