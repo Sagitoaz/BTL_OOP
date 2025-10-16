@@ -2,10 +2,12 @@ package org.miniboot.app.controllers;
 
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.models.TimeSlot;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
+import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
 
 import java.nio.charset.StandardCharsets;
@@ -24,6 +26,7 @@ public class DoctorController {
     public static void mount(Router router, DoctorController dc) {
         router.get("/doctors", dc.getDoctors());
         router.post("/doctors", dc.createDoctor());
+        router.get("/doctors/available-slots", dc.getAvailableSlots());
     }
 
     //POST /doctors
@@ -49,7 +52,7 @@ public class DoctorController {
 
     public Function<HttpRequest, HttpResponse> getDoctors() {
         return (HttpRequest req) -> {
-            Optional<Integer> idOpt = extractId(req.query);
+            Optional<Integer> idOpt = ExtractHelper.extractId(req.query);
 //            if (idOpt.isPresent()) {
 //                int id = idOpt.get();
 //                var doctorOpt = doctorRepository.findById(id);
@@ -76,17 +79,30 @@ public class DoctorController {
         };
     }
 
-    //helper
-    private Optional<Integer> extractId(Map<String, List<String>> queries) {
-        // path /doctor?id=
-        if (queries == null) return Optional.empty();
-        List<String> ids = queries.get("id");
-        if (ids == null || ids.isEmpty()) return Optional.empty();
-        try {
-            return Optional.of(Integer.parseInt(ids.get(0)));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
+    public Function<HttpRequest, HttpResponse> getAvailableSlots() {
+        return (HttpRequest req) -> {
+            Map<String, List<String>> q = req.query;
+            Optional<Integer> doctorIdOpt = ExtractHelper.extractInt(q, "doctorId");
+            Optional<String> dateOpt = ExtractHelper.extractFirst(q, "date");
+
+            if (doctorIdOpt.isEmpty() || dateOpt.isEmpty()) {
+                return HttpResponse.of(400, "text/plain; charset=utf-8",
+                        "Missing doctorId or date parameter".getBytes(StandardCharsets.UTF_8));
+            }
+
+            int doctorId = doctorIdOpt.get();
+            String date = dateOpt.get();
+
+            // TODO: Implement logic tính slot trống
+            // 1. Lấy working hours của bác sĩ
+            // 2. Lấy appointments đã đặt
+            // 3. Tính toán slot trống
+
+            // Tạm thời trả về danh sách rỗng
+            List<TimeSlot> availableSlots = List.of();
+
+            return Json.ok(availableSlots);
+        };
     }
 }
 

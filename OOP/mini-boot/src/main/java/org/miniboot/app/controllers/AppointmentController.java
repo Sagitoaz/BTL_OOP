@@ -15,6 +15,7 @@ import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
+import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
 
 public class AppointmentController {
@@ -60,14 +61,14 @@ public class AppointmentController {
         return (HttpRequest req) -> {
             Map<String, List<String>> q = req.query;
             // lọc theo DoctorId +Date
-            Optional<Integer> doctorId = extractInt(q, "doctorId");
-            Optional<String> date = extractFirst(q, "date");
+            Optional<Integer> doctorId = ExtractHelper.extractInt(q, "doctorId");
+            Optional<String> date = ExtractHelper.extractFirst(q, "date");
             if (doctorId.isPresent() && date.isPresent()) {
                 return Json.ok(appointmentRepository.findByDoctorIdAndDate(doctorId.get(), date.get()));
             }
 
             // nếu có ID trả về 1 bản ghi
-            Optional<Integer> idOpt = extractInt(q, "id");
+            Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
             return idOpt.map(integer -> appointmentRepository.findById(integer)
                     .map(Json::ok)
                     .orElse(HttpResponse.of(
@@ -113,7 +114,7 @@ public class AppointmentController {
     public Function<HttpRequest, HttpResponse> deleteAppointment() {
         return (HttpRequest req) -> {
             Map<String, List<String>> q = req.query;
-            Optional<Integer> idOpt = extractInt(q, "id");
+            Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
 
             if (idOpt.isEmpty()) {
                 return HttpResponse.of(400, "text/plain; charset=utf-8",
@@ -136,24 +137,5 @@ public class AppointmentController {
             return HttpResponse.of(200, "text/plain; charset=utf-8",
                     "Appointment cancelled".getBytes(StandardCharsets.UTF_8));
         };
-    }
-
-    // helper
-    private Optional<Integer> extractInt(Map<String, List<String>> q, String key) {
-        Optional<String> s = extractFirst(q, key);
-        if (s.isEmpty()) return Optional.empty();
-        try {
-            return Optional.of(Integer.parseInt(s.get()));
-        } catch (NumberFormatException e) {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<String> extractFirst(Map<String, List<String>> q, String key) {
-        if (q == null) return Optional.empty();
-        List<String> vals = q.get(key);
-        if (vals == null || vals.isEmpty()) return Optional.empty();
-        String first = vals.get(0);
-        return (first == null || first.isBlank()) ? Optional.empty() : Optional.of(first);
     }
 }
