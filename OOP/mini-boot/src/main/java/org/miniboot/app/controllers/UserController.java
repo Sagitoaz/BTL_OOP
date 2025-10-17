@@ -336,7 +336,7 @@ public class UserController {
         }
     }
 
-    private static String hashPassword(String password) {
+    public static String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 

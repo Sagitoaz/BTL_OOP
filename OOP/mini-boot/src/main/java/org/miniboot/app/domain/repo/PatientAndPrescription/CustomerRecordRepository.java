@@ -51,6 +51,8 @@ public interface CustomerRecordRepository {
 
     List<Customer> findByDateTo(LocalDate dateTo);
 
+
+
     /**
      * Xóa bệnh nhân theo ID
      */
