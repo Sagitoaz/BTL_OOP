@@ -251,7 +251,7 @@ public class UserRepository {
                     if (!parts[7].isEmpty()) {
                         customer.setDob(LocalDate.parse(parts[7]));
                     }
-                    customer.setGender(parts[8]);
+                    customer.setGender(Customer.Gender.valueOf(parts[8]));
                     customer.setAddress(parts[9]);
                     customer.setNote(parts[10]);
                     if (!parts[11].isEmpty()) {

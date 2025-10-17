@@ -9,7 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.example.oop.Model.PatientAndPrescription.CustomerRecord;
+import org.example.oop.Data.models.Customer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,14 +20,14 @@ import java.util.ResourceBundle;
 public class CustomerHubController implements Initializable  {
 
     @FXML
-    private ListView<CustomerRecord> customerListView;
+    private ListView<Customer> customerListView;
 
-    private ObservableList<CustomerRecord> customerRecordsList;
+    private ObservableList<Customer> customerRecordsList;
 
 
 
     @FXML
-    private ComboBox<CustomerRecord.Gender> genderFilter;
+    private ComboBox<Customer.Gender> genderFilter;
     @FXML
     private DatePicker dobFromPicker;
     @FXML
@@ -71,14 +71,14 @@ public class CustomerHubController implements Initializable  {
             setCurrentCustomer(newValue);
 
         });
-        genderFilter.getItems().addAll(CustomerRecord.Gender.NAM, CustomerRecord.Gender.NỮ , CustomerRecord.Gender.KHÁC);
+        genderFilter.getItems().addAll(Customer.Gender.NAM, Customer.Gender.NỮ , Customer.Gender.KHÁC);
 
     }
 
     @FXML
     private void applyFilters(ActionEvent event) {
         String search = searchField.getText();
-        CustomerRecord.Gender gender = genderFilter.getValue();
+        Customer.Gender gender = genderFilter.getValue();
         LocalDate dobFrom = dobFromPicker.getValue();
         LocalDate dobTo = dobToPicker.getValue();
         customerRecordsList.clear();
@@ -97,7 +97,7 @@ public class CustomerHubController implements Initializable  {
         customerListView.setItems(customerRecordsList);
     }
 
-    private void setCurrentCustomer(CustomerRecord pr){
+    private void setCurrentCustomer(Customer pr){
         if(pr == null){
             customerNameLabel.setText("[CHỌN BỆNH NHÂN]");
             customerIdValueLabel.setText("...");
@@ -135,7 +135,7 @@ public class CustomerHubController implements Initializable  {
             stage.centerOnScreen();
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
-            CustomerRecord newPatient = controller.getNewPatientRecord();
+            Customer newPatient = controller.getNewPatientRecord();
             addCustomerRecord(newPatient);
 
         } catch (IOException e) {
@@ -143,7 +143,7 @@ public class CustomerHubController implements Initializable  {
 
         }
     }
-    public void addCustomerRecord(CustomerRecord pr){
+    public void addCustomerRecord(Customer pr){
         if(pr == null ) return;
         //goi api save
         customerRecordsList.add(pr);

@@ -2,7 +2,7 @@ package org.miniboot.app.controllers.PatientAndPrescription;
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.Service.CustomerRecordService;
 import org.miniboot.app.Service.CustomerSearchCriteria;
-import org.miniboot.app.domain.models.CustomerRecord;
+import org.miniboot.app.domain.models.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
@@ -32,9 +32,9 @@ public class CustomerRecordController {
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
         return (HttpRequest req) -> {
-            CustomerRecord createdCustomer = null;
+            Customer createdCustomer = null;
             try {
-                createdCustomer = Json.fromBytes(req.body, CustomerRecord.class);
+                createdCustomer = Json.fromBytes(req.body, Customer.class);
                 customerRecordRepository.save(createdCustomer);
                 return Json.created(createdCustomer);
             } catch (IOException e) {
@@ -67,10 +67,10 @@ public class CustomerRecordController {
                     });
 
             // Convert string gender to Gender enum trong CustomerSearchCriteria
-            CustomerRecord.Gender genderEnum = null;
+            Customer.Gender genderEnum = null;
             if (gender.isPresent()) {
                 try {
-                    genderEnum = CustomerRecord.Gender.valueOf(gender.get().toUpperCase());
+                    genderEnum = Customer.Gender.valueOf(gender.get().toUpperCase());
                 } catch (IllegalArgumentException e) {
                     genderEnum = null;
                 }
@@ -82,7 +82,7 @@ public class CustomerRecordController {
             }
             else{
                 try {
-                    List<CustomerRecord> results = customerRecordService.searchPatientRecords(criteria);
+                    List<Customer> results = customerRecordService.searchPatientRecords(criteria);
                     return Json.ok(results);
                 } catch (Exception e) {
                     return HttpResponse.of(400,
