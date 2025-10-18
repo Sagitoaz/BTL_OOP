@@ -9,8 +9,6 @@
 //import javafx.scene.control.cell.PropertyValueFactory;
 //import org.example.oop.Model.PaymentModel.Payment;
 //import org.example.oop.Model.PaymentModel.PaymentItem;
-//import org.example.oop.Repository.PaymentItemRepository;
-//import org.example.oop.Repository.PaymentRepository;
 //
 //import java.net.URL;
 //import java.time.Instant;
@@ -19,7 +17,7 @@
 //import java.util.ArrayList;
 //import java.util.ResourceBundle;
 //
-///**
+/// **
 // * Controller quản lý giao diện Hóa đơn, đã được tái cấu trúc để sử dụng Repository.
 // * Chỉ chịu trách nhiệm về logic giao diện.
 // */
@@ -73,8 +71,6 @@
 //
 //    // --- Dữ liệu và Repository ---
 //    private final ObservableList<PaymentItem> invoiceItems = FXCollections.observableArrayList();
-//    private final PaymentRepository paymentRepository = new PaymentRepository();
-//    private final PaymentItemRepository itemRepository = new PaymentItemRepository();
 //
 //    @Override
 //    public void initialize(URL url, ResourceBundle resourceBundle) {

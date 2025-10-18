@@ -13,6 +13,7 @@ module org.example.oop {
 
     // HTTP client for REST API calls
     requires java.net.http;
+    requires org.example.oop;
 
     opens org.example.oop.View to javafx.fxml;
 
@@ -22,7 +23,7 @@ module org.example.oop {
     opens org.example.oop.Control to javafx.fxml;
 
     exports org.example.oop.Control;
-    
+
     opens org.example.oop.Control.Schedule to javafx.fxml;
     exports org.example.oop.Control.Schedule;
 
