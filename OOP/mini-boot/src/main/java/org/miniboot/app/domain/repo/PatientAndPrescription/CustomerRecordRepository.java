@@ -1,5 +1,6 @@
 package org.miniboot.app.domain.repo.PatientAndPrescription;
 
+import org.miniboot.app.Service.CustomerSearchCriteria;
 import org.miniboot.app.domain.models.Customer;
 
 import java.time.LocalDate;
@@ -20,36 +21,15 @@ public interface CustomerRecordRepository {
     /**
      * Tìm bệnh nhân theo ID
      */
-    Optional<Customer> findById(int id);
 
     /**
      * Lấy tất cả bệnh nhân
      */
     List<Customer> findAll();
 
-    /**
-     * Tìm bệnh nhân theo tên (tìm kiếm gần đúng)
-     */
-    List<Customer> findByName(String name);
+    List<Customer> findByFilterAll(CustomerSearchCriteria criteria);
 
-    /**
-     * Tìm bệnh nhân theo số điện thoại
-     */
-    Optional<Customer> findByPhoneNumber(String phoneNumber);
 
-    /**
-     * Tìm bệnh nhân theo email
-     */
-    Optional<Customer> findByEmail(String email);
-
-    /**
-     * Tìm bệnh nhân theo giới tính
-     */
-    List<Customer> findByGender(Customer.Gender gender);
-
-    List<Customer> findByDateFrom(LocalDate dateFrom);
-
-    List<Customer> findByDateTo(LocalDate dateTo);
 
 
 
