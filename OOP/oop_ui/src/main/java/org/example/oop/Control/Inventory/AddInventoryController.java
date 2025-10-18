@@ -1,4 +1,4 @@
-package org.example.oop.Control;
+package org.example.oop.Control.Inventory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,7 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.example.oop.Model.Inventory.InitialStockLine;
-import org.example.oop.Model.Inventory.Inventory;
+import org.example.oop.Model.Inventory.Product;
 import org.example.oop.Utils.ApiClient;
 
 import javafx.collections.FXCollections;
@@ -97,9 +97,9 @@ public class AddInventoryController {
      private final ApiClient apiClient = ApiClient.getInstance();
 
      // ===== DATA =====
-     private ObservableList<Inventory> allInventories = FXCollections.observableArrayList();
+     private ObservableList<Product> allInventories = FXCollections.observableArrayList();
      private ObservableList<InitialStockLine> initialStockLines = FXCollections.observableArrayList();
-     private Inventory savedProduct = null;
+     private Product savedProduct = null;
 
      @FXML
      public void initialize() {
@@ -376,7 +376,7 @@ public class AddInventoryController {
                          allInventories = parseInventoryListFromJson(jsonData);
 
                          ObservableList<String> productNames = FXCollections.observableArrayList();
-                         for (Inventory inv : allInventories) {
+                         for (Product inv : allInventories) {
                               productNames.add(inv.getName() + " (" + inv.getSku() + ")");
                          }
                          cbInitProduct.setItems(productNames);
@@ -400,8 +400,8 @@ public class AddInventoryController {
      /**
       * Simple JSON parser for inventory list (without external libraries)
       */
-     private ObservableList<Inventory> parseInventoryListFromJson(String json) {
-          ObservableList<Inventory> inventories = FXCollections.observableArrayList();
+     private ObservableList<Product> parseInventoryListFromJson(String json) {
+          ObservableList<Product> inventories = FXCollections.observableArrayList();
 
           try {
                // Basic JSON parsing for inventory items
@@ -416,7 +416,7 @@ public class AddInventoryController {
 
                          for (String item : items) {
                               if (!item.trim().isEmpty()) {
-                                   Inventory inventory = parseInventoryFromJson(item);
+                                   Product inventory = parseInventoryFromJson(item);
                                    if (inventory != null) {
                                         inventories.add(inventory);
                                    }
@@ -435,9 +435,9 @@ public class AddInventoryController {
      /**
       * Parse single inventory item from JSON
       */
-     private Inventory parseInventoryFromJson(String json) {
+     private Product parseInventoryFromJson(String json) {
           try {
-               Inventory inventory = new Inventory();
+               Product inventory = new Product();
 
                // Simple field extraction
                inventory.setId((int) extractLongField(json, "id", 0L));
@@ -567,7 +567,7 @@ public class AddInventoryController {
                     if (response.isSuccess()) {
                          try {
                               // Parse response to get created inventory
-                              Inventory inventory = parseInventoryFromJson(response.getData());
+                              Product inventory = parseInventoryFromJson(response.getData());
                               if (inventory != null) {
                                    savedProduct = inventory;
                                    tfId.setText(String.valueOf(inventory.getId()));
@@ -639,7 +639,7 @@ public class AddInventoryController {
                return false;
           }
           String sku = tfSku.getText().trim();
-          for (Inventory inv : allInventories) {
+          for (Product inv : allInventories) {
                if (sku.equalsIgnoreCase(inv.getSku())) {
                     updateStatus("❌ SKU đã tồn tại: " + sku);
                     tfSku.requestFocus();
@@ -737,7 +737,7 @@ public class AddInventoryController {
                if (!validateInitialStockInput())
                     return;
 
-               Inventory selectedProduct = getSelectedProduct();
+               Product selectedProduct = getSelectedProduct();
                if (selectedProduct == null) {
                     updateStatus("❌ Vui lòng chọn sản phẩm");
                     return;
@@ -753,7 +753,7 @@ public class AddInventoryController {
                }
 
                final int totalQty = calculateTotalQty();
-               final Inventory finalSelectedProduct = selectedProduct;
+               final Product finalSelectedProduct = selectedProduct;
 
                if (totalQty <= 0) {
                     updateStatus("❌ Không có dòng nào có số lượng > 0");
@@ -857,7 +857,7 @@ public class AddInventoryController {
           return true;
      }
 
-     private Inventory getSelectedProduct() {
+     private Product getSelectedProduct() {
           String selected = cbInitProduct.getValue();
           if (selected == null)
                return null;

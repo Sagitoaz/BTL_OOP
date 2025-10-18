@@ -1,3 +1,5 @@
+package org.example.oop.Control.Inventory;
+
 // package org.example.oop.Control;
 //
 // import java.io.IOException;

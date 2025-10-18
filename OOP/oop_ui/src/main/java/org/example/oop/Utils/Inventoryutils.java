@@ -3,7 +3,7 @@ package org.example.oop.Utils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.example.oop.Model.Inventory.Inventory;
+import org.example.oop.Model.Inventory.Product;
 
 public class Inventoryutils {
     /**
@@ -13,7 +13,7 @@ public class Inventoryutils {
      * @param inventories - Danh sách inventory
      * @return Tổng giá trị tồn kho
      */
-    public static double calculateTotalValue(List<Inventory> inventories) {
+    public static double calculateTotalValue(List<Product> inventories) {
         if (inventories == null) {
             return 0;
         }
@@ -27,7 +27,7 @@ public class Inventoryutils {
      * Get low stock items
      * Lọc các sản phẩm sắp hết hàng (quantity <= reorderLevel)
      */
-    public static List<Inventory> getLowStockItems(List<Inventory> inventories) {
+    public static List<Product> getLowStockItems(List<Product> inventories) {
         if (inventories == null) {
             return new java.util.ArrayList<>();
         }
@@ -40,7 +40,7 @@ public class Inventoryutils {
      * Get out of stock items
      * Lọc các sản phẩm hết hàng (quantity == 0)
      */
-    public static List<Inventory> getOutOfStockItems(List<Inventory> inventories) {
+    public static List<Product> getOutOfStockItems(List<Product> inventories) {
         if (inventories == null) {
             return new java.util.ArrayList<>();
         }
@@ -72,7 +72,7 @@ public class Inventoryutils {
      * Filter by category
      * Lọc inventory theo category
      */
-    public static List<Inventory> filterByCategory(List<Inventory> inventories, String category) {
+    public static List<Product> filterByCategory(List<Product> inventories, String category) {
         if (inventories == null || category == null) {
             return new java.util.ArrayList<>();
         }
@@ -85,7 +85,7 @@ public class Inventoryutils {
      * Search by name
      * Tìm kiếm inventory theo tên (không phân biệt hoa thường)
      */
-    public static List<Inventory> searchByName(List<Inventory> inventories, String keyword) {
+    public static List<Product> searchByName(List<Product> inventories, String keyword) {
         if (inventories == null || keyword == null || keyword.trim().isEmpty()) {
             return inventories;
         }
