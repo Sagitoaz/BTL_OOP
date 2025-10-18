@@ -5,8 +5,9 @@ module mini.boot {
     requires com.fasterxml.jackson.datatype.jsr310;
     requires java.sql;
     requires bcrypt;
-    
-    // PostgreSQL JDBC driver và MS SQL Server JDBC driver không phải là proper Java modules
+
+    // PostgreSQL JDBC driver và MS SQL Server JDBC driver không phải là proper Java
+    // modules
     // Chúng sẽ được load qua classpath tự động (automatic modules)
 
     exports org.miniboot.app;
@@ -21,4 +22,5 @@ module mini.boot {
 
     // Opens packages for reflection access (Gson, Jackson serialization)
     opens org.miniboot.app.domain.models to com.google.gson, com.fasterxml.jackson.databind;
+    opens org.miniboot.app.domain.models.Inventory to com.google.gson, com.fasterxml.jackson.databind;
 }

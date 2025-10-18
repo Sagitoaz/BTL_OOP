@@ -17,10 +17,10 @@ public class Json {
     static {
         // Thêm hỗ trợ Java 8 Date/Time (LocalDateTime, LocalDate, etc.)
         MAPPER.registerModule(new JavaTimeModule());
-        
+
         // Disable writing dates as timestamps (dùng ISO-8601 format)
         MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
+
         // cho phép in đẹp khi debug: bật/tắt qua env
         boolean pretty = Boolean.parseBoolean(System.getProperty(AppConfig.JSON_PRETTY_KEY,
                 System.getenv().getOrDefault(AppConfig.JSON_PRETTY_KEY, AppConfig.JSON_PRETTY_DEFAULT)));
@@ -43,6 +43,7 @@ public class Json {
     public static HttpResponse created(Object data) {
         return json(201, data);
     }
+
     public static HttpResponse error(int status, String message) {
         return json(status, java.util.Map.of("error", message));
     }
@@ -50,25 +51,36 @@ public class Json {
     @SuppressWarnings("unchecked")
     public static HttpResponse json(int status, Object data) {
         try {
+            System.out.println("🔄 Serializing to JSON: " + (data != null ? data.getClass().getName() : "null"));
             byte[] body = MAPPER.writeValueAsBytes(data);
+            System.out.println("✅ JSON serialized: " + body.length + " bytes");
             return HttpResponse.of(status, AppConfig.JSON_UTF_8_TYPE, body);
         } catch (JsonProcessingException e) {
+            System.err.println("❌ JSON SERIALIZATION FAILED!");
+            System.err.println("   Data type: " + (data != null ? data.getClass().getName() : "null"));
+            System.err.println("   Error: " + e.getMessage());
+            System.err.println("   Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "none"));
+            e.printStackTrace();
             byte[] body = ("{\"error\":\"json-serialize-failed\"}").getBytes();
             return HttpResponse.of(500, AppConfig.JSON_UTF_8_TYPE, body);
         }
     }
 
     public static String stringify(Object data) {
-        if (data == null) return "null";
-        if (data instanceof String s) return quote(s);
-        if (data instanceof Number || data instanceof Boolean) return data.toString();
+        if (data == null)
+            return "null";
+        if (data instanceof String s)
+            return quote(s);
+        if (data instanceof Number || data instanceof Boolean)
+            return data.toString();
 
         if (data instanceof Map<?, ?> map) {
             StringBuilder sb = new StringBuilder();
             sb.append("{");
             boolean first = true;
             for (Map.Entry<?, ?> entry : map.entrySet()) {
-                if (!first) sb.append(",");
+                if (!first)
+                    sb.append(",");
                 sb.append(quote(String.valueOf(entry.getKey())))
                         .append(":")
                         .append(stringify(entry.getValue()));
@@ -83,7 +95,8 @@ public class Json {
             sb.append("[");
             boolean first = true;
             for (Object o : it) {
-                if (!first) sb.append(",");
+                if (!first)
+                    sb.append(",");
                 sb.append(stringify(o));
                 first = false;
             }

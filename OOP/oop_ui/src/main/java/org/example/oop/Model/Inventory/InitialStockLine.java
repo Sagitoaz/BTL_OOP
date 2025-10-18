@@ -125,7 +125,13 @@ public class InitialStockLine {
           movement.setId(movementId);
           movement.setProductId(productId);
           movement.setQty(this.getQty()); // qty dương cho OPENING
-          movement.setMoveType(org.example.oop.Model.Inventory.Enum.MovementType.OPENING);
+          org.example.oop.Model.Inventory.Enum.MoveType mt;
+          try {
+               mt = org.example.oop.Model.Inventory.Enum.MoveType.valueOf("OPENING");
+          } catch (IllegalArgumentException e) {
+               mt = null;
+          }
+          movement.setMoveType(mt);
           movement.setRefTable("InitialStock");
           movement.setRefId(null);
           movement.setBatchNo(this.getBatchNo());

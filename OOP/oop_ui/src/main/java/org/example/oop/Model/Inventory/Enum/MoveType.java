@@ -1,8 +1,9 @@
-package org.example.oop.Data.models;
+package org.example.oop.Model.Inventory.Enum;
 
 /**
  * MoveType - loại giao dịch xuất nhập kho.
- * Theo database: enum('purchase','sale','return_in','return_out','adjustment','consume','transfer')
+ * Theo database:
+ * enum('purchase','sale','return_in','return_out','adjustment','consume','transfer')
  */
 public enum MoveType {
     PURCHASE("purchase"),
@@ -11,7 +12,8 @@ public enum MoveType {
     RETURN_OUT("return_out"),
     ADJUSTMENT("adjustment"),
     CONSUME("consume"),
-    TRANSFER("transfer");
+    TRANSFER("transfer"),
+    OPENNING("openning");
 
     private final String value;
 

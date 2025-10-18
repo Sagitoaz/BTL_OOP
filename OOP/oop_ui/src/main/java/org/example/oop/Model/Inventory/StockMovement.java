@@ -3,7 +3,7 @@ package org.example.oop.Model.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.example.oop.Model.Inventory.Enum.MovementType;
+import org.example.oop.Model.Inventory.Enum.MoveType;
 
 /**
  * Model quản lý các giao dịch xuất nhập kho
@@ -13,7 +13,7 @@ public class StockMovement {
     private int id;
     private int productId;
     private int qty; // >0 nhập, <0 xuất
-    private MovementType moveType;
+    private MoveType moveType;
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
     private Integer refId; // ID của chứng từ nguồn
     private String batchNo; // Số lô
@@ -33,7 +33,7 @@ public class StockMovement {
         this.id = id;
         this.productId = productId;
         this.qty = qty;
-        this.moveType = MovementType.valueOf(moveType);
+        this.moveType = MoveType.valueOf(moveType);
         this.refTable = refTable;
         this.refId = refId;
         this.batchNo = batchNo;
@@ -73,10 +73,10 @@ public class StockMovement {
     }
 
     public void setMoveType(String moveType) {
-        this.moveType = MovementType.valueOf(moveType);
+        this.moveType = MoveType.valueOf(moveType);
     }
 
-    public void setMoveType(MovementType moveType) {
+    public void setMoveType(MoveType moveType) {
         this.moveType = moveType;
     }
 
@@ -216,7 +216,7 @@ public class StockMovement {
         m.id = Integer.parseInt(p[i++]);
         m.productId = Integer.parseInt(p[i++]);
         m.qty = Integer.parseInt(p[i++]);
-        m.moveType = MovementType.valueOf(p[i++]);
+        m.moveType = MoveType.valueOf(p[i++]);
 
         m.refTable = emptyToNull(p[i++]);
         String refIdStr = p[i++];
