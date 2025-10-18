@@ -1,26 +1,34 @@
 package org.miniboot.app.router.middleware;
 
+import java.nio.charset.StandardCharsets;
+
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.http.HttpServer;
 import org.miniboot.app.router.Handler;
 import org.miniboot.app.router.Middleware;
 
-import java.nio.charset.StandardCharsets;
-
-
 public class ErrorHandle implements Middleware {
     public Handler apply(Handler next) {
         return req -> {
             try {
-                return next.handle(req);
+                HttpResponse response = next.handle(req);
+                System.out.println("✅ Handler returned response successfully");
+                return response;
             } catch (IllegalArgumentException e) {
+                System.err.println("❌ ErrorHandle caught IllegalArgumentException: " + e.getMessage());
                 return jsonError(400, AppConfig.RESPONSE_400, AppConfig.RESPONSE_REASON.get(400));
-            }catch (HttpServer.MethodNotAllowed e) {
+            } catch (HttpServer.MethodNotAllowed e) {
+                System.err.println("❌ ErrorHandle caught MethodNotAllowed: " + e.getMessage());
                 return jsonError(405, AppConfig.RESPONSE_405, AppConfig.RESPONSE_REASON.get(405));
-            }catch (HttpServer.NotFound e) {
+            } catch (HttpServer.NotFound e) {
+                System.err.println("❌ ErrorHandle caught NotFound: " + e.getMessage());
                 return jsonError(404, AppConfig.RESPONSE_404, AppConfig.RESPONSE_REASON.get(404));
             } catch (Exception e) {
+                System.err.println("❌ ErrorHandle caught Exception:");
+                System.err.println("   Type: " + e.getClass().getName());
+                System.err.println("   Message: " + e.getMessage());
+                e.printStackTrace();
                 return jsonError(500, AppConfig.RESPONSE_500, AppConfig.RESPONSE_REASON.get(500));
             }
         };
@@ -31,7 +39,6 @@ public class ErrorHandle implements Middleware {
         return new HttpResponse(
                 status,
                 "application/json",
-                body.getBytes(StandardCharsets.UTF_8)
-        );
+                body.getBytes(StandardCharsets.UTF_8));
     }
 }

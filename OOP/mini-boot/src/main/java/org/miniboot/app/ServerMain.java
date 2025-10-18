@@ -3,8 +3,11 @@ package org.miniboot.app;
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.controllers.Inventory.InventoryController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
+import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
+import org.miniboot.app.domain.repo.Inventory.ProductRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -18,21 +21,23 @@ public class ServerMain {
     public static void main(String[] args) throws Exception {
         // Đọc port từ AppConfig
         int port = Integer.parseInt(System.getProperty(AppConfig.PORT_KEY, AppConfig.HTTP_PORT));
-        AppConfig.load();  // Đọc cấu hình từ AppConfig
+        AppConfig.load(); // Đọc cấu hình từ AppConfig
 
         System.out.println("🚀 Starting mini-boot HTTP Server...");
         System.out.println("📊 Using PostgreSQL repositories (Supabase)");
-        
+
         // Sử dụng PostgreSQL repositories thay vì InMemory
         DoctorRepository doctorRepo = new PostgreSQLDoctorRepository();
         AppointmentRepository apptRepo = new PostgreSQLAppointmentRepository();
-        
+
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
         DoctorController dc = new DoctorController(doctorRepo, apptRepo);
         AppointmentController ac = new AppointmentController(apptRepo);
-
+        // Inventory
+        ProductRepository productRepo = new PostgreSQLProductRepository();
+        InventoryController ic = new InventoryController(productRepo);
         // Tạo router và mount controllers
         Router router = new Router();
         router.use(new AuthMiddlewareStub());
@@ -43,6 +48,7 @@ public class ServerMain {
 
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
+        InventoryController.mount(router, ic);
         // mount các controller
         AuthController.mount(router);
 
@@ -55,6 +61,10 @@ public class ServerMain {
         System.out.println("   GET  /doctors");
         System.out.println("   POST /auth/login");
         System.out.println("\n✅ Server is ready!");
+        System.out.println("   GET  /products");
+        System.out.println("   POST /products");
+        System.out.println("   PUT  /products");
+        System.out.println("   DELETE /products?id=...");
         server.start();
     }
 }
