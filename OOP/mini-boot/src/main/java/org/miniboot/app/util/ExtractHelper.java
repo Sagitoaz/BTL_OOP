@@ -24,7 +24,6 @@ public class ExtractHelper {
     }
 
     public static Optional<Integer> extractId(Map<String, List<String>> queries) {
-        // path /doctor?id=
         if (queries == null) return Optional.empty();
         List<String> ids = queries.get("id");
         if (ids == null || ids.isEmpty()) return Optional.empty();

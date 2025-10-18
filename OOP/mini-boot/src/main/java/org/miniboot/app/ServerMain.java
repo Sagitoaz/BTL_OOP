@@ -30,7 +30,7 @@ public class ServerMain {
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
-        DoctorController dc = new DoctorController(doctorRepo);
+        DoctorController dc = new DoctorController(doctorRepo, apptRepo);
         AppointmentController ac = new AppointmentController(apptRepo);
 
         // Tạo router và mount controllers
