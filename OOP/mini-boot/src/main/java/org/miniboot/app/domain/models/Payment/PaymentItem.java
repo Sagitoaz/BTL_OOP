@@ -1,4 +1,4 @@
-package org.example.oop.Model.PaymentModel;
+package org.miniboot.app.domain.models.Payment;
 
 public class PaymentItem {
     private Integer id;

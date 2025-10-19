@@ -1,4 +1,5 @@
-package org.example.oop.Model.PaymentModel;
+package org.miniboot.app.domain.models.Payment;
+
 
 import java.time.Instant;
 
@@ -53,20 +54,72 @@ public class Payment {
         return code;
     }
 
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     public Integer getCustomerId() {
         return customerId;
+    }
+
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
     public int getCashierId() {
         return cashierId;
     }
 
+    public void setCashierId(int cashierId) {
+        this.cashierId = cashierId;
+    }
+
     public Instant getIssuedAt() {
         return issuedAt;
     }
 
+    public void setIssuedAt(Instant issuedAt) {
+        this.issuedAt = issuedAt;
+    }
+
+    public int getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(int subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public int getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(int discount) {
+        this.discount = discount;
+    }
+
+    public int getTaxTotal() {
+        return taxTotal;
+    }
+
+    public void setTaxTotal(int taxTotal) {
+        this.taxTotal = taxTotal;
+    }
+
+    public int getRounding() {
+        return rounding;
+    }
+
+    public void setRounding(int rounding) {
+        this.rounding = rounding;
+    }
+
     public int getGrandTotal() {
         return grandTotal;
+    }
+
+    public void setGrandTotal(int grandTotal) {
+        this.grandTotal = grandTotal;
     }
 
     public PaymentMethod getPaymentMethod() {
@@ -97,5 +150,30 @@ public class Payment {
         return createdAt;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        if (createdAt != null) {
+            this.createdAt = createdAt;
+        }
+        this.createdAt = createdAt;
+    }
 
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", customerId=" + customerId +
+                ", cashierId=" + cashierId +
+                ", issuedAt=" + issuedAt +
+                ", subtotal=" + subtotal +
+                ", discount=" + discount +
+                ", taxTotal=" + taxTotal +
+                ", rounding=" + rounding +
+                ", grandTotal=" + grandTotal +
+                ", paymentMethod=" + paymentMethod +
+                ", amountPaid=" + amountPaid +
+                ", note='" + note + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }
