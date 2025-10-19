@@ -1,12 +1,15 @@
 package org.example.oop.Utils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.example.oop.Model.Inventory.Enum.Category;
-import org.example.oop.Model.Inventory.Enum.InventoryStatus;
-import org.miniboot.app.domain.models.AppointmentStatus;
-import org.miniboot.app.domain.models.AppointmentType;
+// ❌ REMOVED: InventoryStatus - DB dùng boolean is_active
+// import org.example.oop.Model.Inventory.Enum.InventoryStatus;
+// ❌ COMMENTED: AppointmentType/Status - chưa có trong mini-boot
+// import org.miniboot.app.domain.models.AppointmentStatus;
+// import org.miniboot.app.domain.models.AppointmentType;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,8 +21,9 @@ import com.google.gson.JsonSerializer;
  * 
  * ✅ Tránh duplicate code khi tạo Gson
  * ✅ Centralized configuration cho tất cả services
- * ✅ Hỗ trợ LocalDateTime và custom ENUMs
- * ✅ Hỗ trợ Category và InventoryStatus ENUMs cho Inventory module
+ * ✅ Hỗ trợ LocalDate, LocalDateTime và Category ENUM
+ * ❌ REMOVED: InventoryStatus (DB dùng boolean is_active)
+ * ❌ COMMENTED: AppointmentType/Status (backend chưa có)
  */
 public class GsonProvider {
 
@@ -39,34 +43,38 @@ public class GsonProvider {
          * Tạo Gson mới với custom adapters
          */
         public static Gson createGson() {
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
                 return new GsonBuilder()
-                                // LocalDateTime adapter
-                                .registerTypeAdapter(LocalDateTime.class,
-                                                (JsonDeserializer<LocalDateTime>) (json, type, context) -> LocalDateTime
-                                                                .parse(json.getAsString(), formatter))
-                                .registerTypeAdapter(LocalDateTime.class,
-                                                (JsonSerializer<LocalDateTime>) (src, type, context) -> context
-                                                                .serialize(src.format(formatter)))
+                                // ✅ LocalDate adapter (cho expiry_date trong Product)
+                                .registerTypeAdapter(LocalDate.class,
+                                                (JsonDeserializer<LocalDate>) (json, type, context) -> {
+                                                        if (json.isJsonNull())
+                                                                return null;
+                                                        return LocalDate.parse(json.getAsString(), dateFormatter);
+                                                })
+                                .registerTypeAdapter(LocalDate.class,
+                                                (JsonSerializer<LocalDate>) (src, type, context) -> {
+                                                        if (src == null)
+                                                                return null;
+                                                        return context.serialize(src.format(dateFormatter));
+                                                })
 
-                                // AppointmentType ENUM adapter
-                                .registerTypeAdapter(AppointmentType.class,
-                                                (JsonDeserializer<AppointmentType>) (json, type,
-                                                                context) -> AppointmentType
-                                                                                .fromValue(json.getAsString()))
-                                .registerTypeAdapter(AppointmentType.class,
-                                                (JsonSerializer<AppointmentType>) (src, type, context) -> context
-                                                                .serialize(src.getValue()))
-
-                                // AppointmentStatus ENUM adapter
-                                .registerTypeAdapter(AppointmentStatus.class,
-                                                (JsonDeserializer<AppointmentStatus>) (json, type,
-                                                                context) -> AppointmentStatus
-                                                                                .fromValue(json.getAsString()))
-                                .registerTypeAdapter(AppointmentStatus.class,
-                                                (JsonSerializer<AppointmentStatus>) (src, type, context) -> context
-                                                                .serialize(src.getValue()))
+                                // ✅ LocalDateTime adapter
+                                .registerTypeAdapter(LocalDateTime.class,
+                                                (JsonDeserializer<LocalDateTime>) (json, type, context) -> {
+                                                        if (json.isJsonNull())
+                                                                return null;
+                                                        return LocalDateTime.parse(json.getAsString(),
+                                                                        dateTimeFormatter);
+                                                })
+                                .registerTypeAdapter(LocalDateTime.class,
+                                                (JsonSerializer<LocalDateTime>) (src, type, context) -> {
+                                                        if (src == null)
+                                                                return null;
+                                                        return context.serialize(src.format(dateTimeFormatter));
+                                                })
 
                                 // ✅ Category ENUM adapter (Inventory module)
                                 .registerTypeAdapter(Category.class,
@@ -74,15 +82,6 @@ public class GsonProvider {
                                                                 .fromCode(json.getAsString()))
                                 .registerTypeAdapter(Category.class,
                                                 (JsonSerializer<Category>) (src, type, context) -> context
-                                                                .serialize(src.getCode()))
-
-                                // ✅ InventoryStatus ENUM adapter (Inventory module)
-                                .registerTypeAdapter(InventoryStatus.class,
-                                                (JsonDeserializer<InventoryStatus>) (json, type,
-                                                                context) -> InventoryStatus
-                                                                                .fromCode(json.getAsString()))
-                                .registerTypeAdapter(InventoryStatus.class,
-                                                (JsonSerializer<InventoryStatus>) (src, type, context) -> context
                                                                 .serialize(src.getCode()))
 
                                 .create();

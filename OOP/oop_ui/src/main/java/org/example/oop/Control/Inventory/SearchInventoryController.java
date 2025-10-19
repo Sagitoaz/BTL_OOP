@@ -1,339 +1,413 @@
 package org.example.oop.Control.Inventory;
 
-// package org.example.oop.Control;
-//
-// import java.io.IOException;
-// import java.time.LocalDate;
-// import java.util.Set;
-// import java.util.TreeSet;
-//
-// import org.example.oop.Model.Inventory.Inventory;
-// import org.example.oop.Repository.InventoryRepository;
-// import org.example.oop.Utils.AppConfig;
-//
-// import javafx.beans.property.ReadOnlyObjectWrapper;
-// import javafx.collections.FXCollections;
-// import javafx.collections.ObservableList;
-// import javafx.collections.transformation.FilteredList;
-// import javafx.event.ActionEvent;
-// import javafx.fxml.FXML;
-// import javafx.scene.control.Button;
-// import javafx.scene.control.ComboBox;
-// import javafx.scene.control.DatePicker;
-// import javafx.scene.control.Label;
-// import javafx.scene.control.ProgressIndicator;
-// import javafx.scene.control.SelectionMode;
-// import javafx.scene.control.TableColumn;
-// import javafx.scene.control.TableView;
-// import javafx.scene.control.TextArea;
-// import javafx.scene.control.TextField;
-// import javafx.scene.image.ImageView;
-//
-// public class SearchInventoryController {
-// @FXML
-// private TableColumn<Inventory, String> categoryColumn;
-// @FXML
-// private TableColumn<Inventory, Integer> idColumn;
-// @FXML
-// private TableView<Inventory> inventoryTable;
-// @FXML
-// private TableColumn<Inventory, LocalDate> lastUpdatedColumn;
-// @FXML
-// private TableColumn<Inventory, String> nameColumn;
-// @FXML
-// private TableColumn<Inventory, Integer> priceColumn;
-// @FXML
-// private TableColumn<Inventory, Integer> quantityColumn;
-// @FXML
-// private Button resetButton;
-// @FXML
-// private Button searchButton;
-// @FXML
-// private TextField searchTextField;
-// @FXML
-// private TableColumn<Inventory, String> typeColumn;
-// @FXML
-// private TableColumn<Inventory, String> unitColumn;
-// @FXML
-// private DatePicker lastUpdatedPicker;
-// @FXML
-// private ComboBox<String> categoryBox;
-// @FXML
-// private ComboBox<String> typeBox;
-// @FXML
-// private Label itemName;
-// @FXML
-// TextArea itemDescription;
-// @FXML
-// private TextField skuTextField;
-// @FXML
-// private ComboBox<String> statusBox;
-// @FXML
-// private Button exportButton;
-//
-// // Columns thiếu
-// @FXML
-// private TableColumn<Inventory, String> skuColumn;
-// @FXML
-// private TableColumn<Inventory, String> statusColumn;
-//
-// // Quick info fields thiếu
-// @FXML
-// private Label quickSku;
-// @FXML
-// private Label quickStatus;
-// @FXML
-// private Label quickPrice;
-// @FXML
-// private Label quickType;
-// @FXML
-// private Label quickCategory;
-// @FXML
-// private Label quickCostPrice;
-// @FXML
-// private Label quickQuantity;
-// @FXML
-// private Label quickUnit;
-//
-// // UI components thiếu
-// @FXML
-// private ImageView itemImage;
-// @FXML
-// private Label messageLabel;
-// @FXML
-// private ProgressIndicator loadingIndicator;
-// @FXML
-// private Label countLabel;
-//
-// private final InventoryRepository inventoriesController = new
-// InventoryRepository();
-// private ObservableList<Inventory> masterData =
-// FXCollections.observableArrayList();
-// private FilteredList<Inventory> rowFilteredList;
-//
-// @FXML
-// public void initialize() throws IOException {
-// InitTable();
-// InitTypeBox();
-// InitCategoryBox();
-// InitStatusBox();
-// rowFilteredList = new FilteredList<>(masterData, predicate -> true);
-// searchTextField.setOnAction(event -> updatePredicate());
-// typeBox.setOnAction(event -> updatePredicate());
-// categoryBox.setOnAction(event -> updatePredicate());
-// lastUpdatedPicker.setOnAction(event -> updatePredicate());
-// skuTextField.setOnAction(event -> updatePredicate());
-// statusBox.setOnAction(event -> updatePredicate());
-// updatePredicate();
-// }
-//
-// private void InitStatusBox() {
-// ObservableList<String> statuses = FXCollections.observableArrayList();
-// statuses.add("Status"); // Default value
-// statuses.add("IN_STOCK");
-// statuses.add("LOW_STOCK");
-// statuses.add("OUT_OF_STOCK");
-//
-// statusBox.setItems(statuses);
-// statusBox.getSelectionModel().selectFirst();
-// }
-//
-// @FXML
-// void OnClickResetButton(ActionEvent event) {
-// searchTextField.clear();
-// skuTextField.clear();
-// typeBox.getSelectionModel().selectFirst(); // Select "Type"
-// categoryBox.getSelectionModel().selectFirst(); // Select "Category"
-// statusBox.getSelectionModel().selectFirst(); // Select "Status"
-// lastUpdatedPicker.setValue(null);
-// updatePredicate();
-// }
-//
-// @FXML
-// void OnClickSearchButton(ActionEvent event) {
-// updatePredicate();
-// }
-//
-// @FXML
-// void OnClickExportButton(ActionEvent event) {
-//
-// System.out.println("Export clicked - To be implemented");
-// messageLabel.setText("Export functionality coming soon");
-// }
-//
-// private void InitTable() throws IOException {
-// idColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getId()));
-// nameColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getName()));
-// typeColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getType()));
-// categoryColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getCategory()));
-// quantityColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getQuantity()));
-// unitColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getUnit()));
-// priceColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getUnitPrice()));
-// lastUpdatedColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getLastUpdated()));
-// skuColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getSku()));
-// statusColumn.setCellValueFactory(c -> new
-// ReadOnlyObjectWrapper<>(c.getValue().getStockStatus()));
-//
-// masterData = inventoriesController.loadInventory(AppConfig.TEST_DATA_TXT);
-//
-// inventoryTable.setItems(masterData);
-// inventoryTable.getSortOrder().clear();
-// inventoryTable.getSortOrder().add(idColumn);
-// inventoryTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-// inventoryTable.getSelectionModel().selectedItemProperty()
-// .addListener((item, oldRow, newRow) -> updateDetail(newRow));
-// }
-//
-// private void InitCategoryBox() {
-// Set<String> categories = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-// for (Inventory row : masterData) {
-// if (row != null) {
-// String category = row.getCategory();
-// if (category != null) {
-// category = category.trim();
-// if (!category.isEmpty()) {
-// categories.add(category);
-// }
-// }
-// }
-// }
-// ObservableList<String> itemTypes = FXCollections.observableArrayList();
-// itemTypes.add("Category");
-// itemTypes.addAll(categories);
-// categoryBox.setItems(itemTypes);
-// categoryBox.getSelectionModel().selectFirst();
-// }
-//
-// private void InitTypeBox() {
-// Set<String> types = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-// for (Inventory row : masterData) {
-// if (row != null) {
-// String type = row.getType();
-// if (type != null) {
-// type = type.trim();
-// if (!type.isEmpty()) {
-// types.add(type);
-// }
-// }
-// }
-// }
-// ObservableList<String> itemTypes = FXCollections.observableArrayList();
-// itemTypes.add("Type");
-// itemTypes.addAll(types);
-// typeBox.setItems(itemTypes);
-// typeBox.getSelectionModel().selectFirst();
-// }
-//
-// // Sau dùng database sẽ sửa ở hàm này thành hàm gọi liên kết đến db t
-// // InventoriesController
-// private void updatePredicate() {
-// String keyword = searchTextField.getText() == null ? "" :
-// searchTextField.getText().trim().toLowerCase();
-// String skuKeyword = skuTextField.getText() == null ? "" :
-// skuTextField.getText().trim().toLowerCase();
-//
-// String typeSelected = typeBox.getSelectionModel().getSelectedItem();
-// boolean allTypes = (typeSelected == null ||
-// typeSelected.equalsIgnoreCase("Type"));
-//
-// String categorySelected = categoryBox.getSelectionModel().getSelectedItem();
-// boolean allCategories = (categorySelected == null ||
-// categorySelected.equalsIgnoreCase("Category")); // ✅ SỬA
-//
-// LocalDate dateSelected = lastUpdatedPicker.getValue();
-//
-// String statusSelected = statusBox.getSelectionModel().getSelectedItem();
-// boolean allStatuses = (statusSelected == null ||
-// statusSelected.equalsIgnoreCase("Status"));
-//
-// rowFilteredList.setPredicate(row -> {
-// boolean matchKeyword = keyword.isEmpty() ||
-// (row.getName() != null && row.getName().toLowerCase().contains(keyword));
-//
-// boolean matchSku = skuKeyword.isEmpty() ||
-// (row.getSku() != null && row.getSku().toLowerCase().contains(skuKeyword));
-//
-// boolean matchType = allTypes ||
-// (row.getType() != null && row.getType().equalsIgnoreCase(typeSelected));
-//
-// boolean matchCategory = allCategories ||
-// (row.getCategory() != null &&
-// row.getCategory().equalsIgnoreCase(categorySelected));
-//
-// boolean matchDate = (dateSelected == null) ||
-// (row.getLastUpdated() != null && row.getLastUpdated().equals(dateSelected));
-//
-// boolean matchStatus = allStatuses ||
-// (row.getStockStatus() != null &&
-// row.getStockStatus().equalsIgnoreCase(statusSelected));
-//
-// // ✅ SỬA: matchSku (không phải mathSku!)
-// return matchSku && matchType && matchKeyword && matchCategory && matchDate &&
-// matchStatus;
-// });
-//
-// inventoryTable.setItems(rowFilteredList);
-// updateCountLabel();
-// }
-//
-// private void updateDetail(Inventory row) {
-// if (row == null) {
-// itemName.setText("");
-// itemDescription.setText("");
-//
-// quickSku.setText("");
-// quickStatus.setText("");
-// quickPrice.setText("");
-// quickType.setText("");
-// quickCategory.setText("");
-// quickCostPrice.setText("");
-// quickQuantity.setText("");
-// quickUnit.setText("");
-// return;
-// }
-//
-// itemName.setText(row.getName());
-// itemDescription.setText("Nothing to describe");
-//
-// quickSku.setText(row.getSku() != null ? row.getSku() : "N/A");
-// quickStatus.setText(row.getStockStatus() != null ? row.getStockStatus() :
-// "N/A");
-// quickType.setText(row.getType() != null ? row.getType() : "N/A");
-// quickCategory.setText(row.getCategory() != null ? row.getCategory() : "N/A");
-// quickQuantity.setText(row.getQuantity() >= 0 ?
-// String.valueOf(row.getQuantity()) : "0");
-// quickUnit.setText(row.getUnit() != null ? row.getUnit() : "N/A");
-//
-// if (row.getUnitPrice() != null) {
-// quickPrice.setText(String.format("%,d VND", row.getUnitPrice()));
-// } else {
-// quickPrice.setText("0 VND");
-// }
-//
-// if (row.getPriceCost() != null) {
-// quickCostPrice.setText(String.format("%,d VND", row.getPriceCost()));
-// } else {
-// quickCostPrice.setText("N/A");
-// }
-// }
-//
-// private void updateCountLabel() {
-// int count = rowFilteredList.size();
-// countLabel.setText(count + " items");
-//
-// if (count == 0) {
-// messageLabel.setText("No items found");
-// } else {
-// messageLabel.setText("Ready");
-// }
-// }
-// }
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+
+import org.example.oop.Model.Inventory.Product;
+import org.example.oop.Service.ApiProductService;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView; // ✅ Import Product model
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
+
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+
+import org.example.oop.Control.BaseController;
+
+public class SearchInventoryController extends BaseController implements Initializable {
+     @FXML
+     private TableColumn<Product, String> categoryColumn;
+     @FXML
+     private TableColumn<Product, Integer> idColumn;
+     @FXML
+     private TableView<Product> inventoryTable;
+     @FXML
+     private TableColumn<Product, String> lastUpdatedColumn;
+     @FXML
+     private TableColumn<Product, String> nameColumn;
+     @FXML
+     private TableColumn<Product, Integer> priceColumn;
+     @FXML
+     private TableColumn<Product, Integer> quantityColumn;
+     @FXML
+     private Button resetButton;
+     @FXML
+     private Button searchButton;
+     @FXML
+     private TextField searchTextField;
+     @FXML
+     private TableColumn<Product, String> unitColumn;
+     @FXML
+     private DatePicker lastUpdatedPicker;
+     @FXML
+     private ComboBox<String> categoryBox;
+     @FXML
+     private ComboBox<String> typeBox;
+     @FXML
+     private Label itemName;
+     @FXML
+     TextArea itemDescription;
+     @FXML
+     private ComboBox<String> statusBox;
+     @FXML
+     private Button exportButton;
+
+     // Columns thiếu
+     @FXML
+     private TableColumn<Product, String> skuColumn;
+     @FXML
+     private TableColumn<Product, String> statusColumn;
+
+     // Quick info fields thiếu
+     @FXML
+     private Label quickSku;
+     @FXML
+     private Label quickStatus;
+     @FXML
+     private Label quickPrice;
+     @FXML
+     private Label quickType;
+     @FXML
+     private Label quickCategory;
+     @FXML
+     private Label quickCostPrice;
+     @FXML
+     private Label quickRetailPrice;
+     @FXML
+     private Label quickQuantity;
+     @FXML
+     private Label quickUnit;
+
+     // UI components thiếu
+     @FXML
+     private ImageView itemImage;
+     @FXML
+     private Label messageLabel;
+     @FXML
+     private ProgressIndicator loadingIndicator;
+     @FXML
+     private Label countLabel;
+     @FXML
+     private final ApiProductService productService = new ApiProductService();
+     private final ObservableList<Product> masterData = FXCollections.observableArrayList();
+     private FilteredList<Product> filteredData;
+
+     @Override
+     public void initialize(URL url, ResourceBundle rb) {
+          setupTable();
+          setupFilters();
+          setupLoadingIndicator();
+
+          // Load data trong background
+          loadDataAsync();
+     }
+
+     private void setupTable() {
+          idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+          skuColumn.setCellValueFactory(new PropertyValueFactory<>("sku"));
+          nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+          categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+          quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand")); // ✅ camelCase
+          unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
+          priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail")); // ✅ camelCase
+          statusColumn.setCellValueFactory(cellData -> {
+               Product p = cellData.getValue();
+               String status = p.isActive() ? "Active" : "Inactive";
+               return new javafx.beans.property.SimpleStringProperty(status);
+          });
+          if (lastUpdatedColumn != null) {
+               lastUpdatedColumn.setCellValueFactory(cellData -> {
+                    Product p = cellData.getValue();
+                    if (p.getCreatedAt() != null) {
+                         String date = p.getCreatedAt().format(
+                                   DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                         return new javafx.beans.property.SimpleStringProperty(date);
+                    }
+                    return new javafx.beans.property.SimpleStringProperty("");
+               });
+          }
+
+          // Selection listener
+          inventoryTable.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldSelection, newSelection) -> {
+                         if (newSelection != null) {
+                              updateDetail(newSelection);
+                         }
+                    });
+          filteredData = new FilteredList<>(masterData, p -> true);
+          inventoryTable.setItems(filteredData);
+     }
+
+     private void setupFilters() {
+          // Auto-apply filter on text change
+          if (searchTextField != null) {
+               searchTextField.textProperty().addListener((obs, o, n) -> applyFilter());
+          }
+          if (categoryBox != null) {
+               categoryBox.valueProperty().addListener((obs, o, n) -> applyFilter());
+          }
+          if (statusBox != null) {
+               statusBox.valueProperty().addListener((obs, o, n) -> applyFilter());
+          }
+     }
+
+     private void setupLoadingIndicator() {
+          if (loadingIndicator != null) {
+               loadingIndicator.setVisible(false);
+               loadingIndicator.setManaged(false);
+          }
+     }
+
+     // ==================== ASYNC DATA LOADING ====================
+     private void loadDataAsync() {
+          showLoading(true);
+          updateMessage("🔄 Đang tải dữ liệu...");
+
+          executeAsync(
+                    // Background: Load all products
+                    () -> {
+                         try {
+                              return productService.getAllProducts();
+                         } catch (Exception e) {
+                              throw new RuntimeException(e);
+                         }
+                    },
+
+                    // Success: Update UI
+                    loadedProducts -> {
+                         masterData.clear();
+                         masterData.addAll(loadedProducts);
+
+                         // Setup filter boxes
+                         setupCategoryBox();
+                         setupStatusBox();
+
+                         applyFilter();
+                         showLoading(false);
+                         updateMessage("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
+                         updateCountLabel();
+                    },
+
+                    // Error
+                    error -> {
+                         showLoading(false);
+                         updateMessage("❌ Lỗi tải dữ liệu: " + error.getMessage());
+                         showError("Không thể tải dữ liệu sản phẩm.\n\n" + error.getMessage());
+                    });
+     }
+
+     private void setupCategoryBox() {
+          if (categoryBox == null)
+               return;
+
+          ObservableList<String> categories = FXCollections.observableArrayList();
+          categories.add("All Categories");
+
+          masterData.stream()
+                    .map(p -> p.getCategory() != null ? p.getCategory().toString() : null)
+                    .filter(cat -> cat != null && !cat.trim().isEmpty())
+                    .distinct()
+                    .sorted()
+                    .forEach(categories::add);
+
+          categoryBox.setItems(categories);
+          categoryBox.getSelectionModel().selectFirst();
+     }
+
+     private void setupStatusBox() {
+          if (statusBox == null)
+               return;
+
+          ObservableList<String> statuses = FXCollections.observableArrayList(
+                    "All Status", "Active", "Inactive");
+          statusBox.setItems(statuses);
+          statusBox.getSelectionModel().selectFirst();
+     }
+
+     // ==================== BUTTON HANDLERS ====================
+
+     @FXML
+     private void OnClickSearchButton(javafx.event.ActionEvent event) {
+          applyFilter();
+     }
+
+     @FXML
+     private void OnClickResetButton(javafx.event.ActionEvent event) {
+          if (searchTextField != null)
+               searchTextField.clear();
+          if (categoryBox != null)
+               categoryBox.getSelectionModel().selectFirst();
+          if (statusBox != null)
+               statusBox.getSelectionModel().selectFirst();
+          if (lastUpdatedPicker != null)
+               lastUpdatedPicker.setValue(null);
+          applyFilter();
+     }
+
+     @FXML
+     private void OnClickExportButton(javafx.event.ActionEvent event) {
+          // TODO: Implement export functionality
+          showWarning("Chức năng export đang được phát triển");
+     }
+
+     // ==================== FILTER LOGIC ====================
+
+     private void applyFilter() {
+          String keyword = normalizeText(searchTextField != null ? searchTextField.getText() : "");
+
+          String categorySelected = categoryBox != null ? categoryBox.getValue() : "All Categories";
+          boolean allCategories = categorySelected == null || categorySelected.equals("All Categories");
+
+          String statusSelected = statusBox != null ? statusBox.getValue() : "All Status";
+          boolean allStatuses = statusSelected == null || statusSelected.equals("All Status");
+
+          LocalDate dateSelected = lastUpdatedPicker != null ? lastUpdatedPicker.getValue() : null;
+
+          filteredData.setPredicate(product -> {
+               if (product == null)
+                    return false;
+
+               // Filter by name keyword
+               boolean matchKeyword = keyword.isEmpty() ||
+                         normalizeText(product.getName()).contains(keyword);
+
+               // Filter by category
+               boolean matchCategory = allCategories ||
+                         normalizeText(String.valueOf(product.getCategory())).equals(normalizeText(categorySelected));
+
+               // Filter by status
+               boolean matchStatus = allStatuses ||
+                         (statusSelected.equals("Active") && product.isActive()) ||
+                         (statusSelected.equals("Inactive") && !product.isActive());
+
+               // Filter by date
+               boolean matchDate = dateSelected == null ||
+                         (product.getCreatedAt() != null &&
+                                   product.getCreatedAt().toLocalDate().equals(dateSelected));
+
+               return matchKeyword && matchCategory && matchStatus && matchDate;
+          });
+
+          updateCountLabel();
+     }
+
+     private String normalizeText(String text) {
+          if (text == null)
+               return "";
+          String normalized = java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD);
+          return normalized.replaceAll("\\p{M}+", "").toLowerCase().trim();
+     }
+
+     // ==================== DETAIL PANEL ====================
+
+     private void updateDetail(Product product) {
+          if (product == null) {
+               clearDetail();
+               return;
+          }
+
+          runOnUIThread(() -> {
+               if (itemName != null)
+                    itemName.setText(product.getName());
+               if (itemDescription != null) {
+                    itemDescription.setText(product.getNote() != null ? product.getNote() : "Không có mô tả");
+               }
+
+               if (quickSku != null)
+                    quickSku.setText(product.getSku());
+               if (quickStatus != null)
+                    quickStatus.setText(product.isActive() ? "Active" : "Inactive");
+               if (quickCategory != null)
+                    quickCategory.setText(String.valueOf(product.getCategory()));
+               if (quickUnit != null)
+                    quickUnit.setText(product.getUnit());
+               if (quickQuantity != null)
+                    quickQuantity.setText(String.valueOf((int) product.getQtyOnHand()));
+
+               if (quickPrice != null) {
+                    quickPrice.setText(String.format("%,d VND", product.getPriceRetail()));
+               }
+               if (quickCostPrice != null) {
+                    quickCostPrice.setText(String.format("%,d VND", product.getPriceCost()));
+               }
+          });
+     }
+
+     private void clearDetail() {
+          runOnUIThread(() -> {
+               if (itemName != null)
+                    itemName.setText("");
+               if (itemDescription != null)
+                    itemDescription.setText("");
+               if (quickSku != null)
+                    quickSku.setText("");
+               if (quickStatus != null)
+                    quickStatus.setText("");
+               if (quickCategory != null)
+                    quickCategory.setText("");
+               if (quickUnit != null)
+                    quickUnit.setText("");
+               if (quickQuantity != null)
+                    quickQuantity.setText("");
+               if (quickPrice != null)
+                    quickPrice.setText("");
+               if (quickCostPrice != null)
+                    quickCostPrice.setText("");
+          });
+     }
+
+     // ==================== UI HELPERS ====================
+
+     private void showLoading(boolean show) {
+          runOnUIThread(() -> {
+               if (loadingIndicator != null) {
+                    loadingIndicator.setVisible(show);
+                    loadingIndicator.setManaged(show);
+               }
+          });
+     }
+
+     private void updateMessage(String message) {
+          runOnUIThread(() -> {
+               if (messageLabel != null) {
+                    messageLabel.setText(message);
+               }
+               System.out.println("📝 Message: " + message);
+          });
+     }
+
+     private void updateCountLabel() {
+          runOnUIThread(() -> {
+               if (countLabel != null) {
+                    int count = filteredData.size();
+                    countLabel.setText(count + " sản phẩm");
+
+                    if (messageLabel != null) {
+                         if (count == 0) {
+                              messageLabel.setText("Không tìm thấy sản phẩm nào");
+                         } else {
+                              messageLabel.setText("Tìm thấy " + count + " sản phẩm");
+                         }
+                    }
+               }
+          });
+     }
+}

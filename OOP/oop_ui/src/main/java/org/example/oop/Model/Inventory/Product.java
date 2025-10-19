@@ -5,35 +5,36 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.example.oop.Model.Inventory.Enum.Category;
-import org.example.oop.Model.Inventory.Enum.InventoryStatus;
 
 /**
- * Product Model cho UI với ENUM support
+ * Product Model - Khớp 100% với Database Schema
  * 
- * ⚠️ Model này KHÁC với backend Product.java trong mini-boot
- * ✅ Sử dụng ENUM cho category và status
- * ✅ Deserialize từ JSON response của API (GsonProvider tự động convert)
+ * Database: Products table
+ * - category:
+ * ENUM('frame','lens','contact_lens','machine','consumable','service')
+ * - is_active: BOOLEAN (default: true)
+ * - Không có InventoryStatus enum
  */
 public class Product {
 
     // ====================
-    // FIELDS - Khớp với backend JSON response
+    // FIELDS - Khớp 100% với DB
     // ====================
 
-    private int id; // Primary key
-    private String sku; // Mã hàng (unique)
-    private String name; // Tên sản phẩm
-    private Category category; // ✅ ENUM: Medication, Equipment, Supplies, Consumables
-    private String unit; // Đơn vị: Chiếc, Hộp, Dịch vụ...
-    private Integer priceCost; // Giá nhập (có thể null)
-    private Integer priceRetail; // Giá bán lẻ (có thể null)
-    private InventoryStatus status; // ✅ ENUM: Active, Discontinued, Out of Stock, Low Stock
-    private int qtyOnHand; // Số lượng tồn kho
-    private String batchNo; // Số lô (nullable)
-    private LocalDate expiryDate; // Hạn sử dụng (nullable)
-    private String serialNo; // Serial number (nullable)
-    private String note; // Ghi chú (nullable)
-    private LocalDateTime createdAt; // Thời gian tạo
+    private int id; // PK
+    private String sku; // VARCHAR(40) UNIQUE NOT NULL
+    private String name; // NVARCHAR(200) NOT NULL
+    private Category category; // ✅ ENUM
+    private String unit; // NVARCHAR(20)
+    private Integer priceCost; // INT (nullable)
+    private Integer priceRetail; // INT (nullable)
+    private boolean isActive; // ✅ BOOLEAN (default: true)
+    private int qtyOnHand; // INT NOT NULL DEFAULT 0
+    private String batchNo; // VARCHAR(40) (nullable)
+    private LocalDate expiryDate; // DATE (nullable)
+    private String serialNo; // VARCHAR(60) (nullable)
+    private String note; // NVARCHAR(255) (nullable)
+    private LocalDateTime createdAt; // DATETIME
 
     // ====================
     // CONSTRUCTORS
@@ -43,7 +44,7 @@ public class Product {
      * Constructor đầy đủ - Dùng khi tạo mới Product với ENUM
      */
     public Product(int id, String sku, String name, Category category, String unit,
-            Integer priceCost, Integer priceRetail, InventoryStatus status, int qtyOnHand,
+            Integer priceCost, Integer priceRetail, boolean isActive, int qtyOnHand,
             String batchNo, LocalDate expiryDate, String serialNo, String note,
             LocalDateTime createdAt) {
         this.id = id;
@@ -53,7 +54,7 @@ public class Product {
         this.unit = unit;
         this.priceCost = priceCost;
         this.priceRetail = priceRetail;
-        this.status = status;
+        this.isActive = isActive;
         this.qtyOnHand = qtyOnHand;
         this.batchNo = batchNo;
         this.expiryDate = expiryDate;
@@ -66,7 +67,7 @@ public class Product {
      * Constructor rỗng - Gson cần để deserialize JSON
      */
     public Product() {
-        this.status = InventoryStatus.ACTIVE; // Default
+        this.isActive = true; // Default: Hoạt động
     }
 
     // ====================
@@ -129,19 +130,17 @@ public class Product {
         this.priceRetail = priceRetail;
     }
 
-    public InventoryStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(InventoryStatus status) {
-        this.status = status;
-    }
-
     /**
-     * Helper method để check active status
+     * Getter/Setter cho isActive (boolean)
+     * - true: Hoạt động
+     * - false: Ngừng hoạt động
      */
     public boolean isActive() {
-        return status == InventoryStatus.ACTIVE;
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public int getQtyOnHand() {
