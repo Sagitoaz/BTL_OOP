@@ -14,6 +14,12 @@ public enum PaymentStatus {
         this.display = display;
     }
 
+    public static PaymentStatus fromCode(String c) {
+        for (PaymentStatus s : values())
+            if (s.code.equals(c))
+                return s;
+        throw new IllegalArgumentException("Unknown PaymentStatus: " + c);
+    }
 
     public String code() {
         return code;

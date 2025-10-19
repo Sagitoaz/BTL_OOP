@@ -12,7 +12,6 @@ import org.example.oop.Model.PaymentModel.Payment;
 import org.example.oop.Model.PaymentModel.PaymentItem;
 import org.example.oop.Model.PaymentModel.Receipt;
 
-import java.math.BigDecimal;
 import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -113,7 +112,7 @@ public class ReceiptController implements Initializable {
         lblAmountPaid.setText(String.format("%,d", payment.getAmountPaid().intValue()));
 
         // Tính tiền thừa
-        BigDecimal change = payment.getAmountPaid().subtract(BigDecimal.valueOf(payment.getGrandTotal()));
+        Integer change = payment.getAmountPaid() - payment.getGrandTotal();
         lblChange.setText(String.format("%,d", change.intValue()));
     }
 

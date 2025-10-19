@@ -1,7 +1,9 @@
 package org.miniboot.app.domain.models.Payment;
 
 
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 // Giả sử bạn có một enum PaymentMethod như sau:
 // enum PaymentMethod {
@@ -13,19 +15,19 @@ public class Payment {
     private String code;
     private Integer customerId;
     private int cashierId;
-    private Instant issuedAt;
+    private LocalDateTime issuedAt;
     private int subtotal, discount, taxTotal, rounding, grandTotal;
     private PaymentMethod paymentMethod; // null khi chưa chốt
     private Integer amountPaid; // null khi chưa chốt
     private String note;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     public Payment() {
     }
 
-    public Payment(Integer id, String code, Integer customerId, int cashierId, Instant issuedAt,
+    public Payment(Integer id, String code, Integer customerId, int cashierId, LocalDateTime issuedAt,
                    int subtotal, int discount, int taxTotal, int rounding, int grandTotal,
-                   PaymentMethod paymentMethod, Integer amountPaid, String note, Instant createdAt) {
+                   PaymentMethod paymentMethod, Integer amountPaid, String note, LocalDateTime createdAt) {
         this.id = id;
         this.code = code;
         this.customerId = customerId;
@@ -74,11 +76,11 @@ public class Payment {
         this.cashierId = cashierId;
     }
 
-    public Instant getIssuedAt() {
+    public LocalDateTime getIssuedAt() {
         return issuedAt;
     }
 
-    public void setIssuedAt(Instant issuedAt) {
+    public void setIssuedAt(LocalDateTime issuedAt) {
         this.issuedAt = issuedAt;
     }
 
@@ -146,15 +148,15 @@ public class Payment {
         this.note = note;
     }
 
-    public Instant getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         if (createdAt != null) {
             this.createdAt = createdAt;
         }
-        this.createdAt = createdAt;
+        this.createdAt = Timestamp.from(Instant.now()).toLocalDateTime();
     }
 
     @Override

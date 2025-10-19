@@ -13,6 +13,13 @@ public enum PaymentMethod {
         this.display = display;
     }
 
+    public static PaymentMethod fromCode(String code) {
+        for (PaymentMethod method : values()) {
+            if (method.code.equalsIgnoreCase(code)) return method;
+        }
+        throw new IllegalArgumentException("Unknown PaymentMethod: " + code);
+    }
+
     public String getCode() {
         return code;
     }

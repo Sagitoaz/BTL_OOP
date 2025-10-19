@@ -95,7 +95,7 @@ public class PaymentController implements Initializable {
                 return;
             }
 
-            PaymentStatus status = (new HttpPaymentStatusLogService()).getCurrentStatusById(currentPayment.getId());
+            PaymentStatus status = (new HttpPaymentStatusLogService()).getCurrentStatusById(currentPayment.getId()).getStatus();
 
             // Kiểm tra trạng thái thanh toán
             if (status == PaymentStatus.PAID) {
@@ -150,8 +150,8 @@ public class PaymentController implements Initializable {
         }
 
         try {
-            BigDecimal amountPaid = new BigDecimal(txtAmountPaid.getText());
-            if (amountPaid.compareTo(BigDecimal.valueOf(currentPayment.getGrandTotal())) < 0) {
+            Integer amountPaid = Integer.parseInt(txtAmountPaid.getText());
+            if (amountPaid < currentPayment.getGrandTotal()) {
                 showAlert(Alert.AlertType.ERROR, "Số tiền không đủ",
                         "Số tiền thanh toán phải lớn hơn hoặc bằng tổng tiền");
                 return;
