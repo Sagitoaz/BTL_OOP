@@ -55,7 +55,8 @@ public class AddCustomerViewController implements Initializable
         String email = emailField.getText();
         String notes = notesArea.getText();
 
-        //newPatientRecord = new Customer(222, name, dob, gender, address, phone, email, notes);
+        newPatientRecord = new Customer(0, null, null, name, name, phone, email, dob, gender,address,
+                notes, null);
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }

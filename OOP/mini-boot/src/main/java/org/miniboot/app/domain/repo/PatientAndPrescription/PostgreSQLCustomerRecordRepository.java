@@ -172,7 +172,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
         List<Customer> customers = new ArrayList<>();
         String sqlQuery = "SELECT * FROM customers "+
                 "WHERE (LOWER(firstname) LIKE LOWER('%'||?||'%') OR LOWER(lastname) LIKE LOWER('%'||?||'%') "+
-                "OR phone LIKE (?) OR id = ?) "+
+                "OR phone LIKE (?) OR id = ? OR ? IS NULL) "+
                 "AND (gender = ? OR ? IS NULL) "+
                 "AND (dob >= ? OR ? IS NULL) "+
                 "AND (dob <= ? OR ? IS NULL);";
@@ -188,33 +188,36 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
                 catch (NumberFormatException e){
                     pstmt.setNull(4, Types.INTEGER);
                 }
+                pstmt.setString(5, criteria.getSearchKey());
             }
             else{
                 pstmt.setNull(4, Types.INTEGER);
+                pstmt.setNull(5, Types.VARCHAR);
             }
+
             if(criteria.getGender() != null){
-                pstmt.setString(5, criteria.getGender().name());
-                pstmt.setString(6, criteria.getGender().name());
+                pstmt.setString(6, criteria.getGender().name().toUpperCase());
+                pstmt.setString(7, criteria.getGender().name().toUpperCase());
             }
             else{
-                pstmt.setNull(5, Types.VARCHAR);
                 pstmt.setNull(6, Types.VARCHAR);
+                pstmt.setNull(7, Types.VARCHAR);
             }
             if(criteria.getDateFrom() != null){
-                pstmt.setDate(7, Date.valueOf(criteria.getDateFrom()));
                 pstmt.setDate(8, Date.valueOf(criteria.getDateFrom()));
+                pstmt.setDate(9, Date.valueOf(criteria.getDateFrom()));
             }
             else{
-                pstmt.setNull(7, Types.DATE);
                 pstmt.setNull(8, Types.DATE);
+                pstmt.setNull(9, Types.DATE);
             }
             if(criteria.getDateTo() != null){
-                pstmt.setDate(9, Date.valueOf(criteria.getDateTo()));
                 pstmt.setDate(10, Date.valueOf(criteria.getDateTo()));
+                pstmt.setDate(11, Date.valueOf(criteria.getDateTo()));
             }
             else{
-                pstmt.setNull(9, Types.DATE);
                 pstmt.setNull(10, Types.DATE);
+                pstmt.setNull(11, Types.DATE);
             }
             ResultSet rs = pstmt.executeQuery();
             while(rs.next()){

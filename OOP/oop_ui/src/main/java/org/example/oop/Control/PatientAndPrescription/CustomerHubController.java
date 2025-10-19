@@ -109,6 +109,7 @@ public class CustomerHubController implements Initializable {
             customers -> {
                 customerRecordsList.clear();
                 customerRecordsList.addAll(customers);
+                customerListView.setItems(customerRecordsList);
             },
             error -> {
                 System.err.println("❌ Error searching customers: " + error);
@@ -168,7 +169,8 @@ public class CustomerHubController implements Initializable {
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
             Customer newPatient = controller.getNewPatientRecord();
-            addCustomerRecord(newPatient);
+            CustomerRecordService.getInstance().createCustomer(newPatient);
+            loadCustomerData();
         } catch (IOException e) {
             System.err.println("Error opening Add Customer dialog: " + e.getMessage());
             showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());

@@ -95,8 +95,10 @@ public class CustomerRecordController {
                 return Json.ok(customerRecordRepository.findAll());
             }
             else{
+
                 try {
                     List<Customer> results = customerRecordRepository.findByFilterAll(criteria);
+
                     return Json.ok(results);
                 } catch (Exception e) {
                     return HttpResponse.of(400,
