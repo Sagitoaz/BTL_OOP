@@ -37,6 +37,7 @@ public class Router {
     }
 
     public void get(String path, Function<HttpRequest, HttpResponse> handler, boolean isProtected) {
+        System.out.println("📍 Registering GET route: " + path);
         routes.add(new Route(AppConfig.GET_KEY, path, handler, isProtected));
     }
 
@@ -73,11 +74,12 @@ public class Router {
         for (Route route : routes) {
             if (route.path.match(request.path)) {
 
-                if (!route.method.equalsIgnoreCase(request.method)){
+                if (!route.method.equalsIgnoreCase(request.method)) {
                     // Không break, tiếp tục tìm route khác có cùng path nhưng đúng method
-                    h = req ->{throw new HttpServer.MethodNotAllowed(); } ;
-                }
-                else{
+                    h = req -> {
+                        throw new HttpServer.MethodNotAllowed();
+                    };
+                } else {
                     request.tags.put("protected", String.valueOf(route.isProtected));
                     Map<String, String> params = route.path.extract(request.path);
                     request.tags.putAll(params);
@@ -86,10 +88,12 @@ public class Router {
                 }
             }
         }
-        if(h == null){
-            h = req -> {throw new HttpServer.NotFound(); } ;
+        if (h == null) {
+            h = req -> {
+                throw new HttpServer.NotFound();
+            };
         }
-        //Boc middleware tu cuoi ve dau
+        // Boc middleware tu cuoi ve dau
         for (int i = middlewares.size() - 1; i >= 0; --i) {
             h = middlewares.get(i).apply(h);
         }

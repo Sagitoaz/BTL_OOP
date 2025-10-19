@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.ProductCRUDController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.ProductCRUDController">
 
     <!-- TOP: Header with title and quick actions -->
     <top>
@@ -29,7 +29,7 @@
                 <padding><Insets bottom="15" left="20" right="20" top="15" /></padding>
                 <Label text="Product Management" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="addNewButton" onAction="#onAddNewButton" text="Add New Product">
+                <Button fx:id="addNewButton" onAction="#onClear" text="Add New Product">
                     <tooltip><Tooltip text="Create a new product" /></tooltip>
                 </Button>
             </HBox>
@@ -56,7 +56,7 @@
                             <tooltip><Tooltip text="Filter by category" /></tooltip>
                         </ComboBox>
                         
-                        <Button fx:id="clearFilterButton" onAction="#onClearFilterButton" text="Clear">
+                        <Button fx:id="clearFilterButton" onAction="#onClearFilter" text="Clear">
                             <tooltip><Tooltip text="Clear all filters" /></tooltip>
                         </Button>
                     </HBox>
@@ -180,10 +180,10 @@
                         <!-- Action Buttons -->
                         <VBox spacing="10">
                             <HBox alignment="CENTER" spacing="12">
-                                <Button fx:id="saveButton" defaultButton="true" onAction="#onSaveButton" prefWidth="120" text="Save">
+                                <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefWidth="120" text="Save">
                                     <tooltip><Tooltip text="Save product changes" /></tooltip>
                                 </Button>
-                                <Button fx:id="clearButton" cancelButton="true" onAction="#onClearButton" prefWidth="120" text="Clear">
+                                <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="120" text="Clear">
                                     <tooltip><Tooltip text="Clear all form fields" /></tooltip>
                                 </Button>
                             </HBox>
@@ -204,15 +204,15 @@
                 <padding><Insets bottom="12" left="20" right="20" top="12" /></padding>
                 <!-- Left Side Actions -->
                 <HBox spacing="10">
-                    <Button fx:id="deleteButton" onAction="#onDeleteButton" text="Delete Selected">
+                    <Button fx:id="deleteButton" onAction="#onDelete" text="Delete Selected">
                         <tooltip><Tooltip text="Delete selected product (cannot be undone)" /></tooltip>
                     </Button>
                     
-                    <Button fx:id="exportButton" onAction="#onExportButton" text="Export">
+                    <Button fx:id="exportButton" onAction="#onExport" text="Export">
                         <tooltip><Tooltip text="Export products to CSV/Excel" /></tooltip>
                     </Button>
                     
-                    <Button fx:id="importButton" onAction="#onImportButton" text="Import">
+                    <Button fx:id="importButton" onAction="#onImport" text="Import">
                         <tooltip><Tooltip text="Import products from file" /></tooltip>
                     </Button>
                 </HBox>

@@ -122,9 +122,15 @@ public class PostgreSQLProductRepository implements ProductRepository {
      }
 
      private Product update(Product p) {
-          String sql = "UPDATE Products SET sku=?, name=?, category=?, unit=?, " +
+          String sql = "UPDATE Products SET sku=?, name=?, category=?::product_category, unit=?, " +
                     "price_cost=?, price_retail=?, is_active=?, qty_on_hand=?, " +
                     "batch_no=?, expiry_date=?, serial_no=?, note=? WHERE id=?";
+
+          System.out.println("🔄 Updating product ID: " + p.getId());
+          System.out.println("   SKU: " + p.getSku());
+          System.out.println("   Name: " + p.getName());
+          System.out.println("   Category: " + p.getCategory());
+          System.out.println("   SQL: " + sql);
 
           try (Connection conn = dbConfig.getConnection();
                     PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -143,17 +149,26 @@ public class PostgreSQLProductRepository implements ProductRepository {
                ps.setString(12, p.getNote());
                ps.setInt(13, p.getId());
 
+               System.out.println("📤 Executing UPDATE query...");
                int affected = ps.executeUpdate();
+               System.out.println("✅ Rows affected: " + affected);
+
                if (affected > 0) {
-                    System.out.println("Product updated: ID = " + p.getId());
+                    System.out.println("✅ Product updated successfully: ID = " + p.getId());
+                    return p;
+               } else {
+                    System.err.println("⚠️ WARNING: No rows affected. Product ID may not exist: " + p.getId());
+                    return null;
                }
 
           } catch (SQLException e) {
-               System.err.println("Error updating product: " + e.getMessage());
+               System.err.println("❌ SQL ERROR in update():");
+               System.err.println("   Message: " + e.getMessage());
+               System.err.println("   SQL State: " + e.getSQLState());
+               System.err.println("   Error Code: " + e.getErrorCode());
+               e.printStackTrace();
                return null;
           }
-
-          return p;
      }
 
      @Override

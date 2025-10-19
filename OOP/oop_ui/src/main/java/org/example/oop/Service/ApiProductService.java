@@ -141,6 +141,11 @@ public class ApiProductService {
      public Product updateProduct(Product product) throws Exception {
           System.out.println("🔄 Updating product ID: " + product.getId());
 
+          // 🔍 DEBUG: Check product data before sending
+          if (product.getId() <= 0) {
+               throw new Exception("Product ID is missing or invalid: " + product.getId());
+          }
+
           HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL().openConnection();
           conn.setRequestMethod("PUT");
           conn.setRequestProperty("Content-Type", "application/json");
@@ -151,6 +156,8 @@ public class ApiProductService {
 
           // Write request body
           String jsonBody = gson.toJson(product);
+          System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
+
           try (OutputStream os = conn.getOutputStream()) {
                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                os.write(input, 0, input.length);

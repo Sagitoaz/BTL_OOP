@@ -3,6 +3,8 @@ package org.miniboot.app.domain.models.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Product model - đại diện cho sản phẩm trong hệ thống
  * Khớp với database schema: Products table
@@ -13,14 +15,31 @@ public class Product {
     private String name;
     private String category; // frame, lens, contact_lens, machine, consumable, service
     private String unit; // chiếc, hộp, dịch vụ...
+
+    @JsonProperty("price_cost") // ✅ Map JSON: priceCost → price_cost
     private Integer price_cost; // Giá nhập (INT)
+
+    @JsonProperty("price_retail") // ✅ Map JSON: priceRetail → price_retail
     private Integer price_retail; // Giá bán lẻ (INT)
+
+    @JsonProperty("is_active") // ✅ Map JSON: isActive → is_active (chú ý: getter là isActive())
     private boolean isActive;
+
+    @JsonProperty("qty_on_hand") // ✅ Map JSON: qtyOnHand → qty_on_hand
     private int qty_on_hand; // Số lượng tồn kho
+
+    @JsonProperty("batch_no") // ✅ Map JSON: batchNo → batch_no
     private String batch_no; // Số lô (NULL nếu không quản theo lô)
+
+    @JsonProperty("expiry_date") // ✅ Map JSON: expiryDate → expiry_date
     private LocalDate expiry_date; // Hạn sử dụng
+
+    @JsonProperty("serial_no") // ✅ Map JSON: serialNo → serial_no
     private String serial_no; // Số serial
+
     private String note; // Ghi chú
+
+    @JsonProperty("created_at") // ✅ Map JSON: createdAt → created_at
     private LocalDateTime created_at;
 
     // Constructors

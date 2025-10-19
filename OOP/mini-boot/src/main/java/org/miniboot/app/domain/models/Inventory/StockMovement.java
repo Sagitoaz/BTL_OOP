@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import org.miniboot.app.domain.models.Inventory.Enum.MovementType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Model quản lý các giao dịch xuất nhập kho
  * Khớp với database schema: Stock_Movements table
@@ -73,7 +75,8 @@ public class StockMovement {
     }
 
     public void setMoveType(String moveType) {
-        this.moveType = MovementType.valueOf(moveType);
+        // Convert to uppercase to handle both "sale" and "SALE" from database
+        this.moveType = moveType != null ? MovementType.valueOf(moveType.toUpperCase()) : null;
     }
 
     public void setMoveType(MovementType moveType) {
@@ -137,6 +140,7 @@ public class StockMovement {
     }
 
     // Utility methods
+    @JsonIgnore
     public boolean isValid() {
         if (productId <= 0) {
             return false;
@@ -156,6 +160,7 @@ public class StockMovement {
     /**
      * Kiểm tra xem giao dịch có phải là nhập kho không (qty > 0)
      */
+    @JsonIgnore
     public boolean isInMovement() {
         return qty > 0;
     }
@@ -163,6 +168,7 @@ public class StockMovement {
     /**
      * Kiểm tra xem giao dịch có phải là xuất kho không (qty < 0)
      */
+    @JsonIgnore
     public boolean isOutMovement() {
         return qty < 0;
     }
@@ -170,6 +176,7 @@ public class StockMovement {
     /**
      * Lấy giá trị tuyệt đối của qty
      */
+    @JsonIgnore
     public int getAbsoluteQty() {
         return Math.abs(qty);
     }
@@ -258,11 +265,7 @@ public class StockMovement {
                 ", serialNo='" + serialNo + '\'' +
                 ", movedAt=" + movedAt +
                 ", movedBy=" + movedBy +
+                ", note='" + note + '\'' +
                 '}';
-    }
-
-    public Object getCategory() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCategory'");
     }
 }

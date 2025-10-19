@@ -4,10 +4,13 @@ import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.Inventory.InventoryController;
+import org.miniboot.app.controllers.Inventory.StockMovementController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
+import org.miniboot.app.domain.repo.Inventory.PostgreSQLStockMovmentRepository;
 import org.miniboot.app.domain.repo.Inventory.ProductRepository;
+import org.miniboot.app.domain.repo.Inventory.StockMovementRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -38,6 +41,8 @@ public class ServerMain {
         // Inventory
         ProductRepository productRepo = new PostgreSQLProductRepository();
         InventoryController ic = new InventoryController(productRepo);
+        StockMovementRepository stockMoveRepo = new PostgreSQLStockMovmentRepository();
+        StockMovementController sc = new StockMovementController(stockMoveRepo);
         // Tạo router và mount controllers
         Router router = new Router();
         router.use(new AuthMiddlewareStub());
@@ -49,6 +54,7 @@ public class ServerMain {
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
         InventoryController.mount(router, ic);
+        StockMovementController.mount(router, sc);
         // mount các controller
         AuthController.mount(router);
 

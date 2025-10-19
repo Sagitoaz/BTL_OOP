@@ -5,22 +5,46 @@ import java.time.LocalDateTime;
 
 import org.example.oop.Model.Inventory.Enum.MoveType;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Model quản lý các giao dịch xuất nhập kho
  * Khớp với database schema: Stock_Movements table
+ * 
+ * ⚠️ Backend JSON dùng snake_case, Java dùng camelCase
  */
 public class StockMovement {
     private int id;
+
+    @SerializedName("product_id") // ✅ Map JSON snake_case → Java camelCase
     private int productId;
+
     private int qty; // >0 nhập, <0 xuất
+
+    @SerializedName("move_type") // ✅ Map JSON snake_case → Java camelCase
     private MoveType moveType;
+
+    @SerializedName("ref_table") // ✅ Map JSON snake_case → Java camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
+
+    @SerializedName("ref_id") // ✅ Map JSON snake_case → Java camelCase
     private Integer refId; // ID của chứng từ nguồn
+
+    @SerializedName("batch_no") // ✅ Map JSON snake_case → Java camelCase
     private String batchNo; // Số lô
+
+    @SerializedName("expiry_date") // ✅ Map JSON snake_case → Java camelCase
     private LocalDate expiryDate; // Hạn sử dụng
+
+    @SerializedName("serial_no") // ✅ Map JSON snake_case → Java camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
+
+    @SerializedName("moved_at") // ✅ Map JSON snake_case → Java camelCase
     private LocalDateTime movedAt;
+
+    @SerializedName("moved_by") // ✅ Map JSON snake_case → Java camelCase
     private int movedBy; // ID người thực hiện (int, not String)
+
     private String note = null;
 
     // Constructors
