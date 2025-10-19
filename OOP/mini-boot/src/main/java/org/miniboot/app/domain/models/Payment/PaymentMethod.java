@@ -1,4 +1,4 @@
-package org.example.oop.Model.PaymentModel;
+package org.miniboot.app.domain.models.Payment;
 
 public enum PaymentMethod {
     CASH("CASH", "Tiền mặt"),
@@ -11,13 +11,6 @@ public enum PaymentMethod {
     PaymentMethod(String code, String display) {
         this.code = code;
         this.display = display;
-    }
-
-    public static PaymentMethod fromCode(String code) {
-        for (PaymentMethod method : values()) {
-            if (method.code.equalsIgnoreCase(code)) return method;
-        }
-        throw new IllegalArgumentException("Unknown PaymentMethod: " + code);
     }
 
     public String getCode() {

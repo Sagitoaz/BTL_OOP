@@ -1,4 +1,4 @@
-package org.example.oop.Model.PaymentModel;
+package org.miniboot.app.domain.models.Payment;
 
 import java.time.Instant;
 
@@ -8,10 +8,9 @@ import java.time.Instant;
 public class PaymentStatusLog {
     private Integer id;
     private int paymentId;
-    private Instant changedAt; // Sửa đổi: Đổi tên từ createdAt
+    private Instant changedAt;
     private PaymentStatus status;
 
-    // Sửa đổi: Bỏ 'reason'
     public PaymentStatusLog(Integer id, int paymentId, Instant changedAt, PaymentStatus status) {
         this.id = id;
         this.paymentId = paymentId;
@@ -36,4 +35,13 @@ public class PaymentStatusLog {
         return paymentId;
     }
 
+    @Override
+    public String toString() {
+        return "PaymentStatusLog{" +
+                "id=" + id +
+                ", paymentId=" + paymentId +
+                ", changedAt=" + changedAt +
+                ", status=" + status +
+                '}';
+    }
 }
