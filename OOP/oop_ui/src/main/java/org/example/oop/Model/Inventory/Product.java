@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 import org.example.oop.Model.Inventory.Enum.Category;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Product Model - Khớp 100% với Database Schema
  * 
@@ -14,26 +16,49 @@ import org.example.oop.Model.Inventory.Enum.Category;
  * ENUM('frame','lens','contact_lens','machine','consumable','service')
  * - is_active: BOOLEAN (default: true)
  * - Không có InventoryStatus enum
+ * 
+ * ⚠️ Backend JSON dùng snake_case, Java dùng camelCase
  */
 public class Product {
 
     // ====================
-    // FIELDS - Khớp 100% với DB
+    // FIELDS - Khớp 100% với DB (với @SerializedName mapping)
     // ====================
 
     private int id; // PK
+
     private String sku; // VARCHAR(40) UNIQUE NOT NULL
+
     private String name; // NVARCHAR(200) NOT NULL
+
     private Category category; // ✅ ENUM
+
     private String unit; // NVARCHAR(20)
+
+    @SerializedName("price_cost") // ✅ Map JSON snake_case → Java camelCase
     private Integer priceCost; // INT (nullable)
+
+    @SerializedName("price_retail") // ✅ Map JSON snake_case → Java camelCase
     private Integer priceRetail; // INT (nullable)
+
+    @SerializedName("is_active") // ✅ Map JSON snake_case → Java camelCase
     private boolean isActive; // ✅ BOOLEAN (default: true)
+
+    @SerializedName("qty_on_hand") // ✅ Map JSON snake_case → Java camelCase
     private int qtyOnHand; // INT NOT NULL DEFAULT 0
+
+    @SerializedName("batch_no") // ✅ Map JSON snake_case → Java camelCase
     private String batchNo; // VARCHAR(40) (nullable)
+
+    @SerializedName("expiry_date") // ✅ Map JSON snake_case → Java camelCase
     private LocalDate expiryDate; // DATE (nullable)
+
+    @SerializedName("serial_no") // ✅ Map JSON snake_case → Java camelCase
     private String serialNo; // VARCHAR(60) (nullable)
+
     private String note; // NVARCHAR(255) (nullable)
+
+    @SerializedName("created_at") // ✅ Map JSON snake_case → Java camelCase
     private LocalDateTime createdAt; // DATETIME
 
     // ====================

@@ -1,10 +1,11 @@
 package org.example.oop.Control.Inventory;
 
-import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Inventory.Product;
 import org.example.oop.Service.ApiProductService;
 
@@ -18,19 +19,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView; // ✅ Import Product model
+import javafx.scene.control.TableColumn; // ✅ Import Product model
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ResourceBundle;
-
-import org.example.oop.Control.BaseController;
 
 public class SearchInventoryController extends BaseController implements Initializable {
      @FXML
@@ -95,6 +89,14 @@ public class SearchInventoryController extends BaseController implements Initial
      private Label quickQuantity;
      @FXML
      private Label quickUnit;
+     @FXML
+     private Label quickBatchNumber;
+     @FXML
+     private Label quickExpiryDate;
+     @FXML
+     private Label quickserialNo;
+     @FXML
+     private Label quickCreatedAt;
 
      // UI components thiếu
      @FXML
@@ -124,10 +126,19 @@ public class SearchInventoryController extends BaseController implements Initial
           idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
           skuColumn.setCellValueFactory(new PropertyValueFactory<>("sku"));
           nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-          categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
-          quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand")); // ✅ camelCase
+
+          // ✅ Category - phải dùng custom cell value vì là ENUM
+          categoryColumn.setCellValueFactory(cellData -> {
+               Product p = cellData.getValue();
+               String categoryName = p.getCategory() != null ? p.getCategory().getDisplayName() : "";
+               return new javafx.beans.property.SimpleStringProperty(categoryName);
+          });
+
+          quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand")); // ✅ ĐÚNG: qtyOnHand
           unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
-          priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail")); // ✅ camelCase
+          priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail")); // ✅ ĐÚNG: priceRetail
+
+          // ✅ Status - convert boolean isActive thành text
           statusColumn.setCellValueFactory(cellData -> {
                Product p = cellData.getValue();
                String status = p.isActive() ? "Active" : "Inactive";
@@ -325,8 +336,29 @@ public class SearchInventoryController extends BaseController implements Initial
           }
 
           runOnUIThread(() -> {
-               if (itemName != null)
+               if (quickRetailPrice != null) {
+                    quickRetailPrice.setText(product.getPriceRetail().toString());
+               }
+               if (quickBatchNumber != null) {
+                    quickBatchNumber.setText(product.getBatchNo());
+               }
+               if (quickExpiryDate != null) {
+                    quickExpiryDate.setText(product.getFormattedExpiryDate());
+               }
+               if (quickserialNo != null) {
+                    quickserialNo.setText(product.getSerialNo());
+               }
+               if (quickCreatedAt != null) {
+                    if (product.getCreatedAt() != null) {
+                         quickCreatedAt.setText(
+                                   product.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+                    } else {
+                         quickCreatedAt.setText("");
+                    }
+               }
+               if (itemName != null) {
                     itemName.setText(product.getName());
+               }
                if (itemDescription != null) {
                     itemDescription.setText(product.getNote() != null ? product.getNote() : "Không có mô tả");
                }
@@ -353,6 +385,21 @@ public class SearchInventoryController extends BaseController implements Initial
 
      private void clearDetail() {
           runOnUIThread(() -> {
+               if (quickRetailPrice != null) {
+                    quickRetailPrice.setText("");
+               }
+               if (quickBatchNumber != null) {
+                    quickBatchNumber.setText("");
+               }
+               if (quickExpiryDate != null) {
+                    quickExpiryDate.setText("");
+               }
+               if (quickserialNo != null) {
+                    quickserialNo.setText("");
+               }
+               if (quickCreatedAt != null) {
+                    quickCreatedAt.setText("");
+               }
                if (itemName != null)
                     itemName.setText("");
                if (itemDescription != null)

@@ -19,27 +19,74 @@ public class ApiProductService {
      private static final String BASE_URL = "http://localhost:8080";
      private static final Gson gson = GsonProvider.getGson();
 
+     // ✅ Tăng timeout cho mạng yếu
+     private static final int CONNECT_TIMEOUT = 30000; // 30 seconds
+     private static final int READ_TIMEOUT = 60000; // 60 seconds
+     private static final int MAX_RETRIES = 3; // Retry 3 lần nếu timeout
+
      public List<Product> getAllProducts() throws Exception {
           System.out.println("🔄 Fetching all products from API...");
 
-          HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL().openConnection();
-          conn.setRequestMethod("GET");
-          conn.setRequestProperty("Accept", "application/json");
-          conn.setConnectTimeout(5000); // 5 seconds connect timeout
-          conn.setReadTimeout(10000); // 10 seconds read timeout
+          // ✅ Retry mechanism cho mạng yếu
+          Exception lastException = null;
+          for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+               try {
+                    System.out.println("📡 Attempt " + attempt + "/" + MAX_RETRIES + "...");
 
-          int responseCode = conn.getResponseCode();
-          String responseBody = readResponse(conn);
+                    HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL()
+                              .openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Accept", "application/json");
+                    conn.setConnectTimeout(CONNECT_TIMEOUT); // 30 seconds
+                    conn.setReadTimeout(READ_TIMEOUT); // 60 seconds
 
-          if (responseCode >= 200 && responseCode < 300) {
-               Type listType = new TypeToken<List<Product>>() {
-               }.getType();
-               List<Product> products = gson.fromJson(responseBody, listType);
-               System.out.println("✅ Loaded " + products.size() + " products");
-               return products;
-          } else {
-               throw new Exception("Server error: " + responseCode + " - " + responseBody);
+                    int responseCode = conn.getResponseCode();
+                    String responseBody = readResponse(conn);
+
+                    if (responseCode >= 200 && responseCode < 300) {
+                         // ✅ DEBUG: In ra JSON response
+                         System.out.println("📦 JSON Response (first 500 chars): " +
+                                   (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
+                                             : responseBody));
+
+                         Type listType = new TypeToken<List<Product>>() {
+                         }.getType();
+                         List<Product> products = gson.fromJson(responseBody, listType);
+
+                         // ✅ DEBUG: In ra sample product
+                         if (!products.isEmpty()) {
+                              Product sample = products.get(0);
+                              System.out.println("📦 Sample Product:");
+                              System.out.println("   - ID: " + sample.getId());
+                              System.out.println("   - Name: " + sample.getName());
+                              System.out.println("   - QtyOnHand: " + sample.getQtyOnHand());
+                              System.out.println("   - PriceRetail: " + sample.getPriceRetail());
+                              System.out.println("   - PriceCost: " + sample.getPriceCost());
+                              System.out.println("   - Category: " + sample.getCategory());
+                              System.out.println("   - IsActive: " + sample.isActive());
+                         }
+
+                         System.out.println("✅ Loaded " + products.size() + " products");
+                         return products;
+                    } else {
+                         throw new Exception("Server error: " + responseCode + " - " + responseBody);
+                    }
+               } catch (java.net.SocketTimeoutException e) {
+                    lastException = e;
+                    System.err.println("⏱️ Timeout on attempt " + attempt + ": " + e.getMessage());
+                    if (attempt < MAX_RETRIES) {
+                         System.out.println("🔄 Retrying in 2 seconds...");
+                         Thread.sleep(2000); // Wait 2s trước khi retry
+                    }
+               } catch (Exception e) {
+                    // Lỗi khác không retry
+                    throw e;
+               }
           }
+
+          // Nếu retry hết vẫn fail
+          throw new Exception("Failed after " + MAX_RETRIES + " attempts. Last error: " +
+                    (lastException != null ? lastException.getMessage() : "Unknown error"));
      }
 
      public Product getProductById(int id) throws Exception {
@@ -49,6 +96,8 @@ public class ApiProductService {
                     .openConnection();
           conn.setRequestMethod("GET");
           conn.setRequestProperty("Accept", "application/json");
+          conn.setConnectTimeout(CONNECT_TIMEOUT);
+          conn.setReadTimeout(READ_TIMEOUT);
 
           int responseCode = conn.getResponseCode();
           String responseBody = readResponse(conn);
@@ -70,6 +119,8 @@ public class ApiProductService {
           conn.setRequestMethod("POST");
           conn.setRequestProperty("Content-Type", "application/json");
           conn.setRequestProperty("Accept", "application/json");
+          conn.setConnectTimeout(CONNECT_TIMEOUT);
+          conn.setReadTimeout(READ_TIMEOUT);
           conn.setDoOutput(true);
           String jsonBody = gson.toJson(product);
           try (OutputStream os = conn.getOutputStream()) {
@@ -94,6 +145,8 @@ public class ApiProductService {
           conn.setRequestMethod("PUT");
           conn.setRequestProperty("Content-Type", "application/json");
           conn.setRequestProperty("Accept", "application/json");
+          conn.setConnectTimeout(CONNECT_TIMEOUT);
+          conn.setReadTimeout(READ_TIMEOUT);
           conn.setDoOutput(true);
 
           // Write request body
@@ -121,6 +174,8 @@ public class ApiProductService {
           HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products?id=" + id).toURL()
                     .openConnection();
           conn.setRequestMethod("DELETE");
+          conn.setConnectTimeout(CONNECT_TIMEOUT);
+          conn.setReadTimeout(READ_TIMEOUT);
 
           int responseCode = conn.getResponseCode();
           String responseBody = readResponse(conn);
