@@ -22,11 +22,11 @@ import java.util.function.Function;
 
 public class CustomerRecordController {
     private final CustomerRecordRepository customerRecordRepository;
-    private final CustomerRecordService customerRecordService;
+
 
     public CustomerRecordController(CustomerRecordRepository customerRecordRepository) {
         this.customerRecordRepository = customerRecordRepository;
-        this.customerRecordService = new CustomerRecordService(customerRecordRepository);
+
     }
 
     public static void mount(org.miniboot.app.router.Router router, CustomerRecordController prc) {
@@ -96,7 +96,7 @@ public class CustomerRecordController {
             }
             else{
                 try {
-                    List<Customer> results = customerRecordService.searchPatientRecords(criteria);
+                    List<Customer> results = customerRecordRepository.findByFilterAll(criteria);
                     return Json.ok(results);
                 } catch (Exception e) {
                     return HttpResponse.of(400,

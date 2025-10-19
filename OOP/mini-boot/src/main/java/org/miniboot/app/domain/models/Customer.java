@@ -145,6 +145,11 @@ public class Customer implements User {
         return dob;
     }
 
+    public int getAge() {
+        if (dob == null) return 0;
+        return LocalDate.now().getYear() - dob.getYear();
+    }
+
     public void setDob(LocalDate dob) {
         this.dob = dob;
     }
@@ -183,14 +188,6 @@ public class Customer implements User {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", gender='" + gender + '\'' +
-                '}';
+        return getId()+"."+getFullName();
     }
 }

@@ -9,7 +9,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.example.oop.Model.PatientAndPrescription.CustomerRecord;
+import org.example.oop.Services.CustomerRecordService;
+import org.miniboot.app.domain.models.Customer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,17 +18,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
-public class CustomerHubController implements Initializable  {
+public class CustomerHubController implements Initializable {
 
     @FXML
-    private ListView<CustomerRecord> customerListView;
+    private ListView<Customer> customerListView;
 
-    private ObservableList<CustomerRecord> customerRecordsList;
-
-
+    private ObservableList<Customer> customerRecordsList;
 
     @FXML
-    private ComboBox<CustomerRecord.Gender> genderFilter;
+    private ComboBox<Customer.Gender> genderFilter;
     @FXML
     private DatePicker dobFromPicker;
     @FXML
@@ -38,7 +37,6 @@ public class CustomerHubController implements Initializable  {
     private Button applyFilterButton;
     @FXML
     private Button resetFilterButton;
-    //--Tổng quan--
     @FXML
     private Label customerNameLabel;
     @FXML
@@ -58,33 +56,67 @@ public class CustomerHubController implements Initializable  {
     @FXML
     private TextArea notesArea;
 
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         customerRecordsList = FXCollections.observableArrayList();
-
-        // Thêm dữ liệu mẫu
-
-
+        loadCustomerData();
+        //customerRecordsList.addAll(CustomerRecordService.getInstance().getAllCustomers().getData());
         customerListView.setItems(customerRecordsList);
-        customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {;
+
+        // Setup listener cho selection
+        customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
-
         });
-        genderFilter.getItems().addAll(CustomerRecord.Gender.NAM, CustomerRecord.Gender.NỮ , CustomerRecord.Gender.KHÁC);
 
+        // Setup gender filter
+        genderFilter.getItems().addAll(Customer.Gender.values());
+
+        // Load data bất đồng bộ để tránh chặn UI
+        //loadCustomerData();
+    }
+
+    private void loadCustomerData() {
+        CustomerRecordService.getInstance().getAllCustomersAsync(
+            customers -> {
+                // SUCCESS callback - chạy trong UI Thread
+                customerRecordsList.clear();
+                customerRecordsList.addAll(customers);
+                customerListView.setItems(customerRecordsList);
+                System.out.println("✅ Loaded " + customers.size() + " customers");
+            },
+            error -> {
+                // ERROR callback - handle error gracefully
+                System.err.println("❌ Error loading customers: " + error);
+                // Có thể show alert nếu cần
+                showErrorAlert("Lỗi tải dữ liệu", error);
+            }
+        );
     }
 
     @FXML
     private void applyFilters(ActionEvent event) {
         String search = searchField.getText();
-        CustomerRecord.Gender gender = genderFilter.getValue();
+        Customer.Gender gender = genderFilter.getValue();
         LocalDate dobFrom = dobFromPicker.getValue();
         LocalDate dobTo = dobToPicker.getValue();
-        customerRecordsList.clear();
-        // Loc filter
-        customerListView.setItems(customerRecordsList);
+
+        // TODO: Implement search functionality
+        CustomerRecordService.getInstance().searchCustomersAsync(
+            search,
+            gender,
+            dobFrom,
+            dobTo,
+            customers -> {
+                customerRecordsList.clear();
+                customerRecordsList.addAll(customers);
+            },
+            error -> {
+                System.err.println("❌ Error searching customers: " + error);
+                showErrorAlert("Lỗi tìm kiếm", error);
+            }
+        );
     }
+
     @FXML
     private void resetFilters(ActionEvent event) {
         searchField.clear();
@@ -92,13 +124,13 @@ public class CustomerHubController implements Initializable  {
         genderFilter.setPromptText("Lọc theo giới tính");
         dobFromPicker.setValue(null);
         dobToPicker.setValue(null);
-        customerRecordsList.clear();
-        //Add find all
-        customerListView.setItems(customerRecordsList);
+
+        // Reload all data
+        loadCustomerData();
     }
 
-    private void setCurrentCustomer(CustomerRecord pr){
-        if(pr == null){
+    private void setCurrentCustomer(Customer pr) {
+        if (pr == null) {
             customerNameLabel.setText("[CHỌN BỆNH NHÂN]");
             customerIdValueLabel.setText("...");
             customerDobValueLabel.setText("...");
@@ -108,25 +140,25 @@ public class CustomerHubController implements Initializable  {
             phoneField.setText("");
             emailField.setText("");
             notesArea.setText("");
-
-
-        }
-        else{
-            customerNameLabel.setText(pr.getNamePatient());
+        } else {
+            customerNameLabel.setText(pr.getFullName());
             customerIdValueLabel.setText(String.valueOf(pr.getId()));
             customerDobValueLabel.setText(pr.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             customerGenderValueLabel.setText(pr.getGender().name());
-            customerAgeValueLabel.setText(String.valueOf(pr.getAge()));
-            addressField.setText(pr.getAddress());
-            phoneField.setText(pr.getPhoneNumber());
-            emailField.setText(pr.getEmail());
-            notesArea.setText(pr.getNotes());
-        }
 
+            // Calculate age from date of birth
+            int age = pr.getDob() != null ? LocalDate.now().getYear() - pr.getDob().getYear() : 0;
+            customerAgeValueLabel.setText(String.valueOf(age));
+
+            addressField.setText(pr.getAddress() != null ? pr.getAddress() : "");
+            phoneField.setText(pr.getPhone() != null ? pr.getPhone() : "");
+            emailField.setText(pr.getEmail() != null ? pr.getEmail() : "");
+            notesArea.setText(pr.getNote() != null ? pr.getNote() : "");
+        }
     }
 
     @FXML
-    private void onAddCustomerButton(ActionEvent event)throws IOException {
+    private void onAddCustomerButton(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
             Stage stage = new Stage();
@@ -135,42 +167,49 @@ public class CustomerHubController implements Initializable  {
             stage.centerOnScreen();
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
-            CustomerRecord newPatient = controller.getNewPatientRecord();
+            Customer newPatient = controller.getNewPatientRecord();
             addCustomerRecord(newPatient);
-
         } catch (IOException e) {
-            e.printStackTrace();
-
+            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
+            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
         }
     }
-    public void addCustomerRecord(CustomerRecord pr){
-        if(pr == null ) return;
-        //goi api save
+
+    public void addCustomerRecord(Customer pr) {
+        if (pr == null) return;
+        // TODO: Call API to save customer
         customerRecordsList.add(pr);
-        customerListView.setItems(customerRecordsList);
     }
 
     @FXML
-    private void onAddNewPrescription(ActionEvent event)throws IOException {
-        try{
-            // Kiem tra xem co dang tro den benh nhan nao khong
-            if(customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")){
+    private void onAddNewPrescription(ActionEvent event) {
+        try {
+            // Kiểm tra xem có đang trỏ đến bệnh nhân nào không
+            if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
+                showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi tạo đơn thuốc");
                 return;
             }
-            FXMLLoader loader= new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
 
             Stage stage = new Stage();
             stage.setTitle("Đơn khám bệnh nhân");
             stage.setScene(new Scene(loader.load()));
             PrescriptionEditorController prescriptionEditorController = loader.getController();
-            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt( customerIdValueLabel.getText()));
+            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()));
             stage.centerOnScreen();
             stage.showAndWait();
+        } catch (IOException e) {
+            System.err.println("Error opening Prescription Editor: " + e.getMessage());
+            showErrorAlert("Lỗi", "Không thể mở cửa sổ đơn thuốc: " + e.getMessage());
         }
-        catch (IOException e) {
-            e.printStackTrace();
+    }
 
-        }
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 

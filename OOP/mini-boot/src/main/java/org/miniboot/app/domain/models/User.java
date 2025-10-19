@@ -1,26 +1,5 @@
 package org.miniboot.app.domain.models;
 
-import java.time.LocalDateTime;
-
-/**
- * Enum UserRole - tương thích với OOP UI
- */
-enum UserRole {
-    ADMIN("Administrator"),
-    EMPLOYEE("Employee"),
-    CUSTOMER("Customer");
-
-    private final String displayName;
-
-    UserRole(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-}
-
 /**
  * Interface User - đại diện chung cho tất cả các loại người dùng trong hệ thống.
  * Theo database mới: không còn kế thừa, mỗi loại user là bảng riêng (Admins, Employees, Customers)

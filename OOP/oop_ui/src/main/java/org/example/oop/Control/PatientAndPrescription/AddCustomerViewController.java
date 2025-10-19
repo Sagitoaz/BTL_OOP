@@ -8,7 +8,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Model.PatientAndPrescription.CustomerRecord;
+import org.miniboot.app.domain.models.Customer;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -23,7 +23,7 @@ public class AddCustomerViewController implements Initializable
     @FXML
     private DatePicker dobPicker;
     @FXML
-    private ComboBox<CustomerRecord.Gender> genderComboBox;
+    private ComboBox<Customer.Gender> genderComboBox;
     @FXML
     private TextField addressField;
     @FXML
@@ -31,10 +31,10 @@ public class AddCustomerViewController implements Initializable
     @FXML
     private TextArea notesArea;
 
-    private CustomerRecord newPatientRecord = null;
+    private Customer newPatientRecord = null;
 
     public void initialize(URL url, ResourceBundle rb) {
-        genderComboBox.getItems().addAll(CustomerRecord.Gender.NAM, CustomerRecord.Gender.NỮ , CustomerRecord.Gender.KHÁC);
+        genderComboBox.getItems().addAll(Customer.Gender.values());
 
     }
 
@@ -50,16 +50,16 @@ public class AddCustomerViewController implements Initializable
         String name = nameField.getText();
         String phone = phoneField.getText();
         LocalDate dob = dobPicker.getValue();
-        CustomerRecord.Gender gender = genderComboBox.getValue();
+        Customer.Gender gender = genderComboBox.getValue();
         String address = addressField.getText();
         String email = emailField.getText();
         String notes = notesArea.getText();
 
-        newPatientRecord = new CustomerRecord(222, name, dob, gender, address, phone, email, notes);
+        //newPatientRecord = new Customer(222, name, dob, gender, address, phone, email, notes);
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
-    public CustomerRecord getNewPatientRecord(){
+    public Customer getNewPatientRecord(){
         return newPatientRecord;
     }
 
