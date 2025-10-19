@@ -114,7 +114,7 @@ public class HttpAppointmentService {
     public Appointment create(Appointment appointment) {
         try {
             String jsonBody = gson.toJson(appointment);
-            System.out.println("📤 Sending JSON: " + jsonBody); // Debug
+            System.out.println("Sending JSON: " + jsonBody);
             
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/appointments"))
