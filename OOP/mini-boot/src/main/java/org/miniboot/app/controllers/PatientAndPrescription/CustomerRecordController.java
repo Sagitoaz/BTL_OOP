@@ -1,5 +1,7 @@
 package org.miniboot.app.controllers.PatientAndPrescription;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.Service.CustomerRecordService;
 import org.miniboot.app.Service.CustomerSearchCriteria;
@@ -7,6 +9,7 @@ import org.miniboot.app.domain.models.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
 
 import java.io.IOException;
@@ -29,21 +32,31 @@ public class CustomerRecordController {
     public static void mount(org.miniboot.app.router.Router router, CustomerRecordController prc) {
         router.get("/customers", prc.getCustomer());
         router.post("/customers", prc.createCustomer());
+        router.put("/customers", prc.updateCustomer());
+        router.delete("/customers", prc.deleteCustomer());
+
     }
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
         return (HttpRequest req) -> {
-            Customer createdCustomer = null;
             try {
-                createdCustomer = Json.fromBytes(req.body, Customer.class);
+                Customer createdCustomer = null;
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
+                createdCustomer = gson.fromJson(jsonBody, Customer.class);
                 customerRecordRepository.save(createdCustomer);
-                return Json.created(createdCustomer);
-            } catch (IOException e) {
+                String jsonResponse = gson.toJson(createdCustomer);
+
+                return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+            }
+            catch (Exception e) {
                 return HttpResponse.of(400,
                         "text/plain; charset=utf-8",
                         AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
             }
+
         };
+
     }
     public Function<HttpRequest, HttpResponse> getCustomer() {
         return (HttpRequest req) -> {
@@ -93,6 +106,52 @@ public class CustomerRecordController {
             }
 
 
+
+        };
+    }
+
+    public Function<HttpRequest, HttpResponse> updateCustomer() {
+        return (HttpRequest req) -> {
+            try {
+                Customer createdCustomer = null;
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
+                createdCustomer = gson.fromJson(jsonBody, Customer.class);
+                customerRecordRepository.save(createdCustomer);
+                String jsonResponse = gson.toJson(createdCustomer);
+
+                return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+            }
+            catch (Exception e) {
+                return HttpResponse.of(400,
+                        "text/plain; charset=utf-8",
+                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            }
+        };
+    }
+    public Function<HttpRequest, HttpResponse> deleteCustomer() {
+        return (HttpRequest req)->{
+            try{
+                Customer deletedCustomer = null;
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
+                deletedCustomer = gson.fromJson(jsonBody, Customer.class);
+                boolean deleted = customerRecordRepository.deleteById(deletedCustomer.getId());
+                if(deleted){
+                    String jsonResponse = gson.toJson(deletedCustomer);
+                    return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+                }
+                else{
+                    return HttpResponse.of(404,
+                            "text/plain; charset=utf-8",
+                            AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8));
+                }
+            }
+            catch (Exception e) {
+                return HttpResponse.of(400,
+                        "text/plain; charset=utf-8",
+                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            }
 
         };
     }

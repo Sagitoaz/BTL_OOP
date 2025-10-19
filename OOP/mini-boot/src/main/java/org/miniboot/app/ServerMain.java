@@ -3,8 +3,11 @@ package org.miniboot.app;
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLCustomerRecordRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -26,12 +29,14 @@ public class ServerMain {
         // Sử dụng PostgreSQL repositories thay vì InMemory
         DoctorRepository doctorRepo = new PostgreSQLDoctorRepository();
         AppointmentRepository apptRepo = new PostgreSQLAppointmentRepository();
+        CustomerRecordRepository customerRecordRepo = new PostgreSQLCustomerRecordRepository();
         
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
         DoctorController dc = new DoctorController(doctorRepo);
         AppointmentController ac = new AppointmentController(apptRepo);
+        CustomerRecordController crc = new CustomerRecordController(customerRecordRepo);
 
         // Tạo router và mount controllers
         Router router = new Router();
@@ -45,6 +50,7 @@ public class ServerMain {
         AppointmentController.mount(router, ac);
         // mount các controller
         AuthController.mount(router);
+        CustomerRecordController.mount(router, crc);
 
         // Khởi động server
         HttpServer server = new HttpServer(port, router);

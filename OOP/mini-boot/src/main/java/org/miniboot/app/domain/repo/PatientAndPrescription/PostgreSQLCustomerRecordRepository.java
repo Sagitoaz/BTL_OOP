@@ -17,8 +17,8 @@ import java.util.Optional;
 public class PostgreSQLCustomerRecordRepository implements  CustomerRecordRepository {
     private final DatabaseConfig dbConfig;
 
-    public PostgreSQLCustomerRecordRepository(DatabaseConfig dbConfig) {
-        this.dbConfig = dbConfig;
+    public PostgreSQLCustomerRecordRepository() {
+        this.dbConfig = DatabaseConfig.getInstance();
 
     }
     public Customer save(Customer customer) {
@@ -30,6 +30,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             customer.setPassword(hashedPassword);
         }
         if(customer.getId() <= 0){
+            System.out.println(customer.getUsername());
             return insertCustomer(customer).orElse(null);
         }
         else{
@@ -91,6 +92,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             pstmt.setString(9, customer.getAddress());
             pstmt.setString(10, customer.getNote());
             pstmt.setTimestamp(11, Timestamp.valueOf(customer.getCreatedAt()));
+            pstmt.setInt(12, customer.getId());
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new Exception("Updating customer failed, no rows affected.");
