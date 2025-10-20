@@ -11,45 +11,30 @@ import com.google.gson.annotations.SerializedName;
  * Model quản lý các giao dịch xuất nhập kho
  * Khớp với database schema: Stock_Movements table
  * 
- * ⚠️ Backend JSON dùng snake_case, Java dùng camelCase
+ * ⚠️ Backend JSON dùng camelCase (productId, moveType, etc.)
+ * ✅ Chỉ productName dùng snake_case (product_name) vì từ SQL alias
  */
 public class StockMovement {
     private int id;
+    private int productId; // ✅ Backend JSON: "productId" (camelCase)
+    private int qty;
 
-    @SerializedName("product_id") // ✅ Map JSON snake_case → Java camelCase
-    private int productId;
+    // ⚠️ Gson deserialize String, nhưng ta cần MoveType enum
+    // Solution: Dùng String field, getter/setter convert
+    private String moveType; // Backend JSON: "moveType": "PURCHASE"
 
-    private int qty; // >0 nhập, <0 xuất
-
-    @SerializedName("move_type") // ✅ Map JSON snake_case → Java camelCase
-    private MoveType moveType;
-
-    @SerializedName("ref_table") // ✅ Map JSON snake_case → Java camelCase
-    private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
-
-    @SerializedName("ref_id") // ✅ Map JSON snake_case → Java camelCase
-    private Integer refId; // ID của chứng từ nguồn
-
-    @SerializedName("batch_no") // ✅ Map JSON snake_case → Java camelCase
-    private String batchNo; // Số lô
-
-    @SerializedName("expiry_date") // ✅ Map JSON snake_case → Java camelCase
-    private LocalDate expiryDate; // Hạn sử dụng
-
-    @SerializedName("serial_no") // ✅ Map JSON snake_case → Java camelCase
-    private String serialNo; // Số serial (cho thiết bị y tế)
-
-    @SerializedName("moved_at") // ✅ Map JSON snake_case → Java camelCase
+    private String refTable;
+    private Integer refId;
+    private String batchNo;
+    private LocalDate expiryDate;
+    private String serialNo;
     private LocalDateTime movedAt;
-
-    @SerializedName("moved_by") // ✅ Map JSON snake_case → Java camelCase
-    private int movedBy; // ID người thực hiện (int, not String)
-
+    private int movedBy;
     private String note = null;
 
-    // ➕ Tên sản phẩm (từ JOIN với Products table)
-    @SerializedName("product_name")
-    private String productName; // Chỉ để hiển thị, không lưu DB
+    // ➕ Tên sản phẩm (từ SQL JOIN alias: product_name)
+    @SerializedName("product_name") // ✅ Backend JSON: "product_name" (snake_case)
+    private String productName;
 
     // Constructors
     public StockMovement() {
@@ -61,7 +46,7 @@ public class StockMovement {
         this.id = id;
         this.productId = productId;
         this.qty = qty;
-        this.moveType = MoveType.valueOf(moveType);
+        this.moveType = moveType; // ✅ Lưu String trực tiếp
         this.refTable = refTable;
         this.refId = refId;
         this.batchNo = batchNo;
@@ -97,15 +82,15 @@ public class StockMovement {
     }
 
     public String getMoveType() {
-        return moveType != null ? moveType.name() : null;
+        return moveType; // ✅ Trả về String trực tiếp
     }
 
     public void setMoveType(String moveType) {
-        this.moveType = MoveType.valueOf(moveType);
+        this.moveType = moveType; // ✅ Lưu String trực tiếp
     }
 
     public void setMoveType(MoveType moveType) {
-        this.moveType = moveType;
+        this.moveType = (moveType != null) ? moveType.name() : null; // Enum → String
     }
 
     public String getRefTable() {
@@ -231,7 +216,7 @@ public class StockMovement {
                 String.valueOf(id),
                 String.valueOf(productId),
                 String.valueOf(qty),
-                moveType.name(),
+                moveType, // ✅ Đã là String
                 nullToEmpty(refTable),
                 refIdStr,
                 nullToEmpty(batchNo),
@@ -253,7 +238,7 @@ public class StockMovement {
         m.id = Integer.parseInt(p[i++]);
         m.productId = Integer.parseInt(p[i++]);
         m.qty = Integer.parseInt(p[i++]);
-        m.moveType = MoveType.valueOf(p[i++]);
+        m.moveType = p[i++]; // ✅ Lưu String trực tiếp
 
         m.refTable = emptyToNull(p[i++]);
         String refIdStr = p[i++];

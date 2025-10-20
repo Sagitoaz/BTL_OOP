@@ -49,7 +49,7 @@ public class StockMovement {
     // ➕ Thêm field để hiển thị tên sản phẩm (không lưu vào DB)
     @com.fasterxml.jackson.annotation.JsonProperty("product_name") // ✅ Jackson serialize
     @SerializedName("product_name") // ✅ Gson compatibility
-    private transient String productName; // Chỉ dùng để trả về frontend
+    private String productName; // ⚠️ KHÔNG dùng transient - cần serialize to JSON!
 
     // Constructors
     public StockMovement() {

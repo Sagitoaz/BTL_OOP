@@ -92,16 +92,19 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
      }
 
      private StockMovement insert(StockMovement m) {
+          // ✅ CAST ?::stock_movement_type để PostgreSQL nhận diện ENUM
           String sql = "INSERT INTO stock_movements (product_id, qty, move_type, ref_table, ref_id, " +
                     "batch_no, expiry_date, serial_no, moved_at, moved_by, note) " +
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?) RETURNING id";
+                    "VALUES (?,?,?::stock_movement_type,?,?,?,?,?,?,?,?) RETURNING id";
 
           try (Connection conn = dbConfig.getConnection();
                     PreparedStatement ps = conn.prepareStatement(sql)) {
 
                ps.setInt(1, m.getProductId());
                ps.setInt(2, m.getQty());
-               ps.setString(3, m.getMoveType());
+               // ✅ Convert to lowercase for PostgreSQL enum (case-sensitive: 'sale' not
+               // 'SALE')
+               ps.setString(3, m.getMoveType().toLowerCase());
                ps.setString(4, m.getRefTable());
 
                if (m.getRefId() != null) {
@@ -128,6 +131,9 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
                if (rs.next()) {
                     m.setId(rs.getInt(1));
                     System.out.println("✅ Stock movement created: ID = " + m.getId());
+
+                    // ✅ UPDATE product qty_on_hand
+                    updateProductQuantity(conn, m.getProductId(), m.getQty());
                }
           } catch (SQLException e) {
                System.err.println("❌ Error inserting stock movement: " + e.getMessage());
@@ -139,41 +145,65 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
      }
 
      private StockMovement update(StockMovement m) {
-          String sql = "UPDATE stock_movements SET product_id=?, qty=?, move_type=?, " +
+          // ⚠️ Cần lấy qty và product_id CŨ để revert, sau đó apply qty MỚI
+          String selectSql = "SELECT product_id, qty FROM stock_movements WHERE id = ?";
+          String updateSql = "UPDATE stock_movements SET product_id=?, qty=?, move_type=?::stock_movement_type, " +
                     "ref_table=?, ref_id=?, batch_no=?, expiry_date=?, serial_no=?, " +
                     "moved_at=?, moved_by=?, note=? WHERE id=?";
 
-          try (Connection conn = dbConfig.getConnection();
-                    PreparedStatement ps = conn.prepareStatement(sql)) {
+          try (Connection conn = dbConfig.getConnection()) {
 
-               ps.setInt(1, m.getProductId());
-               ps.setInt(2, m.getQty());
-               ps.setString(3, m.getMoveType());
-               ps.setString(4, m.getRefTable());
-
-               if (m.getRefId() != null) {
-                    ps.setInt(5, m.getRefId());
-               } else {
-                    ps.setNull(5, Types.INTEGER);
+               // 1️⃣ Lấy giá trị CŨ
+               int oldProductId = 0;
+               int oldQty = 0;
+               try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                    ps.setInt(1, m.getId());
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) {
+                         oldProductId = rs.getInt("product_id");
+                         oldQty = rs.getInt("qty");
+                    }
                }
 
-               ps.setString(6, m.getBatchNo());
+               // 2️⃣ UPDATE stock movement
+               try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                    ps.setInt(1, m.getProductId());
+                    ps.setInt(2, m.getQty());
+                    ps.setString(3, m.getMoveType().toLowerCase());
+                    ps.setString(4, m.getRefTable());
 
-               if (m.getExpiryDate() != null) {
-                    ps.setDate(7, java.sql.Date.valueOf(m.getExpiryDate()));
-               } else {
-                    ps.setNull(7, Types.DATE);
-               }
+                    if (m.getRefId() != null) {
+                         ps.setInt(5, m.getRefId());
+                    } else {
+                         ps.setNull(5, Types.INTEGER);
+                    }
 
-               ps.setString(8, m.getSerialNo());
-               ps.setTimestamp(9, Timestamp.valueOf(m.getMovedAt()));
-               ps.setInt(10, m.getMovedBy());
-               ps.setString(11, m.getNote());
-               ps.setInt(12, m.getId());
+                    ps.setString(6, m.getBatchNo());
 
-               int affected = ps.executeUpdate();
-               if (affected > 0) {
-                    System.out.println("✅ Stock movement updated: ID = " + m.getId());
+                    if (m.getExpiryDate() != null) {
+                         ps.setDate(7, java.sql.Date.valueOf(m.getExpiryDate()));
+                    } else {
+                         ps.setNull(7, Types.DATE);
+                    }
+
+                    ps.setString(8, m.getSerialNo());
+                    ps.setTimestamp(9, Timestamp.valueOf(m.getMovedAt()));
+                    ps.setInt(10, m.getMovedBy());
+                    ps.setString(11, m.getNote());
+                    ps.setInt(12, m.getId());
+
+                    int affected = ps.executeUpdate();
+                    if (affected > 0) {
+                         System.out.println("✅ Stock movement updated: ID = " + m.getId());
+
+                         // 3️⃣ UPDATE product quantities
+                         // Revert old change
+                         if (oldProductId > 0) {
+                              updateProductQuantity(conn, oldProductId, -oldQty); // Hoàn tác
+                         }
+                         // Apply new change
+                         updateProductQuantity(conn, m.getProductId(), m.getQty());
+                    }
                }
 
           } catch (SQLException e) {
@@ -253,6 +283,42 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
                System.err.println("❌ ERROR mapping stock movement row:");
                System.err.println("   Column error: " + e.getMessage());
                throw e;
+          }
+     }
+
+     /**
+      * ✅ UPDATE qty_on_hand trong Products table khi có stock movement
+      * 
+      * @param conn      Connection (để dùng trong transaction)
+      * @param productId ID của sản phẩm
+      * @param qtyChange Số lượng thay đổi (+ nhập, - xuất)
+      */
+     private void updateProductQuantity(Connection conn, int productId, int qtyChange) {
+          // ⚠️ IMPORTANT: Cần dùng đúng tên bảng trong database
+          // Thử cả 2 cách: Products (nếu table tạo với uppercase) hoặc products (nếu
+          // lowercase)
+          String sql = "UPDATE Products SET qty_on_hand = qty_on_hand + ? WHERE id = ?";
+
+          System.out.println("🔄 Updating product quantity:");
+          System.out.println("   Product ID: " + productId);
+          System.out.println("   Quantity Change: " + qtyChange);
+
+          try (PreparedStatement ps = conn.prepareStatement(sql)) {
+               ps.setInt(1, qtyChange);
+               ps.setInt(2, productId);
+
+               int affected = ps.executeUpdate();
+               if (affected > 0) {
+                    System.out.println("✅ Updated qty_on_hand for Product ID " + productId +
+                              " by " + (qtyChange > 0 ? "+" : "") + qtyChange);
+               } else {
+                    System.err.println("⚠️ Product ID " + productId + " not found for qty update");
+               }
+          } catch (SQLException e) {
+               System.err.println("❌ Error updating product quantity: " + e.getMessage());
+               System.err.println("   SQL: " + sql);
+               System.err.println("   Product ID: " + productId + ", Qty Change: " + qtyChange);
+               e.printStackTrace();
           }
      }
 

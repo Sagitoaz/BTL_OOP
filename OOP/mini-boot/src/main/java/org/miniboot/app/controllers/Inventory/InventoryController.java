@@ -82,8 +82,18 @@ public class InventoryController {
                try {
                     Product product = Json.fromBytes(req.body, Product.class);
                     Product saved = productRepo.save(product);
+
+                    // ✅ CHECK NULL: If save failed, return 500 error
+                    if (saved == null) {
+                         System.err.println("❌ ERROR: productRepo.save() returned null");
+                         return HttpResponse.of(500, "text/plain",
+                                   "Failed to save product to database".getBytes(StandardCharsets.UTF_8));
+                    }
+
                     return Json.created(saved);
                } catch (Exception e) {
+                    System.err.println("❌ ERROR in createProduct(): " + e.getMessage());
+                    e.printStackTrace();
                     return HttpResponse.of(400, "text/plain",
                               ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
                }

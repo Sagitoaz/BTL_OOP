@@ -39,11 +39,7 @@ module org.example.oop {
 
     opens org.example.oop.Data.models to javafx.fxml;
 
-    exports org.example.oop.Services;
-
-    opens org.example.oop.Services to javafx.fxml;
-
-    // ✅ API Services cho Inventory
+    // ✅ API Services cho Inventory (package: org.example.oop.Service)
     exports org.example.oop.Service;
 
     opens org.example.oop.Service to javafx.fxml;

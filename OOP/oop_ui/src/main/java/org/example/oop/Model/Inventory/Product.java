@@ -31,7 +31,10 @@ public class Product {
 
     private String name; // NVARCHAR(200) NOT NULL
 
-    private Category category; // ✅ ENUM
+    // ⚠️ Backend JSON trả "category":"service" (lowercase String)
+    // Gson không thể tự động convert String → Enum
+    // Solution: Dùng String, getter/setter handle conversion
+    private String category; // Backend JSON: "category": "service"
 
     private String unit; // NVARCHAR(20)
 
@@ -75,7 +78,7 @@ public class Product {
         this.id = id;
         this.sku = sku;
         this.name = name;
-        this.category = category;
+        this.category = (category != null) ? category.getCode() : null; // Enum → String
         this.unit = unit;
         this.priceCost = priceCost;
         this.priceRetail = priceRetail;
@@ -123,12 +126,32 @@ public class Product {
         this.name = name;
     }
 
+    /**
+     * Get category as Enum (for business logic)
+     */
     public Category getCategory() {
-        return category;
+        return Category.fromCode(category); // String → Enum
     }
 
+    /**
+     * Get category code as String (for JSON/DB)
+     */
+    public String getCategoryCode() {
+        return category; // Return raw String
+    }
+
+    /**
+     * Set category from Enum
+     */
     public void setCategory(Category category) {
-        this.category = category;
+        this.category = (category != null) ? category.getCode() : null; // Enum → String
+    }
+
+    /**
+     * Set category from String code (for JSON deserialization)
+     */
+    public void setCategoryCode(String categoryCode) {
+        this.category = categoryCode; // Save raw String
     }
 
     public String getUnit() {

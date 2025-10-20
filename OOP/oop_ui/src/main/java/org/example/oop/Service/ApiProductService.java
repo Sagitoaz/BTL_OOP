@@ -114,7 +114,7 @@ public class ApiProductService {
      }
 
      public Product createProduct(Product product) throws Exception {
-          System.out.print("🔄 Creating product:" + product.getName());
+          System.out.println("🔄 Creating product: " + product.getName());
           HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL().openConnection();
           conn.setRequestMethod("POST");
           conn.setRequestProperty("Content-Type", "application/json");
@@ -122,19 +122,48 @@ public class ApiProductService {
           conn.setConnectTimeout(CONNECT_TIMEOUT);
           conn.setReadTimeout(READ_TIMEOUT);
           conn.setDoOutput(true);
+
+          // Serialize product to JSON
           String jsonBody = gson.toJson(product);
+          System.out.println("📤 Sending JSON: " + jsonBody);
+
           try (OutputStream os = conn.getOutputStream()) {
                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
                os.write(input, 0, input.length);
           }
+
           int responseCode = conn.getResponseCode();
           String responseBody = readResponse(conn);
+
+          System.out.println("📥 Response Code: " + responseCode);
+          System.out.println("📥 Response Body: " + responseBody);
+
           if (responseCode >= 200 && responseCode < 300) {
+               // Check if response body is empty
+               if (responseBody == null || responseBody.trim().isEmpty()) {
+                    System.out.println("⚠️ Warning: Server returned empty response body");
+                    return null; // Return null thay vì throw exception
+               }
+
                Product created = gson.fromJson(responseBody, Product.class);
+
+               if (created == null) {
+                    System.out.println("⚠️ Warning: Failed to parse JSON response");
+                    return null;
+               }
+
                System.out.println("✅ Product created with ID: " + created.getId());
                return created;
+          } else if (responseCode >= 500) {
+               // ✅ Server error (500, 503, etc.)
+               throw new Exception("Lỗi server (" + responseCode + "): " + responseBody +
+                         "\n\nVui lòng kiểm tra:\n" +
+                         "- Server backend có đang chạy?\n" +
+                         "- Database connection có ổn định?\n" +
+                         "- Xem logs của server để biết chi tiết");
           } else {
-               throw new Exception("Failed to create product: " + responseBody);
+               // Client error (400, 404, etc.)
+               throw new Exception("Lỗi tạo sản phẩm (" + responseCode + "): " + responseBody);
           }
      }
 

@@ -192,36 +192,34 @@ public class SearchInventoryController extends BaseController implements Initial
           showLoading(true);
           updateMessage("🔄 Đang tải dữ liệu...");
 
+          // ✅ Sử dụng executeAsync từ BaseController
           executeAsync(
                     // Background: Load all products
                     () -> {
                          try {
                               return productService.getAllProducts();
                          } catch (Exception e) {
-                              throw new RuntimeException(e);
+                              throw new RuntimeException("Lỗi khi tải danh sách sản phẩm", e);
                          }
                     },
 
                     // Success: Update UI
                     loadedProducts -> {
-                         masterData.clear();
-                         masterData.addAll(loadedProducts);
+                         masterData.setAll(loadedProducts); // ✅ setAll thay vì clear + addAll
 
-                         // Setup filter boxes
                          setupCategoryBox();
                          setupStatusBox();
-
                          applyFilter();
+
                          showLoading(false);
                          updateMessage("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
                          updateCountLabel();
                     },
 
-                    // Error
+                    // Error: BaseController tự động show alert, chỉ cần custom UI
                     error -> {
                          showLoading(false);
                          updateMessage("❌ Lỗi tải dữ liệu: " + error.getMessage());
-                         showError("Không thể tải dữ liệu sản phẩm.\n\n" + error.getMessage());
                     });
      }
 
