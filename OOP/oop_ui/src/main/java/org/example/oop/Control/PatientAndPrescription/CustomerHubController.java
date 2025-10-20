@@ -116,10 +116,6 @@ public class CustomerHubController implements Initializable {
         );
     }
 
-    @FXML
-    private void handleEditCustomer(){
-
-    }
 
     @FXML
     private void resetFilters(ActionEvent event) {
@@ -164,9 +160,8 @@ public class CustomerHubController implements Initializable {
             notesArea.setText(pr.getNote() != null ? pr.getNote() : "");
         }
     }
-
     @FXML
-    private void onAddCustomerButton(ActionEvent event) {
+    private void onAddCustomerButton(){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
             Stage stage = new Stage();
@@ -175,8 +170,8 @@ public class CustomerHubController implements Initializable {
             stage.centerOnScreen();
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
-            Customer newPatient = controller.getNewPatientRecord();
-            addCustomerRecord(newPatient);
+            Customer newCustomer = controller.getCurCustomer();
+            addCustomerRecord(newCustomer);
 
         } catch (IOException e) {
             System.err.println("Error opening Add Customer dialog: " + e.getMessage());
@@ -184,16 +179,40 @@ public class CustomerHubController implements Initializable {
         }
     }
 
-    public void addCustomerRecord(Customer pr) {
+    @FXML
+    private void handleEditCustomer(ActionEvent event) {
+        try {
+            if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
+                showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi Chỉnh sửa bệnh nhân");
+                return;
+            }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Chỉnh sửa Bệnh Nhân ");
+            stage.setScene(new Scene(loader.load()));
+            AddCustomerViewController controller = loader.getController();
+
+            controller.initData(customerListView.getSelectionModel().getSelectedItem());
+            stage.centerOnScreen();
+            stage.showAndWait();
+            Customer updatedPatient = controller.getCurCustomer();
+            updateCustomerRecord(updatedPatient);
+
+        } catch (IOException e) {
+            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
+            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
+        }
+    }
+
+    private void addCustomerRecord(Customer pr) {
         if (pr == null) return;
 
-        // Sử dụng async để tránh block UI và xử lý lỗi tốt hơn
         CustomerRecordService.getInstance().createCustomerAsync(pr,
             createdCustomer -> {
-                // SUCCESS callback - chạy trong UI Thread
+
                 System.out.println("✅ Customer created successfully: " + createdCustomer.getFullName());
                 Platform.runLater(() -> {
-                    loadCustomerData(); // Reload danh sách
+
                 });
             },
             error -> {
@@ -203,6 +222,28 @@ public class CustomerHubController implements Initializable {
                     showErrorAlert("Lỗi tạo bệnh nhân", "Không thể tạo bệnh nhân: " + error);
                 });
             }
+        );
+    }
+    private void updateCustomerRecord(Customer pr) {
+        if (pr == null) return;
+        System.out.println(pr.getId());
+
+        CustomerRecordService.getInstance().updateCustomerAsync(pr,
+                updatedCustomer -> {
+
+                    System.out.println("✅ Customer updated successfully: " + updatedCustomer.getFullName());
+                    Platform.runLater(() -> {
+
+                    });
+                },
+                error -> {
+                    // ERROR callback
+
+                    System.err.println("❌ Error updating customer: " + error);
+                    Platform.runLater(() -> {
+                        showErrorAlert("Lỗi update bệnh nhân", "Không thể update bệnh nhân: " + error);
+                    });
+                }
         );
     }
 

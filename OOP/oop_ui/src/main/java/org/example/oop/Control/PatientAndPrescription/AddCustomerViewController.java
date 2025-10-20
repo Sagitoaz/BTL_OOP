@@ -31,22 +31,39 @@ public class AddCustomerViewController implements Initializable
     @FXML
     private TextArea notesArea;
 
-    private Customer newPatientRecord = null;
+    private Customer curCustomer = null;
 
     public void initialize(URL url, ResourceBundle rb) {
         genderComboBox.getItems().addAll(Customer.Gender.values());
 
+
+    }
+
+
+
+    public void initData(Customer customer){
+        curCustomer = customer;
+        nameField.setText(curCustomer.getFirstname() + " " + curCustomer.getLastname());
+        phoneField.setText(curCustomer.getPhone());
+        dobPicker.setValue(curCustomer.getDob());
+        genderComboBox.setValue(curCustomer.getGender());
+        addressField.setText(curCustomer.getAddress());
+        emailField.setText(curCustomer.getEmail());
+        notesArea.setText(curCustomer.getNote());
     }
 
 
     @FXML
     private void onCancelButton(ActionEvent event){
         Stage stage = (Stage) nameField.getScene().getWindow();
-        newPatientRecord = null;
+        curCustomer = null;
         stage.close();
     }
     @FXML
     private void onSaveAndCloseButton(ActionEvent event){
+        if(curCustomer == null){
+            curCustomer = new Customer();
+        }
         String name = nameField.getText();
         String phone = phoneField.getText();
         LocalDate dob = dobPicker.getValue();
@@ -59,14 +76,19 @@ public class AddCustomerViewController implements Initializable
         String[] nameParts = name.trim().split("\\s+", 2);
         String firstName = nameParts[0];
         String lastName = nameParts.length > 1 ? nameParts[1] : "";
-
-        newPatientRecord = new Customer(0, null, null,  firstName, lastName, phone, email, dob, gender, address,
-                notes, null);
+        curCustomer.setFirstname(firstName);
+        curCustomer.setLastname(lastName);
+        curCustomer.setPhone(phone);
+        curCustomer.setDob(dob);
+        curCustomer.setGender(gender);
+        curCustomer.setAddress(address);
+        curCustomer.setEmail(email);
+        curCustomer.setNote(notes);
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
-    public Customer getNewPatientRecord(){
-        return newPatientRecord;
+    public Customer getCurCustomer(){
+        return curCustomer;
     }
 
 

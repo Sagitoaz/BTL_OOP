@@ -297,7 +297,7 @@ public class CustomerRecordService {
         try {
             String jsonBody = gson.toJson(customer);
             String endpoint = CustomerConfig.PUT_CUSTOMER_ENDPOINT
-                    + "/" + customer.getId();
+                    + "?id=" + customer.getId();
 
             apiClient.putAsync(endpoint, jsonBody,
                 response -> {
