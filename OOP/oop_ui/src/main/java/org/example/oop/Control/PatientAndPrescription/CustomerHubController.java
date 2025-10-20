@@ -69,6 +69,19 @@ public class CustomerHubController implements Initializable {
         // Setup gender filter với promptText
         genderFilter.getItems().addAll(Customer.Gender.values());
         genderFilter.setPromptText("Lọc theo giới tính");
+        genderFilter.setButtonCell(new ListCell<Customer.Gender>() {
+            @Override
+            protected void updateItem(Customer.Gender item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    // Nếu không có item nào được chọn, hiển thị prompt text
+                    setText(genderFilter.getPromptText());
+                } else {
+                    // Ngược lại, hiển thị tên của item
+                    setText(item.toString());
+                }
+            }
+        });
 
         // Load data bất đồng bộ để tránh chặn UI
         //loadCustomerData();
@@ -124,7 +137,6 @@ public class CustomerHubController implements Initializable {
         // Reset genderFilter đúng cách
         genderFilter.setValue(null);
         genderFilter.getSelectionModel().clearSelection();
-        genderFilter.setPromptText("Lọc theo giới tính");
 
         dobFromPicker.setValue(null);
         dobToPicker.setValue(null);
