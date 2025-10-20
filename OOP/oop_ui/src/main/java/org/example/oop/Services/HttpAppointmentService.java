@@ -2,6 +2,7 @@ package org.example.oop.Services;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -171,6 +172,84 @@ public class HttpAppointmentService {
             System.err.println("❌ Error: " + e.getMessage());
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    /**
+     * GET /appointments với filters (support multiple filters)
+     * Tất cả params đều optional
+     */
+    public List<Appointment> getAppointmentsFiltered(
+            Integer doctorId,
+            Integer customerId,
+            String status,
+            LocalDate fromDate,
+            LocalDate toDate,
+            String searchKeyword) {
+        try {
+            // Build URL với query string
+            StringBuilder url = new StringBuilder(baseUrl + "/appointments?");
+            boolean hasParam = false;
+
+            if (doctorId != null) {
+                url.append("doctorId=").append(doctorId);
+                hasParam = true;
+            }
+
+            if (customerId != null) {
+                if (hasParam) url.append("&");
+                url.append("customerId=").append(customerId);
+                hasParam = true;
+            }
+
+            if (status != null && !status.equals("Tất cả")) {
+                if (hasParam) url.append("&");
+                url.append("status=").append(status);
+                hasParam = true;
+            }
+
+            if (fromDate != null) {
+                if (hasParam) url.append("&");
+                url.append("fromDate=").append(fromDate.toString());
+                hasParam = true;
+            }
+
+            if (toDate != null) {
+                if (hasParam) url.append("&");
+                url.append("toDate=").append(toDate.toString());
+                hasParam = true;
+            }
+
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                if (hasParam) url.append("&");
+                // URL encode search keyword
+                url.append("search=").append(URLEncoder.encode(searchKeyword.trim(), "UTF-8"));
+            }
+
+            System.out.println("🔍 Calling API: " + url);
+
+            // Execute request
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url.toString()))
+                    .GET()
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return gson.fromJson(response.body(),
+                        new TypeToken<List<Appointment>>(){}.getType());
+            } else {
+                System.err.println("❌ HTTP Error: " + response.statusCode());
+                return List.of();
+            }
+
+        } catch (Exception e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
         }
     }
     

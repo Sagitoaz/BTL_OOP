@@ -60,23 +60,45 @@ public class AppointmentController {
     public Function<HttpRequest, HttpResponse> getAppointments() {
         return (HttpRequest req) -> {
             Map<String, List<String>> q = req.query;
-            // lọc theo DoctorId +Date
-            Optional<Integer> doctorId = ExtractHelper.extractInt(q, "doctorId");
-            Optional<String> date = ExtractHelper.extractFirst(q, "date");
-            if (doctorId.isPresent() && date.isPresent()) {
-                return Json.ok(appointmentRepository.findByDoctorIdAndDate(doctorId.get(), date.get()));
+
+            // 1. Nếu có ?id=123 -> trả về 1 appointment
+            Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
+            if (idOpt.isPresent()) {
+                return appointmentRepository.findById(idOpt.get())
+                        .map(Json::ok)
+                        .orElse(HttpResponse.of(
+                                404,
+                                "text/plain; charset=utf-8",
+                                AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
+                        ));
             }
 
-            // nếu có ID trả về 1 bản ghi
-            Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
-            return idOpt.map(integer -> appointmentRepository.findById(integer)
-                    .map(Json::ok)
-                    .orElse(HttpResponse.of(
-                            404,
-                            "text/plain; charset=utf-8",
-                            AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
-                    ))).orElseGet(() -> Json.ok(appointmentRepository.findAll()));
-            // trả về hết
+            // 2. Check xem có filter params không
+            boolean hasFilters = q.containsKey("doctorId") ||
+                    q.containsKey("customerId") ||
+                    q.containsKey("status") ||
+                    q.containsKey("fromDate") ||
+                    q.containsKey("toDate") ||
+                    q.containsKey("search");
+
+            // 3. Nếu có filters -> dùng findWithFilters()
+            if (hasFilters) {
+                Integer doctorId = ExtractHelper.extractInt(q, "doctorId").orElse(null);
+                Integer customerId = ExtractHelper.extractInt(q, "customerId").orElse(null);
+                String status = ExtractHelper.extractFirst(q, "status").orElse(null);
+                String fromDate = ExtractHelper.extractFirst(q, "fromDate").orElse(null);
+                String toDate = ExtractHelper.extractFirst(q, "toDate").orElse(null);
+                String search = ExtractHelper.extractFirst(q, "search").orElse(null);
+
+                List<Appointment> filtered = appointmentRepository.findWithFilters(
+                        doctorId, customerId, status, fromDate, toDate, search
+                );
+
+                return Json.ok(filtered);
+            }
+
+            // 4. Không có gì -> trả về tất cả (backward compatible)
+            return Json.ok(appointmentRepository.findAll());
         };
     }
 

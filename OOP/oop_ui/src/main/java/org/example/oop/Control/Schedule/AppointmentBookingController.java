@@ -325,7 +325,6 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void setupPatientTable() {
-        // ✅ Lấy columns từ FXML thay vì tạo mới
         TableColumn<Customer, String> nameCol = 
             (TableColumn<Customer, String>) tblPatients.getColumns().get(0);
         TableColumn<Customer, String> phoneCol = 
@@ -344,13 +343,12 @@ public class AppointmentBookingController implements Initializable {
                 new SimpleStringProperty(cellData.getValue().getDob() != null ?
                         cellData.getValue().getDob().toString() : ""));
 
-        // Bind data (KHÔNG gọi setAll)
+        // Bind data
         tblPatients.setItems(patientList);
     }
 
     private void setupAvailableSlotsTable() {
-        // ✅ Lấy columns từ FXML
-        TableColumn<TimeSlot, String> startCol = 
+        TableColumn<TimeSlot, String> startCol =
             (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(0);
         TableColumn<TimeSlot, String> endCol = 
             (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(1);
@@ -372,7 +370,7 @@ public class AppointmentBookingController implements Initializable {
         statusCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().isAvailable() ? "Trống" : "Đã đặt"));
 
-        // Bind data (KHÔNG gọi setAll)
+        // Bind data
         tblAvailableSlots.setItems(availableSlots);
 
         // Listener khi chọn slot
@@ -385,9 +383,7 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void setupDoctorAgendaTable() {
-        // ✅ Lấy columns đã có từ FXML (giữ nguyên width config từ SceneBuilder)
-        // KHÔNG tạo columns mới để tránh mất width settings
-        TableColumn<Appointment, String> timeCol = 
+        TableColumn<Appointment, String> timeCol =
             (TableColumn<Appointment, String>) tblDoctorAgenda.getColumns().get(0);
         TableColumn<Appointment, String> patientCol = 
             (TableColumn<Appointment, String>) tblDoctorAgenda.getColumns().get(1);
@@ -396,7 +392,7 @@ public class AppointmentBookingController implements Initializable {
         TableColumn<Appointment, String> statusCol = 
             (TableColumn<Appointment, String>) tblDoctorAgenda.getColumns().get(3);
         
-        // Chỉ set cellValueFactory, KHÔNG gọi setAll()
+        // Chỉ set cellValueFactory
         timeCol.setCellValueFactory(cellData -> {
             Appointment apt = cellData.getValue();
             String time = apt.getStartTime().toLocalTime() + " - " + apt.getEndTime().toLocalTime();
@@ -414,7 +410,7 @@ public class AppointmentBookingController implements Initializable {
         statusCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getStatus().toString()));
 
-        // Bind data (KHÔNG gọi setAll để giữ nguyên columns)
+        // Bind data
         tblDoctorAgenda.setItems(doctorAgenda);
     }
 
