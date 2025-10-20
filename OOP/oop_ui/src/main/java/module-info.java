@@ -33,7 +33,6 @@ module org.example.oop {
 
     opens org.example.oop.Model to javafx.fxml;
     exports org.example.oop.Data.models;
-    exports org.example.oop.Data.repositories;
     exports org.example.oop.Data.storage;
     opens org.example.oop.Data.models to javafx.fxml;
     exports org.example.oop.Services;

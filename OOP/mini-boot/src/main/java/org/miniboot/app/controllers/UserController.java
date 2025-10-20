@@ -220,7 +220,7 @@ public class UserController {
             customer.setDob(LocalDate.parse((String) data.get("dob")));
         }
 
-        customer.setGender((String) data.get("gender"));
+        customer.setGender((Customer.Gender) data.get("gender"));
         customer.setAddress((String) data.get("address"));
         customer.setNote((String) data.get("note"));
         customer.setCreatedAt(LocalDateTime.now());
@@ -295,7 +295,7 @@ public class UserController {
                 if (data.containsKey("dob") && data.get("dob") != null) {
                     cust.setDob(LocalDate.parse((String) data.get("dob")));
                 }
-                if (data.containsKey("gender")) cust.setGender((String) data.get("gender"));
+                if (data.containsKey("gender")) cust.setGender((Customer.Gender) data.get("gender"));
                 if (data.containsKey("address")) cust.setAddress((String) data.get("address"));
                 if (data.containsKey("note")) cust.setNote((String) data.get("note"));
             }
@@ -336,7 +336,7 @@ public class UserController {
         }
     }
 
-    private static String hashPassword(String password) {
+    public static String hashPassword(String password) {
         return BCrypt.withDefaults().hashToString(10, password.toCharArray());
     }
 

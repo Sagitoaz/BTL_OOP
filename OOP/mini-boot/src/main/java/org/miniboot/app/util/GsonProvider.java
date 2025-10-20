@@ -1,4 +1,4 @@
-package org.example.oop.Utils;
+package org.miniboot.app.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,15 +14,15 @@ import com.google.gson.JsonSerializer;
 
 /**
  * GsonProvider - Tạo Gson instance với cấu hình sẵn
- * 
+ *
  * ✅ Tránh duplicate code khi tạo Gson
  * ✅ Centralized configuration cho tất cả services
  * ✅ Hỗ trợ LocalDateTime và custom ENUMs
  */
 public class GsonProvider {
-    
+
     private static Gson instance;
-    
+
     /**
      * Lấy Gson instance (Singleton pattern)
      */
@@ -32,7 +32,7 @@ public class GsonProvider {
         }
         return instance;
     }
-    
+
     /**
      * Tạo Gson mới với custom adapters
      */
@@ -42,11 +42,11 @@ public class GsonProvider {
 
         return new GsonBuilder()
                 // LocalDateTime adapter
-                .registerTypeAdapter(LocalDateTime.class, 
-                        (JsonDeserializer<LocalDateTime>) (json, type, context) -> 
+                .registerTypeAdapter(LocalDateTime.class,
+                        (JsonDeserializer<LocalDateTime>) (json, type, context) ->
                                 LocalDateTime.parse(json.getAsString(), dateTimeFormatter))
                 .registerTypeAdapter(LocalDateTime.class,
-                        (JsonSerializer<LocalDateTime>) (src, type, context) -> 
+                        (JsonSerializer<LocalDateTime>) (src, type, context) ->
                                 context.serialize(src.format(dateTimeFormatter)))
 
                 // LocalDate adapter
@@ -64,7 +64,7 @@ public class GsonProvider {
                 .registerTypeAdapter(AppointmentType.class,
                         (JsonSerializer<AppointmentType>) (src, type, context) ->
                                 context.serialize(src.getValue()))
-                
+
                 // AppointmentStatus ENUM adapter
                 .registerTypeAdapter(AppointmentStatus.class,
                         (JsonDeserializer<AppointmentStatus>) (json, type, context) ->
@@ -72,7 +72,7 @@ public class GsonProvider {
                 .registerTypeAdapter(AppointmentStatus.class,
                         (JsonSerializer<AppointmentStatus>) (src, type, context) ->
                                 context.serialize(src.getValue()))
-                
+
                 .create();
     }
 }

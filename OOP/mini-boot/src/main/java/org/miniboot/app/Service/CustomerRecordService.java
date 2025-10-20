@@ -1,6 +1,6 @@
 package org.miniboot.app.Service;
 
-import org.miniboot.app.domain.models.CustomerRecord;
+import org.miniboot.app.domain.models.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 
 import java.util.List;
@@ -11,16 +11,16 @@ public class CustomerRecordService {
     public CustomerRecordService(CustomerRecordRepository customerRecordRepository) {
         this.customerRecordRepository = customerRecordRepository;
     }
-    public List<CustomerRecord> searchPatientRecords(CustomerSearchCriteria criteria) {
-        List<CustomerRecord> res = customerRecordRepository.findAll();
+    public List<Customer> searchPatientRecords(CustomerSearchCriteria criteria) {
+        List<Customer> res = customerRecordRepository.findAll();
         return res.stream().filter(customerRecord -> matchCriteria(customerRecord, criteria)).collect(Collectors.toList());
     }
 
-    private boolean matchCriteria(CustomerRecord customerRecord, CustomerSearchCriteria criteria) {
+    private boolean matchCriteria(Customer customerRecord, CustomerSearchCriteria criteria) {
         if(criteria.getSearchKey() != null || criteria.isEmpty()){
 
             String lowerKey = criteria.getSearchKey().trim().toLowerCase();
-            if(!(customerRecord.getNameCustomer().toLowerCase().contains(lowerKey) ||
+            if(!(customerRecord.getFullName().toLowerCase().contains(lowerKey) ||
                  customerRecord.getPhone().toLowerCase().equals(lowerKey))){
                 try{
                     int id = Integer.parseInt(lowerKey);

@@ -9,6 +9,11 @@ import java.time.LocalDateTime;
  * Đã cập nhật để tương thích với OOP_UI: sử dụng int cho ID
  */
 public class Customer implements User {
+    public enum Gender{
+        MALE,
+        FEMALE,
+        OTHER;
+    }
     private int id;
     private String username;
     private String password;
@@ -17,7 +22,7 @@ public class Customer implements User {
     private String phone;
     private String email;
     private LocalDate dob;
-    private String gender;
+    private Gender gender;
     private String address;
     private String note;
     private LocalDateTime createdAt;
@@ -25,7 +30,7 @@ public class Customer implements User {
     public Customer() {}
 
     public Customer(int id, String username, String password, String firstname, String lastname,
-                    String phone, String email, LocalDate dob, String gender, String address,
+                    String phone, String email, LocalDate dob, Gender gender, String address,
                     String note, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
@@ -140,15 +145,20 @@ public class Customer implements User {
         return dob;
     }
 
+    public int getAge() {
+        if (dob == null) return 0;
+        return LocalDate.now().getYear() - dob.getYear();
+    }
+
     public void setDob(LocalDate dob) {
         this.dob = dob;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -178,14 +188,6 @@ public class Customer implements User {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", firstname='" + firstname + '\'' +
-                ", lastname='" + lastname + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", gender='" + gender + '\'' +
-                '}';
+        return getId()+"."+getFullName();
     }
 }

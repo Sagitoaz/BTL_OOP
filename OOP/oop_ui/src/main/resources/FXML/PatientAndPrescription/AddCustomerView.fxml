@@ -20,7 +20,7 @@
     </padding>
 
     <top>
-        <Label text="Thêm Hồ Sơ Bệnh Nhân Mới" BorderPane.alignment="CENTER">
+        <Label text="Chỉnh sửa và thêm hồ sơ Bệnh nhân" BorderPane.alignment="CENTER">
             <font>
                 <Font name="System Bold" size="22.0" />
             </font>
@@ -75,7 +75,7 @@
                 <Insets top="30.0" />
             </BorderPane.margin>
             <children>
-                <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="90.0" text="Hủy" onAction="#onCancelButton" />
+                <Button fx:id="deleteButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="90.0" text="Xóa" onAction="#onDeleteButton" />
                 <Button fx:id="saveAndCloseButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" onAction="#onSaveAndCloseButton" text="Lưu &amp; Đóng" />
             </children>
         </HBox>
