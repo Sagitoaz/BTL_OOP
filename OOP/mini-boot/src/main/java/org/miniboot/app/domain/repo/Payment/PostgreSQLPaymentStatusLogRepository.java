@@ -15,36 +15,6 @@ public class PostgreSQLPaymentStatusLogRepository implements PaymentStatusLogRep
         this.dbConfig = DatabaseConfig.getInstance();
     }
 
-    public static void main(String[] args) {
-        System.out.println("🧪 Testing PostgreSQLPaymentStatusLogRepository...\n");
-
-        PostgreSQLPaymentStatusLogRepository repo = new PostgreSQLPaymentStatusLogRepository();
-
-        int testPaymentId = 3; // 👉 sửa thành ID thật có trong bảng payments
-        System.out.println("Testing with payment_id = " + testPaymentId);
-
-        // --- Test 1: setCurrentPaymentStatus() ---
-        System.out.println("\n--- Test 1: setCurrentPaymentStatus() ---");
-        PaymentStatus newStatus = PaymentStatus.CANCELLED;
-        PaymentStatus insertedStatus = repo.setCurrentPaymentStatus(testPaymentId, newStatus);
-        if (insertedStatus != null) {
-            System.out.println("✅ Status result: " + insertedStatus);
-        } else {
-            System.out.println("❌ Failed to change status");
-        }
-
-        // --- Test 2: getCurrentPaymentStatus() ---
-        System.out.println("\n--- Test 2: getCurrentPaymentStatus() ---");
-        PaymentStatus current = repo.getCurrentPaymentStatus(testPaymentId);
-        if (current != null) {
-            System.out.println("✅ Latest status for payment " + testPaymentId + " = " + current);
-        } else {
-            System.out.println("⚠️ No status log found for payment_id = " + testPaymentId);
-        }
-
-        System.out.println("\n✅ All tests finished!");
-    }
-
     @Override
     public PaymentStatus setCurrentPaymentStatus(int paymentId, PaymentStatus targetStatus) {
         if (targetStatus == null) {

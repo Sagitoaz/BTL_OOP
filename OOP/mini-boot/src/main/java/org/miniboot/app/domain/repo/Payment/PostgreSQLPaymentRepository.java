@@ -17,60 +17,6 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
         this.dbConfig = DatabaseConfig.getInstance();
     }
 
-    public static void main(String[] args) {
-        System.out.println("🧪 Testing PostgreSQLPaymentRepository...\n");
-        PostgreSQLPaymentRepository repo = new PostgreSQLPaymentRepository();
-
-        // Test 1: get all
-        List<Payment> all = repo.getPayments();
-        System.out.println("Total payments: " + all.size());
-        if (!all.isEmpty()) {
-            Payment f = all.get(0);
-            System.out.println("First payment: ID=" + f.getId() + ", Code=" + f.getCode());
-        }
-
-        // Test 2: get by id (nếu có)
-        if (!all.isEmpty()) {
-            int testId = all.get(0).getId();
-            repo.getPaymentById(testId).ifPresentOrElse(
-                    p -> System.out.println("Found payment ID=" + p.getId() + ", Code=" + p.getCode()),
-                    () -> System.out.println("Not found id=" + testId)
-            );
-        }
-
-        // Test 3: INSERT
-        Payment np = new Payment();
-        np.setCode("PMT-" + System.currentTimeMillis());
-        np.setCustomerId(0);
-        np.setCashierId(1);
-        np.setIssuedAt(LocalDateTime.now());
-        np.setSubtotal(100000);
-        np.setDiscount(5000);
-        np.setTaxTotal(10000);
-        np.setRounding(0);
-        np.setGrandTotal(105000);
-        np.setPaymentMethod(PaymentMethod.CASH);
-        np.setAmountPaid(105000);
-        np.setNote("Test payment insert");
-        np.setCreatedAt(LocalDateTime.now());
-
-        Payment inserted = repo.savePayment(np);
-        if (inserted != null && inserted.getId() != null && inserted.getId() > 0) {
-            System.out.println("✅ Inserted ID=" + inserted.getId() + ", Code=" + inserted.getCode());
-
-            // Test 4: UPDATE
-            inserted.setNote("Updated note " + LocalDateTime.now());
-            inserted.setAmountPaid(inserted.getAmountPaid() + 10000);
-            Payment updated = repo.savePayment(inserted);
-            System.out.println(updated != null
-                    ? "✅ Updated ID=" + updated.getId() + ", New amount=" + updated.getAmountPaid()
-                    : "❌ Update failed");
-        } else {
-            System.out.println("❌ Insert failed!");
-        }
-    }
-
-
     @Override
     public List<Payment> getPayments() {
         List<Payment> payments = new ArrayList<>();
