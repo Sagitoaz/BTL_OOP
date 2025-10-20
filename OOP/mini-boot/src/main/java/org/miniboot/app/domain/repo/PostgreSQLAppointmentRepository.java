@@ -288,12 +288,12 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
         }
 
         if (fromDate != null && !fromDate.isEmpty()) {
-            sql.append(" AND DATE(start_time) >= ?");
+            sql.append(" AND DATE(start_time) >= CAST(? AS DATE)");
             params.add(fromDate);
         }
 
         if (toDate != null && !toDate.isEmpty()) {
-            sql.append(" AND DATE(start_time) <= ?");
+            sql.append(" AND DATE(start_time) <= CAST(? AS DATE)");
             params.add(toDate);
         }
 

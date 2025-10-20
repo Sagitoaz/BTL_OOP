@@ -1,10 +1,10 @@
 package org.miniboot.app.config;
 
-import org.miniboot.app.AppConfig;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import org.miniboot.app.AppConfig;
 
 /**
  * DatabaseConfig: Quản lý kết nối đến PostgreSQL Database (Supabase)
@@ -70,25 +70,24 @@ public class DatabaseConfig {
     
     /**
      * Lấy connection đến database
-     * Nếu connection chưa tồn tại hoặc đã đóng, tạo connection mới
+     * TẠO CONNECTION MỚI cho mỗi request để tránh lock và timeout
      */
     public Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                // Load PostgreSQL driver
-                Class.forName("org.postgresql.Driver");
-                
-                // Tạo connection
-                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                
-                System.out.println("Database connection established successfully!");
-                System.out.println("Connected to: " + DB_URL);
-                
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("PostgreSQL Driver not found!", e);
-            }
+        try {
+            // Load PostgreSQL driver
+            Class.forName("org.postgresql.Driver");
+            
+            // TẠO CONNECTION MỚI mỗi lần gọi (không dùng singleton connection)
+            Connection newConnection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            
+            System.out.println("Database connection established successfully!");
+            System.out.println("Connected to: " + DB_URL);
+            
+            return newConnection;
+            
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("PostgreSQL Driver not found!", e);
         }
-        return connection;
     }
     
     /**
