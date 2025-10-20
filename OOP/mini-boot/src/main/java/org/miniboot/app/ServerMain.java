@@ -4,10 +4,16 @@ import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.Inventory.InventoryController;
+import org.miniboot.app.controllers.payment.PaymentController;
+import org.miniboot.app.controllers.payment.PaymentStatusLogController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
 import org.miniboot.app.domain.repo.Inventory.ProductRepository;
+import org.miniboot.app.domain.repo.Payment.PaymentRepository;
+import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
+import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentRepository;
+import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentStatusLogRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -16,6 +22,7 @@ import org.miniboot.app.router.middleware.AuthMiddlewareStub;
 import org.miniboot.app.router.middleware.CorsMiddleware;
 import org.miniboot.app.router.middleware.ErrorHandle;
 import org.miniboot.app.router.middleware.LoggingMiddleware;
+
 
 public class ServerMain {
     public static void main(String[] args) throws Exception {
@@ -29,15 +36,24 @@ public class ServerMain {
         // Sử dụng PostgreSQL repositories thay vì InMemory
         DoctorRepository doctorRepo = new PostgreSQLDoctorRepository();
         AppointmentRepository apptRepo = new PostgreSQLAppointmentRepository();
+        // 🔽 ADD: Payment repositories
+        PaymentRepository paymentRepo = new PostgreSQLPaymentRepository();
+        PaymentStatusLogRepository paymentStatusRepo = new PostgreSQLPaymentStatusLogRepository();
+
 
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
         DoctorController dc = new DoctorController(doctorRepo, apptRepo);
         AppointmentController ac = new AppointmentController(apptRepo);
+        // 🔽 ADD: Payment controllers
+        PaymentController pc = new PaymentController(paymentRepo, paymentStatusRepo);
+        PaymentStatusLogController pslc = new PaymentStatusLogController(paymentStatusRepo);
+
         // Inventory
         ProductRepository productRepo = new PostgreSQLProductRepository();
         InventoryController ic = new InventoryController(productRepo);
+
         // Tạo router và mount controllers
         Router router = new Router();
         router.use(new AuthMiddlewareStub());
@@ -49,6 +65,10 @@ public class ServerMain {
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
         InventoryController.mount(router, ic);
+        // 🔽 ADD: Mount Payment routes
+        PaymentController.mount(router, pc);
+        PaymentStatusLogController.mount(router, pslc);
+
         // mount các controller
         AuthController.mount(router);
 
@@ -65,6 +85,13 @@ public class ServerMain {
         System.out.println("   POST /products");
         System.out.println("   PUT  /products");
         System.out.println("   DELETE /products?id=...");
+        // 🔽 ADD: Payment endpoints in the list
+        System.out.println("   GET  /payments");
+        System.out.println("   POST /payments");
+        System.out.println("   PUT  /payments");
+        System.out.println("   GET  /payment-status?paymentId=...");
+        System.out.println("   POST /payment-status");
+
         server.start();
     }
 }
