@@ -1,6 +1,7 @@
 package org.example.oop.Services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -161,10 +162,25 @@ public class CustomerRecordService {
             response -> {
                 if (response.isSuccess()) {
                     try {
-                        List<Customer> customers = gson.fromJson(response.getData(),
-                            new TypeToken<List<Customer>>(){}.getType());
+                        String responseData = response.getData();
+                        List<Customer> customers;
+
+                        // Kiểm tra response data trước khi parse
+                        if (responseData == null || responseData.trim().isEmpty() || "null".equals(responseData.trim())) {
+                            // Nếu response là null hoặc empty, trả về empty list
+                            customers = new ArrayList<>();
+                        } else {
+                            customers = gson.fromJson(responseData, new TypeToken<List<Customer>>(){}.getType());
+                            // Double check nếu gson trả về null
+                            if (customers == null) {
+                                customers = new ArrayList<>();
+                            }
+                        }
+
+                        System.out.println("📋 Loaded " + customers.size() + " customers");
                         onSuccess.accept(customers);
                     } catch (Exception e) {
+                        System.err.println("❌ JSON parse error in getAllCustomers: " + e.getMessage());
                         onError.accept("JSON parse error: " + e.getMessage());
                     }
                 } else {
@@ -187,10 +203,25 @@ public class CustomerRecordService {
             response -> {
                 if (response.isSuccess()) {
                     try {
-                        List<Customer> customers = gson.fromJson(response.getData(),
-                            new TypeToken<List<Customer>>(){}.getType());
+                        String responseData = response.getData();
+                        List<Customer> customers;
+
+                        // Kiểm tra response data trước khi parse
+                        if (responseData == null || responseData.trim().isEmpty() || "null".equals(responseData.trim())) {
+                            // Nếu response là null hoặc empty, trả về empty list
+                            customers = new ArrayList<>();
+                        } else {
+                            customers = gson.fromJson(responseData, new TypeToken<List<Customer>>(){}.getType());
+                            // Double check nếu gson trả về null
+                            if (customers == null) {
+                                customers = new ArrayList<>();
+                            }
+                        }
+
+                        System.out.println("🔍 Search found " + customers.size() + " customers");
                         onSuccess.accept(customers);
                     } catch (Exception e) {
+                        System.err.println("❌ JSON parse error in search: " + e.getMessage());
                         onError.accept("JSON parse error: " + e.getMessage());
                     }
                 } else {

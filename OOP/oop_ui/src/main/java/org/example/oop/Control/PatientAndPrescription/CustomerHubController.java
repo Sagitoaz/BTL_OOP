@@ -1,5 +1,6 @@
 package org.example.oop.Control.PatientAndPrescription;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -60,16 +61,14 @@ public class CustomerHubController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         customerRecordsList = FXCollections.observableArrayList();
         loadCustomerData();
-        //customerRecordsList.addAll(CustomerRecordService.getInstance().getAllCustomers().getData());
-        customerListView.setItems(customerRecordsList);
-
         // Setup listener cho selection
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
         });
 
-        // Setup gender filter
+        // Setup gender filter với promptText
         genderFilter.getItems().addAll(Customer.Gender.values());
+        genderFilter.setPromptText("Lọc theo giới tính");
 
         // Load data bất đồng bộ để tránh chặn UI
         //loadCustomerData();
@@ -100,7 +99,6 @@ public class CustomerHubController implements Initializable {
         LocalDate dobFrom = dobFromPicker.getValue();
         LocalDate dobTo = dobToPicker.getValue();
 
-        // TODO: Implement search functionality
         CustomerRecordService.getInstance().searchCustomersAsync(
             search,
             gender,
@@ -119,10 +117,19 @@ public class CustomerHubController implements Initializable {
     }
 
     @FXML
+    private void handleEditCustomer(){
+
+    }
+
+    @FXML
     private void resetFilters(ActionEvent event) {
         searchField.clear();
+
+        // Reset genderFilter đúng cách
         genderFilter.setValue(null);
+        genderFilter.getSelectionModel().clearSelection();
         genderFilter.setPromptText("Lọc theo giới tính");
+
         dobFromPicker.setValue(null);
         dobToPicker.setValue(null);
 
@@ -169,8 +176,8 @@ public class CustomerHubController implements Initializable {
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
             Customer newPatient = controller.getNewPatientRecord();
-            CustomerRecordService.getInstance().createCustomer(newPatient);
-            loadCustomerData();
+            addCustomerRecord(newPatient);
+
         } catch (IOException e) {
             System.err.println("Error opening Add Customer dialog: " + e.getMessage());
             showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
@@ -179,8 +186,24 @@ public class CustomerHubController implements Initializable {
 
     public void addCustomerRecord(Customer pr) {
         if (pr == null) return;
-        // TODO: Call API to save customer
-        customerRecordsList.add(pr);
+
+        // Sử dụng async để tránh block UI và xử lý lỗi tốt hơn
+        CustomerRecordService.getInstance().createCustomerAsync(pr,
+            createdCustomer -> {
+                // SUCCESS callback - chạy trong UI Thread
+                System.out.println("✅ Customer created successfully: " + createdCustomer.getFullName());
+                Platform.runLater(() -> {
+                    loadCustomerData(); // Reload danh sách
+                });
+            },
+            error -> {
+                // ERROR callback
+                System.err.println("❌ Error creating customer: " + error);
+                Platform.runLater(() -> {
+                    showErrorAlert("Lỗi tạo bệnh nhân", "Không thể tạo bệnh nhân: " + error);
+                });
+            }
+        );
     }
 
     @FXML

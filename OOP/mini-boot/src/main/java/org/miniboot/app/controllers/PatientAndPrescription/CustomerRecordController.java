@@ -40,21 +40,36 @@ public class CustomerRecordController {
     public Function<HttpRequest, HttpResponse> createCustomer() {
         return (HttpRequest req) -> {
             try {
-                Customer createdCustomer = null;
                 Gson gson = GsonProvider.getGson();
-                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
-                createdCustomer = gson.fromJson(jsonBody, Customer.class);
-                customerRecordRepository.save(createdCustomer);
-                String jsonResponse = gson.toJson(createdCustomer);
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);
+                Customer customerToCreate = gson.fromJson(jsonBody, Customer.class);
 
-                return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
-            }
-            catch (Exception e) {
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
+                System.out.println("🔄 Attempting to create customer: " + customerToCreate.getFirstname() + " " + customerToCreate.getLastname());
+
+                // Gọi repository save - có thể throw RuntimeException
+                Customer savedCustomer = customerRecordRepository.save(customerToCreate);
+
+                if (savedCustomer != null && savedCustomer.getId() > 0) {
+                    String jsonResponse = gson.toJson(savedCustomer);
+                    System.out.println("✅ Customer created successfully with ID: " + savedCustomer.getId());
+                    return HttpResponse.of(201, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    System.err.println("❌ Customer creation failed - no customer returned");
+                    return HttpResponse.of(500, "text/plain; charset=utf-8",
+                            "Internal Server Error: Failed to create customer".getBytes(StandardCharsets.UTF_8));
+                }
+            } catch (RuntimeException e) {
+                // Database errors từ repository
+                System.err.println("❌ Database error creating customer: " + e.getMessage());
+                return HttpResponse.of(500, "text/plain; charset=utf-8",
+                        ("Database Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                // JSON parsing hoặc lỗi khác
+                System.err.println("❌ General error creating customer: " + e.getMessage());
+                e.printStackTrace();
+                return HttpResponse.of(400, "text/plain; charset=utf-8",
                         AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
             }
-
         };
 
     }

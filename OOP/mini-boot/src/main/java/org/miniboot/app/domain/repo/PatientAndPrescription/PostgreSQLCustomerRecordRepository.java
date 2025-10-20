@@ -29,13 +29,21 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             String hashedPassword = UserController.hashPassword(CustomerConfig.DEFAULT_PASSWORD);
             customer.setPassword(hashedPassword);
         }
+
+        Customer savedCustomer;
         if(customer.getId() <= 0){
-            System.out.println(customer.getUsername());
-            return insertCustomer(customer).orElse(null);
+            System.out.println("📝 Inserting new customer: " + customer.getUsername());
+            savedCustomer = insertCustomer(customer).orElse(null);
+        } else {
+            System.out.println("📝 Updating existing customer: " + customer.getId());
+            savedCustomer = updateCustomer(customer).orElse(null);
         }
-        else{
-            return updateCustomer(customer).orElse(null);
+
+        if(savedCustomer == null) {
+            throw new RuntimeException("Failed to save customer to database");
         }
+
+        return savedCustomer;
     }
     private Optional<Customer> insertCustomer(Customer customer) {
         String sqlQuery = "INSERT INTO customers (username, password, firstname, lastname, "+
@@ -54,25 +62,30 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             pstmt.setString(9, customer.getAddress());
             pstmt.setString(10, customer.getNote());
             pstmt.setTimestamp(11, Timestamp.valueOf(customer.getCreatedAt()));
+
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new Exception("Inserting customer failed, no rows affected.");
+                System.err.println("❌ Insert failed: No rows affected");
+                throw new SQLException("Inserting customer failed, no rows affected.");
             }
+
             try(ResultSet generatedKeys = pstmt.getGeneratedKeys()){
                 if(generatedKeys.next()){
                     customer.setId(generatedKeys.getInt(1));
-                }
-                else{
-                    throw new Exception("Inserting customer failed, no ID obtained.");
+                    System.out.println("✅ Customer inserted successfully with ID: " + customer.getId());
+                } else {
+                    System.err.println("❌ Insert failed: No ID generated");
+                    throw new SQLException("Inserting customer failed, no ID obtained.");
                 }
             }
         }
         catch (Exception e){
             System.err.println("❌ Error inserting Customer: " + e.getMessage());
             e.printStackTrace();
-            return Optional.empty();
+            // QUAN TRỌNG: Throw exception để controller biết có lỗi
+            throw new RuntimeException("Database insert failed: " + e.getMessage(), e);
         }
-        System.out.println("OK");
+        System.out.println("✅ Customer save completed successfully");
         return Optional.of(customer);
     }
     private Optional<Customer> updateCustomer(Customer customer) {
@@ -170,65 +183,76 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
     }
     public List<Customer> findByFilterAll(CustomerSearchCriteria criteria) {
         List<Customer> customers = new ArrayList<>();
-        String sqlQuery = "SELECT * FROM customers "+
-                "WHERE (LOWER(firstname) LIKE LOWER('%'||?||'%') OR LOWER(lastname) LIKE LOWER('%'||?||'%') "+
-                "OR phone LIKE (?) OR id = ? OR ? IS NULL) "+
-                "AND (gender = ? OR ? IS NULL) "+
-                "AND (dob >= ? OR ? IS NULL) "+
-                "AND (dob <= ? OR ? IS NULL);";
-        try (Connection conn = dbConfig.getConnection()){
-            PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
-            pstmt.setString(1, criteria.getSearchKey());
-            pstmt.setString(2, criteria.getSearchKey());
-            pstmt.setString(3, criteria.getSearchKey());
-            if(criteria.getSearchKey() != null){
-                try{
-                    pstmt.setInt(4, Integer.parseInt(criteria.getSearchKey()));
-                }
-                catch (NumberFormatException e){
-                    pstmt.setNull(4, Types.INTEGER);
-                }
-                pstmt.setString(5, criteria.getSearchKey());
+
+        // Xây dựng SQL query động dựa trên criteria có giá trị
+        StringBuilder sqlQuery = new StringBuilder("SELECT * FROM customers WHERE 1=1");
+        List<Object> parameters = new ArrayList<>();
+
+        // Thêm điều kiện search key (firstname, lastname, phone, id)
+        if (criteria.getSearchKey() != null && !criteria.getSearchKey().trim().isEmpty()) {
+            sqlQuery.append(" AND (LOWER(firstname) LIKE LOWER(?) OR LOWER(lastname) LIKE LOWER(?) OR phone LIKE ? OR id = ?)");
+            String searchPattern = "%" + criteria.getSearchKey().trim() + "%";
+            parameters.add(searchPattern); // firstname
+            parameters.add(searchPattern); // lastname
+            parameters.add(criteria.getSearchKey().trim()); // phone
+
+            // Thử parse thành int cho id, nếu không được thì set -1
+            try {
+                parameters.add(Integer.parseInt(criteria.getSearchKey().trim())); // id
+            } catch (NumberFormatException e) {
+                parameters.add(-1); // ID không hợp lệ
             }
-            else{
-                pstmt.setNull(4, Types.INTEGER);
-                pstmt.setNull(5, Types.VARCHAR);
+        }
+
+        // Thêm điều kiện gender
+        if (criteria.getGender() != null) {
+            sqlQuery.append(" AND UPPER(gender) = UPPER(?)");
+            parameters.add(criteria.getGender().name());
+        }
+
+        // Thêm điều kiện date from
+        if (criteria.getDateFrom() != null) {
+            sqlQuery.append(" AND dob >= ?");
+            parameters.add(Date.valueOf(criteria.getDateFrom()));
+        }
+
+        // Thêm điều kiện date to
+        if (criteria.getDateTo() != null) {
+            sqlQuery.append(" AND dob <= ?");
+            parameters.add(Date.valueOf(criteria.getDateTo()));
+        }
+
+        System.out.println("🔍 SQL Query: " + sqlQuery.toString());
+        System.out.println("🔍 Parameters: " + parameters);
+
+        try (Connection conn = dbConfig.getConnection()){
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery.toString());
+
+            // Set parameters
+            for (int i = 0; i < parameters.size(); i++) {
+                Object param = parameters.get(i);
+                if (param instanceof String) {
+                    pstmt.setString(i + 1, (String) param);
+                } else if (param instanceof Integer) {
+                    pstmt.setInt(i + 1, (Integer) param);
+                } else if (param instanceof Date) {
+                    pstmt.setDate(i + 1, (Date) param);
+                }
             }
 
-            if(criteria.getGender() != null){
-                pstmt.setString(6, criteria.getGender().name().toUpperCase());
-                pstmt.setString(7, criteria.getGender().name().toUpperCase());
-            }
-            else{
-                pstmt.setNull(6, Types.VARCHAR);
-                pstmt.setNull(7, Types.VARCHAR);
-            }
-            if(criteria.getDateFrom() != null){
-                pstmt.setDate(8, Date.valueOf(criteria.getDateFrom()));
-                pstmt.setDate(9, Date.valueOf(criteria.getDateFrom()));
-            }
-            else{
-                pstmt.setNull(8, Types.DATE);
-                pstmt.setNull(9, Types.DATE);
-            }
-            if(criteria.getDateTo() != null){
-                pstmt.setDate(10, Date.valueOf(criteria.getDateTo()));
-                pstmt.setDate(11, Date.valueOf(criteria.getDateTo()));
-            }
-            else{
-                pstmt.setNull(10, Types.DATE);
-                pstmt.setNull(11, Types.DATE);
-            }
             ResultSet rs = pstmt.executeQuery();
             while(rs.next()){
                 customers.add(CustomerMapper.mapResultSetToCustomer(rs));
             }
+
+            System.out.println("✅ Found " + customers.size() + " customers matching criteria");
+
         } catch (Exception e) {
-            System.err.println("❌ Error findByFilter Custommer: " + e.getMessage());
+            System.err.println("❌ Error findByFilter Customer: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            return new ArrayList<>(); // Trả về empty list thay vì null
         }
-        System.out.println("OK");
+
         return customers;
     }
     public boolean deleteById(int id) {
