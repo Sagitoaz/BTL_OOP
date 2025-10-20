@@ -252,7 +252,41 @@ public class HttpAppointmentService {
             return List.of();
         }
     }
-    
+
+    /**
+     * GET /appointments?doctorId={id}&fromDate={from}&toDate={to}
+     * Lấy appointments theo doctor và khoảng ngày
+     */
+    public List<Appointment> getByDoctorAndDateRange(int doctorId, LocalDate fromDate, LocalDate toDate) {
+        try {
+            String url = String.format("%s/appointments?doctorId=%d&fromDate=%s&toDate=%s",
+                    baseUrl, doctorId, fromDate.toString(), toDate.toString());
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return gson.fromJson(response.body(),
+                        new TypeToken<List<Appointment>>(){}.getType());
+            } else {
+                System.err.println("❌ HTTP Error: " + response.statusCode());
+                return List.of();
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
+
     /**
      * Kiểm tra kết nối server
      */

@@ -3,10 +3,10 @@ module mini.boot {
     requires com.google.gson;
     requires com.auth0.jwt;
     requires com.fasterxml.jackson.datatype.jsr310;
-    requires java.sql;
     requires bcrypt;
+    requires java.sql;
 
-    // PostgreSQL JDBC driver và MS SQL Server JDBC driver không phải là proper Java modules
+    // PostgreSQL, MS SQL Server không phải là proper Java modules
     // Chúng sẽ được load qua classpath tự động (automatic modules)
 
     exports org.miniboot.app;

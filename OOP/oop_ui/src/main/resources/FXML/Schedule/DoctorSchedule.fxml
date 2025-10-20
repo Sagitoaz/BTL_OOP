@@ -114,11 +114,11 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
                            <children>
-                              <CheckBox mnemonicParsing="false" text="Trống" fx:id="emptyChk" />
-                              <CheckBox mnemonicParsing="false" text="Đã đặt" fx:id="bookedChk" />
-                              <CheckBox mnemonicParsing="false" text="Đang khám" fx:id="inProgressChk" />
-                              <CheckBox mnemonicParsing="false" text="Hoàn thành" fx:id="completedChk" />
-                              <CheckBox mnemonicParsing="false" text="Đã hủy" fx:id="cancelledChk" />
+                              <CheckBox fx:id="emptyChk" mnemonicParsing="false" text="Trống" />
+                              <CheckBox fx:id="bookedChk" mnemonicParsing="false" text="Đã đặt" />
+                              <CheckBox fx:id="inProgressChk" mnemonicParsing="false" text="Đang khám" />
+                              <CheckBox fx:id="completedChk" mnemonicParsing="false" text="Hoàn thành" />
+                              <CheckBox fx:id="cancelledChk" mnemonicParsing="false" text="Đã hủy" />
                            </children>
                         </VBox>
                      </content>

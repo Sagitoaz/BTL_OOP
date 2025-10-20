@@ -9,14 +9,15 @@ import org.miniboot.app.AppConfig;
 /**
  * DatabaseConfig: Quản lý kết nối đến PostgreSQL Database (Supabase)
  * 
- * Sử dụng Singleton pattern để đảm bảo chỉ có một connection instance
- * được sử dụng xuyên suốt ứng dụng.
+ * ⚠️ QUAN TRỌNG: 
+ * - Mỗi lần gọi getConnection() sẽ tạo connection MỚI
+ * - PHẢI dùng try-with-resources để tự động đóng connection
+ * - Nếu không đóng connection → "Max client connections reached"
  */
 public class DatabaseConfig {
     
     // Singleton instance
     private static DatabaseConfig instance;
-    private Connection connection;
     
     // Database credentials
     private final String DB_URL;
@@ -25,7 +26,6 @@ public class DatabaseConfig {
     
     /**
      * Constructor private để implement Singleton pattern
-     * Đọc thông tin kết nối từ environment variables hoặc system properties
      */
     private DatabaseConfig() {
         // Đọc từ environment variables hoặc system properties, có giá trị mặc định
@@ -70,37 +70,42 @@ public class DatabaseConfig {
     
     /**
      * Lấy connection đến database
-     * TẠO CONNECTION MỚI cho mỗi request để tránh lock và timeout
+     * 
+     * ⚠️ QUAN TRỌNG: Tạo connection MỚI mỗi lần gọi
+     * PHẢI dùng trong try-with-resources để tự động đóng:
+     * 
+     * try (Connection conn = dbConfig.getConnection()) {
+     *     // Use connection
+     * } // Connection tự động đóng ở đây
      */
     public Connection getConnection() throws SQLException {
         try {
             // Load PostgreSQL driver
             Class.forName("org.postgresql.Driver");
             
-            // TẠO CONNECTION MỚI mỗi lần gọi (không dùng singleton connection)
-            Connection newConnection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            // Thêm connection properties để tối ưu
+            java.util.Properties props = new java.util.Properties();
+            props.setProperty("user", DB_USER);
+            props.setProperty("password", DB_PASSWORD);
+            props.setProperty("connectTimeout", "10"); // 10 giây timeout
+            props.setProperty("socketTimeout", "30");   // 30 giây socket timeout
+            props.setProperty("tcpKeepAlive", "true");  // Keep alive
             
-            System.out.println("Database connection established successfully!");
-            System.out.println("Connected to: " + DB_URL);
+            // Tạo connection mới
+            Connection conn = DriverManager.getConnection(DB_URL, props);
             
-            return newConnection;
+            // Set auto-commit = true để không giữ transaction lâu
+            conn.setAutoCommit(true);
+            
+            System.out.println("✅ Database connection established");
+            
+            return conn;
             
         } catch (ClassNotFoundException e) {
             throw new SQLException("PostgreSQL Driver not found!", e);
-        }
-    }
-    
-    /**
-     * Đóng connection
-     */
-    public void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-                System.out.println("Database connection closed");
-            } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
-            }
+        } catch (SQLException e) {
+            System.err.println("❌ Connection failed: " + e.getMessage());
+            throw e;
         }
     }
     
