@@ -286,6 +286,72 @@ public class HttpAppointmentService {
         }
     }
 
+    /**
+     * UPDATE appointment
+     * PUT /appointments
+     */
+    public Appointment update(Appointment appointment) {
+        try {
+            String jsonBody = gson.toJson(appointment);
+            System.out.println("📤 Updating appointment: " + jsonBody);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/appointments"))
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                System.out.println("✅ Update successful");
+                return gson.fromJson(response.body(), Appointment.class);
+            } else {
+                System.err.println("❌ Update failed: " + response.statusCode());
+                return null;
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * DELETE appointment
+     * DELETE /appointments?id={id}
+     */
+    public boolean delete(int id) {
+        try {
+            String url = String.format("%s/appointments?id=%d", baseUrl, id);
+            System.out.println("📤 Deleting appointment: " + id);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .DELETE()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                System.out.println("✅ Delete successful");
+                return true;
+            } else {
+                System.err.println("❌ Delete failed: " + response.statusCode());
+                return false;
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     /**
      * Kiểm tra kết nối server
