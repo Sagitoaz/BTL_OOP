@@ -47,6 +47,10 @@ public class StockMovement {
 
     private String note = null;
 
+    // ➕ Tên sản phẩm (từ JOIN với Products table)
+    @SerializedName("product_name")
+    private String productName; // Chỉ để hiển thị, không lưu DB
+
     // Constructors
     public StockMovement() {
     }
@@ -158,6 +162,15 @@ public class StockMovement {
 
     public void setMovedBy(int movedBy) {
         this.movedBy = movedBy;
+    }
+
+    // ➕ Getter/Setter cho productName
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     // Utility methods

@@ -1,20 +1,12 @@
-package org.example.oop.Control.Inventory;
-
-// package org.example.oop.Control;
-//
+// package org.example.oop.Control.Inventory;
 // import java.io.IOException;
 // import java.time.LocalDate;
 // import java.time.LocalDateTime;
 // import java.time.format.DateTimeFormatter;
-//
-// import org.example.oop.Model.Inventory.Inventory;
+
 // import org.example.oop.Model.Inventory.StockMovement;
-// import org.example.oop.Repository.InventoryRepository;
-// import org.example.oop.Repository.StockMovementRepository;
-// import org.example.oop.Service.InventoryService;
-// import org.example.oop.Service.StockMovementService;
 // import org.example.oop.Utils.AppConfig;
-//
+
 // import javafx.animation.PauseTransition;
 // import javafx.beans.property.ReadOnlyObjectWrapper;
 // import javafx.collections.FXCollections;
@@ -32,9 +24,9 @@ package org.example.oop.Control.Inventory;
 // import javafx.scene.control.TableView;
 // import javafx.scene.control.TextField;
 // import javafx.util.Duration;
-//
+
 // public class StockMovementController {
-//
+
 // // ===== Header & Filter Section =====
 // @FXML
 // private Label statsLabel;
@@ -46,18 +38,18 @@ package org.example.oop.Control.Inventory;
 // private DatePicker filterDateFrom;
 // @FXML
 // private DatePicker filterDateTo;
-//
+
 // // ===== Left Panel - Record New Movement =====
 // @FXML
 // private TextField productField; // ⬅️ thay cho ComboBox productBox
 // @FXML
 // private Label currentQtyLabel;
-//
+
 // @FXML
 // private ComboBox<String> moveTypeBox;
 // @FXML
 // private TextField qtyField;
-//
+
 // @FXML
 // private ComboBox<String> refTableBox;
 // @FXML
@@ -68,7 +60,7 @@ package org.example.oop.Control.Inventory;
 // private TextField batchNoField;
 // @FXML
 // private DatePicker expiryDatePicker;
-//
+
 // @FXML
 // private TextField serialNoField;
 // @FXML
@@ -83,18 +75,18 @@ package org.example.oop.Control.Inventory;
 // private Button filterButton;
 // @FXML
 // private Button resetFilterButton;
-//
+
 // // ===== Edit Mode Controls =====
 // @FXML
 // private Label modeLabel;
-//
+
 // @FXML
 // private Label statusLabel;
-//
+
 // // ===== Right Panel - Movement History Table =====
 // @FXML
 // private TableView<StockMovement> movementTable;
-//
+
 // @FXML
 // private TableColumn<StockMovement, Integer> idColumn;
 // @FXML
@@ -123,7 +115,7 @@ package org.example.oop.Control.Inventory;
 // private TableColumn<StockMovement, String> noteColumn;
 // @FXML
 // private TableColumn<StockMovement, Void> actionsColumn;
-//
+
 // // ===== Bottom - Footer =====
 // @FXML
 // private Label footerStatusLabel;
@@ -131,7 +123,7 @@ package org.example.oop.Control.Inventory;
 // private Label totalMovementsLabel;
 // @FXML
 // private Label selectedProductLabel;
-//
+
 // private final StockMovementService movementService = new
 // StockMovementService();
 // private final InventoryService inventoryService = new InventoryService();
@@ -141,17 +133,17 @@ package org.example.oop.Control.Inventory;
 // private StockMovement selectMovement = null;
 // private ObservableList<Inventory> inventoryList =
 // FXCollections.observableArrayList();
-//
+
 // // ===== Edit Mode State =====
 // private boolean isEditMode = false;
 // private StockMovement editingMovement = null;
 // private int originalQty = 0; // để tính delta khi update
-//
+
 // private final ObservableList<StockMovement> masterData =
 // FXCollections.observableArrayList();
 // private final DateTimeFormatter DT = DateTimeFormatter.ofPattern("yyyy-MM-dd
 // HH:mm:ss");
-//
+
 // // ===== dữ liệu gợi ý tên sản phẩm =====
 // private final ObservableList<String> productNames =
 // FXCollections.observableArrayList();
@@ -160,13 +152,13 @@ package org.example.oop.Control.Inventory;
 // private FilteredList<StockMovement> filteredMovements;
 // private final PauseTransition qtyDebounce = new
 // PauseTransition(Duration.millis(180));
-//
+
 // // ====== Event Handlers (declared in FXML) ======
 // @FXML
 // private void onFilterButton() {
 // updateFilter();
 // }
-//
+
 // @FXML
 // private void onResetFilterButton() {
 // if (filterProductBox != null) {
@@ -180,10 +172,10 @@ package org.example.oop.Control.Inventory;
 // filterDateFrom.setValue(null);
 // if (filterDateTo != null)
 // filterDateTo.setValue(null);
-//
+
 // updateFilter();
 // }
-//
+
 // @FXML
 // private void onSaveButton() {
 // if (isEditMode) {
@@ -192,7 +184,7 @@ package org.example.oop.Control.Inventory;
 // createNewMovement();
 // }
 // }
-//
+
 // @FXML
 // private void onClearButton() {
 // if (isEditMode) {
@@ -201,7 +193,7 @@ package org.example.oop.Control.Inventory;
 // clearForm();
 // }
 // }
-//
+
 // @FXML
 // private void onRefreshButton() {
 // try {
@@ -211,11 +203,11 @@ package org.example.oop.Control.Inventory;
 // statusLabel.setText("Lỗi refresh dữ liệu: " + e.getMessage());
 // }
 // }
-//
+
 // @FXML
 // private void onExportButton() {
 // }
-//
+
 // // ====== Initialize ======
 // @FXML
 // public void initialize() {
@@ -227,7 +219,7 @@ package org.example.oop.Control.Inventory;
 // wireProductQty(); // ⬅️ cập nhật tồn theo tên đang nhập
 // setupFilters();
 // loadData();
-//
+
 // // ✅ Thiết lập chế độ mặc định (Add Mode)
 // initializeDefaultMode();
 // } catch (Exception e) {
@@ -237,27 +229,27 @@ package org.example.oop.Control.Inventory;
 // statusLabel.setText("Initialization failed: " + e.getMessage());
 // }
 // }
-//
+
 // private void initializeDefaultMode() {
 // isEditMode = false;
 // editingMovement = null;
 // originalQty = 0;
-//
+
 // // ✅ Thiết lập UI cho Add Mode
 // updateModeUI();
-//
+
 // // ✅ Thiết lập ngày mặc định
 // if (movedatDatePicker1 != null) {
 // movedatDatePicker1.setValue(LocalDate.now());
 // }
-//
+
 // // ✅ Thiết lập ComboBox cho refTable
 // if (refTableBox != null) {
 // refTableBox.getItems().setAll("Payments", "Sales", "Purchases",
 // "Adjustments", "Returns");
 // }
 // }
-//
+
 // private void setupFilters() {
 // // 1) Bọc masterData bằng FilteredList
 // filteredMovements = new FilteredList<>(masterData, m -> true);
@@ -265,7 +257,7 @@ package org.example.oop.Control.Inventory;
 // javafx.collections.transformation.SortedList<>(filteredMovements);
 // sorted.comparatorProperty().bind(movementTable.comparatorProperty());
 // movementTable.setItems(sorted); // ⬅️ CHỈ set 1 lần ở đây
-//
+
 // // 3) Cho phép gõ để lọc trong filterProductBox (không bắt buộc)
 // if (filterProductBox != null) {
 // filterProductBox.setEditable(true); // gõ để tìm nhanh
@@ -277,7 +269,7 @@ package org.example.oop.Control.Inventory;
 // filterProductBox.getEditor().textProperty().addListener((o, ov, nv) ->
 // updateFilter());
 // }
-//
+
 // if (filterMoveTypeBox != null) {
 // filterMoveTypeBox.valueProperty().addListener((o, ov, nv) -> updateFilter());
 // }
@@ -287,11 +279,11 @@ package org.example.oop.Control.Inventory;
 // if (filterDateTo != null) {
 // filterDateTo.valueProperty().addListener((o, ov, nv) -> updateFilter());
 // }
-//
+
 // // Khởi tạo lần đầu
 // updateFilter();
 // }
-//
+
 // private void updateFilter() {
 // // Lấy input từ các filter
 // String productQuery = null;
@@ -305,25 +297,25 @@ package org.example.oop.Control.Inventory;
 // filterMoveTypeBox.getValue() : null;
 // LocalDate from = (filterDateFrom != null) ? filterDateFrom.getValue() : null;
 // LocalDate to = (filterDateTo != null) ? filterDateTo.getValue() : null;
-//
+
 // // Nếu người dùng chọn "to" < "from" → tự hoán đổi cho đỡ lỗi
 // if (from != null && to != null && to.isBefore(from)) {
 // LocalDate tmp = from;
 // from = to;
 // to = tmp;
 // }
-//
+
 // final String pq = productQuery == null ? "" :
 // productQuery.trim().toLowerCase();
 // final String mt = moveTypeQuery == null ? "" :
 // moveTypeQuery.trim().toLowerCase();
 // final LocalDate f = from;
 // final LocalDate tdate = to;
-//
+
 // filteredMovements.setPredicate(m -> {
 // if (m == null)
 // return false;
-//
+
 // // 1) Lọc theo Product name (contains, không phân biệt hoa thường)
 // if (!pq.isBlank()) {
 // String rowName = safeGetProductName(m.getProductId());
@@ -332,7 +324,7 @@ package org.example.oop.Control.Inventory;
 // if (!rowName.toLowerCase().contains(pq))
 // return false;
 // }
-//
+
 // // 2) Lọc theo Move Type (so sánh equalsIgnoreCase)
 // if (!mt.isBlank()) {
 // Object mv = m.getMoveType();
@@ -341,7 +333,7 @@ package org.example.oop.Control.Inventory;
 // if (!rowType.toLowerCase().equals(mt))
 // return false;
 // }
-//
+
 // // 3) Lọc theo khoảng ngày (movedAt thuộc [from, to], inclusive)
 // if (f != null || tdate != null) {
 // if (m.getMovedAt() == null)
@@ -352,17 +344,17 @@ package org.example.oop.Control.Inventory;
 // if (tdate != null && d.isAfter(tdate))
 // return false;
 // }
-//
+
 // return true;
 // });
-//
+
 // // Cập nhật thống kê gọn gàng
 // if (statsLabel != null) {
 // statsLabel.setText("Đang hiển thị: " + filteredMovements.size() + " / " +
 // masterData.size());
 // }
 // }
-//
+
 // private void loadData() throws IOException {
 // System.out.println("🔄 Loading stock movement data...");
 // var moveTypes = FXCollections.observableArrayList(
@@ -370,7 +362,7 @@ package org.example.oop.Control.Inventory;
 // "adjustment", "consume", "transfer");
 // moveTypeBox.setItems(moveTypes);
 // filterMoveTypeBox.setItems(moveTypes);
-//
+
 // try {
 // masterData.clear();
 // ObservableList<StockMovement> loadedData = movementRepo.loadAll();
@@ -382,13 +374,13 @@ package org.example.oop.Control.Inventory;
 // if (statusLabel != null)
 // statusLabel.setText("Error loading data: " + e.getMessage());
 // }
-//
+
 // if (totalMovementsLabel != null)
 // totalMovementsLabel.setText("Total: " + masterData.size());
 // updateFilter(); // ⬅️ để predicate áp vào dữ liệu mới nạp
 // System.out.println("📊 Table items set: " + movementTable.getItems().size());
 // }
-//
+
 // private void initTable() {
 // idColumn.setCellValueFactory(d -> new
 // ReadOnlyObjectWrapper<>(d.getValue().getId()));
@@ -428,12 +420,12 @@ package org.example.oop.Control.Inventory;
 // ReadOnlyObjectWrapper<>(String.valueOf(d.getValue().getMovedBy())));
 // noteColumn.setCellValueFactory(d -> new
 // ReadOnlyObjectWrapper<>(nz(d.getValue().getNote())));
-//
+
 // // ✅ Thêm cột Actions với nút Edit
 // actionsColumn.setCellFactory(col -> {
 // return new javafx.scene.control.TableCell<StockMovement, Void>() {
 // private final Button editBtn = new Button("Edit");
-//
+
 // {
 // editBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;
 // -fx-font-size: 10px;");
@@ -444,7 +436,7 @@ package org.example.oop.Control.Inventory;
 // }
 // });
 // }
-//
+
 // @Override
 // protected void updateItem(Void item, boolean empty) {
 // super.updateItem(item, empty);
@@ -456,7 +448,7 @@ package org.example.oop.Control.Inventory;
 // }
 // };
 // });
-//
+
 // // ✅ Thêm double-click để edit nhanh
 // movementTable.setRowFactory(tv -> {
 // javafx.scene.control.TableRow<StockMovement> row = new
@@ -471,7 +463,7 @@ package org.example.oop.Control.Inventory;
 // });
 // return row;
 // });
-//
+
 // movementTable.getSelectionModel().selectedItemProperty().addListener((obs, o,
 // n) -> {
 // selectMovement = n;
@@ -479,7 +471,7 @@ package org.example.oop.Control.Inventory;
 // selectedProductLabel.setText(n == null ? "" : "Selected ID: " + n.getId());
 // });
 // }
-//
+
 // // ====== TextField gợi ý tên sản phẩm ======
 // private void initProductField() {
 // productField.textProperty().addListener((o, oldT, txt) -> {
@@ -488,16 +480,16 @@ package org.example.oop.Control.Inventory;
 // productSuggest.hide();
 // return;
 // }
-//
+
 // var hits = productNames.stream()
 // .filter(n -> n.toLowerCase().contains(q))
 // .limit(10).toList();
-//
+
 // if (hits.isEmpty()) {
 // productSuggest.hide();
 // return;
 // }
-//
+
 // var items = hits.stream().map(name -> {
 // MenuItem mi = new MenuItem(name);
 // mi.setOnAction(e -> {
@@ -506,24 +498,24 @@ package org.example.oop.Control.Inventory;
 // productField.setText(name);
 // productField.positionCaret(name.length());
 // productSuggest.hide();
-//
+
 // // ✅ FIX: Cập nhật số lượng ngay khi chọn từ gợi ý
 // updateQtyByName(name);
 // });
 // return mi;
 // }).toList();
-//
+
 // productSuggest.getItems().setAll(items);
 // if (!productSuggest.isShowing())
 // productSuggest.show(productField, Side.BOTTOM, 0, 0);
 // });
-//
+
 // productField.focusedProperty().addListener((o, was, f) -> {
 // if (!f)
 // productSuggest.hide();
 // });
 // }
-//
+
 // private void wireProductQty() {
 // productField.textProperty().addListener((o, ov, nv) -> {
 // // debounce: chờ người dùng ngừng gõ 180ms
@@ -533,7 +525,7 @@ package org.example.oop.Control.Inventory;
 // qtyDebounce.playFromStart();
 // });
 // }
-//
+
 // private void updateQtyByName(String name) {
 // if (currentQtyLabel == null)
 // return;
@@ -541,13 +533,13 @@ package org.example.oop.Control.Inventory;
 // currentQtyLabel.setText("Tồn kho: --");
 // return;
 // }
-//
+
 // // ✅ FIX: Hiển thị số lượng ngay cả khi chưa nhập đầy đủ tên
 // // Tìm sản phẩm có tên chứa từ khóa đang nhập (không phân biệt hoa/thường)
 // String partialMatch = productNames.stream()
 // .filter(n -> n.toLowerCase().contains(name.trim().toLowerCase()))
 // .findFirst().orElse(null);
-//
+
 // // Nếu có kết quả khớp một phần, hiển thị số lượng
 // if (partialMatch != null) {
 // int pid = getProductIdByName(partialMatch);
@@ -570,16 +562,16 @@ package org.example.oop.Control.Inventory;
 // return;
 // }
 // }
-//
+
 // // Không tìm thấy sản phẩm nào
 // currentQtyLabel.setText("Tồn kho: --");
 // }
-//
+
 // // ====== Helpers ======
 // private static String nz(String s) {
 // return s == null ? "" : s;
 // }
-//
+
 // // ===== Edit Mode Methods =====
 // private void createNewMovement() {
 // try {
@@ -594,7 +586,7 @@ package org.example.oop.Control.Inventory;
 // statusLabel.setText("❌ Sản phẩm không có trong inventory");
 // return;
 // }
-//
+
 // if (moveTypeBox.getValue() == null) {
 // statusLabel.setText("❌ Vui lòng chọn loại giao dịch");
 // return;
@@ -603,13 +595,13 @@ package org.example.oop.Control.Inventory;
 // statusLabel.setText("❌ Vui lòng nhập số lượng");
 // return;
 // }
-//
+
 // int productId = getProductIdByName(productName);
 // if (productId == -1) {
 // statusLabel.setText("❌ Không tìm thấy sản phẩm: " + productName);
 // return;
 // }
-//
+
 // String moveType = moveTypeBox.getValue().toUpperCase();
 // int qty = Integer.parseInt(qtyField.getText());
 // String refTable = refTableBox.getValue();
@@ -623,11 +615,11 @@ package org.example.oop.Control.Inventory;
 // int movedBy = Integer.parseInt(movedbyField1.getText());
 // LocalDate moveDate = movedatDatePicker1.getValue();
 // String note = noteField.getText();
-//
+
 // StockMovement movement = movementService.recordMovementByType(
 // productId, qty, moveType, refTable, refId,
 // batchNo, expiryDate, serialNo, movedBy, note);
-//
+
 // statusLabel.setText("✅ Đã lưu movement ID: " + movement.getId());
 // clearForm();
 // loadData();
@@ -638,20 +630,20 @@ package org.example.oop.Control.Inventory;
 // e.printStackTrace();
 // }
 // }
-//
+
 // private void updateMovement() {
 // try {
 // if (editingMovement == null) {
 // statusLabel.setText("❌ Không có movement để cập nhật");
 // return;
 // }
-//
+
 // String productName = productField.getText();
 // if (productName == null || productName.isBlank()) {
 // statusLabel.setText("❌ Vui lòng chọn sản phẩm");
 // return;
 // }
-//
+
 // if (moveTypeBox.getValue() == null) {
 // statusLabel.setText("❌ Vui lòng chọn loại giao dịch");
 // return;
@@ -660,13 +652,13 @@ package org.example.oop.Control.Inventory;
 // statusLabel.setText("❌ Vui lòng nhập số lượng");
 // return;
 // }
-//
+
 // int productId = getProductIdByName(productName);
 // if (productId == -1) {
 // statusLabel.setText("❌ Không tìm thấy sản phẩm: " + productName);
 // return;
 // }
-//
+
 // String moveType = moveTypeBox.getValue().toUpperCase();
 // int newQty = Integer.parseInt(qtyField.getText());
 // String refTable = refTableBox.getValue();
@@ -680,30 +672,30 @@ package org.example.oop.Control.Inventory;
 // int movedBy = Integer.parseInt(movedbyField1.getText());
 // LocalDate moveDate = movedatDatePicker1.getValue();
 // String note = noteField.getText();
-//
+
 // // ✅ Tính delta để điều chỉnh tồn kho
 // int deltaQty = calculateQtyDelta(editingMovement.getMoveType().toString(),
 // originalQty, moveType,
 // newQty);
-//
+
 // // ✅ Cập nhật movement trong database
 // boolean updated = movementService.updateMovement(editingMovement.getId(),
 // productId, newQty, moveType, refTable, refId,
 // batchNo, expiryDate, serialNo, movedBy, note);
-//
+
 // if (updated) {
 // // ✅ Điều chỉnh tồn kho nếu có thay đổi về số lượng
 // if (deltaQty != 0) {
 // inventoryService.applyDelta(productId, deltaQty, true);
 // }
-//
+
 // statusLabel.setText("✅ Đã cập nhật movement ID: " + editingMovement.getId());
 // exitEditMode();
 // loadData();
 // } else {
 // statusLabel.setText("❌ Không thể cập nhật movement");
 // }
-//
+
 // } catch (NumberFormatException e) {
 // statusLabel.setText("❌ Lỗi định dạng số: " + e.getMessage());
 // } catch (Exception e) {
@@ -711,7 +703,7 @@ package org.example.oop.Control.Inventory;
 // e.printStackTrace();
 // }
 // }
-//
+
 // private int calculateQtyDelta(String oldMoveType, int oldQty, String
 // newMoveType, int newQty) {
 // // Hoàn nguyên tác động cũ
@@ -724,7 +716,7 @@ package org.example.oop.Control.Inventory;
 // || "CONSUME".equalsIgnoreCase(oldMoveType)) {
 // revertDelta = oldQty; // cộng lại số lượng đã trừ
 // }
-//
+
 // // Áp dụng tác động mới
 // int newDelta = 0;
 // if ("PURCHASE".equalsIgnoreCase(newMoveType) ||
@@ -735,46 +727,46 @@ package org.example.oop.Control.Inventory;
 // || "CONSUME".equalsIgnoreCase(newMoveType)) {
 // newDelta = -newQty; // trừ số lượng mới
 // }
-//
+
 // return revertDelta + newDelta;
 // }
-//
+
 // private void enterEditMode(StockMovement movement) {
 // isEditMode = true;
 // editingMovement = movement;
 // originalQty = movement.getQty();
-//
+
 // // ✅ Điền dữ liệu vào form
 // populateFormWithMovement(movement);
-//
+
 // // ✅ Thay đổi UI
 // updateModeUI();
-//
+
 // statusLabel.setText("📝 Đang chỉnh sửa movement ID: " + movement.getId());
 // }
-//
+
 // private void exitEditMode() {
 // isEditMode = false;
 // editingMovement = null;
 // originalQty = 0;
-//
+
 // // ✅ Đặt lại UI
 // updateModeUI();
 // clearForm();
-//
+
 // statusLabel.setText("✅ Đã thoát chế độ chỉnh sửa");
 // }
-//
+
 // private void cancelEdit() {
 // exitEditMode();
 // statusLabel.setText("❌ Đã hủy chỉnh sửa");
 // }
-//
+
 // private void populateFormWithMovement(StockMovement movement) {
 // // ✅ Tìm tên sản phẩm
 // String productName = safeGetProductName(movement.getProductId());
 // productField.setText(productName);
-//
+
 // // ✅ Điền các trường khác
 // moveTypeBox.setValue(movement.getMoveType().toString().toLowerCase());
 // qtyField.setText(String.valueOf(movement.getQty()));
@@ -787,17 +779,17 @@ package org.example.oop.Control.Inventory;
 // serialNoField.setText(movement.getSerialNo() != null ? movement.getSerialNo()
 // : "");
 // movedbyField1.setText(String.valueOf(movement.getMovedBy()));
-//
+
 // if (movement.getMovedAt() != null) {
 // movedatDatePicker1.setValue(movement.getMovedAt().toLocalDate());
 // }
-//
+
 // noteField.setText(movement.getNote() != null ? movement.getNote() : "");
-//
+
 // // ✅ Cập nhật số lượng tồn kho
 // updateQtyByName(productName);
 // }
-//
+
 // private void updateModeUI() {
 // if (modeLabel != null) {
 // modeLabel.setText(isEditMode ? "📝 EDIT MODE" : "➕ ADD MODE");
@@ -805,16 +797,16 @@ package org.example.oop.Control.Inventory;
 // bold;"
 // : "-fx-text-fill: green; -fx-font-weight: bold;");
 // }
-//
+
 // if (saveButton != null) {
 // saveButton.setText(isEditMode ? "Update Movement" : "Save Movement");
 // }
-//
+
 // if (clearButton != null) {
 // clearButton.setText(isEditMode ? "Cancel Edit" : "Clear");
 // }
 // }
-//
+
 // private void clearForm() {
 // productField.clear();
 // moveTypeBox.getSelectionModel().clearSelection();
@@ -827,12 +819,12 @@ package org.example.oop.Control.Inventory;
 // movedbyField1.clear();
 // movedatDatePicker1.setValue(LocalDate.now());
 // noteField.clear();
-//
+
 // if (currentQtyLabel != null) {
 // currentQtyLabel.setText("Tồn kho: --");
 // }
 // }
-//
+
 // private int getProductIdByName(String productName) {
 // if (productName == null || productName.trim().isEmpty())
 // return -1;
@@ -843,17 +835,17 @@ package org.example.oop.Control.Inventory;
 // .findFirst().orElse(null);
 // if (exact != null)
 // return exact.getId();
-//
+
 // // Nếu bạn thật sự muốn fallback chứa từ khoá (không khuyến nghị):
 // // Inventory partial = inventoryList.stream()
 // // .filter(inv -> inv.getName() != null &&
 // // inv.getName().toLowerCase().contains(productName.trim().toLowerCase()))
 // // .findFirst().orElse(null);
 // // return partial != null ? partial.getId() : -1;
-//
+
 // return -1;
 // }
-//
+
 // private void loadProductNames() {
 // try {
 // inventoryList = inventoryRepo.loadInventory(AppConfig.TEST_DATA_TXT);
@@ -868,7 +860,7 @@ package org.example.oop.Control.Inventory;
 // e.getMessage());
 // }
 // }
-//
+
 // private String safeGetProductName(int productId) {
 // try {
 // for (Inventory i : inventoryList)

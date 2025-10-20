@@ -25,9 +25,13 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
      @Override
      public List<StockMovement> findAll() {
           List<StockMovement> movements = new ArrayList<>();
-          String sql = "SELECT id, product_id, qty, move_type, ref_table, ref_id, " +
-                    "batch_no, expiry_date, serial_no, moved_at, moved_by, note " +
-                    "FROM stock_movements ORDER BY moved_at DESC";
+          // ✅ JOIN với Products để lấy product_name
+          String sql = "SELECT sm.id, sm.product_id, sm.qty, sm.move_type, sm.ref_table, sm.ref_id, " +
+                    "sm.batch_no, sm.expiry_date, sm.serial_no, sm.moved_at, sm.moved_by, sm.note, " +
+                    "p.name as product_name " +
+                    "FROM stock_movements sm " +
+                    "LEFT JOIN Products p ON sm.product_id = p.id " +
+                    "ORDER BY sm.moved_at DESC";
 
           System.out.println("🔍 Executing SQL: " + sql);
 
@@ -234,6 +238,15 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
 
                m.setMovedBy(rs.getInt("moved_by"));
                m.setNote(rs.getString("note"));
+
+               // ✅ Set product_name từ JOIN
+               try {
+                    String productName = rs.getString("product_name");
+                    m.setProductName(productName);
+               } catch (SQLException e) {
+                    // Column không tồn tại (khi query không JOIN), bỏ qua
+                    m.setProductName(null);
+               }
 
                return m;
           } catch (SQLException e) {

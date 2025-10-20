@@ -3,9 +3,10 @@ package org.miniboot.app.domain.models.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.miniboot.app.domain.models.Inventory.Enum.MovementType;
+import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Model quản lý các giao dịch xuất nhập kho
@@ -13,17 +14,42 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class StockMovement {
     private int id;
+
+    @SerializedName("product_id") // ✅ Map JSON snake_case → Java camelCase
     private int productId;
+
     private int qty; // >0 nhập, <0 xuất
-    private MovementType moveType;
+
+    @SerializedName("move_type") // ✅ Map JSON snake_case → Java camelCase
+    private MoveType moveType;
+
+    @SerializedName("ref_table") // ✅ Map JSON snake_case → Java camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
+
+    @SerializedName("ref_id") // ✅ Map JSON snake_case → Java camelCase
     private Integer refId; // ID của chứng từ nguồn
+
+    @SerializedName("batch_no") // ✅ Map JSON snake_case → Java camelCase
     private String batchNo; // Số lô
+
+    @SerializedName("expiry_date") // ✅ Map JSON snake_case → Java camelCase
     private LocalDate expiryDate; // Hạn sử dụng
+
+    @SerializedName("serial_no") // ✅ Map JSON snake_case → Java camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
+
+    @SerializedName("moved_at") // ✅ Map JSON snake_case → Java camelCase
     private LocalDateTime movedAt;
+
+    @SerializedName("moved_by") // ✅ Map JSON snake_case → Java camelCase
     private int movedBy; // ID người thực hiện (int, not String)
+
     private String note = null;
+
+    // ➕ Thêm field để hiển thị tên sản phẩm (không lưu vào DB)
+    @com.fasterxml.jackson.annotation.JsonProperty("product_name") // ✅ Jackson serialize
+    @SerializedName("product_name") // ✅ Gson compatibility
+    private transient String productName; // Chỉ dùng để trả về frontend
 
     // Constructors
     public StockMovement() {
@@ -35,7 +61,7 @@ public class StockMovement {
         this.id = id;
         this.productId = productId;
         this.qty = qty;
-        this.moveType = MovementType.valueOf(moveType);
+        this.moveType = MoveType.valueOf(moveType);
         this.refTable = refTable;
         this.refId = refId;
         this.batchNo = batchNo;
@@ -76,10 +102,10 @@ public class StockMovement {
 
     public void setMoveType(String moveType) {
         // Convert to uppercase to handle both "sale" and "SALE" from database
-        this.moveType = moveType != null ? MovementType.valueOf(moveType.toUpperCase()) : null;
+        this.moveType = moveType != null ? MoveType.valueOf(moveType.toUpperCase()) : null;
     }
 
-    public void setMoveType(MovementType moveType) {
+    public void setMoveType(MoveType moveType) {
         this.moveType = moveType;
     }
 
@@ -137,6 +163,15 @@ public class StockMovement {
 
     public void setMovedBy(int movedBy) {
         this.movedBy = movedBy;
+    }
+
+    // ➕ Getter/Setter cho productName
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
     // Utility methods
@@ -223,7 +258,7 @@ public class StockMovement {
         m.id = Integer.parseInt(p[i++]);
         m.productId = Integer.parseInt(p[i++]);
         m.qty = Integer.parseInt(p[i++]);
-        m.moveType = MovementType.valueOf(p[i++]);
+        m.moveType = MoveType.valueOf(p[i++]);
 
         m.refTable = emptyToNull(p[i++]);
         String refIdStr = p[i++];
