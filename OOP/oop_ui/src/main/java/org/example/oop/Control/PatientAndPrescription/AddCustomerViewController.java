@@ -1,5 +1,6 @@
 package org.example.oop.Control.PatientAndPrescription;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,6 +9,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.oop.Services.CustomerRecordService;
 import org.miniboot.app.domain.models.Customer;
 
 import java.net.URL;
@@ -35,6 +37,7 @@ public class AddCustomerViewController implements Initializable
 
     public void initialize(URL url, ResourceBundle rb) {
         genderComboBox.getItems().addAll(Customer.Gender.values());
+        curCustomer = null;
 
 
     }
@@ -54,9 +57,12 @@ public class AddCustomerViewController implements Initializable
 
 
     @FXML
-    private void onCancelButton(ActionEvent event){
+    private void onDeleteButton(ActionEvent event){
         Stage stage = (Stage) nameField.getScene().getWindow();
-        curCustomer = null;
+        if(curCustomer != null){
+            deleteCustomerRecord(curCustomer);
+
+        }
         stage.close();
     }
     @FXML
@@ -89,6 +95,10 @@ public class AddCustomerViewController implements Initializable
     }
     public Customer getCurCustomer(){
         return curCustomer;
+    }
+    private void deleteCustomerRecord(Customer pr) {
+        if (pr == null) return;
+        CustomerRecordService.getInstance().deleteCustomer(pr.getId());
     }
 
 
