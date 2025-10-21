@@ -22,11 +22,16 @@ public class PostgreSQLPrescription implements PrescriptionRepository {
         List<Prescription> prescriptions = new ArrayList<>();
         String sqlQuery = "SELECT * FROM prescriptions";
         try(Connection conn = dbConfig.getConnection()){
+
+
             PreparedStatement psmt = conn.prepareStatement(sqlQuery);
             ResultSet rs = psmt.executeQuery();
+
             while(rs.next()){
                 prescriptions.add(PrescriptionMapper.mapResultSetToPrescription(rs));
             }
+
+
 
         } catch (SQLException e) {
             System.err.println("❌ Error find all Prescriptions: " + e.getMessage());
@@ -34,6 +39,7 @@ public class PostgreSQLPrescription implements PrescriptionRepository {
             // QUAN TRỌNG: Throw exception để controller biết có lỗi
             throw new RuntimeException("Database find failed: " + e.getMessage(), e);
         }
+
         return prescriptions;
     }
     public List<Prescription> findByCustomerId(int customer_id){
