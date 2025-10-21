@@ -85,6 +85,8 @@ public class HttpAppointmentService {
             String url = String.format("%s/appointments?doctorId=%d&date=%s", 
                     baseUrl, doctorId, date.toString());
             
+            System.out.println("🔍 DEBUG: Calling API: " + url);
+            
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -95,8 +97,14 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
             
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), 
+                List<Appointment> appointments = gson.fromJson(response.body(), 
                         new TypeToken<List<Appointment>>(){}.getType());
+                System.out.println("✅ DEBUG: Received " + appointments.size() + " appointments");
+                // Debug first appointment if exists
+                if (!appointments.isEmpty()) {
+                    System.out.println("📅 DEBUG: First appointment date: " + appointments.get(0).getStartTime());
+                }
+                return appointments;
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();

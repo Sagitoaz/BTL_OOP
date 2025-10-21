@@ -118,9 +118,9 @@
                   </GridPane>
                </content>
             </TitledPane>
-            <SplitPane dividerPositions="0.55" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <SplitPane dividerPositions="0.55" orientation="VERTICAL" prefHeight="306.0" prefWidth="636.0">
                <items>
-                  <TableView fx:id="tblAvailableSlots" prefHeight="200.0" prefWidth="200.0">
+                  <TableView fx:id="tblAvailableSlots" prefHeight="200.0" prefWidth="634.0">
                     <columns>
                       <TableColumn prefWidth="130.0" text="Bắt đầu" />
                       <TableColumn prefWidth="130.0" text="Kết thúc" />
@@ -139,7 +139,7 @@
                   </TableView>
                </items>
             </SplitPane>
-            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+            <HBox alignment="CENTER_RIGHT" prefHeight="41.0" prefWidth="636.0" spacing="10.0">
                <children>
                   <Button fx:id="btnCheck" mnemonicParsing="false" onAction="#onCheckSchedule" text="Kiểm tra lịch" />
                   <Button fx:id="btnBook" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onBookAppointment" text="Đặt lịch" />

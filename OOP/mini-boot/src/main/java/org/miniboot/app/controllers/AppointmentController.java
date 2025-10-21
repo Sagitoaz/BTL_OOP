@@ -73,7 +73,19 @@ public class AppointmentController {
                         ));
             }
 
-            // 2. Check xem có filter params không
+            // 2. Nếu có ?doctorId=X&date=YYYY-MM-DD -> dùng findByDoctorIdAndDate()
+            Optional<Integer> doctorIdOpt = ExtractHelper.extractInt(q, "doctorId");
+            Optional<String> dateOpt = ExtractHelper.extractFirst(q, "date");
+            
+            if (doctorIdOpt.isPresent() && dateOpt.isPresent()) {
+                System.out.println("🔍 DEBUG: GET /appointments?doctorId=" + doctorIdOpt.get() + "&date=" + dateOpt.get());
+                List<Appointment> result = appointmentRepository.findByDoctorIdAndDate(
+                        doctorIdOpt.get(), dateOpt.get());
+                System.out.println("✅ DEBUG: Returning " + result.size() + " appointments for date " + dateOpt.get());
+                return Json.ok(result);
+            }
+
+            // 3. Check xem có filter params không
             boolean hasFilters = q.containsKey("doctorId") ||
                     q.containsKey("customerId") ||
                     q.containsKey("status") ||
@@ -81,7 +93,7 @@ public class AppointmentController {
                     q.containsKey("toDate") ||
                     q.containsKey("search");
 
-            // 3. Nếu có filters -> dùng findWithFilters()
+            // 4. Nếu có filters -> dùng findWithFilters()
             if (hasFilters) {
                 Integer doctorId = ExtractHelper.extractInt(q, "doctorId").orElse(null);
                 Integer customerId = ExtractHelper.extractInt(q, "customerId").orElse(null);
