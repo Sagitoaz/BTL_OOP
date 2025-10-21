@@ -8,9 +8,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.example.oop.Model.PaymentModel.Payment;
-import org.example.oop.Model.PaymentModel.PaymentItem;
-import org.example.oop.Model.PaymentModel.Receipt;
+import org.example.oop.Model.Receipt;
+import org.miniboot.app.domain.models.Payment.Payment;
+import org.miniboot.app.domain.models.Payment.PaymentItem;
 
 import java.net.URL;
 import java.time.Instant;
@@ -100,7 +100,7 @@ public class ReceiptController implements Initializable {
 
         // Hiển thị thông tin chung
         lblReceiptNo.setText(receipt.getReceiptNumber());
-        lblDate.setText(formatDateTime(payment.getIssuedAt()));
+        lblDate.setText(payment.getIssuedAt().toString());
         lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
         lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
 

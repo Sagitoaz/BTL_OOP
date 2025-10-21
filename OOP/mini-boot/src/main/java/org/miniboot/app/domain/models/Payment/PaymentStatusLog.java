@@ -1,6 +1,6 @@
 package org.miniboot.app.domain.models.Payment;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 /**
  * Phản ánh cấu trúc của bảng Payment_Status_Log trong cơ sở dữ liệu.
@@ -8,10 +8,10 @@ import java.time.Instant;
 public class PaymentStatusLog {
     private Integer id;
     private int paymentId;
-    private Instant changedAt;
+    private LocalDateTime changedAt;
     private PaymentStatus status;
 
-    public PaymentStatusLog(Integer id, int paymentId, Instant changedAt, PaymentStatus status) {
+    public PaymentStatusLog(Integer id, int paymentId, LocalDateTime changedAt, PaymentStatus status) {
         this.id = id;
         this.paymentId = paymentId;
         this.changedAt = changedAt;
@@ -27,7 +27,7 @@ public class PaymentStatusLog {
         return status;
     }
 
-    public Instant getChangedAt() {
+    public LocalDateTime getChangedAt() {
         return changedAt;
     }
 

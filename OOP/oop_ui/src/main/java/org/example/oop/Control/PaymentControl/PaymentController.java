@@ -7,14 +7,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.example.oop.Model.PaymentModel.*;
+import org.example.oop.Model.Receipt;
 import org.example.oop.Services.HttpPaymentService;
 import org.example.oop.Services.HttpPaymentStatusLogService;
+import org.miniboot.app.domain.models.Payment.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URL;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -166,7 +166,7 @@ public class PaymentController implements Initializable {
             (new HttpPaymentStatusLogService()).updatePaymentStatus(new PaymentStatusLog(
                     null,
                     currentPayment.getId(),
-                    Instant.now(),
+                    LocalDateTime.now(),
                     PaymentStatus.PAID)
             );
 
@@ -189,10 +189,10 @@ public class PaymentController implements Initializable {
         }
 
         try {
-            BigDecimal paid = new BigDecimal(txtAmountPaid.getText());
-            BigDecimal total = BigDecimal.valueOf(currentPayment.getGrandTotal());
-            BigDecimal change = paid.subtract(total);
-            txtChange.setText(String.format("%,d", change.intValue()));
+            Integer paid = Integer.parseInt(txtAmountPaid.getText());
+            Integer total = currentPayment.getGrandTotal();
+            Integer change = paid - total;
+            txtChange.setText(String.format("%,d", change));
         } catch (NumberFormatException e) {
             txtChange.clear();
         }

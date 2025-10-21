@@ -12,11 +12,10 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.shape.Rectangle?>
 
-<VBox prefHeight="800" prefWidth="550.0" spacing="8.0"
+<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="800" prefWidth="550.0"
+      spacing="8.0"
       xmlns="http://javafx.com/javafx/24.0.1"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.example.oop.Control.PaymentControl.ReceiptController"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://javafx.com/javafx/24.0.1 ">
+      fx:controller="org.example.oop.Control.PaymentControl.ReceiptController">
     <padding>
         <Insets bottom="18.0" left="18.0" right="18.0" top="18.0"/>
     </padding>

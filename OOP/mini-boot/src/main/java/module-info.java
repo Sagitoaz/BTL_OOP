@@ -25,5 +25,6 @@ module mini.boot {
     opens org.miniboot.app.domain.models.Inventory to com.google.gson, com.fasterxml.jackson.databind;
     // hậu thêm vào payment
     opens org.miniboot.app.domain.models.Payment to com.google.gson, com.fasterxml.jackson.databind;
+    exports org.miniboot.app.domain.models.Payment;
 
 }

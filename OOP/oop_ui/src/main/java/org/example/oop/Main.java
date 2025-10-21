@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Payment.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Schedule System");
+        stage.setTitle("Bộ pc");
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.show();

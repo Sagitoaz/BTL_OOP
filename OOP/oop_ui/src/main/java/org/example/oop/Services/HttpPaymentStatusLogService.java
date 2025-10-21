@@ -2,8 +2,8 @@ package org.example.oop.Services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Model.PaymentModel.PaymentStatusLog;
 import org.example.oop.Utils.GsonProvider;
+import org.miniboot.app.domain.models.Payment.PaymentStatusLog;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,12 +27,12 @@ public class HttpPaymentStatusLogService {
     }
 
     /**
-     * GET /payments/status/?id=
+     * GET /payment-status?id=
      * tìm trạng thái gần nhất của payment có id
      */
     public PaymentStatusLog getCurrentStatusById(int id) {
         try {
-            String url = String.format("%s/payments/status/%d", baseUrl, id);
+            String url = String.format("%s/payment-status?paymentId=%d", baseUrl, id);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -62,7 +62,7 @@ public class HttpPaymentStatusLogService {
             String jsonBody = gson.toJson(paymentStatusLog);
             System.out.println("📤 Sending JSON: " + jsonBody); // Debug
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments/status"))
+                    .uri(URI.create(baseUrl + "/payment-status"))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -93,7 +93,7 @@ public class HttpPaymentStatusLogService {
         try {
             // Thay đổi từ /echo sang /appointments vì đã xóa EchoController
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments/status"))
+                    .uri(URI.create(baseUrl + "/payment-status"))
                     .GET()
                     .timeout(java.time.Duration.ofSeconds(5))
                     .build();

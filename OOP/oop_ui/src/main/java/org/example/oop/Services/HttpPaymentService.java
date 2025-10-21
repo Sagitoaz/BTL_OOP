@@ -3,8 +3,8 @@ package org.example.oop.Services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Model.PaymentModel.Payment;
 import org.example.oop.Utils.GsonProvider;
+import org.miniboot.app.domain.models.Payment.Payment;
 
 import java.io.IOException;
 import java.net.URI;

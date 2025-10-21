@@ -1,6 +1,10 @@
-package org.example.oop.Model.PaymentModel;
+package org.example.oop.Model;
+
+import org.miniboot.app.domain.models.Payment.Payment;
+import org.miniboot.app.domain.models.Payment.PaymentItem;
 
 import java.util.List;
+
 
 /**
  * Lớp Model chứa dữ liệu cho một biên lai (Receipt).
