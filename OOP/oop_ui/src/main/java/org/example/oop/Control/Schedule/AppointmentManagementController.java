@@ -2,6 +2,8 @@ package org.example.oop.Control.Schedule;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -12,11 +14,18 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.oop.Services.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.AppointmentStatus;
+import org.miniboot.app.domain.models.AppointmentType;
 import org.miniboot.app.domain.models.Doctor;
 
 public class AppointmentManagementController implements Initializable {
@@ -141,17 +150,84 @@ public class AppointmentManagementController implements Initializable {
 
     @FXML
     private void onCreate(ActionEvent event) {
-        // TODO: Implement create logic
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
+            );
+            Parent root = loader.load();
+
+            // Replace current scene
+            Scene scene = createBtn.getScene();
+            scene.setRoot(root);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            showAlert("Lỗi: " + e.getMessage());
+        }
     }
 
     @FXML
     private void onConfirm(ActionEvent event) {
-        // TODO: Implement confirm logic
+        if (selectedAppointment == null) {
+            showAlert("Vui lòng chọn lịch hẹn");
+            return;
+        }
+
+        if (!showConfirm("Xác nhận lịch hẹn #" + selectedAppointment.getId() + "?")) {
+            return;
+        }
+
+        selectedAppointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        Task<Appointment> task = new Task<>() {
+            @Override
+            protected Appointment call() {
+                return appointmentService.update(selectedAppointment);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            showAlert("Đã xác nhận lịch hẹn");
+            loadAppointments();
+        });
+
+        task.setOnFailed(e -> {
+            showAlert("Lỗi: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
     }
 
     @FXML
     private void onCancel(ActionEvent event) {
-        // TODO: Implement cancel logic
+        if (selectedAppointment == null) {
+            showAlert("Vui lòng chọn lịch hẹn");
+            return;
+        }
+
+        if (!showConfirm("Hủy lịch hẹn #" + selectedAppointment.getId() + "?")) {
+            return;
+        }
+
+        selectedAppointment.setStatus(AppointmentStatus.CANCELLED);
+
+        Task<Appointment> task = new Task<>() {
+            @Override
+            protected Appointment call() {
+                return appointmentService.update(selectedAppointment);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            showAlert("Đã hủy lịch hẹn");
+            loadAppointments();
+        });
+
+        task.setOnFailed(e -> {
+            showAlert("Lỗi: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
     }
 
     @FXML
@@ -162,7 +238,52 @@ public class AppointmentManagementController implements Initializable {
 
     @FXML
     private void onSave(ActionEvent event) {
-        // TODO: Implement save logic
+        if (selectedAppointment == null) {
+            showAlert("Không có lịch hẹn để lưu");
+            return;
+        }
+
+        // Validate
+        if (datePicker.getValue() == null) {
+            showAlert("Vui lòng chọn ngày");
+            return;
+        }
+
+        try {
+            // Update from form
+            LocalDate date = datePicker.getValue();
+            LocalTime start = LocalTime.parse(startTimeField.getText());
+            LocalTime end = LocalTime.parse(endTimeField.getText());
+
+            selectedAppointment.setStartTime(LocalDateTime.of(date, start));
+            selectedAppointment.setEndTime(LocalDateTime.of(date, end));
+            selectedAppointment.setStatus(AppointmentStatus.valueOf(statusCombo.getValue()));
+            selectedAppointment.setAppointmentType(AppointmentType.valueOf(serviceCombo.getValue().toUpperCase()));
+            selectedAppointment.setNotes(noteArea.getText());
+
+            // Call API
+            Task<Appointment> task = new Task<>() {
+                @Override
+                protected Appointment call() {
+                    return appointmentService.update(selectedAppointment);
+                }
+            };
+
+            task.setOnSucceeded(e -> {
+                showAlert("Đã lưu thay đổi");
+                originalAppointment = cloneAppointment(selectedAppointment);
+                loadAppointments();
+            });
+
+            task.setOnFailed(e -> {
+                showAlert("Lỗi: " + task.getException().getMessage());
+            });
+
+            new Thread(task).start();
+
+        } catch (Exception e) {
+            showAlert("Lỗi: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -175,12 +296,60 @@ public class AppointmentManagementController implements Initializable {
 
     @FXML
     private void onDelete(ActionEvent event) {
-        // TODO: Implement delete logic
+        if (selectedAppointment == null) {
+            showAlert("Vui lòng chọn lịch hẹn");
+            return;
+        }
+
+        if (!showConfirm("Xóa lịch hẹn #" + selectedAppointment.getId() + "?\nThao tác này không thể hoàn tác!")) {
+            return;
+        }
+
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                return appointmentService.delete(selectedAppointment.getId());
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            if (task.getValue()) {
+                showAlert("Đã xóa lịch hẹn");
+                selectedAppointment = null;
+                originalAppointment = null;
+                clearDetailForm();
+                loadAppointments();
+            } else {
+                showAlert("Xóa thất bại");
+            }
+        });
+
+        task.setOnFailed(e -> {
+            showAlert("Lỗi: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
     }
 
     @FXML
     private void onChoosePatient(ActionEvent event) {
-        // TODO: Implement choose patient logic
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/FXML/PatientAndPrescription/CustomerHub.fxml")
+            );
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Chọn bệnh nhân");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            // TODO: Get selected customer from dialog
+
+        } catch (Exception e) {
+            showAlert("Lỗi: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -200,22 +369,30 @@ public class AppointmentManagementController implements Initializable {
 
     @FXML
     private void onFirstPage(ActionEvent event) {
-        // TODO: Implement first page logic
+        currentPage = 1;
+        loadAppointments();
     }
 
     @FXML
     private void onPrevPage(ActionEvent event) {
-        // TODO: Implement previous page logic
+        if (currentPage > 1) {
+            currentPage--;
+            loadAppointments();
+        }
     }
 
     @FXML
     private void onNextPage(ActionEvent event) {
-        // TODO: Implement next page logic
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadAppointments();
+        }
     }
 
     @FXML
     private void onLastPage(ActionEvent event) {
-        // TODO: Implement last page logic
+        currentPage = totalPages;
+        loadAppointments();
     }
 
     private void setupAppointmentTable() {
@@ -522,5 +699,20 @@ public class AppointmentManagementController implements Initializable {
         alert.setContentText(message);
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private void clearDetailForm() {
+        txtId.clear();
+        datePicker.setValue(null);
+        startTimeField.clear();
+        endTimeField.clear();
+        patientField.clear();
+        doctorCombo.setValue(null);
+        serviceCombo.setValue(null);
+        statusCombo.setValue(null);
+        noteArea.clear();
+        saveBtn.setDisable(true);
+        revertBtn.setDisable(true);
+        deleteBtn.setDisable(true);
     }
 }
