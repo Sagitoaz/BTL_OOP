@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -35,10 +36,10 @@
                         <Image url="@../../Image/AnonimousAvt.jpg" />
                      </image>
                   </ImageView>
-                  <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="2.0">
+                  <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="250.0" spacing="4.0">
                      <children>
-                        <Label text="Tên bác sĩ" />
-                        <Label text="Chuyên khoa" />
+                        <Label text="Chọn bác sĩ:" style="-fx-font-weight: bold;" />
+                        <ComboBox fx:id="cboDoctorSelect" prefWidth="220.0" promptText="-- Chọn bác sĩ --" />
                      </children>
                   </VBox>
                </children>
@@ -132,17 +133,16 @@
             </VBox>
             <HBox prefHeight="100.0" prefWidth="980.0" spacing="8.0">
                <children>
-                  <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="80.0">
-                     <children>
-                        <Label text="8:00" />
-                        <Label text="8:30" />
-                        <Label text="9:00" />
-                        <Label text="// Sinh thêm trong code" />
-                     </children>
-                  </VBox>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="698.0" prefWidth="900.0">
+                  <ScrollPane hbarPolicy="NEVER" vbarPolicy="NEVER" prefHeight="600.0" prefWidth="88.0" fitToWidth="true">
+                     <content>
+                        <VBox fx:id="timeLabelsBox" alignment="TOP_RIGHT" prefHeight="540.0" prefWidth="80.0" spacing="0.0">
+                           <!-- Time labels: 8:00-17:00 = 9 hours = 540px -->
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+                  <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="900.0" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" fx:id="scheduleScrollPane">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1400.0" prefWidth="200.0" fx:id="schedulePane" />
+                      <AnchorPane minHeight="540.0" minWidth="0.0" prefHeight="540.0" prefWidth="880.0" fx:id="schedulePane" />
                     </content>
                   </ScrollPane>
                </children>

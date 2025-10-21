@@ -3,38 +3,67 @@ package org.example.oop.Control.Schedule;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
 import org.example.oop.Services.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.Doctor;
-import org.miniboot.app.domain.models.TimeSlot;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 
 public class DoctorScheduleController implements Initializable {
+
+    private static class WorkingSchedule {
+        Set<DayOfWeek> workingDays = new HashSet<>();
+        Set<String> shifts = new HashSet<>();
+
+        public Set<DayOfWeek> getWorkingDays() { return workingDays; }
+        public void setWorkingDays(Set<DayOfWeek> days) { this.workingDays = days; }
+        public Set<String> getShifts() { return shifts; }
+        public void setShifts(Set<String> shifts) { this.shifts = shifts; }
+    }
+
+    private Map<Integer, WorkingSchedule> doctorSchedules = new HashMap<>();
 
     // SERVICES
     private HttpDoctorService doctorService;
@@ -45,15 +74,18 @@ public class DoctorScheduleController implements Initializable {
     private ObservableList<Appointment> appointmentList;
     private Doctor currentDoctor; // Bác sĩ đang xem lịch
     private LocalDate selectedDate;
+    private LocalDate weekStart; // Ngày đầu tuần (Monday) cho Week View
     private boolean isDayView = true; // true = Day View, false = Week View
+    private boolean isAdmin = true; // Role: true = Admin (edit), false = Doctor (view only)
 
     // CONSTANTS
-    private static final LocalTime START_TIME = LocalTime.of(8, 0);  // 8:00 AM
-    private static final LocalTime END_TIME = LocalTime.of(20, 0);   // 8:00 PM
+    private static final LocalTime START_TIME = LocalTime.of(8, 0);   // 8:00 AM
+    private static final LocalTime END_TIME = LocalTime.of(17, 0);    // 5:00 PM (17:00)
     private static final int SLOT_DURATION = 30; // 30 phút
     private static final int PIXELS_PER_HOUR = 60; // Chiều cao 1 giờ = 60px
 
     // FXML controls
+    @FXML private ComboBox<String> cboDoctorSelect; // Chọn bác sĩ
     @FXML private DatePicker datePicker;
     @FXML private ToggleButton dayViewBtn;
     @FXML private ToggleButton weekViewBtn;
@@ -87,6 +119,8 @@ public class DoctorScheduleController implements Initializable {
     @FXML private ListView<String> conflictList;
 
     // Schedule display
+    @FXML private VBox timeLabelsBox; // Time labels container
+    @FXML private ScrollPane scheduleScrollPane; // ✅ Main schedule scroll pane
     @FXML private AnchorPane schedulePane;
 
     // Bottom buttons
@@ -111,6 +145,7 @@ public class DoctorScheduleController implements Initializable {
 
         // 3. Set ngày mặc định = hôm nay
         selectedDate = LocalDate.now();
+        weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // ✅ Init weekStart
         datePicker.setValue(selectedDate);
 
         // 4. Setup ToggleGroup cho Day/Week view
@@ -119,18 +154,99 @@ public class DoctorScheduleController implements Initializable {
         weekViewBtn.setToggleGroup(viewGroup);
         dayViewBtn.setSelected(true); // Mặc định Day View
 
-        // 5. Setup listeners
+        // 5. ✅ Sinh time labels (8:00, 8:30, ..., 20:00)
+        generateTimeLabels();
+        
+        // 6. ✅ Setup phân quyền (TODO: lấy từ session user)
+        setupPermissions();
+
+        // 7. Setup listeners
         setupListeners();
 
-        // 6. Load dữ liệu ban đầu
+        // 8. Load dữ liệu ban đầu
         loadInitialData();
+    }
+    
+    // Sinh time labels động (8:00, 8:30, 9:00, ..., 20:00)
+    private void generateTimeLabels() {
+        if (timeLabelsBox == null) return;
+        
+        timeLabelsBox.getChildren().clear();
+        timeLabelsBox.setSpacing(0);
+        timeLabelsBox.setPadding(new Insets(0, 8, 0, 0));
+        
+        // Tính tổng chiều cao (8:00 - 17:00 = 9 giờ = 540px)
+        int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
+        double totalHeight = totalHours * PIXELS_PER_HOUR;
+        timeLabelsBox.setPrefHeight(totalHeight);
+        timeLabelsBox.setMinHeight(totalHeight);
+        timeLabelsBox.setMaxHeight(totalHeight); // ✅ Prevent overflow
+        
+        System.out.println("✅ TimeLabels: totalHeight = " + totalHeight + "px (" + totalHours + " hours)");
+        
+        LocalTime current = START_TIME;
+        while (!current.isAfter(END_TIME)) {
+            Label timeLabel = new Label(current.format(DateTimeFormatter.ofPattern("HH:mm")));
+            timeLabel.setMinHeight(PIXELS_PER_HOUR / 2.0); // 30px cho mỗi 30 phút
+            timeLabel.setMaxHeight(PIXELS_PER_HOUR / 2.0);
+            timeLabel.setPrefHeight(PIXELS_PER_HOUR / 2.0);
+            timeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+            timeLabelsBox.getChildren().add(timeLabel);
+            
+            current = current.plusMinutes(30);
+        }
+    }
+    private void setupPermissions() {
+        // TODO: Lấy role từ session/logged user
+        // isAdmin = SessionManager.getCurrentUser().getRole().equals("ADMIN");
+        
+        boolean canEdit = isAdmin;
+        
+        // Disable các controls nếu không phải admin
+        if (mondayChk != null) mondayChk.setDisable(!canEdit);
+        if (tuesdayChk != null) tuesdayChk.setDisable(!canEdit);
+        if (wednesdayChk != null) wednesdayChk.setDisable(!canEdit);
+        if (thursdayChk != null) thursdayChk.setDisable(!canEdit);
+        if (fridayChk != null) fridayChk.setDisable(!canEdit);
+        if (saturdayChk != null) saturdayChk.setDisable(!canEdit);
+        if (sundayChk != null) sundayChk.setDisable(!canEdit);
+        
+        if (morningShiftChk != null) morningShiftChk.setDisable(!canEdit);
+        if (afternoonShiftChk != null) afternoonShiftChk.setDisable(!canEdit);
+        if (eveningShiftChk != null) eveningShiftChk.setDisable(!canEdit);
+        if (applyShiftBtn != null) applyShiftBtn.setDisable(!canEdit);
+        
+        if (saveBtn != null) saveBtn.setDisable(!canEdit);
+        if (addScheduleBtn != null) addScheduleBtn.setDisable(!canEdit);
+        
+        System.out.println("✅ Permissions: " + (canEdit ? "ADMIN (edit)" : "DOCTOR (view only)"));
     }
 
     private void setupListeners() {
+        // ComboBox doctor selector listener
+        if (cboDoctorSelect != null) {
+            cboDoctorSelect.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal != null && !doctorList.isEmpty()) {
+                    // Tìm doctor theo tên
+                    currentDoctor = doctorList.stream()
+                        .filter(d -> d.getFullName().equals(newVal))
+                        .findFirst()
+                        .orElse(null);
+                    
+                    if (currentDoctor != null) {
+                        System.out.println("✅ Switched to doctor: " + currentDoctor.getFullName());
+                        loadAppointments();
+                    }
+                }
+            });
+        }
+        
         // DatePicker listener
         datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
             if (newDate != null) {
                 selectedDate = newDate;
+                // ✅ Update weekStart khi đổi ngày
+                weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 refreshScheduleView();
             }
         });
@@ -161,10 +277,23 @@ public class DoctorScheduleController implements Initializable {
             List<Doctor> doctors = loadDoctorsTask.getValue();
             doctorList.setAll(doctors);
 
+            // ✅ Populate ComboBox với tên bác sĩ
+            if (cboDoctorSelect != null) {
+                cboDoctorSelect.getItems().clear();
+                for (Doctor d : doctors) {
+                    cboDoctorSelect.getItems().add(d.getFullName());
+                }
+            }
+
             if (!doctors.isEmpty()) {
                 // Chọn bác sĩ đầu tiên (hoặc lấy từ session user)
                 currentDoctor = doctors.get(0);
                 System.out.println("✅ Selected doctor: " + currentDoctor.getFullName());
+                
+                // ✅ Set ComboBox selection
+                if (cboDoctorSelect != null) {
+                    cboDoctorSelect.getSelectionModel().select(currentDoctor.getFullName());
+                }
 
                 // Load appointments của bác sĩ này
                 loadAppointments();
@@ -262,6 +391,10 @@ public class DoctorScheduleController implements Initializable {
     private void renderSchedule() {
         // Clear existing content
         schedulePane.getChildren().clear();
+        
+        // ✅ Ensure schedulePane không có layout issues
+        schedulePane.setLayoutX(0);
+        schedulePane.setLayoutY(0);
 
         if (isDayView) {
             renderDayView();
@@ -271,20 +404,26 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private void renderDayView() {
-        // Tính chiều cao tổng (8:00 - 20:00 = 12 giờ = 12 * 60px)
+        // Tính chiều cao tổng (8:00 - 17:00 = 9 giờ = 540px)
         int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
         double totalHeight = totalHours * PIXELS_PER_HOUR;
 
         schedulePane.setPrefHeight(totalHeight);
+        schedulePane.setMinHeight(totalHeight);
+        
+        System.out.println("✅ DayView: totalHeight = " + totalHeight + "px (" + totalHours + " hours)");
 
         // 1. Vẽ grid lines (mỗi 30 phút)
         drawTimeGrid(totalHeight);
 
         // 2. Vẽ appointments
+        // Use prefWidth từ FXML (880px) thay vì getPrefWidth() có thể = 0
+        double contentWidth = schedulePane.getPrefWidth() > 0 ? schedulePane.getPrefWidth() : 880;
+        
         for (Appointment apt : appointmentList) {
             // Chỉ vẽ appointment trong ngày đã chọn
             if (apt.getStartTime().toLocalDate().equals(selectedDate)) {
-                drawAppointmentBlock(apt, 0, schedulePane.getPrefWidth());
+                drawAppointmentBlock(apt, 0, contentWidth);
             }
         }
     }
@@ -296,8 +435,10 @@ public class DoctorScheduleController implements Initializable {
         int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
         double totalHeight = totalHours * PIXELS_PER_HOUR;
         schedulePane.setPrefHeight(totalHeight);
+        schedulePane.setMinHeight(totalHeight);
 
-        double columnWidth = schedulePane.getPrefWidth() / 7.0;
+        double contentWidth = schedulePane.getPrefWidth() > 0 ? schedulePane.getPrefWidth() : 880;
+        double columnWidth = contentWidth / 7.0;
 
         // 1. Vẽ grid
         drawTimeGrid(totalHeight);
@@ -348,29 +489,38 @@ public class DoctorScheduleController implements Initializable {
         double endY = calculateYPosition(aptEndTime);
         double height = endY - startY;
 
+        // Phát hiện overlap và shift X position
+        int overlapCount = countOverlappingAppointments(apt, xStart, startY, endY);
+        double adjustedX = xStart + (overlapCount * 10); // Shift 10px cho mỗi overlap
+        double adjustedWidth = Math.max(width - (overlapCount * 10) - 4, 80); // Giảm width nhưng min 80px
+
         // Tạo block (VBox chứa thông tin appointment)
         VBox block = new VBox(5);
-        block.setLayoutX(xStart + 2);
+        block.setLayoutX(adjustedX);
         block.setLayoutY(startY);
-        block.setPrefWidth(width - 4);
+        block.setPrefWidth(adjustedWidth);
         block.setPrefHeight(height);
         block.setPadding(new Insets(5));
+        
+        // Lưu appointment ID để detect overlap sau này
+        block.setUserData(apt.getId());
 
         // Set màu theo status
         String styleClass = getStyleClassForStatus(apt.getStatus());
-        block.setStyle(getStyleForStatus(apt.getStatus()));
+        block.setStyle(getStyleForStatus(apt.getStatus()) + " -fx-border-color: white; -fx-border-width: 1;");
 
         // Thêm thông tin
         Label timeLabel = new Label(aptStartTime.format(DateTimeFormatter.ofPattern("HH:mm"))
                 + " - " + aptEndTime.format(DateTimeFormatter.ofPattern("HH:mm")));
-        timeLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white;");
+        timeLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 11px;");
 
         Label typeLabel = new Label(apt.getAppointmentType().toString());
-        typeLabel.setStyle("-fx-text-fill: white;");
+        typeLabel.setStyle("-fx-text-fill: white; -fx-font-size: 10px;");
 
         Label notesLabel = new Label(apt.getNotes() != null ? apt.getNotes() : "");
         notesLabel.setWrapText(true);
-        notesLabel.setStyle("-fx-text-fill: white;");
+        notesLabel.setStyle("-fx-text-fill: white; -fx-font-size: 9px;");
+        notesLabel.setMaxHeight(30);
 
         block.getChildren().addAll(timeLabel, typeLabel, notesLabel);
 
@@ -378,6 +528,36 @@ public class DoctorScheduleController implements Initializable {
         block.setOnMouseClicked(e -> onAppointmentClicked(apt));
 
         schedulePane.getChildren().add(block);
+    }
+    
+    // Đếm số appointment đã vẽ mà overlap với appointment hiện tại
+    private int countOverlappingAppointments(Appointment apt, double xStart, double startY, double endY) {
+        int count = 0;
+        
+        for (javafx.scene.Node node : schedulePane.getChildren()) {
+            if (node instanceof VBox && node.getUserData() instanceof Integer) {
+                int existingId = (int) node.getUserData();
+                
+                // Skip chính nó
+                if (existingId == apt.getId()) continue;
+                
+                // Check overlap về position
+                double existingX = node.getLayoutX();
+                double existingY = node.getLayoutY();
+                double existingHeight = ((VBox) node).getPrefHeight();
+                double existingEndY = existingY + existingHeight;
+                
+                // Overlap nếu: cùng khoảng X và Y giao nhau
+                boolean sameColumn = Math.abs(existingX - xStart) < 15; // Trong cùng cột (tolerance 15px)
+                boolean yOverlap = !(endY <= existingY || startY >= existingEndY);
+                
+                if (sameColumn && yOverlap) {
+                    count++;
+                }
+            }
+        }
+        
+        return count;
     }
 
     private double calculateYPosition(LocalTime time) {
@@ -425,10 +605,7 @@ public class DoctorScheduleController implements Initializable {
 
     @FXML
     private void onApplyShift(ActionEvent event) {
-        // Lấy các ngày đã chọn
         List<DayOfWeek> selectedDays = getSelectedWorkingDays();
-
-        // Lấy các ca đã chọn
         List<String> selectedShifts = getSelectedShifts();
 
         if (selectedDays.isEmpty()) {
@@ -441,15 +618,24 @@ public class DoctorScheduleController implements Initializable {
             return;
         }
 
-        // TODO: Gọi API để lưu working hours vào database
-        // Hiện tại chỉ hiển thị thông báo
-        String message = "Áp dụng ca làm việc:\n" +
-                "Ngày: " + selectedDays + "\n" +
-                "Ca: " + selectedShifts;
+        // Save to memory
+        WorkingSchedule schedule = new WorkingSchedule();
+        schedule.setWorkingDays(new HashSet<>(selectedDays));
+        schedule.setShifts(new HashSet<>(selectedShifts));
 
-        showInfo("Thành công", message);
+        if (currentDoctor != null) {
+            doctorSchedules.put(currentDoctor.getId(), schedule);
 
-        // Refresh lại schedule
+            String message = String.format(
+                    "Đã lưu lịch làm việc cho BS. %s:\nNgày: %s\nCa: %s",
+                    currentDoctor.getFullName(),
+                    selectedDays,
+                    selectedShifts
+            );
+
+            showInfo("Thành công", message);
+        }
+
         refreshScheduleView();
     }
 
@@ -533,7 +719,6 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private void applyFilters() {
-        // Lấy các filter đã chọn
         Set<AppointmentStatus> selectedStatuses = new HashSet<>();
 
         if (bookedChk != null && bookedChk.isSelected()) {
@@ -550,22 +735,58 @@ public class DoctorScheduleController implements Initializable {
             selectedStatuses.add(AppointmentStatus.CANCELLED);
         }
 
-        // Nếu không chọn filter nào → hiển thị tất cả
+        // If no filter selected, show all
         if (selectedStatuses.isEmpty()) {
             renderSchedule();
             return;
         }
 
-        // Filter và re-render
-        // TODO: Implement filtered rendering
+        // Filter appointments
+        List<Appointment> filteredList = appointmentList.stream()
+                .filter(apt -> selectedStatuses.contains(apt.getStatus()))
+                .collect(Collectors.toList());
+
+        // Render filtered
+        schedulePane.getChildren().clear();
+
+        if (isDayView) {
+            drawTimeGrid(TOTAL_HOURS * PIXELS_PER_HOUR);
+            for (Appointment apt : filteredList) {
+                if (apt.getStartTime().toLocalDate().equals(selectedDate)) {
+                    drawAppointmentBlock(apt, 0, schedulePane.getPrefWidth());
+                }
+            }
+        } else {
+            // Week view
+            drawTimeGrid(TOTAL_HOURS * PIXELS_PER_HOUR);
+            for (Appointment apt : filteredList) {
+                LocalDate aptDate = apt.getStartTime().toLocalDate();
+                if (!aptDate.isBefore(weekStart) && !aptDate.isAfter(weekStart.plusDays(6))) {
+                    int dayIndex = (int) ChronoUnit.DAYS.between(weekStart, aptDate);
+                    double colWidth = schedulePane.getPrefWidth() / 7.0;
+                    double x = dayIndex * colWidth;
+                    drawAppointmentBlock(apt, x, colWidth);
+                }
+            }
+        }
     }
 
     // ADD SCHEDULE
 
     @FXML
     private void onAddSchedule(ActionEvent event) {
-        // TODO: Mở dialog để thêm working hours mới
-        showInfo("Thông báo", "Chức năng đang phát triển");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
+            );
+            Parent root = loader.load();
+
+            Scene scene = addScheduleBtn.getScene();
+            scene.setRoot(root);
+
+        } catch (Exception e) {
+            showInfo("Lỗi", e.getMessage());
+        }
     }
 
     // SAVE/EXPORT

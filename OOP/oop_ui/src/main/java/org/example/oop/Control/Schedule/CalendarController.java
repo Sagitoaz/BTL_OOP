@@ -63,8 +63,8 @@ public class CalendarController implements Initializable {
     private static final LocalTime START_TIME = LocalTime.of(8, 0);
     private static final LocalTime END_TIME = LocalTime.of(20, 0);
     private static final int SLOT_DURATION = 30; // 30 phút
-    private static final int PIXELS_PER_HOUR = 60; // 1 giờ = 60px
-    private static final int TOTAL_HOURS = 12; // 8:00-20:00 = 12 giờ
+    public static final int PIXELS_PER_HOUR = 60; // 1 giờ = 60px
+    public static final int TOTAL_HOURS = 12; // 8:00-20:00 = 12 giờ
     private static final int GRID_HEIGHT = TOTAL_HOURS * PIXELS_PER_HOUR; // 720px
     
     // ==================== FXML CONTROLS ====================
