@@ -1,276 +1,188 @@
--- =========================
--- ADMINS
--- =========================
-CREATE TABLE [Admins] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [username] VARCHAR(50) UNIQUE NOT NULL,
-  [password] VARCHAR(255) NOT NULL,
-  [email] VARCHAR(100) UNIQUE,
-  [is_active] BIT NOT NULL DEFAULT (1)
-);
-GO
+// USER
+Table Admins {
+  id           int [pk, increment]
+  username     varchar(50) [not null, unique]
+  password     varchar(255) [not null]          // hash
+  email        varchar(100) [unique]
+  is_active    bool [default: true]
+}
 
--- =========================
--- EMPLOYEES
--- =========================
-CREATE TABLE [Employees] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [username] VARCHAR(50) UNIQUE NOT NULL,
-  [password] VARCHAR(255) NOT NULL,
-  [firstname] NVARCHAR(50) NOT NULL,
-  [lastname] NVARCHAR(100) NOT NULL,
-  [role] VARCHAR(20) NOT NULL,
-  [license_no] VARCHAR(50),
-  [email] VARCHAR(100) UNIQUE,
-  [phone] VARCHAR(20),
-  [is_active] BIT NOT NULL DEFAULT (1),
-  [created_at] DATETIME2(0) DEFAULT (GETDATE()),
-  CONSTRAINT CK_Employees_Role
-    CHECK ([role] IN ('doctor','nurse'))
-);
-GO
+Table Employees {
+  id           int [pk, increment]
+  username     varchar(50) [not null, unique]
+  password     varchar(255) [not null]          // hash
+  firstname    nvarchar(50) [not null]
+  lastname     nvarchar(100) [not null]
+  avatar       varchar(255)     
+  role         enum('doctor','nurse') [not null] // nurse = y tá/thu ngân/quản lý
+  license_no   varchar(50)                       // điền khi role=doctor (validate ở backend)
+  email        varchar(100) [unique]
+  phone        varchar(20)
+  is_active    bool [default: true]
+  created_at   datetime [default: `CURRENT_TIMESTAMP`]
+}
 
--- =========================
--- CUSTOMERS
--- =========================
-CREATE TABLE [Customers] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [firstname] NVARCHAR(50) NOT NULL,
-  [lastname] NVARCHAR(100) NOT NULL,
-  [phone] VARCHAR(10),
-  [email] VARCHAR(100) UNIQUE,
-  [dob] DATE,
-  [address] NVARCHAR(255),
-  [note] NVARCHAR(255),
-  [created_at] DATETIME2(0) DEFAULT (GETDATE())
-);
-GO
+Table Customers {
+  id         int [pk, increment]
+  username     varchar(50) [not null, unique]
+  password     varchar(255) [not null]
+  firstname  nvarchar(50) [not null]
+  lastname   nvarchar(100) [not null]
+  phone      varchar(10)
+  email      varchar(100) [unique]
+  dob        date
+  gender     enum()
+  address    nvarchar(255)
+  note       nvarchar(255)
+  created_at datetime [default: `CURRENT_TIMESTAMP`]
 
--- =========================
--- APPOINTMENTS
--- =========================
-CREATE TABLE [Appointments] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [customer_id] INT NOT NULL,
-  [doctor_id] INT NOT NULL,
-  [appointment_type] VARCHAR(20) NOT NULL DEFAULT 'visit',
-  [notes] NVARCHAR(500),
-  [start_time] DATETIME2(0) NOT NULL,
-  [end_time] DATETIME2(0) NOT NULL,
-  [status] VARCHAR(20) NOT NULL DEFAULT 'scheduled',
-  [created_at] DATETIME2(0) DEFAULT (GETDATE()),
-  [updated_at] DATETIME2(0),
-  CONSTRAINT CK_Appointments_Type
-    CHECK ([appointment_type] IN ('visit','test','surgery')),
-  CONSTRAINT CK_Appointments_Status
-    CHECK ([status] IN ('scheduled','confirmed','checked_in','in_progress','completed','cancelled','no_show'))
-);
-GO
+  // Gợi ý index tìm kiếm quầy
+  Note: 'INDEX phone, email để tra cứu nhanh tại quầy'
+}
 
--- =========================
--- SPECTACLE_PRESCRIPTIONS
--- =========================
-CREATE TABLE [Spectacle_Prescriptions] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [appointment_id] INT UNIQUE NOT NULL,
-  [date_issued] DATE NOT NULL,
-  [status] VARCHAR(20) NOT NULL DEFAULT 'active',
-  [sph_od] DECIMAL(5,2) NOT NULL,
-  [cyl_od] DECIMAL(5,2),
-  [axis_od] INT,
-  [va_od] NVARCHAR(20),
-  [sph_os] DECIMAL(5,2) NOT NULL,
-  [cyl_os] DECIMAL(5,2),
-  [axis_os] INT,
-  [va_os] NVARCHAR(20),
-  [add_power] DECIMAL(4,2),
-  [pd] DECIMAL(4,1),
-  [lens_type] VARCHAR(30) NOT NULL DEFAULT 'single_vision',
-  [material] NVARCHAR(50),
-  [features] NVARCHAR(255),
-  [recheck_after_months] INT,
-  [notes] NVARCHAR(MAX),
-  [signed_at] DATETIME2(0),
-  CONSTRAINT CK_Prescriptions_Status
-    CHECK ([status] IN ('active','expired','void')),
-  CONSTRAINT CK_Prescriptions_LensType
-    CHECK ([lens_type] IN ('single_vision','bifocal','progressive','contact','other'))
-);
-GO
+//APPOINTMENT
+Table Appointments {
+  id            int [pk, increment]
+  customer_id   int [not null, ref: > Customers.id]
+  doctor_id     int [not null, ref: > Employees.id] // MUST be role='doctor' (validate ở backend)
 
--- =========================
--- PAYMENTS
--- =========================
-CREATE TABLE [Payments] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [code] VARCHAR(30) UNIQUE,
-  [customer_id] INT,
-  [cashier_id] INT NOT NULL,
-  [issued_at] DATETIME2(0) DEFAULT (GETDATE()),
-  [subtotal] INT NOT NULL DEFAULT (0),
-  [discount] INT NOT NULL DEFAULT (0),
-  [tax_total] INT NOT NULL DEFAULT (0),
-  [rounding] INT NOT NULL DEFAULT (0),
-  [grand_total] INT NOT NULL DEFAULT (0),
-  [payment_method] VARCHAR(20),
-  [amount_paid] DECIMAL(12,2),
-  [note] NVARCHAR(255),
-  [created_at] DATETIME2(0) DEFAULT (GETDATE()),
-  CONSTRAINT CK_Payments_Method
-    CHECK ([payment_method] IN ('cash','bank'))
-);
-GO
+  appointment_type enum('visit','test','surgery', 'blocked') [not null, default: 'visit']
+  notes         nvarchar(500)
 
--- =========================
--- PAYMENT STATUS LOG
--- =========================
-CREATE TABLE [Payment_Status_Log] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [payment_id] INT NOT NULL,
-  [changed_at] DATETIME2(0) DEFAULT (GETDATE()),
-  [status] VARCHAR(20) NOT NULL,
-  CONSTRAINT CK_PaymentStatusLog_Status
-    CHECK ([status] IN ('unpaid','pending','paid'))
-);
-GO
+  start_time    datetime [not null]
+  end_time      datetime [not null]
+  status        enum('scheduled','confirmed','checked_in','in_progress','completed','cancelled','no_show') [not null, default: 'scheduled']
 
--- =========================
--- PAYMENT ITEMS
--- =========================
-CREATE TABLE [Payment_Items] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [payment_id] INT NOT NULL,
-  [description] NVARCHAR(200),
-  [qty] INT NOT NULL,
-  [unit_price] INT NOT NULL,
-  [total_line] INT NOT NULL
-);
-GO
+  created_at    datetime [default: `CURRENT_TIMESTAMP`]
+  updated_at    datetime
 
--- =========================
--- PRODUCTS
--- =========================
-CREATE TABLE [Products] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [sku] VARCHAR(40) UNIQUE NOT NULL,
-  [name] NVARCHAR(200) NOT NULL,
-  [category] VARCHAR(30) NOT NULL,
-  [unit] NVARCHAR(20),
-  [price_cost] INT,
-  [price_retail] INT,
-  [is_active] BIT NOT NULL DEFAULT (1),
-  [note] NVARCHAR(255),
-  [created_at] DATETIME2(0) DEFAULT (GETDATE()),
-  CONSTRAINT CK_Products_Category
-    CHECK ([category] IN ('frame','lens','contact_lens','machine','consumable','service'))
-);
-GO
+  Note: 'INDEX (doctor_id, start_time) để chống trùng lịch ở backend'
+}
 
--- =========================
--- STOCK MOVEMENTS
--- =========================
-CREATE TABLE [Stock_Movements] (
-  [id] INT PRIMARY KEY IDENTITY(1, 1),
-  [product_id] INT NOT NULL,
-  [qty] INT NOT NULL,
-  [move_type] VARCHAR(20) NOT NULL,
-  [ref_table] VARCHAR(40),
-  [ref_id] INT,
-  [batch_no] VARCHAR(40),
-  [expiry_date] DATE,
-  [serial_no] VARCHAR(60),
-  [moved_at] DATETIME2(0) DEFAULT (GETDATE()),
-  [moved_by] INT NOT NULL,
-  CONSTRAINT CK_StockMovements_MoveType
-    CHECK ([move_type] IN ('purchase','sale','return_in','return_out','adjustment','consume','transfer'))
-);
-GO
+Table Spectacle_Prescriptions {
+  id int [pk, increment]
+  appointment_id int [not null, unique, ref: > Appointments.id]
+  created_at date
+  updated_at date
+  chief_complaint text
+  refraction_notes text
 
--- =========================
--- INVENTORY BALANCES
--- =========================
-CREATE TABLE [Inventory_Balances] (
-  [product_id] INT NOT NULL,
-  [batch_no] VARCHAR(40),
-  [expiry_date] DATE,
-  [serial_no] VARCHAR(60),
-  [qty_on_hand] INT NOT NULL DEFAULT (0),
-  [updated_at] DATETIME2(0) DEFAULT (GETDATE())
-);
-GO
+  // OD (Right Eye) Prescription
+  sph_od decimal(5,2) [not null, default: 0]
+  cyl_od decimal(5,2) [default: 0]
+  axis_od int [default: 0]
+  va_od nvarchar(20)
+  prism_od decimal(4,2) [default: 0]
+  base_od enum('IN','OUT','UP','DOWN','NONE')
+  add_od decimal(4,2) [default: 0]
 
-CREATE INDEX [Inventory_Balances_index_0]
-  ON [Inventory_Balances] (product_id);
+  // OS (Left Eye) Prescription  
+  sph_os decimal(5,2) [not null, default: 0]
+  cyl_os decimal(5,2) [default: 0]
+  axis_os int [default: 0]
+  va_os nvarchar(20)
+  prism_os decimal(4,2) [default: 0]
+  base_os enum('IN','OUT','UP','DOWN','NONE')
+  add_os decimal(4,2) [default: 0]
 
-CREATE UNIQUE INDEX [Inventory_Balances_index_1]
-  ON [Inventory_Balances] (product_id, batch_no, expiry_date, serial_no);
-GO
+  // General Prescription Details
+  pd decimal(4,1) [default: 0]
+  material enum('CR_39','TRIVEX','POLYCARBONATE','HIGH_INDEX_1_60','HIGH_INDEX_1_67','HIGH_INDEX_1_74','OTHER')
+  notes text
 
--- =========================
--- EXTENDED PROPERTIES (giữ nguyên ý bạn)
--- =========================
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = N'INDEX phone, email để tra cứu nhanh tại quầy',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Customers';
-GO
+  // Lens Features
+  has_anti_reflective_coating boolean [default: false]
+  has_blue_light_filter boolean [default: false]
+  has_uv_protection boolean [default: false]
+  is_photochromic boolean [default: false]
 
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = N'INDEX (doctor_id, start_time) để chống trùng lịch ở backend',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Appointments';
-GO
+  // Diagnosis & Plan
+  diagnosis text
+  plan text
 
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = N'INDEX (customer_id, issued_at), (cashier_id)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Payments';
-GO
+  // Signature
+  signed_at date
+  signed_by int
+  lens_type enum('SINGLE_VISION','BIFOCAL','PROGRESSIVE','CONTACT','OTHER') [default: 'OTHER']
+}
 
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = N'INDEX (payment_id), (product_id)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Payment_Items';
-GO
 
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = N'INDEX (product_id), (ref_table, ref_id)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Stock_Movements';
-GO
+//PAYMENT
+  Table Payments {
+    id               int [pk, increment]
+    code             varchar(30) [unique]            // Số chứng từ/in biên lai
+    customer_id      int //null khi chưa đk tài khoản, id của customer tự fill khi làm ở backend
+    cashier_id       int [not null] // id của employee
 
--- =========================
--- FOREIGN KEYS (giữ đúng quan hệ ban đầu)
--- =========================
-ALTER TABLE [Appointments]
-  ADD FOREIGN KEY ([customer_id]) REFERENCES [Customers]([id]);
-GO
+    issued_at        datetime [default: `CURRENT_TIMESTAMP`]
 
-ALTER TABLE [Appointments]
-  ADD FOREIGN KEY ([doctor_id]) REFERENCES [Employees]([id]);
-GO
+    // Tổng tiền
+    subtotal         int [not null, default: 0]
+    discount         int [not null, default: 0]
+    tax_total        int [not null, default: 0]
+    rounding         int [not null, default: 0]
+    grand_total      int [not null, default: 0]
 
-ALTER TABLE [Spectacle_Prescriptions]
-  ADD FOREIGN KEY ([appointment_id]) REFERENCES [Appointments]([id]);
-GO
+    // Thanh toán 1 lần tại quầy
+    payment_method   enum('CASH','BANK','CARD')
+    amount_paid      int        // = grand_total khi thanh toán xong
 
-ALTER TABLE [Payment_Status_Log]
-  ADD FOREIGN KEY ([payment_id]) REFERENCES [Payments]([id]);
-GO
+    note             nvarchar(255)
+    created_at       datetime [default: `CURRENT_TIMESTAMP`]
 
-ALTER TABLE [Payment_Items]
-  ADD FOREIGN KEY ([payment_id]) REFERENCES [Payments]([id]);
-GO
+    Note: 'INDEX (status_code, issued_at), (customer_id, issued_at), (cashier_id)'
+  }
 
-ALTER TABLE [Stock_Movements]
-  ADD FOREIGN KEY ([product_id]) REFERENCES [Products]([id]);
-GO
+  // ===== LOG LỊCH SỬ TRẠNG THÁI =====
+  Table Payment_Status_Log {
+    id            int [pk, increment]
+    payment_id    int [not null, ref: > Payments.id]
+    changed_at    datetime [default: `CURRENT_TIMESTAMP`]
+    status        enum('UNPAID','PENDING','PAID','CANCELLED') [not null]
+  }
 
-ALTER TABLE [Inventory_Balances]
-  ADD FOREIGN KEY ([product_id]) REFERENCES [Products]([id]);
-GO
+  // chi tiết hàng trong hóa đơn
+  Table Payment_Items {
+    id            int [pk, increment]
+    product_id    int [not null]
+    payment_id    int [not null, ref: > Payments.id]
+              // có thể NULL cho dòng thủ công
+    description   nvarchar(200)
+    qty           int [not null]
+    unit_price    int [not null]
+    total_line    int [not null]
+
+    Note: 'INDEX (payment_id), (product_id)'
+  }
+// Sản phẩm
+Table Products {
+  id           int [pk, increment]
+  sku          varchar(40) [not null, unique]    // mã hàng
+  name         nvarchar(200) [not null]          // tên hiển thị
+  category     enum('frame','lens','contact_lens','machine','consumable','service') [not null]
+  unit         nvarchar(20)                      // chiếc, hộp, dịch vụ...
+  price_cost   int                     // giá nhập
+  price_retail int                     // giá bán lẻ mặc định
+  is_active    bool [default: true]
+  qty_on_hand int [not null, default: 0]
+  batch_no    varchar(40)   // NULL nếu không quản theo lô
+  expiry_date date
+  serial_no   varchar(60)
+  note         nvarchar(255)
+  created_at   datetime [default: `CURRENT_TIMESTAMP`]
+}
+
+Table Stock_Movements {
+  id           int [pk, increment]
+  product_id   int [not null, ref: > Products.id]
+  qty          int [not null] // >0 nhập, <0 xuất
+  move_type    enum('purchase','sale','return_in','return_out','adjustment','consume','transfer') [not null]
+  ref_table    varchar(40)    // ví dụ 'Payments','PurchaseOrders','InventoryTransfers'
+  ref_id       int            // id chứng từ nguồn
+  batch_no     varchar(40)
+  expiry_date  date
+  serial_no    varchar(60)
+  moved_at     datetime [default: `CURRENT_TIMESTAMP`]
+  moved_by     int [not null] //id người move
+  Note: 'INDEX (product_id), (ref_table, ref_id)'
+}

@@ -1,39 +1,286 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.SignUpController">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: #f5f5f5;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.SignUpController">
     <children>
-        <Label layoutX="260.0" layoutY="184.0" prefHeight="18.0" prefWidth="106.0" text="Username*" />
-        <TextField fx:id="usernameTextField" layoutX="370.0" layoutY="185.0" prefHeight="26.0" prefWidth="258.0" />
-        <Label layoutX="260.0" layoutY="222.0" prefHeight="18.0" prefWidth="106.0" text="Password*" />
-        <TextField fx:id="passwordTextField" layoutX="370.0" layoutY="222.0" prefHeight="26.0" prefWidth="258.0" />
-        <Label layoutX="260.0" layoutY="254.0" prefHeight="18.0" prefWidth="106.0" text="Confirm Password*" />
-        <TextField fx:id="confirmPasswordTextField" layoutX="370.0" layoutY="254.0" prefHeight="26.0" prefWidth="258.0" />
+        <ScrollPane fitToWidth="true" fitToHeight="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" style="-fx-background-color: transparent;">
+            <content>
+                <VBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #f5f5f5;">
+                    <padding>
+                        <Insets top="40.0" bottom="40.0" />
+                    </padding>
 
-        <TextField fx:id="fullNameTextField" layoutX="370.0" layoutY="291.0" prefHeight="26.0" prefWidth="258.0" />
-        <TextField fx:id="addressTextField" layoutX="370.0" layoutY="325.0" prefHeight="26.0" prefWidth="258.0" />
-        <TextField fx:id="emailTextField" layoutX="370.0" layoutY="360.0" prefHeight="26.0" prefWidth="258.0" />
-        <TextField fx:id="phoneTextField" layoutX="370.0" layoutY="400.0" prefHeight="26.0" prefWidth="258.0" />
-        <TextField fx:id="dobTextField" layoutX="370.0" layoutY="437.0" prefHeight="26.0" prefWidth="258.0" promptText="dd/MM/yyyy" />
-        <ComboBox fx:id="genderComboBox" layoutX="370.0" layoutY="473.0" prefHeight="26.0" prefWidth="258.0" promptText="Select gender" />
+                    <children>
+                        <!-- Container box với background trắng -->
+                        <VBox alignment="CENTER" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 5);" maxWidth="450.0" prefWidth="450.0">
+                            <padding>
+                                <Insets top="40.0" right="40.0" bottom="40.0" left="40.0" />
+                            </padding>
 
-        <Label layoutX="260.0" layoutY="291.0" prefHeight="18.0" prefWidth="106.0" text="Full Name*" />
-        <Label layoutX="260.0" layoutY="325.0" prefHeight="18.0" prefWidth="106.0" text="Address*" />
-        <Label layoutX="260.0" layoutY="364.0" prefHeight="18.0" prefWidth="106.0" text="Email*" />
-        <Label layoutX="260.0" layoutY="404.0" prefHeight="18.0" prefWidth="106.0" text="Phone" />
-        <Label layoutX="260.0" layoutY="441.0" prefHeight="18.0" prefWidth="106.0" text="Date of Birth" />
-        <Label layoutX="260.0" layoutY="477.0" prefHeight="18.0" prefWidth="106.0" text="Gender" />
+                            <children>
+                                <!-- Tiêu đề -->
+                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="ĐĂNG KÝ TÀI KHOẢN" textAlignment="CENTER" fill="#4CAF50">
+                                    <font>
+                                        <Font name="System Bold" size="28.0" />
+                                    </font>
+                                </Text>
 
-        <Button fx:id="signUpButton" layoutX="446.0" layoutY="532.0" mnemonicParsing="false" onAction="#signUpButtonOnClick" prefHeight="26.0" prefWidth="106.0" text="Sign Up" />
-        <Text layoutX="260.0" layoutY="165.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Patient Registration" />
-        <Label fx:id="errorMessage" layoutX="370.0" layoutY="506.0" prefHeight="18.0" prefWidth="258.0" textFill="RED" />
-        <Label layoutX="446.0" layoutY="574.0" prefHeight="18.0" prefWidth="147.0" text="Already have an account?" />
-        <Button fx:id="backToLoginButton" layoutX="446.0" layoutY="608.0" mnemonicParsing="false" onAction="#backToLoginButtonOnClick" prefHeight="26.0" prefWidth="106.0" text="Login" />
+                                <Label text="Tạo tài khoản mới cho hệ thống" textFill="#666666">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Note -->
+                                <Label text="* Thông tin bắt buộc" textFill="#FF5722">
+                                    <font>
+                                        <Font name="System Bold" size="11.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Username -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Tên đăng nhập *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="usernameTextField" prefHeight="38.0" promptText="Nhập tên đăng nhập" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Password with toggle visibility -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Mật khẩu *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+
+                                        <!-- StackPane chứa PasswordField và TextField (toggle) -->
+                                        <StackPane prefHeight="38.0">
+                                            <children>
+                                                <!-- PasswordField (mặc định hiển thị) -->
+                                                <PasswordField fx:id="passwordTextField" prefHeight="38.0" promptText="Ít nhất 8 ký tự, bao gồm chữ hoa, số, ký tự đặc biệt" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </PasswordField>
+
+                                                <!-- TextField (ẩn, hiện khi bấm nút mắt) -->
+                                                <TextField fx:id="visiblePasswordTextField" prefHeight="38.0" promptText="Ít nhất 8 ký tự, bao gồm chữ hoa, số, ký tự đặc biệt" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;" visible="false" managed="false">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </TextField>
+
+                                                <!-- Nút toggle password visibility (icon mắt) -->
+                                                <HBox alignment="CENTER_RIGHT" StackPane.alignment="CENTER_RIGHT" pickOnBounds="false">
+                                                    <children>
+                                                        <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" prefWidth="40.0" prefHeight="30.0" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-border-color: transparent;" text="👁">
+                                                            <font>
+                                                                <Font size="16.0" />
+                                                            </font>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
+                                                        </Button>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Confirm Password with toggle visibility -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Xác nhận mật khẩu *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+
+                                        <!-- StackPane chứa PasswordField và TextField (toggle) -->
+                                        <StackPane prefHeight="38.0">
+                                            <children>
+                                                <!-- PasswordField (mặc định hiển thị) -->
+                                                <PasswordField fx:id="confirmPasswordTextField" prefHeight="38.0" promptText="Nhập lại mật khẩu" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </PasswordField>
+
+                                                <!-- TextField (ẩn, hiện khi bấm nút mắt) -->
+                                                <TextField fx:id="visibleConfirmPasswordTextField" prefHeight="38.0" promptText="Nhập lại mật khẩu" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;" visible="false" managed="false">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </TextField>
+
+                                                <!-- Nút toggle confirm password visibility (icon mắt) -->
+                                                <HBox alignment="CENTER_RIGHT" StackPane.alignment="CENTER_RIGHT" pickOnBounds="false">
+                                                    <children>
+                                                        <Button fx:id="toggleConfirmPasswordButton" onAction="#toggleConfirmPasswordVisibility" prefWidth="40.0" prefHeight="30.0" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-border-color: transparent;" text="👁">
+                                                            <font>
+                                                                <Font size="16.0" />
+                                                            </font>
+                                                            <HBox.margin>
+                                                                <Insets right="5.0" />
+                                                            </HBox.margin>
+                                                        </Button>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Full Name -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Họ và tên *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="fullNameTextField" prefHeight="38.0" promptText="Nguyễn Văn A" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Address -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Địa chỉ *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="addressTextField" prefHeight="38.0" promptText="123 Đường ABC, Quận 1, TP.HCM" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Email -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Email *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="emailTextField" prefHeight="38.0" promptText="example@gmail.com" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Phone -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Số điện thoại *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="phoneTextField" prefHeight="38.0" promptText="0912345678" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Date of Birth -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Ngày sinh *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <TextField fx:id="dobTextField" prefHeight="38.0" promptText="dd/MM/yyyy (vd: 15/05/1990)" style="-fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </TextField>
+                                    </children>
+                                </VBox>
+
+                                <!-- Gender -->
+                                <VBox spacing="5.0">
+                                    <children>
+                                        <Label text="Giới tính *">
+                                            <font>
+                                                <Font name="System Bold" size="12.0" />
+                                            </font>
+                                        </Label>
+                                        <ComboBox fx:id="genderComboBox" prefHeight="38.0" maxWidth="Infinity" promptText="Chọn giới tính" style="-fx-background-radius: 5;" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Error message -->
+                                <Label fx:id="errorMessage" textFill="RED" wrapText="true" maxWidth="Infinity">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Label>
+
+                                <!-- Sign Up button -->
+                                <Button fx:id="signUpButton" mnemonicParsing="false" onAction="#signUpButtonOnClick" prefHeight="45.0" maxWidth="Infinity" text="Đăng ký" textFill="WHITE" style="-fx-background-color: #4CAF50; -fx-cursor: hand; -fx-background-radius: 5;">
+                                    <font>
+                                        <Font name="System Bold" size="15.0" />
+                                    </font>
+                                </Button>
+
+                                <!-- Divider -->
+                                <Label text="────────────" textFill="#ddd" />
+
+                                <!-- Back to login -->
+                                <Label text="Đã có tài khoản?" textFill="#666666">
+                                    <font>
+                                        <Font size="13.0" />
+                                    </font>
+                                </Label>
+
+                                <Button fx:id="backToLoginButton" mnemonicParsing="false" onAction="#backToLoginButtonOnClick" prefHeight="40.0" maxWidth="Infinity" text="Quay lại đăng nhập" style="-fx-background-color: transparent; -fx-border-color: #2196F3; -fx-border-width: 2; -fx-cursor: hand; -fx-border-radius: 5;" textFill="#2196F3">
+                                    <font>
+                                        <Font name="System Bold" size="14.0" />
+                                    </font>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
     </children>
 </AnchorPane>

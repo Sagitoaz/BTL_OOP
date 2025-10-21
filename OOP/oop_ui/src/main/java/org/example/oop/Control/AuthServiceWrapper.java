@@ -2,97 +2,111 @@ package org.example.oop.Control;
 
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * AuthServiceWrapper
+ * AuthServiceWrapper - DATABASE ONLY VERSION
  *
- * Mục đích:
- * - Cung cấp lớp bọc (wrapper) để sử dụng các chức năng xác thực từ module mini-boot
- *   (org.miniboot.app.auth.AuthService và PasswordService) mà không gặp ràng buộc module
- *   hoặc phụ thuộc trực tiếp tại thời điểm biên dịch.
- * - Sử dụng reflection để gọi các phương thức tĩnh và instance của AuthService/PasswordService.
- *
- * Ghi chú quan trọng cho người bảo trì:
- * - Reflection cho phép gọi method tại runtime nhưng làm mất tính an toàn kiểu (type-safety),
- *   và dễ gây lỗi nếu chữ ký method thay đổi. Khi nâng cấp mini-boot, kiểm tra lại tên class/method.
- * - Mọi lỗi reflection được catch và log qua System.err; wrapper trả về giá trị an toàn (Optional.empty
- *   hoặc false) để tránh ném ngoại lệ lên UI.
- * - Tránh in hoặc log mật khẩu; các phương thức hash/verify nên được gọi thay vì in mật khẩu.
+ * Chỉ sử dụng PostgreSQL database
+ * Không còn fallback về file
+ * Không lưu session vào DB (vì bảng không tồn tại trong schema)
  */
 public class AuthServiceWrapper {
-    // Instance của AuthService được giữ dưới dạng Object vì dùng reflection
-    private static Object authServiceInstance;
+    private static final Logger LOGGER = Logger.getLogger(AuthServiceWrapper.class.getName());
+    private static Object userDAOInstance;
 
     static {
         try {
-            // Nạp class AuthService từ mini-boot tại runtime
-            Class<?> authServiceClass = Class.forName("org.miniboot.app.auth.AuthService");
-            // Gọi phương thức tĩnh getInstance() để lấy singleton instance (nếu có)
-            Method getInstanceMethod = authServiceClass.getMethod("getInstance");
-            authServiceInstance = getInstanceMethod.invoke(null);
+            // Khởi tạo UserDAO (database-based)
+            Class<?> userDAOClass = Class.forName("org.miniboot.app.dao.UserDAO");
+            userDAOInstance = userDAOClass.getDeclaredConstructor().newInstance();
+            LOGGER.info("✓ AuthServiceWrapper initialized with DATABASE mode");
         } catch (Exception e) {
-            // Ghi log lỗi khởi tạo; không ném tiếp để tránh crash app
-            System.err.println("Failed to initialize AuthService: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "✗ CRITICAL: Cannot initialize UserDAO - Database required!", e);
+            throw new RuntimeException("Database connection required but failed to initialize", e);
         }
     }
 
     /**
-     * Wrapper cho AuthService.login(username, password)
-     * Trả về Optional chứa sessionId nếu đăng nhập thành công.
-     *
-     * Lưu ý:
-     * - Dùng Optional để xử lý an toàn khi reflection gặp lỗi.
-     * - Không in mật khẩu vào log.
+     * Login - chỉ dùng database, không lưu session
      */
     public static Optional<String> login(String username, String password) {
         try {
-            Method loginMethod = authServiceInstance.getClass().getMethod("login", String.class, String.class);
-            Object result = loginMethod.invoke(authServiceInstance, username, password);
-            return (Optional<String>) result;
+            // Tìm user trong database
+            Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
+            Optional<?> userOpt = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
+
+            if (!userOpt.isPresent()) {
+                LOGGER.info("✗ Login failed: User not found - " + username);
+                return Optional.empty();
+            }
+
+            Object userRecord = userOpt.get();
+
+            // Lấy thông tin user
+            String storedPassword = (String) userRecord.getClass().getField("password").get(userRecord);
+            boolean active = (boolean) userRecord.getClass().getField("active").get(userRecord);
+
+            if (!active) {
+                LOGGER.info("✗ Login failed: Account inactive - " + username);
+                return Optional.empty();
+            }
+
+            // Verify password
+            if (!verifyPassword(password, storedPassword)) {
+                LOGGER.info("✗ Login failed: Invalid password - " + username);
+                return Optional.empty();
+            }
+
+            // Tạo session ID (chỉ lưu trong memory, không lưu DB)
+            String sessionId = java.util.UUID.randomUUID().toString();
+            int userId = (int) userRecord.getClass().getField("id").get(userRecord);
+            String role = (String) userRecord.getClass().getField("role").get(userRecord);
+
+            // Lưu thông tin user vào SessionStorage
+            SessionStorage.setCurrentUserId(userId);
+            SessionStorage.setCurrentUserRole(role);
+            SessionStorage.setCurrentUsername(username);
+
+            LOGGER.info("✓ Login successful: " + username + " [" + role + "]");
+            return Optional.of(sessionId);
+
         } catch (Exception e) {
-            System.err.println("Login failed: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Login failed", e);
             return Optional.empty();
         }
     }
 
     /**
-     * Wrapper cho AuthService.logout(sessionId)
-     * Gọi phương thức tĩnh logout trên class AuthService.
+     * Logout - xóa session khỏi memory
      */
     public static void logout(String sessionId) {
         try {
-            Class<?> authServiceClass = Class.forName("org.miniboot.app.auth.AuthService");
-            Method logoutMethod = authServiceClass.getMethod("logout", String.class);
-            logoutMethod.invoke(null, sessionId);
+            SessionStorage.clear();
+            LOGGER.info("✓ Logout successful");
         } catch (Exception e) {
-            System.err.println("Logout failed: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Logout failed", e);
         }
     }
 
     /**
-     * Wrapper cho AuthService.getCurrentSession(sessionId)
-     * Trả về Optional chứa session object (kiểu tạm Object vì reflection).
+     * Lấy session hiện tại từ memory
      */
     public static Optional<Object> getCurrentSession(String sessionId) {
         try {
-            Class<?> authServiceClass = Class.forName("org.miniboot.app.auth.AuthService");
-            Method getCurrentSessionMethod = authServiceClass.getMethod("getCurrentSession", String.class);
-            Object result = getCurrentSessionMethod.invoke(null, sessionId);
-            return (Optional<Object>) result;
+            if (SessionStorage.getCurrentSessionId() != null &&
+                SessionStorage.getCurrentSessionId().equals(sessionId)) {
+                return Optional.of(sessionId);
+            }
         } catch (Exception e) {
-            System.err.println("Get current session failed: " + e.getMessage());
-            return Optional.empty();
+            LOGGER.log(Level.SEVERE, "Get current session failed", e);
         }
+        return Optional.empty();
     }
 
     /**
-     * Wrapper cho PasswordService.hashPasswordWithSalt(password)
-     * Trả về chuỗi dạng "salt:hash".
-     *
-     * Ghi chú bảo mật:
-     * - Không bao giờ ghi lại giá trị mật khẩu gốc. Nếu hashing thất bại wrapper trả về
-     *   plaintext như fallback (không an toàn) — production nên xử lý khác.
+     * Hash password với salt
      */
     public static String hashPasswordWithSalt(String password) {
         try {
@@ -100,14 +114,13 @@ public class AuthServiceWrapper {
             Method hashMethod = passwordServiceClass.getMethod("hashPasswordWithSalt", String.class);
             return (String) hashMethod.invoke(null, password);
         } catch (Exception e) {
-            System.err.println("Password hashing failed: " + e.getMessage());
-            return password; // fallback to plain text (not recommended for production)
+            LOGGER.log(Level.SEVERE, "Password hashing failed", e);
+            throw new RuntimeException("Password hashing failed - cannot continue", e);
         }
     }
 
     /**
-     * Wrapper cho PasswordService.verifyPassword(password, hashedPassword)
-     * Trả về true nếu mật khẩu hợp lệ so với hash đã lưu.
+     * Verify password
      */
     public static boolean verifyPassword(String password, String hashedPassword) {
         try {
@@ -115,14 +128,13 @@ public class AuthServiceWrapper {
             Method verifyMethod = passwordServiceClass.getMethod("verifyPassword", String.class, String.class);
             return (Boolean) verifyMethod.invoke(null, password, hashedPassword);
         } catch (Exception e) {
-            System.err.println("Password verification failed: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Password verification failed", e);
             return false;
         }
     }
 
     /**
-     * Wrapper cho PasswordService.isPasswordStrong(password)
-     * Nếu reflection thất bại thì có fallback kiểm tra sơ bộ.
+     * Kiểm tra password mạnh
      */
     public static boolean isPasswordStrong(String password) {
         try {
@@ -130,13 +142,182 @@ public class AuthServiceWrapper {
             Method isStrongMethod = passwordServiceClass.getMethod("isPasswordStrong", String.class);
             return (Boolean) isStrongMethod.invoke(null, password);
         } catch (Exception e) {
-            System.err.println("Password strength check failed: " + e.getMessage());
             // Fallback password strength check
             return password != null && password.length() >= 8
                 && password.matches(".*[A-Z].*")
                 && password.matches(".*[a-z].*")
                 && password.matches(".*\\d.*")
                 && password.matches(".*[!@#$%^&*()].*");
+        }
+    }
+
+    /**
+     * Đăng ký user mới - chỉ lưu vào database với đầy đủ thông tin
+     */
+    public static boolean register(String username, String email, String password, String fullName,
+                                   String phone, String address, String dob, String gender) {
+        try {
+            // Kiểm tra username đã tồn tại
+            Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
+            Optional<?> existingUser = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
+
+            if (existingUser.isPresent()) {
+                LOGGER.warning("✗ Registration failed: Username exists - " + username);
+                return false;
+            }
+
+            // Hash password
+            String hashedPassword = hashPasswordWithSalt(password);
+
+            // Tách fullName thành firstname và lastname (theo cấu trúc tiếng Việt: HỌ - TÊN)
+            // Ví dụ: "Nguyễn Văn A" → lastname="Nguyễn", firstname="Văn A"
+            String[] names = fullName.trim().split("\\s+", 2);
+            String lastname = names.length > 0 ? names[0] : "";       // Họ (từ đầu tiên)
+            String firstname = names.length > 1 ? names[1] : "";      // Tên (phần còn lại)
+
+            // Gender đã được chuyển đổi sang tiếng Anh IN HOA (MALE, FEMALE, OTHER) từ Controller
+            // Không cần chuyển đổi nữa, truyền trực tiếp vào database
+
+            // Lưu vào database với đầy đủ thông tin
+            Method saveCustomerMethod = userDAOInstance.getClass().getMethod(
+                "saveCustomer", String.class, String.class, String.class, String.class,
+                String.class, String.class, String.class, String.class, String.class);
+
+            boolean success = (boolean) saveCustomerMethod.invoke(
+                userDAOInstance, username, hashedPassword, firstname, lastname,
+                phone, email, address, dob, gender);
+
+            if (success) {
+                LOGGER.info("✓ Registration successful: " + username + " with gender: " + gender);
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Registration failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Yêu cầu reset mật khẩu - tạo token đơn giản (không lưu DB vì bảng không tồn tại)
+     */
+    public static String requestPasswordReset(String email) {
+        try {
+            // Tìm user theo email
+            Method findByEmailMethod = userDAOInstance.getClass().getMethod("findByEmail", String.class);
+            Optional<?> userOpt = (Optional<?>) findByEmailMethod.invoke(userDAOInstance, email);
+
+            if (!userOpt.isPresent()) {
+                LOGGER.warning("✗ Email not found: " + email);
+                return null;
+            }
+
+            Object userRecord = userOpt.get();
+            int userId = (int) userRecord.getClass().getField("id").get(userRecord);
+            String role = (String) userRecord.getClass().getField("role").get(userRecord);
+
+            // Tạo token đơn giản (6 chữ số cuối của timestamp)
+            String token = String.valueOf(System.currentTimeMillis()).substring(7);
+
+            // Lưu token tạm trong SessionStorage để validate
+            SessionStorage.setResetToken(token);
+            SessionStorage.setResetUserId(userId);
+            SessionStorage.setResetUserRole(role);
+
+            LOGGER.info("✓ Reset token generated for email: " + email);
+            return token;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Password reset request failed", e);
+            return null;
+        }
+    }
+
+    /**
+     * Reset mật khẩu bằng token - cập nhật vào database
+     */
+    public static boolean resetPassword(String token, String newPassword) {
+        try {
+            // Validate token từ SessionStorage
+            String storedToken = SessionStorage.getResetToken();
+            if (storedToken == null || !storedToken.equals(token)) {
+                LOGGER.warning("✗ Invalid or expired token");
+                return false;
+            }
+
+            int userId = SessionStorage.getResetUserId();
+            String userType = SessionStorage.getResetUserRole();
+
+            // Hash password mới
+            String hashedPassword = hashPasswordWithSalt(newPassword);
+
+            // Cập nhật password trong database
+            Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
+                "updatePassword", int.class, String.class, String.class);
+            boolean success = (boolean) updatePasswordMethod.invoke(
+                userDAOInstance, userId, userType, hashedPassword);
+
+            if (success) {
+                // Xóa token sau khi sử dụng
+                SessionStorage.clearResetToken();
+                LOGGER.info("✓ Password reset successful for user ID: " + userId);
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Password reset failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Đổi mật khẩu cho user đang đăng nhập
+     */
+    public static boolean changePassword(String currentPassword, String newPassword) {
+        try {
+            String username = SessionStorage.getCurrentUsername();
+            if (username == null) {
+                LOGGER.warning("✗ No user logged in");
+                return false;
+            }
+
+            // Verify current password
+            Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
+            Optional<?> userOpt = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
+
+            if (!userOpt.isPresent()) {
+                return false;
+            }
+
+            Object userRecord = userOpt.get();
+            String storedPassword = (String) userRecord.getClass().getField("password").get(userRecord);
+
+            if (!verifyPassword(currentPassword, storedPassword)) {
+                LOGGER.warning("✗ Current password incorrect");
+                return false;
+            }
+
+            // Update password
+            int userId = SessionStorage.getCurrentUserId();
+            String role = SessionStorage.getCurrentUserRole();
+            String hashedPassword = hashPasswordWithSalt(newPassword);
+
+            Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
+                "updatePassword", int.class, String.class, String.class);
+            boolean success = (boolean) updatePasswordMethod.invoke(
+                userDAOInstance, userId, role, hashedPassword);
+
+            if (success) {
+                LOGGER.info("✓ Password changed successfully for: " + username);
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Change password failed", e);
+            return false;
         }
     }
 }

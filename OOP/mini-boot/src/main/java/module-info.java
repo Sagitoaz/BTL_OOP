@@ -18,6 +18,7 @@ module mini.boot {
     exports org.miniboot.app.http;
     exports org.miniboot.app.router;
     exports org.miniboot.app.util;
+    exports org.miniboot.app.dao;
 
     // Opens packages for reflection access (Gson, Jackson serialization)
     opens org.miniboot.app.domain.models to com.google.gson, com.fasterxml.jackson.databind;
