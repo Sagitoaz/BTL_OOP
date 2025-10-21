@@ -23,15 +23,15 @@ public class StockMovementController {
      }
 
      public static void mount(Router router, StockMovementController sc) {
-          router.get("/stock_movements", sc.getProducts());
-          router.get("/stock_movements/filter", sc.filterMovements()); // ➕ THÊM
-          router.get("/stock_movements/stats", sc.getStats()); // ➕ THÊM
-          router.post("/stock_movements", sc.createProduct());
-          router.put("/stock_movements", sc.updateProduct());
-          router.delete("/stock_movements", sc.deleteProduct());
+          router.get("/stock_movements", sc.getMovements());
+          router.get("/stock_movements/filter", sc.filterMovements());
+          router.get("/stock_movements/stats", sc.getStats());
+          router.post("/stock_movements", sc.createMovement());
+          router.put("/stock_movements", sc.updateMovement());
+          router.delete("/stock_movements", sc.deleteMovement());
      }
 
-     public Function<HttpRequest, HttpResponse> getProduct() {
+     public Function<HttpRequest, HttpResponse> getMovement() {
           return (HttpRequest req) -> {
                Map<String, List<String>> q = req.query;
                Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
@@ -40,14 +40,14 @@ public class StockMovementController {
                     return stockMoveRepo.findById(idOpt.get())
                               .map(Json::ok)
                               .orElse(HttpResponse.of(404, "text/plain",
-                                        "Product not found".getBytes(StandardCharsets.UTF_8)));
+                                        "Stock movement not found".getBytes(StandardCharsets.UTF_8)));
                }
 
                return Json.ok(stockMoveRepo.findAll());
           };
      }
 
-     public Function<HttpRequest, HttpResponse> getProducts() {
+     public Function<HttpRequest, HttpResponse> getMovements() {
           return (HttpRequest req) -> {
                try {
                     Map<String, List<String>> q = req.query;
@@ -57,20 +57,20 @@ public class StockMovementController {
                          return stockMoveRepo.findById(idOpt.get())
                                    .map(Json::ok)
                                    .orElse(HttpResponse.of(404, "text/plain",
-                                             "Product not found".getBytes(StandardCharsets.UTF_8)));
+                                             "Stock movement not found".getBytes(StandardCharsets.UTF_8)));
                     }
 
-                    System.out.println("🔄 Fetching all products...");
-                    List<StockMovement> st = stockMoveRepo.findAll();
-                    System.out.println("📦 Got " + st.size() + " products from repo");
+                    System.out.println("🔄 Fetching all stock movements...");
+                    List<StockMovement> movements = stockMoveRepo.findAll();
+                    System.out.println("📦 Got " + movements.size() + " stock movements from repo");
 
                     System.out.println("🔄 Converting to JSON...");
-                    HttpResponse response = Json.ok(st);
+                    HttpResponse response = Json.ok(movements);
                     System.out.println("✅ JSON conversion successful");
 
                     return response;
                } catch (Exception e) {
-                    System.err.println("❌ ERROR in getProducts():");
+                    System.err.println("❌ ERROR in getMovements():");
                     System.err.println("   Type: " + e.getClass().getName());
                     System.err.println("   Message: " + e.getMessage());
                     e.printStackTrace();
@@ -79,12 +79,18 @@ public class StockMovementController {
           };
      }
 
-     // POST /products
-     public Function<HttpRequest, HttpResponse> createProduct() {
+     // POST /stock_movements
+     public Function<HttpRequest, HttpResponse> createMovement() {
           return (HttpRequest req) -> {
                try {
-                    StockMovement product = Json.fromBytes(req.body, StockMovement.class);
-                    StockMovement saved = stockMoveRepo.save(product);
+                    StockMovement movement = Json.fromBytes(req.body, StockMovement.class);
+                    StockMovement saved = stockMoveRepo.save(movement);
+
+                    if (saved == null) {
+                         return HttpResponse.of(500, "text/plain",
+                                   "Failed to save stock movement".getBytes(StandardCharsets.UTF_8));
+                    }
+
                     return Json.created(saved);
                } catch (Exception e) {
                     return HttpResponse.of(400, "text/plain",
@@ -93,18 +99,24 @@ public class StockMovementController {
           };
      }
 
-     // PUT /products
-     public Function<HttpRequest, HttpResponse> updateProduct() {
+     // PUT /stock_movements
+     public Function<HttpRequest, HttpResponse> updateMovement() {
           return (HttpRequest req) -> {
                try {
-                    StockMovement product = Json.fromBytes(req.body, StockMovement.class);
+                    StockMovement movement = Json.fromBytes(req.body, StockMovement.class);
 
-                    if (product.getId() <= 0) {
+                    if (movement.getId() <= 0) {
                          return HttpResponse.of(400, "text/plain",
-                                   "Missing product ID".getBytes(StandardCharsets.UTF_8));
+                                   "Missing movement ID".getBytes(StandardCharsets.UTF_8));
                     }
 
-                    StockMovement updated = stockMoveRepo.save(product);
+                    StockMovement updated = stockMoveRepo.save(movement);
+
+                    if (updated == null) {
+                         return HttpResponse.of(500, "text/plain",
+                                   "Failed to update stock movement".getBytes(StandardCharsets.UTF_8));
+                    }
+
                     return Json.ok(updated);
                } catch (Exception e) {
                     return HttpResponse.of(400, "text/plain",
@@ -113,8 +125,8 @@ public class StockMovementController {
           };
      }
 
-     // DELETE /products?id=123
-     public Function<HttpRequest, HttpResponse> deleteProduct() {
+     // DELETE /stock_movements?id=123
+     public Function<HttpRequest, HttpResponse> deleteMovement() {
           return (HttpRequest req) -> {
                Map<String, List<String>> q = req.query;
                Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
@@ -128,10 +140,10 @@ public class StockMovementController {
 
                if (deleted) {
                     return HttpResponse.of(200, "text/plain",
-                              "Product deleted".getBytes(StandardCharsets.UTF_8));
+                              "Stock movement deleted".getBytes(StandardCharsets.UTF_8));
                } else {
                     return HttpResponse.of(404, "text/plain",
-                              "Product not found".getBytes(StandardCharsets.UTF_8));
+                              "Stock movement not found".getBytes(StandardCharsets.UTF_8));
                }
           };
      }

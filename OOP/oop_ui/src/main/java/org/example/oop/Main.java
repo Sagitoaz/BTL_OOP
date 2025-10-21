@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/Inventory/AddInventoryView.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/Inventory/StockMovementView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Inventory System");
         stage.setScene(scene);

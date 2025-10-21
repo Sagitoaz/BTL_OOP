@@ -14,8 +14,10 @@ import org.example.oop.Service.ApiStockMovementService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -738,8 +740,9 @@ public class StockMovementController extends BaseController {
                return false;
           }
 
+          int qty;
           try {
-               int qty = Integer.parseInt(qtyField.getText());
+               qty = Integer.parseInt(qtyField.getText());
                if (qty == 0) {
                     showWarning("Số lượng phải khác 0");
                     return false;
@@ -747,6 +750,45 @@ public class StockMovementController extends BaseController {
           } catch (NumberFormatException e) {
                showWarning("Số lượng không hợp lệ");
                return false;
+          }
+
+          // Validate expiry date (không được trong quá khứ)
+          if (expiryDatePicker != null && expiryDatePicker.getValue() != null) {
+               if (expiryDatePicker.getValue().isBefore(LocalDate.now())) {
+                    showWarning("Ngày hết hạn không thể là ngày trong quá khứ!");
+                    return false;
+               }
+          }
+
+          // Warning: Kiểm tra OUT movement với số lượng tồn kho
+          String moveType = moveTypeBox.getValue();
+          if (moveType != null && (moveType.equals("OUT") || moveType.equals("ADJUST_DOWN")
+                    || moveType.equals("RETURN_TO_VENDOR"))) {
+               Product selectedProduct = allProducts.stream()
+                         .filter(p -> p.getId() == selectedProductId)
+                         .findFirst()
+                         .orElse(null);
+
+               if (selectedProduct != null) {
+                    int currentQty = selectedProduct.getQtyOnHand();
+                    int outQty = Math.abs(qty); // OUT movements có qty âm
+
+                    if (outQty > currentQty) {
+                         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                         confirm.setTitle("Cảnh báo tồn kho");
+                         confirm.setHeaderText("Số lượng xuất vượt quá tồn kho!");
+                         confirm.setContentText(String.format(
+                                   "Sản phẩm: %s\n" +
+                                             "Tồn kho hiện tại: %d\n" +
+                                             "Số lượng xuất: %d\n\n" +
+                                             "Bạn có chắc muốn tiếp tục?",
+                                   selectedProduct.getName(), currentQty, outQty));
+
+                         if (confirm.showAndWait().get() != ButtonType.OK) {
+                              return false;
+                         }
+                    }
+               }
           }
 
           return true;

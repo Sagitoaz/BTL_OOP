@@ -278,17 +278,6 @@ public class Product {
         return "Còn hàng";
     }
 
-    /**
-     * Màu sắc cho stock status (dùng trong TableView)
-     */
-    public String getStockStatusColor() {
-        if (qtyOnHand == 0)
-            return "red";
-        if (qtyOnHand < 10)
-            return "orange";
-        return "green";
-    }
-
     @Override
     public String toString() {
         return "Product{" +

@@ -1,6 +1,5 @@
 package org.example.oop.Control.Inventory;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -14,12 +13,10 @@ import org.example.oop.Model.Inventory.Product; // ✅ Import Product model
 import org.example.oop.Model.Inventory.Enum.Category; // ✅ Import Category enum
 
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class ProductCRUDController extends BaseController implements javafx.fxml.Initializable {
+     // ==================== TABLE COLUMNS ====================
      @FXML
      private TableView<Product> productTable;
      @FXML
@@ -36,7 +33,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      private TableColumn<Product, Integer> priceColumn;
      @FXML
      private TableColumn<Product, String> statusColumn;
-     // Form fields
+
+     // ==================== FORM FIELDS ====================
      @FXML
      private TextField skuField;
      @FXML
@@ -46,23 +44,29 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private TextField unitField;
      @FXML
-     private TextField priceField;
-     @FXML
      private TextField priceCostField;
      @FXML
-     private ComboBox<Category> categoryBox; // ✅ ENUM type
+     private TextField priceRetailField; // ✅ Changed from priceField
      @FXML
-     private ComboBox<String> statusBox; // ✅ STRING type: "Hoạt động" / "Ngừng hoạt động"
+     private ComboBox<Category> categoryBox;
+     @FXML
+     private ComboBox<String> statusBox;
+     @FXML
+     private TextField batchNoField; // ✅ Added
+     @FXML
+     private TextField expiryDateField; // ✅ Added (TextField instead of DatePicker)
+     @FXML
+     private TextField serialNoField; // ✅ Added
      @FXML
      private TextArea noteArea;
 
-     // Filter controls
+     // ==================== FILTER CONTROLS ====================
      @FXML
      private TextField searchField;
      @FXML
-     private ComboBox<Category> filterCategoryBox; // ✅ ENUM type (nullable for "All")
+     private ComboBox<Category> filterCategoryBox;
 
-     // Buttons
+     // ==================== BUTTONS ====================
      @FXML
      private Button saveButton;
      @FXML
@@ -70,15 +74,27 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Button clearButton;
      @FXML
-     private Button refreshButton;
-     @FXML
      private Button clearFilterButton;
+     @FXML
+     private Button exportButton; // ✅ Added
+     @FXML
+     private Button importButton; // ✅ Added
+     @FXML
+     private Button addNewButton; // ✅ Added
 
-     // Status & Loading
+     // ==================== LABELS ====================
      @FXML
      private Label statusLabel;
      @FXML
-     private ProgressIndicator loadingIndicator;
+     private Label formTitleLabel; // ✅ Added
+     @FXML
+     private Label recordCountLabel; // ✅ Added
+     @FXML
+     private Label totalValueLabel; // ✅ Added
+     @FXML
+     private Label lowStockLabel; // ✅ Added
+     @FXML
+     private Label lastUpdateLabel; // ✅ Added
 
      // ==================== DATA & SERVICES ====================
 
@@ -120,6 +136,9 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          selectedProduct = newSelection;
                          if (newSelection != null) {
                               populateForm(newSelection);
+                              updateFormTitle("Chỉnh sửa sản phẩm");
+                         } else {
+                              updateFormTitle("Thêm sản phẩm mới");
                          }
                     });
           // Setup filter pipeline
@@ -180,10 +199,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      }
 
      private void setupLoadingIndicator() {
-          if (loadingIndicator != null) {
-               loadingIndicator.setVisible(false);
-               loadingIndicator.setManaged(false);
-          }
+          // loadingIndicator removed from FXML - no action needed
      }
      // ==================== ASYNC DATA LOADING ====================
 
@@ -212,6 +228,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          showLoading(false);
                          disableButtons(false);
                          updateStatus("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
+                         updateStatistics(loadedProducts);
                          System.out.println("✅ Loaded " + loadedProducts.size() + " products from API");
                     },
 
@@ -474,7 +491,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           categoryBox.setValue(product.getCategory()); // ✅ ENUM Category
           quantityField.setText(String.valueOf(product.getQtyOnHand()));
           unitField.setText(product.getUnit());
-          priceField.setText(String.valueOf(product.getPriceRetail()));
+          priceRetailField.setText(String.valueOf(product.getPriceRetail()));
 
           if (priceCostField != null) {
                priceCostField.setText(String.valueOf(product.getPriceCost()));
@@ -486,6 +503,17 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           if (noteArea != null) {
                noteArea.setText(product.getNote());
           }
+
+          // ✅ Handle new fields
+          if (batchNoField != null) {
+               batchNoField.setText(product.getBatchNo() != null ? product.getBatchNo() : "");
+          }
+          if (expiryDateField != null) {
+               expiryDateField.setText(product.getExpiryDate() != null ? product.getExpiryDate().toString() : "");
+          }
+          if (serialNoField != null) {
+               serialNoField.setText(product.getSerialNo() != null ? product.getSerialNo() : "");
+          }
      }
 
      private void clearForm() {
@@ -494,14 +522,25 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           categoryBox.getSelectionModel().clearSelection();
           quantityField.clear();
           unitField.clear();
-          priceField.clear();
+          priceRetailField.clear();
           if (priceCostField != null)
                priceCostField.clear();
           if (noteArea != null)
                noteArea.clear();
+
+          // ✅ Clear new fields
+          if (batchNoField != null)
+               batchNoField.clear();
+          if (expiryDateField != null)
+               expiryDateField.clear();
+          if (serialNoField != null)
+               serialNoField.clear();
+
           statusBox.getSelectionModel().selectFirst(); // Default: "Hoạt động"
           selectedProduct = null;
           productTable.getSelectionModel().clearSelection();
+
+          updateFormTitle("Thêm sản phẩm mới");
      }
 
      private Product getFormData() {
@@ -512,7 +551,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           product.setCategory(categoryBox.getValue()); // ✅ ENUM Category
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
-          product.setPriceRetail(parseInt(priceField.getText(), 0));
+          product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
           product.setPriceCost(priceCostField != null ? parseInt(priceCostField.getText(), 0) : 0);
 
           // ✅ Convert String → boolean
@@ -533,7 +572,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           product.setCategory(categoryBox.getValue()); // ✅ ENUM Category
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
-          product.setPriceRetail(parseInt(priceField.getText(), 0));
+          product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
           product.setPriceCost(priceCostField != null ? parseInt(priceCostField.getText(), 0) : 0);
 
           // ✅ Convert String → boolean
@@ -568,7 +607,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           // Validate numbers
           try {
                Integer.parseInt(quantityField.getText().trim());
-               Integer.parseInt(priceField.getText().trim());
+               Integer.parseInt(priceRetailField.getText().trim());
           } catch (NumberFormatException e) {
                showError("Số lượng và giá phải là số nguyên!");
                return false;
@@ -581,10 +620,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
      private void showLoading(boolean show) {
           runOnUIThread(() -> {
-               if (loadingIndicator != null) {
-                    loadingIndicator.setVisible(show);
-                    loadingIndicator.setManaged(show);
-               }
+               // loadingIndicator removed from FXML
+               System.out.println("📝 Loading: " + show);
           });
      }
 
@@ -596,8 +633,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                     deleteButton.setDisable(disable);
                if (clearButton != null)
                     clearButton.setDisable(disable);
-               if (refreshButton != null)
-                    refreshButton.setDisable(disable);
+               // refreshButton removed from FXML
           });
      }
 
@@ -607,6 +643,51 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                     statusLabel.setText(message);
                }
                System.out.println("📝 Status: " + message);
+          });
+     }
+
+     /**
+      * Update form title label
+      */
+     private void updateFormTitle(String title) {
+          runOnUIThread(() -> {
+               if (formTitleLabel != null) {
+                    formTitleLabel.setText(title);
+               }
+          });
+     }
+
+     /**
+      * Update statistics labels based on loaded products
+      */
+     private void updateStatistics(java.util.List<Product> products) {
+          runOnUIThread(() -> {
+               // Record count
+               if (recordCountLabel != null) {
+                    recordCountLabel.setText("Tổng số: " + products.size() + " sản phẩm");
+               }
+
+               // Total value (sum of priceRetail * qtyOnHand)
+               if (totalValueLabel != null) {
+                    int totalValue = products.stream()
+                              .mapToInt(p -> p.getPriceRetail() * p.getQtyOnHand())
+                              .sum();
+                    totalValueLabel.setText("Tổng giá trị: " + String.format("%,d", totalValue) + " đ");
+               }
+
+               // Low stock count (qtyOnHand < 10)
+               if (lowStockLabel != null) {
+                    long lowStockCount = products.stream()
+                              .filter(p -> p.getQtyOnHand() < 10)
+                              .count();
+                    lowStockLabel.setText("Sắp hết: " + lowStockCount + " sản phẩm");
+               }
+
+               // Last update time
+               if (lastUpdateLabel != null) {
+                    lastUpdateLabel.setText("Cập nhật: " + java.time.LocalDateTime.now()
+                              .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")));
+               }
           });
      }
 

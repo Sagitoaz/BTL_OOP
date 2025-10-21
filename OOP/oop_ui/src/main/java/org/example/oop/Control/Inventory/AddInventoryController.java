@@ -1,5 +1,6 @@
 package org.example.oop.Control.Inventory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.example.oop.Control.BaseController;
@@ -298,6 +299,48 @@ public class AddInventoryController extends BaseController {
                showError("Số lượng tồn kho phải là số nguyên!");
                tfQtyOnHand.requestFocus();
                return false;
+          }
+
+          // 8. Validate Price (bắt buộc phải > 0)
+          Integer priceCost = parseIntOrNull(tfPriceCost.getText());
+          Integer priceRetail = parseIntOrNull(tfPriceRetail.getText());
+
+          if (priceRetail != null && priceRetail <= 0) {
+               showError("Giá bán lẻ phải lớn hơn 0!");
+               tfPriceRetail.requestFocus();
+               return false;
+          }
+
+          if (priceCost != null && priceCost < 0) {
+               showError("Giá nhập không thể âm!");
+               tfPriceCost.requestFocus();
+               return false;
+          }
+
+          // 9. Warning: Price Retail nên >= Price Cost
+          if (priceCost != null && priceRetail != null && priceRetail < priceCost) {
+               Alert warning = new Alert(Alert.AlertType.CONFIRMATION);
+               warning.setTitle("Cảnh báo giá");
+               warning.setHeaderText("Giá bán thấp hơn giá nhập!");
+               warning.setContentText(String.format(
+                         "Giá nhập: %,d đ\n" +
+                         "Giá bán: %,d đ\n\n" +
+                         "Bạn có chắc muốn tiếp tục?",
+                         priceCost, priceRetail));
+
+               if (warning.showAndWait().get() != ButtonType.OK) {
+                    tfPriceRetail.requestFocus();
+                    return false;
+               }
+          }
+
+          // 10. Validate Expiry Date (không được trong quá khứ)
+          if (dpExpiryDate.getValue() != null) {
+               if (dpExpiryDate.getValue().isBefore(LocalDate.now())) {
+                    showError("Ngày hết hạn không thể là ngày trong quá khứ!");
+                    dpExpiryDate.requestFocus();
+                    return false;
+               }
           }
 
           return true;
