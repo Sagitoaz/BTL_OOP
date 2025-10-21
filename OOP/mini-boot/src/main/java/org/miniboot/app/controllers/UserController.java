@@ -4,7 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.miniboot.app.domain.models.User;
 import org.miniboot.app.domain.models.Admin;
 import org.miniboot.app.domain.models.Employee;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.repo.UserRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;

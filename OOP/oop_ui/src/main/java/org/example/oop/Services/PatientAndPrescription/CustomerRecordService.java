@@ -1,4 +1,4 @@
-package org.example.oop.Services;
+package org.example.oop.Services.PatientAndPrescription;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import org.example.oop.Utils.GsonProvider;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.util.CustomerConfig;
 
 /**

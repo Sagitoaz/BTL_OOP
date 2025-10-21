@@ -1,18 +1,15 @@
 package org.miniboot.app.controllers.PatientAndPrescription;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.miniboot.app.AppConfig;
-import org.miniboot.app.Service.CustomerRecordService;
 import org.miniboot.app.Service.CustomerSearchCriteria;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
@@ -97,9 +94,10 @@ public class CustomerRecordController {
 
             // Convert string gender to Gender enum trong CustomerSearchCriteria
             Customer.Gender genderEnum = null;
+            System.out.println(gender);
             if (gender.isPresent()) {
                 try {
-                    genderEnum = Customer.Gender.valueOf(gender.get().toUpperCase());
+                    genderEnum = Customer.Gender.valueOf(gender.get());
                 } catch (IllegalArgumentException e) {
                     genderEnum = null;
                 }
@@ -107,6 +105,7 @@ public class CustomerRecordController {
 
             CustomerSearchCriteria criteria = new CustomerSearchCriteria(searchKey.orElse(null), genderEnum, dateFrom.orElse(null), dateTo.orElse(null));
             if(criteria.isEmpty()){
+
                 return Json.ok(customerRecordRepository.findAll());
             }
             else{

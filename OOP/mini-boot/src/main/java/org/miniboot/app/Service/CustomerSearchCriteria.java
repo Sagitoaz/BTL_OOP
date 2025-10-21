@@ -1,6 +1,6 @@
 package org.miniboot.app.Service;
 
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.time.LocalDate;
 

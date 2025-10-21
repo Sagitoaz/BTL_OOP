@@ -1,4 +1,7 @@
-package org.miniboot.app.domain.models;
+package org.miniboot.app.domain.models.CustomerAndPrescription;
+
+import org.miniboot.app.domain.models.User;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

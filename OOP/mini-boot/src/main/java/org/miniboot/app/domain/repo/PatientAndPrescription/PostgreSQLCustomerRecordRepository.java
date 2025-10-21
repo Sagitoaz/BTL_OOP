@@ -2,10 +2,9 @@ package org.miniboot.app.domain.repo.PatientAndPrescription;
 
 import org.miniboot.app.Service.CustomerSearchCriteria;
 import org.miniboot.app.Service.mappers.CustomerAndPrescription.CustomerMapper;
-import org.miniboot.app.auth.PasswordService;
 import org.miniboot.app.config.DatabaseConfig;
 import org.miniboot.app.controllers.UserController;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.util.CustomerConfig;
 
 import java.sql.*;
@@ -178,7 +177,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             return null;
 
         }
-        System.out.println("OK");
+
         return customers;
     }
     public List<Customer> findByFilterAll(CustomerSearchCriteria criteria) {

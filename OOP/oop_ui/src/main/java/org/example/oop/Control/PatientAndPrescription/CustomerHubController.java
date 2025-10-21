@@ -10,8 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.example.oop.Services.CustomerRecordService;
-import org.miniboot.app.domain.models.Customer;
+import org.example.oop.Services.PatientAndPrescription.CustomerRecordService;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.io.IOException;
 import java.net.URL;
