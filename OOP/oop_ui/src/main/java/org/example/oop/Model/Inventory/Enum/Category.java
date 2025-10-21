@@ -1,13 +1,16 @@
 package org.example.oop.Model.Inventory.Enum;
 
 /**
- * Enum định nghĩa các danh mục sản phẩm
+ * Enum định nghĩa các danh mục sản phẩm (khớp với cột "category" trong bảng
+ * products)
  */
 public enum Category {
-    MEDICATION("Medication", "Thuốc"),
-    EQUIPMENT("Equipment", "Thiết bị"),
-    SUPPLIES("Supplies", "Vật tư"),
-    CONSUMABLES("Consumables", "Hàng tiêu hao");
+    FRAME("frame", "Gọng kính"),
+    LENS("lens", "Tròng kính"),
+    CONTACT_LENS("contact_lens", "Kính áp tròng"),
+    MACHINE("machine", "Máy móc"),
+    CONSUMABLE("consumable", "Vật tư tiêu hao"),
+    SERVICE("service", "Dịch vụ");
 
     private final String code;
     private final String displayName;
@@ -26,18 +29,18 @@ public enum Category {
     }
 
     /**
-     * Lấy enum từ code string
+     * Lấy enum tương ứng từ mã code (dùng cho DB mapping)
      */
     public static Category fromCode(String code) {
         if (code == null || code.trim().isEmpty()) {
-            return MEDICATION;
+            return FRAME; // mặc định an toàn
         }
-        for (Category category : values()) {
-            if (category.code.equalsIgnoreCase(code)) {
-                return category;
+        for (Category c : values()) {
+            if (c.code.equalsIgnoreCase(code)) {
+                return c;
             }
         }
-        return MEDICATION; // Default
+        return FRAME; // fallback nếu không khớp
     }
 
     @Override

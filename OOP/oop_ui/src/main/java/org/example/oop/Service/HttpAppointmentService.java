@@ -1,4 +1,4 @@
-package org.example.oop.Services;
+package org.example.oop.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,18 +25,18 @@ import com.google.gson.reflect.TypeToken;
  * Yêu cầu: ServerMain phải đang chạy trên http://localhost:8080
  */
 public class HttpAppointmentService {
-    
+
     private final String baseUrl;
     private final HttpClient httpClient;
     private final Gson gson;
-    
+
     /**
      * Constructor mặc định - kết nối localhost:8080
      */
     public HttpAppointmentService() {
         this("http://localhost:8080");
     }
-    
+
     /**
      * Constructor với custom URL
      */
@@ -45,7 +45,7 @@ public class HttpAppointmentService {
         this.httpClient = HttpClient.newHttpClient();
         this.gson = GsonProvider.getGson();
     }
-    
+
     /**
      * GET /appointments - Lấy tất cả appointments
      */
@@ -56,58 +56,60 @@ public class HttpAppointmentService {
                     .GET()
                     .header("Accept", "application/json")
                     .build();
-            
-            HttpResponse<String> response = httpClient.send(request, 
+
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), 
-                        new TypeToken<List<Appointment>>(){}.getType());
+                return gson.fromJson(response.body(),
+                        new TypeToken<List<Appointment>>() {
+                        }.getType());
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();
             }
-            
+
         } catch (IOException | InterruptedException e) {
             System.err.println("❌ Error: " + e.getMessage());
             e.printStackTrace();
             return List.of();
         }
     }
-    
+
     /**
      * GET /appointments?doctorId={id}&date={date}
      * Lấy appointments theo doctor và date
      */
     public List<Appointment> getByDoctorAndDate(int doctorId, LocalDate date) {
         try {
-            String url = String.format("%s/appointments?doctorId=%d&date=%s", 
+            String url = String.format("%s/appointments?doctorId=%d&date=%s",
                     baseUrl, doctorId, date.toString());
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
-            
-            HttpResponse<String> response = httpClient.send(request, 
+
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), 
-                        new TypeToken<List<Appointment>>(){}.getType());
+                return gson.fromJson(response.body(),
+                        new TypeToken<List<Appointment>>() {
+                        }.getType());
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();
             }
-            
+
         } catch (IOException | InterruptedException e) {
             System.err.println("❌ Error: " + e.getMessage());
             e.printStackTrace();
             return List.of();
         }
     }
-    
+
     /**
      * POST /appointments - Tạo appointment mới
      */
@@ -115,17 +117,17 @@ public class HttpAppointmentService {
         try {
             String jsonBody = gson.toJson(appointment);
             System.out.println("📤 Sending JSON: " + jsonBody); // Debug
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/appointments"))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .build();
-            
-            HttpResponse<String> response = httpClient.send(request, 
+
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 201 || response.statusCode() == 200) {
                 return gson.fromJson(response.body(), Appointment.class);
             } else {
@@ -133,30 +135,30 @@ public class HttpAppointmentService {
                 System.err.println("Response: " + response.body());
                 return null;
             }
-            
+
         } catch (IOException | InterruptedException e) {
             System.err.println("❌ Error: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
-    
+
     /**
      * GET /appointments?id={id} - Tìm appointment theo ID
      */
     public Optional<Appointment> findById(int id) {
         try {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
-            
-            HttpResponse<String> response = httpClient.send(request, 
+
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 200) {
                 Appointment appointment = gson.fromJson(response.body(), Appointment.class);
                 return Optional.ofNullable(appointment);
@@ -166,14 +168,14 @@ public class HttpAppointmentService {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return Optional.empty();
             }
-            
+
         } catch (IOException | InterruptedException e) {
             System.err.println("❌ Error: " + e.getMessage());
             e.printStackTrace();
             return Optional.empty();
         }
     }
-    
+
     /**
      * Kiểm tra kết nối server
      */
@@ -185,12 +187,12 @@ public class HttpAppointmentService {
                     .GET()
                     .timeout(java.time.Duration.ofSeconds(5))
                     .build();
-            
-            HttpResponse<String> response = httpClient.send(request, 
+
+            HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
-            
+
             return response.statusCode() == 200;
-            
+
         } catch (Exception e) {
             return false;
         }

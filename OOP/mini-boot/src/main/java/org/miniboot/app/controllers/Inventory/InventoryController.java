@@ -82,8 +82,18 @@ public class InventoryController {
                try {
                     Product product = Json.fromBytes(req.body, Product.class);
                     Product saved = productRepo.save(product);
+
+                    // ✅ CHECK NULL: If save failed, return 500 error
+                    if (saved == null) {
+                         System.err.println("❌ ERROR: productRepo.save() returned null");
+                         return HttpResponse.of(500, "text/plain",
+                                   "Failed to save product to database".getBytes(StandardCharsets.UTF_8));
+                    }
+
                     return Json.created(saved);
                } catch (Exception e) {
+                    System.err.println("❌ ERROR in createProduct(): " + e.getMessage());
+                    e.printStackTrace();
                     return HttpResponse.of(400, "text/plain",
                               ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
                }
@@ -94,16 +104,34 @@ public class InventoryController {
      public Function<HttpRequest, HttpResponse> updateProduct() {
           return (HttpRequest req) -> {
                try {
+                    System.out.println("📥 PUT /products - Parsing request body...");
+                    System.out.println("   Body size: " + req.body.length + " bytes");
+
                     Product product = Json.fromBytes(req.body, Product.class);
 
+                    System.out.println("✅ Product parsed successfully:");
+                    System.out.println("   ID: " + product.getId());
+                    System.out.println("   SKU: " + product.getSku());
+                    System.out.println("   Name: " + product.getName());
+                    System.out.println("   Category: " + product.getCategory());
+
                     if (product.getId() <= 0) {
+                         System.err.println("❌ ERROR: Missing or invalid product ID: " + product.getId());
                          return HttpResponse.of(400, "text/plain",
                                    "Missing product ID".getBytes(StandardCharsets.UTF_8));
                     }
 
+                    System.out.println("🔄 Saving product to database...");
                     Product updated = productRepo.save(product);
+                    System.out.println("✅ Product updated successfully: ID=" + updated.getId());
+
                     return Json.ok(updated);
                } catch (Exception e) {
+                    System.err.println("❌ ERROR in updateProduct():");
+                    System.err.println("   Type: " + e.getClass().getName());
+                    System.err.println("   Message: " + e.getMessage());
+                    e.printStackTrace();
+
                     return HttpResponse.of(400, "text/plain",
                               ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
                }
