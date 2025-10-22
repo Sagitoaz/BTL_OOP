@@ -7,6 +7,7 @@ import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
+import org.miniboot.app.util.CustomerConfig;
 import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
 
@@ -27,10 +28,10 @@ public class CustomerRecordController {
     }
 
     public static void mount(org.miniboot.app.router.Router router, CustomerRecordController prc) {
-        router.get("/customers", prc.getCustomer());
-        router.post("/customers", prc.createCustomer());
-        router.put("/customers", prc.updateCustomer());
-        router.delete("/customers", prc.deleteCustomer());
+        router.get(CustomerConfig.GET_CUSTOMER_ENDPOINT, prc.getCustomer());
+        router.post(CustomerConfig.POST_CUSTOMER_ENDPOINT, prc.createCustomer());
+        router.put(CustomerConfig.PUT_CUSTOMER_BY_ID_ENDPOINT, prc.updateCustomer());
+        router.delete(CustomerConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT, prc.deleteCustomer());
 
     }
 

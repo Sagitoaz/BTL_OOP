@@ -11,6 +11,7 @@ public interface PrescriptionRepository {
     List<Prescription> findAll();
 
     List<Prescription> findByCustomerId(int customerId);
+    List<Prescription> findByAppointmentId(int appointmentId);
 
     boolean deleteById(int id);
 

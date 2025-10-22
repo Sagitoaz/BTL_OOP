@@ -101,7 +101,7 @@ public class CustomerRecordService {
     public ApiResponse<Customer> createCustomer(Customer customer) {
         try {
             String jsonBody = gson.toJson(customer);
-            ApiResponse<String> response = apiClient.post(CustomerConfig.POST_CUSTOMER_BY_ID_ENDPOINT, jsonBody);
+            ApiResponse<String> response = apiClient.post(CustomerConfig.POST_CUSTOMER_ENDPOINT, jsonBody);
 
             if (response.isSuccess()) {
                 Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
@@ -122,7 +122,7 @@ public class CustomerRecordService {
 
         try {
             String jsonBody = gson.toJson(customer);
-            String endpoint = CustomerConfig.PUT_CUSTOMER_ENDPOINT + "?id=" + customer.getId();
+            String endpoint = CustomerConfig.PUT_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customer.getId();
             ApiResponse<String> response = apiClient.put(endpoint, jsonBody);
 
             if (response.isSuccess()) {
@@ -265,7 +265,7 @@ public class CustomerRecordService {
         try {
             String jsonBody = gson.toJson(customer);
 
-            apiClient.postAsync(CustomerConfig.POST_CUSTOMER_BY_ID_ENDPOINT, jsonBody,
+            apiClient.postAsync(CustomerConfig.POST_CUSTOMER_ENDPOINT, jsonBody,
                 response -> {
                     if (response.isSuccess()) {
                         try {
@@ -296,7 +296,7 @@ public class CustomerRecordService {
 
         try {
             String jsonBody = gson.toJson(customer);
-            String endpoint = CustomerConfig.PUT_CUSTOMER_ENDPOINT
+            String endpoint = CustomerConfig.PUT_CUSTOMER_BY_ID_ENDPOINT
                     + "?id=" + customer.getId();
 
             apiClient.putAsync(endpoint, jsonBody,

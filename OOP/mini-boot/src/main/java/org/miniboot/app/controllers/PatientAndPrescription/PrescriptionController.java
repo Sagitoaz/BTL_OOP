@@ -25,6 +25,8 @@ public class PrescriptionController
     public static void mount(Router router, PrescriptionController pc) {
         router.post("/prescriptions", pc.createPrescription());
         router.get("/prescriptions", pc.getPrescription());
+        router.delete("/prescriptions", pc.deletePrescription());
+        router.put("/prescriptions", pc.getPrescription());
     }
 
     public Function<HttpRequest, HttpResponse> createPrescription() {
@@ -66,11 +68,11 @@ public class PrescriptionController
         return (HttpRequest req) -> {
             System.out.println("🔍 Handling GET /prescriptions request");
             Gson gson = GsonProvider.getGson();
-            Optional<String> idParam = extractFirst(req.query, "id");
-
-            if(idParam.isPresent()) {
+            Optional<String> customerIdParam = extractFirst(req.query, "customer_id");
+            Optional<String> appointmentIdParam = extractFirst(req.query, "appointment_id");
+            if(customerIdParam.isPresent()) {
                 try {
-                    int id = Integer.parseInt(idParam.get());
+                    int id = Integer.parseInt(customerIdParam.get());
                     List<Prescription> prescriptions = prescriptionRepository.findByCustomerId(id);
 
                     if (!prescriptions.isEmpty()) {
@@ -86,13 +88,84 @@ public class PrescriptionController
                 }
             }
             else{
-                List<Prescription> prescriptions = prescriptionRepository.findAll();
-                String jsonResponse = gson.toJson(prescriptions);
-                return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+                if(appointmentIdParam.isPresent()) {
+                    try {
+                        int id = Integer.parseInt(appointmentIdParam.get());
+                        List<Prescription> prescriptions = prescriptionRepository.findByAppointmentId(id);
+
+                        if (!prescriptions.isEmpty()) {
+                            String jsonResponse = gson.toJson(prescriptions);
+                            return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+                        } else {
+                            return HttpResponse.of(404, "text/plain; charset=utf-8",
+                                    "Prescription not found".getBytes(StandardCharsets.UTF_8));
+                        }
+                    } catch (NumberFormatException e) {
+                        return HttpResponse.of(400, "text/plain; charset=utf-8",
+                                "Invalid ID format".getBytes(StandardCharsets.UTF_8));
+                    }
+                }
+                else{
+                    List<Prescription> prescriptions = prescriptionRepository.findAll();
+                    String jsonResponse = gson.toJson(prescriptions);
+                    return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+
+                }
+
             }
         };
+    }
+    public Function<HttpRequest, HttpResponse> updatePrescription() {
+        return (HttpRequest req)->{
+          try{
+              Gson gson = GsonProvider.getGson();
+              String jsonBody = new String(req.body, StandardCharsets.UTF_8);
+              Prescription toChangePrescription = gson.fromJson(jsonBody, Prescription.class);
+              Prescription savedPrescription = prescriptionRepository.save(toChangePrescription);
+              if(savedPrescription != null && savedPrescription.getId() > 0) {
+                  String jsonResponse = gson.toJson(savedPrescription);
+                  return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
 
-
+              }
+              else{
+                  System.err.println("❌ Prescription update failed - no prescription returned");
+                  return HttpResponse.of(500, "text/plain; charset=utf-8",
+                          "Internal Server Error: Failed to update prescription".getBytes(StandardCharsets.UTF_8));
+              }
+          }
+          catch (RuntimeException e) {
+              // Database errors từ repository
+              System.err.println("❌ Database error updating prescription: " + e.getMessage());
+              return HttpResponse.of(500, "text/plain; charset=utf-8",
+                      ("Database Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+          } catch (Exception e) {
+              // JSON parsing hoặc lỗi khác
+              System.err.println("❌ General error updating prescription: " + e.getMessage());
+              e.printStackTrace();
+              return HttpResponse.of(400, "text/plain; charset=utf-8",
+                      AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+          }
+        };
+    }
+    public Function<HttpRequest, HttpResponse> deletePrescription() {
+        return (HttpRequest req)->{
+            Optional<Integer> idParam = extractInt(req.query, "id");
+            if(idParam.isPresent()) {
+                boolean deleted = prescriptionRepository.deleteById(idParam.get());
+                if(deleted) {
+                    return HttpResponse.of(200, "text/plain; charset=utf-8",
+                            "Prescription deleted successfully".getBytes(StandardCharsets.UTF_8));
+                }
+                else{
+                    return HttpResponse.of(500, "text/plain; charset=utf-8",
+                            "Failed to delete prescription".getBytes(StandardCharsets.UTF_8));
+                }
+            }
+            else{
+                return HttpResponse.of(404, "text/plain; charset=utf-8",
+                        "Id not found".getBytes(StandardCharsets.UTF_8));
+            }
+        };
     }
     private Optional<Integer> extractInt(Map<String, List<String>> q, String key) {
         Optional<String> s = extractFirst(q, key);
