@@ -1,9 +1,0 @@
-# id|appointment_id|date_issued|status|sph_od|cyl_od|axis_od|va_od|sph_os|cyl_os|axis_os|va_os|add_power|pd|lens_type|material|features|recheck_after_months|notes|signed_at
-1|1|2025-10-08|active|-2.50|-0.75|180|6/6|-2.25|-0.50|175|6/6||63.0|single_vision|CR-39|Anti-glare coating|12|Patient has mild myopia with astigmatism|2025-10-08T09:30:00
-2|2|2025-10-09|active|-3.00|-1.00|90|6/9|-3.25|-1.25|85|6/9||64.5|single_vision|Polycarbonate|UV protection, scratch resistant|12|Moderate myopia, recommend daily wear|2025-10-09T10:30:00
-3|3|2025-10-10|active|-4.50|-1.50|175|6/12|-4.75|-1.75|180|6/12||62.0|single_vision|High-index 1.67|Anti-reflective, thin lens|6|High myopia, follow-up in 6 months|2025-10-10T14:30:00
-4|4|2025-10-11|active|-1.00|0.00|0|6/6|-1.25|0.00|0|6/6||65.0|single_vision|CR-39|Blue light filter|12|Low myopia, computer use recommended|2025-10-11T11:45:00
-5|5|2025-10-12|active|+2.00|0.00|0|6/9|+2.25|0.00|0|6/9|+2.50|64.0|progressive|Polycarbonate|Anti-reflective, photochromic|6|Presbyopia with early cataract signs|2025-10-12T15:45:00
-6|3|2025-10-10|expired|-4.00|-1.25|170|6/12|-4.25|-1.50|175|6/12||62.0|single_vision|CR-39|Basic coating|12|Previous prescription, now updated|2024-10-10T14:00:00
-7|1|2025-10-08|expired|-2.25|-0.50|175|6/6|-2.00|-0.50|180|6/6||63.0|single_vision|CR-39|None|12|Old prescription from last year|2024-09-15T10:00:00
-

@@ -8,8 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.oop.Model.Receipt;
-import org.example.oop.Services.HttpPaymentService;
-import org.example.oop.Services.HttpPaymentStatusLogService;
+import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Service.HttpPaymentStatusLogService;
 import org.miniboot.app.domain.models.Payment.*;
 
 import java.io.IOException;
