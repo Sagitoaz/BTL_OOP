@@ -25,8 +25,7 @@ public class PrescriptionController
     public static void mount(Router router, PrescriptionController pc) {
         router.post("/prescriptions", pc.createPrescription());
         router.get("/prescriptions", pc.getPrescription());
-        router.delete("/prescriptions", pc.deletePrescription());
-        router.put("/prescriptions", pc.getPrescription());
+        router.put("/prescriptions", pc.updatePrescription());
     }
 
     public Function<HttpRequest, HttpResponse> createPrescription() {
@@ -147,26 +146,7 @@ public class PrescriptionController
           }
         };
     }
-    public Function<HttpRequest, HttpResponse> deletePrescription() {
-        return (HttpRequest req)->{
-            Optional<Integer> idParam = extractInt(req.query, "id");
-            if(idParam.isPresent()) {
-                boolean deleted = prescriptionRepository.deleteById(idParam.get());
-                if(deleted) {
-                    return HttpResponse.of(200, "text/plain; charset=utf-8",
-                            "Prescription deleted successfully".getBytes(StandardCharsets.UTF_8));
-                }
-                else{
-                    return HttpResponse.of(500, "text/plain; charset=utf-8",
-                            "Failed to delete prescription".getBytes(StandardCharsets.UTF_8));
-                }
-            }
-            else{
-                return HttpResponse.of(404, "text/plain; charset=utf-8",
-                        "Id not found".getBytes(StandardCharsets.UTF_8));
-            }
-        };
-    }
+
     private Optional<Integer> extractInt(Map<String, List<String>> q, String key) {
         Optional<String> s = extractFirst(q, key);
         if (s.isEmpty()) return Optional.empty();

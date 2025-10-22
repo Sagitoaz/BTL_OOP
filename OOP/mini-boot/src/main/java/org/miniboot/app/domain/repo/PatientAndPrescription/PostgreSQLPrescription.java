@@ -226,18 +226,6 @@ public class PostgreSQLPrescription implements PrescriptionRepository {
 
         return prescription;
     }
-    public boolean deleteById(int id){
-        String sqlQuery = "DELETE FROM prescriptions WHERE id = ?";
-        try(Connection conn = dbConfig.getConnection()){
-            PreparedStatement psmt = conn.prepareStatement(sqlQuery);
-            psmt.setInt(1, id);
-            int affectedRows = psmt.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e){
-            System.err.println("❌ Error delete Prescription: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Database delete failed: " + e.getMessage(), e);
-        }
-    }
+    
 
 }
