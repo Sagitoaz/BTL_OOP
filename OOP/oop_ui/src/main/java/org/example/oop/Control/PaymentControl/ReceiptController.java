@@ -13,7 +13,7 @@ import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
 
 import java.net.URL;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -116,7 +116,7 @@ public class ReceiptController implements Initializable {
         lblChange.setText(String.format("%,d", change.intValue()));
     }
 
-    private String formatDateTime(Instant dateTime) {
+    private String formatDateTime(LocalDateTime dateTime) {
         return DateTimeFormatter
                 .ofPattern("dd/MM/yyyy HH:mm")
                 .withZone(ZoneId.systemDefault())
