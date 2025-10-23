@@ -1,9 +1,10 @@
 package org.miniboot.app.test;
 
-import org.miniboot.app.config.DatabaseConfig;
-import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
-import org.miniboot.app.domain.models.Inventory.Product;
 import java.util.List;
+
+import org.miniboot.app.config.DatabaseConfig;
+import org.miniboot.app.domain.models.Inventory.Product;
+import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
 
 public class TestProductRepo {
      public static void main(String[] args) {
@@ -32,11 +33,11 @@ public class TestProductRepo {
                     System.out.println("  ID: " + p.getId());
                     System.out.println("  SKU: " + p.getSku());
                     System.out.println("  Name: " + p.getName());
-                    System.out.println("  Price Cost: " + p.getPrice_cost());
-                    System.out.println("  Price Retail: " + p.getPrice_retail());
-                    System.out.println("  Qty: " + p.getQty_on_hand());
-                    System.out.println("  Expiry: " + p.getExpiry_date());
-                    System.out.println("  Created: " + p.getCreated_at());
+                    System.out.println("  Price Cost: " + p.getPriceCost());
+                    System.out.println("  Price Retail: " + p.getPriceRetail());
+                    System.out.println("  Qty: " + p.getQtyOnHand());
+                    System.out.println("  Expiry: " + p.getExpiryDate());
+                    System.out.println("  Created: " + p.getCreatedAt());
                     System.out.println();
                }
 

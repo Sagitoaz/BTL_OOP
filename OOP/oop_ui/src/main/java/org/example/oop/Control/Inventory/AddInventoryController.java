@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.example.oop.Control.BaseController;
-import org.example.oop.Model.Inventory.Product;
+import org.miniboot.app.domain.models.Inventory.Product;
 import org.example.oop.Service.ApiProductService;
 
 import javafx.collections.FXCollections;

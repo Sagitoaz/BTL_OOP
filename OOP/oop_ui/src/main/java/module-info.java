@@ -7,11 +7,10 @@ module org.example.oop {
     requires jakarta.mail;
     requires java.desktop;
     requires com.google.gson;
+    requires com.fasterxml.jackson.annotation;
 
-    requires mini.boot;
+    requires transitive mini.boot;
     requires javafx.base;
-
-    // HTTP client for REST API calls
     requires java.net.http;
 
     opens org.example.oop.View to javafx.fxml;
@@ -52,7 +51,14 @@ module org.example.oop {
     opens org.example.oop.Control.PatientAndPrescription to javafx.fxml;
 
     exports org.example.oop.Control.PatientAndPrescription;
+
+    // ✅ Inventory Controllers
+    exports org.example.oop.Control.Inventory;
+
+    opens org.example.oop.Control.Inventory to javafx.fxml;
+
     exports org.example.oop.Control.PaymentControl;
+
     opens org.example.oop.Control.PaymentControl to javafx.fxml;
 
 }

@@ -4,12 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.example.oop.Model.Inventory.Enum.Category;
-// ❌ REMOVED: InventoryStatus - DB dùng boolean is_active
-// import org.example.oop.Model.Inventory.Enum.InventoryStatus;
-// ❌ COMMENTED: AppointmentType/Status - chưa có trong mini-boot
-// import org.miniboot.app.domain.models.AppointmentStatus;
-// import org.miniboot.app.domain.models.AppointmentType;
+import org.miniboot.app.domain.models.Inventory.Enum.Category;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -47,6 +42,21 @@ public class GsonProvider {
                 DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
                 return new GsonBuilder()
+                                // ✅ QUAN TRỌNG: Gson phải đọc cả snake_case và camelCase
+                                // Backend trả về: price_retail, qty_on_hand, price_cost, created_at...
+                                // Nhưng Java field names là: priceRetail, qtyOnHand, priceCost, createdAt...
+                                // Gson sẽ tự động map snake_case → camelCase
+                                .setFieldNamingStrategy(f -> {
+                                        // Ưu tiên đọc từ @JsonProperty annotation (nếu có)
+                                        com.fasterxml.jackson.annotation.JsonProperty jsonProp = f.getAnnotation(
+                                                        com.fasterxml.jackson.annotation.JsonProperty.class);
+                                        if (jsonProp != null && !jsonProp.value().isEmpty()) {
+                                                return jsonProp.value(); // Trả về "price_retail", "qty_on_hand"...
+                                        }
+                                        // Fallback: giữ nguyên tên field
+                                        return f.getName();
+                                })
+
                                 // ✅ LocalDate adapter (cho expiry_date trong Product)
                                 .registerTypeAdapter(LocalDate.class,
                                                 (JsonDeserializer<LocalDate>) (json, type, context) -> {
@@ -83,7 +93,6 @@ public class GsonProvider {
                                 .registerTypeAdapter(Category.class,
                                                 (JsonSerializer<Category>) (src, type, context) -> context
                                                                 .serialize(src.getCode()))
-
                                 .create();
         }
 }

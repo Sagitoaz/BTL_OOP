@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 import org.example.oop.Control.BaseController;
-import org.example.oop.Model.Inventory.Product;
 import org.example.oop.Service.ApiProductService;
+import org.miniboot.app.domain.models.Inventory.Product;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -130,7 +130,7 @@ public class SearchInventoryController extends BaseController implements Initial
           // ✅ Category - phải dùng custom cell value vì là ENUM
           categoryColumn.setCellValueFactory(cellData -> {
                Product p = cellData.getValue();
-               String categoryName = p.getCategory() != null ? p.getCategory().getDisplayName() : "";
+               String categoryName = p.getCategoryEnum() != null ? p.getCategoryEnum().getDisplayName() : "";
                return new javafx.beans.property.SimpleStringProperty(categoryName);
           });
 
@@ -187,12 +187,9 @@ public class SearchInventoryController extends BaseController implements Initial
           }
      }
 
-     // ==================== ASYNC DATA LOADING ====================
      private void loadDataAsync() {
           showLoading(true);
           updateMessage("🔄 Đang tải dữ liệu...");
-
-          // ✅ Sử dụng executeAsync từ BaseController
           executeAsync(
                     // Background: Load all products
                     () -> {
@@ -215,8 +212,6 @@ public class SearchInventoryController extends BaseController implements Initial
                          updateMessage("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
                          updateCountLabel();
                     },
-
-                    // Error: BaseController tự động show alert, chỉ cần custom UI
                     error -> {
                          showLoading(false);
                          updateMessage("❌ Lỗi tải dữ liệu: " + error.getMessage());
@@ -273,7 +268,6 @@ public class SearchInventoryController extends BaseController implements Initial
 
      @FXML
      private void OnClickExportButton(javafx.event.ActionEvent event) {
-          // TODO: Implement export functionality
           showWarning("Chức năng export đang được phát triển");
      }
 
@@ -335,16 +329,17 @@ public class SearchInventoryController extends BaseController implements Initial
 
           runOnUIThread(() -> {
                if (quickRetailPrice != null) {
-                    quickRetailPrice.setText(product.getPriceRetail().toString());
+                    quickRetailPrice
+                              .setText(product.getPriceRetail() != null ? product.getPriceRetail().toString() : "0");
                }
                if (quickBatchNumber != null) {
-                    quickBatchNumber.setText(product.getBatchNo());
+                    quickBatchNumber.setText(product.getBatchNo() != null ? product.getBatchNo() : "");
                }
                if (quickExpiryDate != null) {
                     quickExpiryDate.setText(product.getFormattedExpiryDate());
                }
                if (quickserialNo != null) {
-                    quickserialNo.setText(product.getSerialNo());
+                    quickserialNo.setText(product.getSerialNo() != null ? product.getSerialNo() : "");
                }
                if (quickCreatedAt != null) {
                     if (product.getCreatedAt() != null) {
@@ -366,17 +361,21 @@ public class SearchInventoryController extends BaseController implements Initial
                if (quickStatus != null)
                     quickStatus.setText(product.isActive() ? "Active" : "Inactive");
                if (quickCategory != null)
-                    quickCategory.setText(String.valueOf(product.getCategory()));
+                    quickCategory.setText(product.getCategory() != null ? product.getCategory() : "");
                if (quickUnit != null)
                     quickUnit.setText(product.getUnit());
                if (quickQuantity != null)
-                    quickQuantity.setText(String.valueOf((int) product.getQtyOnHand()));
+                    quickQuantity.setText(String.valueOf(product.getQtyOnHand()));
 
                if (quickPrice != null) {
-                    quickPrice.setText(String.format("%,d VND", product.getPriceRetail()));
+                    quickPrice.setText(
+                              product.getPriceRetail() != null ? String.format("%,d VND", product.getPriceRetail())
+                                        : "0 VND");
                }
                if (quickCostPrice != null) {
-                    quickCostPrice.setText(String.format("%,d VND", product.getPriceCost()));
+                    quickCostPrice
+                              .setText(product.getPriceCost() != null ? String.format("%,d VND", product.getPriceCost())
+                                        : "0 VND");
                }
           });
      }

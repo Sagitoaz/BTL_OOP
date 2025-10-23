@@ -10,8 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import org.example.oop.Model.Inventory.StockMovement;
 import org.example.oop.Utils.GsonProvider;
+import org.miniboot.app.domain.models.Inventory.StockMovement;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,7 +27,9 @@ public class ApiStockMovementService {
 
      // ✅ FIX: Đổi tên method và URL
      public List<StockMovement> getAllStockMovements() throws Exception {
+          String url = BASE_URL + "/stock_movements";
           System.out.println("🔄 Fetching all stock movements from API...");
+          System.out.println("🌐 URL: " + url);
 
           // ✅ Retry mechanism cho mạng yếu
           Exception lastException = null;
@@ -36,7 +38,7 @@ public class ApiStockMovementService {
                     System.out.println("📡 Attempt " + attempt + "/" + MAX_RETRIES + "...");
 
                     // ✅ FIX URL: /stock_movements (đúng chính tả)
-                    HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
+                    HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL()
                               .openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Accept", "application/json");
@@ -48,15 +50,34 @@ public class ApiStockMovementService {
 
                     if (responseCode >= 200 && responseCode < 300) {
                          // ✅ DEBUG: In ra JSON response
+                         System.out.println("📦 Response Code: " + responseCode);
+                         System.out.println("📦 Response Length: " + responseBody.length() + " bytes");
                          System.out.println("📦 JSON Response (first 500 chars): " +
                                    (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
                                              : responseBody));
+
+                         // ✅ Kiểm tra xem có phải products không
+                         if (responseBody.contains("\"sku\":")) {
+                              System.err.println(
+                                        "⚠️ WARNING: Response contains 'sku' field - this looks like PRODUCTS, not STOCK_MOVEMENTS!");
+                              System.err.println("⚠️ URL was: " + url);
+                         }
 
                          Type listType = new TypeToken<List<StockMovement>>() {
                          }.getType();
                          List<StockMovement> movements = gson.fromJson(responseBody, listType);
 
                          System.out.println("✅ Loaded " + movements.size() + " stock movements");
+
+                         // ✅ DEBUG: In ra movement đầu tiên
+                         if (!movements.isEmpty()) {
+                              StockMovement first = movements.get(0);
+                              System.out.println("📦 First movement: ID=" + first.getId() +
+                                        ", ProductID=" + first.getProductId() +
+                                        ", Qty=" + first.getQty() +
+                                        ", Type=" + first.getMoveType());
+                         }
+
                          return movements;
                     } else {
                          throw new Exception("Server error: " + responseCode + " - " + responseBody);
@@ -142,16 +163,11 @@ public class ApiStockMovementService {
           }
      }
 
-     // ✅ FIX: Đổi tên method và URL
      public StockMovement updateStockMovement(StockMovement stockMovement) throws Exception {
           System.out.println("🔄 Updating stock movement ID: " + stockMovement.getId());
-
-          // 🔍 DEBUG: Check data before sending
           if (stockMovement.getId() <= 0) {
                throw new Exception("Stock movement ID is missing or invalid: " + stockMovement.getId());
           }
-
-          // ✅ FIX URL: /stock_movements (không phải /products)
           HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
                     .openConnection();
           conn.setRequestMethod("PUT");
@@ -160,8 +176,6 @@ public class ApiStockMovementService {
           conn.setConnectTimeout(CONNECT_TIMEOUT);
           conn.setReadTimeout(READ_TIMEOUT);
           conn.setDoOutput(true);
-
-          // Write request body
           String jsonBody = gson.toJson(stockMovement);
           System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
 

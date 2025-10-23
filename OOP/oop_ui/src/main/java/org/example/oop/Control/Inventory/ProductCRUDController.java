@@ -9,8 +9,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
-import org.example.oop.Model.Inventory.Product; // ✅ Import Product model
-import org.example.oop.Model.Inventory.Enum.Category; // ✅ Import Category enum
+import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
+import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -122,7 +122,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand"));
           priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail"));
           categoryColumn.setCellValueFactory(cellData -> {
-               Category category = cellData.getValue().getCategory();
+               Category category = cellData.getValue().getCategoryEnum(); // ✅ Sử dụng getCategoryEnum()
                return new javafx.beans.property.SimpleStringProperty(
                          category != null ? category.getDisplayName() : "N/A");
           });
@@ -459,12 +459,14 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                boolean matchKeyword = keyword.isEmpty() ||
                          normalizeText(product.getName()).contains(keyword) ||
                          normalizeText(product.getSku()).contains(keyword) ||
-                         normalizeText(product.getCategory() != null ? product.getCategory().getDisplayName() : "")
+                         normalizeText(
+                                   product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "")
                                    .contains(keyword);
 
                // Filter by category
                boolean matchCategory = allCategories ||
-                         normalizeText(product.getCategory() != null ? product.getCategory().getDisplayName() : "")
+                         normalizeText(
+                                   product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "")
                                    .equals(normalizeText(selectedCategory));
 
                return matchKeyword && matchCategory;
@@ -488,7 +490,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
           skuField.setText(product.getSku());
           nameField.setText(product.getName());
-          categoryBox.setValue(product.getCategory()); // ✅ ENUM Category
+          categoryBox.setValue(product.getCategoryEnum()); // ✅ ENUM Category
           quantityField.setText(String.valueOf(product.getQtyOnHand()));
           unitField.setText(product.getUnit());
           priceRetailField.setText(String.valueOf(product.getPriceRetail()));
@@ -548,7 +550,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
           product.setSku(skuField.getText().trim());
           product.setName(nameField.getText().trim());
-          product.setCategory(categoryBox.getValue()); // ✅ ENUM Category
+          product.setCategoryEnum(categoryBox.getValue()); // ✅ ENUM Category → String
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
           product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
@@ -569,7 +571,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
           product.setSku(skuField.getText().trim());
           product.setName(nameField.getText().trim());
-          product.setCategory(categoryBox.getValue()); // ✅ ENUM Category
+          product.setCategoryEnum(categoryBox.getValue()); // ✅ ENUM Category → String
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
           product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
