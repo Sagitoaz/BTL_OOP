@@ -96,6 +96,7 @@ public class ServerMain {
         System.out.println("   POST /auth/login");
         System.out.println("\n✅ Server is ready!");
         System.out.println("   GET  /products");
+        System.out.println("   GET  /products/search?sku=...");
         System.out.println("   POST /products");
         System.out.println("   PUT  /products");
         System.out.println("   DELETE /products?id=...");

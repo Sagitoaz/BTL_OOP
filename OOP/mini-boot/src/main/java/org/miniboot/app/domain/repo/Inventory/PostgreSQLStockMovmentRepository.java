@@ -25,7 +25,6 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
      @Override
      public List<StockMovement> findAll() {
           List<StockMovement> movements = new ArrayList<>();
-          // ✅ JOIN với Products để lấy product_name
           String sql = "SELECT sm.id, sm.product_id, sm.qty, sm.move_type, sm.ref_table, sm.ref_id, " +
                     "sm.batch_no, sm.expiry_date, sm.serial_no, sm.moved_at, sm.moved_by, sm.note, " +
                     "p.name as product_name " +
@@ -92,7 +91,6 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
      }
 
      private StockMovement insert(StockMovement m) {
-          // ✅ CAST ?::stock_movement_type để PostgreSQL nhận diện ENUM
           String sql = "INSERT INTO stock_movements (product_id, qty, move_type, ref_table, ref_id, " +
                     "batch_no, expiry_date, serial_no, moved_at, moved_by, note) " +
                     "VALUES (?,?,?::stock_movement_type,?,?,?,?,?,?,?,?) RETURNING id";
@@ -102,8 +100,6 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
 
                ps.setInt(1, m.getProductId());
                ps.setInt(2, m.getQty());
-               // ✅ Convert to lowercase for PostgreSQL enum (case-sensitive: 'sale' not
-               // 'SALE')
                ps.setString(3, m.getMoveType().toLowerCase());
                ps.setString(4, m.getRefTable());
 

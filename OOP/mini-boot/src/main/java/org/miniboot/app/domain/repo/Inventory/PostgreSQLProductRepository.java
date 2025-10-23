@@ -80,6 +80,30 @@ public class PostgreSQLProductRepository implements ProductRepository {
      }
 
      @Override
+     public Optional<Product> findBySku(String sku) {
+          String sql = "SELECT id, sku, name, category, unit, price_cost, price_retail, " +
+                    "is_active, qty_on_hand, batch_no, expiry_date, serial_no, note, created_at " +
+                    "FROM Products WHERE sku  = ?";
+
+          try (Connection conn = dbConfig.getConnection();
+                    PreparedStatement ps = conn.prepareStatement(sql)) {
+
+               ps.setString(1, sku);
+               try (ResultSet rs = ps.executeQuery()) {
+
+                    if (rs.next()) {
+                         return Optional.of(mapRow(rs));
+                    }
+               }
+
+          } catch (SQLException e) {
+               System.err.println("Error finding product: " + e.getMessage());
+          }
+
+          return Optional.empty();
+     }
+
+     @Override
      public Product save(Product product) {
           return (product.getId() <= 0) ? insert(product) : update(product);
      }
