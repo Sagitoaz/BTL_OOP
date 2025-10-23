@@ -3,6 +3,8 @@ package org.miniboot.app.domain.models.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.miniboot.app.domain.models.Inventory.Enum.Category;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -13,57 +15,58 @@ public class Product {
     private int id;
     private String sku;
     private String name;
-    private String category; // frame, lens, contact_lens, machine, consumable, service
+    private String category; // frame, lens, contact_lens, machine, consumable, service (stored as String for
+                             // DB)
     private String unit; // chiếc, hộp, dịch vụ...
 
     @JsonProperty("price_cost") // ✅ Map JSON: priceCost → price_cost
-    private Integer price_cost; // Giá nhập (INT)
+    private Integer priceCost; // Giá nhập (INT)
 
     @JsonProperty("price_retail") // ✅ Map JSON: priceRetail → price_retail
-    private Integer price_retail; // Giá bán lẻ (INT)
+    private Integer priceRetail; // Giá bán lẻ (INT)
 
     @JsonProperty("is_active") // ✅ Map JSON: isActive → is_active (chú ý: getter là isActive())
     private boolean isActive;
 
     @JsonProperty("qty_on_hand") // ✅ Map JSON: qtyOnHand → qty_on_hand
-    private int qty_on_hand; // Số lượng tồn kho
+    private int qtyOnHand; // Số lượng tồn kho
 
     @JsonProperty("batch_no") // ✅ Map JSON: batchNo → batch_no
-    private String batch_no; // Số lô (NULL nếu không quản theo lô)
+    private String batchNo; // Số lô (NULL nếu không quản theo lô)
 
     @JsonProperty("expiry_date") // ✅ Map JSON: expiryDate → expiry_date
-    private LocalDate expiry_date; // Hạn sử dụng
+    private LocalDate expiryDate; // Hạn sử dụng
 
     @JsonProperty("serial_no") // ✅ Map JSON: serialNo → serial_no
-    private String serial_no; // Số serial
+    private String serialNo; // Số serial
 
     private String note; // Ghi chú
 
     @JsonProperty("created_at") // ✅ Map JSON: createdAt → created_at
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     // Constructors
     public Product() {
     }
 
     public Product(int id, String sku, String name, String category, String unit,
-            Integer price_cost, Integer price_retail, boolean isActive, int qty_on_hand,
-            String batch_no, LocalDate expiry_date, String serial_no,
-            String note, LocalDateTime created_at) {
+            Integer priceCost, Integer priceRetail, boolean isActive, int qtyOnHand,
+            String batchNo, LocalDate expiryDate, String serialNo,
+            String note, LocalDateTime createdAt) {
         this.id = id;
         this.sku = sku;
         this.name = name;
         this.category = category;
         this.unit = unit;
-        this.price_cost = price_cost;
-        this.price_retail = price_retail;
+        this.priceCost = priceCost;
+        this.priceRetail = priceRetail;
         this.isActive = isActive;
-        this.qty_on_hand = qty_on_hand;
-        this.batch_no = batch_no;
-        this.expiry_date = expiry_date;
-        this.serial_no = serial_no;
+        this.qtyOnHand = qtyOnHand;
+        this.batchNo = batchNo;
+        this.expiryDate = expiryDate;
+        this.serialNo = serialNo;
         this.note = note;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 
     // Getters & Setters
@@ -99,6 +102,24 @@ public class Product {
         this.category = category;
     }
 
+    // Alias for backward compatibility
+    public String getCategoryCode() {
+        return category;
+    }
+
+    public void setCategoryCode(String category) {
+        this.category = category;
+    }
+
+    // Category Enum support
+    public Category getCategoryEnum() {
+        return Category.fromCode(category);
+    }
+
+    public void setCategoryEnum(Category category) {
+        this.category = (category != null) ? category.getCode() : null;
+    }
+
     public String getUnit() {
         return unit;
     }
@@ -107,29 +128,29 @@ public class Product {
         this.unit = unit;
     }
 
-    public Integer getPrice_cost() {
-        return price_cost;
+    public Integer getPriceCost() {
+        return priceCost;
     }
 
-    public void setPrice_cost(Integer price_cost) {
-        this.price_cost = price_cost;
+    public void setPriceCost(Integer priceCost) {
+        this.priceCost = priceCost;
     }
 
-    public Integer getPrice_retail() {
-        return price_retail;
+    public Integer getPriceRetail() {
+        return priceRetail;
     }
 
-    public void setPrice_retail(Integer price_retail) {
-        this.price_retail = price_retail;
+    public void setPriceRetail(Integer priceRetail) {
+        this.priceRetail = priceRetail;
     }
 
     // Backward compatibility - alias cho price_retail
     public Integer getPrice() {
-        return price_retail;
+        return priceRetail;
     }
 
     public void setPrice(Integer price) {
-        this.price_retail = price;
+        this.priceRetail = price;
     }
 
     public boolean isActive() {
@@ -140,36 +161,36 @@ public class Product {
         isActive = active;
     }
 
-    public int getQty_on_hand() {
-        return qty_on_hand;
+    public int getQtyOnHand() {
+        return qtyOnHand;
     }
 
-    public void setQty_on_hand(int qty_on_hand) {
-        this.qty_on_hand = qty_on_hand;
+    public void setQtyOnHand(int qtyOnHand) {
+        this.qtyOnHand = qtyOnHand;
     }
 
-    public String getBatch_no() {
-        return batch_no;
+    public String getBatchNo() {
+        return batchNo;
     }
 
-    public void setBatch_no(String batch_no) {
-        this.batch_no = batch_no;
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
     }
 
-    public LocalDate getExpiry_date() {
-        return expiry_date;
+    public LocalDate getExpiryDate() {
+        return expiryDate;
     }
 
-    public void setExpiry_date(LocalDate expiry_date) {
-        this.expiry_date = expiry_date;
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
-    public String getSerial_no() {
-        return serial_no;
+    public String getSerialNo() {
+        return serialNo;
     }
 
-    public void setSerial_no(String serial_no) {
-        this.serial_no = serial_no;
+    public void setSerialNo(String serialNo) {
+        this.serialNo = serialNo;
     }
 
     public String getNote() {
@@ -180,12 +201,51 @@ public class Product {
         this.note = note;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(LocalDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    // ====================
+    // HELPER METHODS
+    // ====================
+
+    /**
+     * Format giá tiền Việt Nam
+     */
+    public String getFormattedPriceCost() {
+        if (priceCost == null)
+            return "N/A";
+        return String.format("%,d đ", priceCost);
+    }
+
+    public String getFormattedPriceRetail() {
+        if (priceRetail == null)
+            return "N/A";
+        return String.format("%,d đ", priceRetail);
+    }
+
+    /**
+     * Hiển thị expiry date dễ đọc
+     */
+    public String getFormattedExpiryDate() {
+        if (expiryDate == null)
+            return "N/A";
+        return expiryDate.toString();
+    }
+
+    /**
+     * Trạng thái tồn kho
+     */
+    public String getStockStatus() {
+        if (qtyOnHand == 0)
+            return "Hết hàng";
+        if (qtyOnHand < 10)
+            return "Sắp hết";
+        return "Còn hàng";
     }
 
     @Override
@@ -195,16 +255,16 @@ public class Product {
                 ", sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
                 ", category='" + category + '\'' +
-                ", price_cost=" + price_cost +
-                ", price_retail=" + price_retail +
-                ", qty_on_hand=" + qty_on_hand +
+                ", priceCost=" + priceCost +
+                ", priceRetail=" + priceRetail +
+                ", qtyOnHand=" + qtyOnHand +
                 ", unit='" + unit + '\'' +
                 ", isActive=" + isActive +
-                ", batch_no='" + batch_no + '\'' +
-                ", expiry_date=" + expiry_date +
-                ", serial_no='" + serial_no + '\'' +
+                ", batchNo='" + batchNo + '\'' +
+                ", expiryDate=" + expiryDate +
+                ", serialNo='" + serialNo + '\'' +
                 ", note='" + note + '\'' +
-                ", created_at=" + created_at +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }

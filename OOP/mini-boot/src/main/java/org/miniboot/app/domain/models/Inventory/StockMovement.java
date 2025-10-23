@@ -15,33 +15,33 @@ import com.google.gson.annotations.SerializedName;
 public class StockMovement {
     private int id;
 
-    @SerializedName("product_id") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "product_id", alternate = { "productId" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private int productId;
 
     private int qty; // >0 nhập, <0 xuất
 
-    @SerializedName("move_type") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "move_type", alternate = { "moveType" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private MoveType moveType;
 
-    @SerializedName("ref_table") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "ref_table", alternate = { "refTable" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
 
-    @SerializedName("ref_id") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "ref_id", alternate = { "refId" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private Integer refId; // ID của chứng từ nguồn
 
-    @SerializedName("batch_no") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "batch_no", alternate = { "batchNo" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private String batchNo; // Số lô
 
-    @SerializedName("expiry_date") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private LocalDate expiryDate; // Hạn sử dụng
 
-    @SerializedName("serial_no") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "serial_no", alternate = { "serialNo" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
 
-    @SerializedName("moved_at") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "moved_at", alternate = { "movedAt" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private LocalDateTime movedAt;
 
-    @SerializedName("moved_by") // ✅ Map JSON snake_case → Java camelCase
+    @SerializedName(value = "moved_by", alternate = { "movedBy" }) // ✅ Hỗ trợ cả snake_case và camelCase
     private int movedBy; // ID người thực hiện (int, not String)
 
     private String note = null;

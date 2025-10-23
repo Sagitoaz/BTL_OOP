@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.oop.Control.BaseController;
-import org.example.oop.Model.Inventory.Product;
-import org.example.oop.Model.Inventory.StockMovement;
+import org.miniboot.app.domain.models.Inventory.Product;
+import org.miniboot.app.domain.models.Inventory.StockMovement;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Service.ApiStockMovementService;
 

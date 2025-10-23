@@ -4,16 +4,21 @@ import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
 import org.miniboot.app.controllers.Inventory.InventoryController;
+import org.miniboot.app.controllers.Inventory.StockMovementController;
 import org.miniboot.app.controllers.payment.PaymentController;
 import org.miniboot.app.controllers.payment.PaymentItemController;
 import org.miniboot.app.controllers.payment.PaymentStatusLogController;
-import org.miniboot.app.controllers.Inventory.StockMovementController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLStockMovmentRepository;
 import org.miniboot.app.domain.repo.Inventory.ProductRepository;
-import org.miniboot.app.domain.repo.Payment.*;
+import org.miniboot.app.domain.repo.Payment.PaymentItemRepository;
+import org.miniboot.app.domain.repo.Payment.PaymentRepository;
+import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
+import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentItemRepository;
+import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentRepository;
+import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentStatusLogRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -41,7 +46,6 @@ public class ServerMain {
         PaymentRepository paymentRepo = new PostgreSQLPaymentRepository();
         PaymentStatusLogRepository paymentStatusRepo = new PostgreSQLPaymentStatusLogRepository();
 
-
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
@@ -53,10 +57,13 @@ public class ServerMain {
         //// 🔽 ADD: PaymentItem controller
         PaymentItemController pic = new PaymentItemController(paymentItemRepo);
 
-
         // Inventory
         ProductRepository productRepo = new PostgreSQLProductRepository();
         InventoryController ic = new InventoryController(productRepo);
+
+        // Stock Movement
+        PostgreSQLStockMovmentRepository stockMovementRepo = new PostgreSQLStockMovmentRepository();
+        StockMovementController smc = new StockMovementController(stockMovementRepo);
 
         // Tạo router và mount controllers
         Router router = new Router();
@@ -69,12 +76,12 @@ public class ServerMain {
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
         InventoryController.mount(router, ic);
+        StockMovementController.mount(router, smc); // ✅ Mount StockMovement routes
         // 🔽 ADD: Mount Payment routes
         PaymentController.mount(router, pc);
         PaymentStatusLogController.mount(router, pslc);
         // 🔽 ADD: Mount PaymentItem routes
         PaymentItemController.mount(router, pic);
-
 
         // mount các controller
         AuthController.mount(router);
@@ -92,6 +99,10 @@ public class ServerMain {
         System.out.println("   POST /products");
         System.out.println("   PUT  /products");
         System.out.println("   DELETE /products?id=...");
+        System.out.println("   GET  /stock_movements");
+        System.out.println("   POST /stock_movements");
+        System.out.println("   PUT  /stock_movements");
+        System.out.println("   DELETE /stock_movements?id=...");
         // 🔽 ADD: Payment endpoints in the list
         System.out.println("   GET  /payments");
         System.out.println("   POST /payments");

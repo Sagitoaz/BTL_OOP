@@ -19,12 +19,14 @@ module mini.boot {
     exports org.miniboot.app.http;
     exports org.miniboot.app.router;
     exports org.miniboot.app.util;
+    exports org.miniboot.app.domain.models.Inventory;
+    exports org.miniboot.app.domain.models.Inventory.Enum;
+    exports org.miniboot.app.domain.models.Payment;
 
     // Opens packages for reflection access (Gson, Jackson serialization)
     opens org.miniboot.app.domain.models to com.google.gson, com.fasterxml.jackson.databind;
     opens org.miniboot.app.domain.models.Inventory to com.google.gson, com.fasterxml.jackson.databind;
     // hậu thêm vào payment
     opens org.miniboot.app.domain.models.Payment to com.google.gson, com.fasterxml.jackson.databind;
-    exports org.miniboot.app.domain.models.Payment;
 
 }

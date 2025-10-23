@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.example.oop.Model.Inventory.Product;
+import org.miniboot.app.domain.models.Inventory.Product;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;

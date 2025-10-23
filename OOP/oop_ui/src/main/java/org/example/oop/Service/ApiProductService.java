@@ -9,8 +9,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.example.oop.Model.Inventory.Product;
 import org.example.oop.Utils.GsonProvider;
+import org.miniboot.app.domain.models.Inventory.Product;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -18,8 +18,6 @@ import com.google.gson.reflect.TypeToken;
 public class ApiProductService {
      private static final String BASE_URL = "http://localhost:8080";
      private static final Gson gson = GsonProvider.getGson();
-
-     // ✅ Tăng timeout cho mạng yếu
      private static final int CONNECT_TIMEOUT = 30000; // 30 seconds
      private static final int READ_TIMEOUT = 60000; // 60 seconds
      private static final int MAX_RETRIES = 3; // Retry 3 lần nếu timeout
@@ -44,7 +42,6 @@ public class ApiProductService {
                     String responseBody = readResponse(conn);
 
                     if (responseCode >= 200 && responseCode < 300) {
-                         // ✅ DEBUG: In ra JSON response
                          System.out.println("📦 JSON Response (first 500 chars): " +
                                    (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
                                              : responseBody));

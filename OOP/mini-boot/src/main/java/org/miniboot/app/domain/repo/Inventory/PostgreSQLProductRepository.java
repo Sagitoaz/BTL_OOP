@@ -97,16 +97,16 @@ public class PostgreSQLProductRepository implements ProductRepository {
                ps.setString(2, p.getName());
                ps.setString(3, p.getCategory());
                ps.setString(4, p.getUnit());
-               setInteger(ps, 5, p.getPrice_cost());
-               setInteger(ps, 6, p.getPrice_retail());
+               setInteger(ps, 5, p.getPriceCost());
+               setInteger(ps, 6, p.getPriceRetail());
                ps.setBoolean(7, p.isActive());
-               ps.setInt(8, p.getQty_on_hand());
-               ps.setString(9, p.getBatch_no());
-               setDate(ps, 10, p.getExpiry_date());
-               ps.setString(11, p.getSerial_no());
+               ps.setInt(8, p.getQtyOnHand());
+               ps.setString(9, p.getBatchNo());
+               setDate(ps, 10, p.getExpiryDate());
+               ps.setString(11, p.getSerialNo());
                ps.setString(12, p.getNote());
                ps.setTimestamp(13, Timestamp.valueOf(
-                         p.getCreated_at() != null ? p.getCreated_at() : LocalDateTime.now()));
+                         p.getCreatedAt() != null ? p.getCreatedAt() : LocalDateTime.now()));
 
                ResultSet rs = ps.executeQuery();
                if (rs.next()) {
@@ -140,13 +140,13 @@ public class PostgreSQLProductRepository implements ProductRepository {
                ps.setString(2, p.getName());
                ps.setString(3, p.getCategory());
                ps.setString(4, p.getUnit());
-               setInteger(ps, 5, p.getPrice_cost());
-               setInteger(ps, 6, p.getPrice_retail());
+               setInteger(ps, 5, p.getPriceCost());
+               setInteger(ps, 6, p.getPriceRetail());
                ps.setBoolean(7, p.isActive());
-               ps.setInt(8, p.getQty_on_hand());
-               ps.setString(9, p.getBatch_no());
-               setDate(ps, 10, p.getExpiry_date());
-               ps.setString(11, p.getSerial_no());
+               ps.setInt(8, p.getQtyOnHand());
+               ps.setString(9, p.getBatchNo());
+               setDate(ps, 10, p.getExpiryDate());
+               ps.setString(11, p.getSerialNo());
                ps.setString(12, p.getNote());
                ps.setInt(13, p.getId());
 
@@ -197,22 +197,22 @@ public class PostgreSQLProductRepository implements ProductRepository {
                p.setName(rs.getString("name"));
                p.setCategory(rs.getString("category"));
                p.setUnit(rs.getString("unit"));
-               p.setPrice_cost(rs.getObject("price_cost", Integer.class));
-               p.setPrice_retail(rs.getObject("price_retail", Integer.class));
+               p.setPriceCost(rs.getObject("price_cost", Integer.class));
+               p.setPriceRetail(rs.getObject("price_retail", Integer.class));
                p.setActive(rs.getBoolean("is_active"));
-               p.setQty_on_hand(rs.getInt("qty_on_hand"));
-               p.setBatch_no(rs.getString("batch_no"));
+               p.setQtyOnHand(rs.getInt("qty_on_hand"));
+               p.setBatchNo(rs.getString("batch_no"));
 
                java.sql.Date expiry = rs.getDate("expiry_date");
                if (expiry != null)
-                    p.setExpiry_date(expiry.toLocalDate());
+                    p.setExpiryDate(expiry.toLocalDate());
 
-               p.setSerial_no(rs.getString("serial_no"));
+               p.setSerialNo(rs.getString("serial_no"));
                p.setNote(rs.getString("note"));
 
                Timestamp created = rs.getTimestamp("created_at");
                if (created != null)
-                    p.setCreated_at(created.toLocalDateTime());
+                    p.setCreatedAt(created.toLocalDateTime());
 
                return p;
           } catch (SQLException e) {
