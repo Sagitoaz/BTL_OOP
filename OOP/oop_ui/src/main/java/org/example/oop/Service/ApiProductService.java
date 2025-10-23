@@ -165,7 +165,7 @@ public class ApiProductService {
                // Check if response body is empty
                if (responseBody == null || responseBody.trim().isEmpty()) {
                     System.out.println("⚠️ Warning: Server returned empty response body");
-                    return null; // Return null thay vì throw exception
+                    return null;
                }
 
                Product created = gson.fromJson(responseBody, Product.class);

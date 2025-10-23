@@ -454,16 +454,12 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           filteredData.setPredicate(product -> {
                if (product == null)
                     return false;
-
-               // Filter by keyword (search in name, SKU, category)
                boolean matchKeyword = keyword.isEmpty() ||
                          normalizeText(product.getName()).contains(keyword) ||
                          normalizeText(product.getSku()).contains(keyword) ||
                          normalizeText(
                                    product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "")
                                    .contains(keyword);
-
-               // Filter by category
                boolean matchCategory = allCategories ||
                          normalizeText(
                                    product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "")
@@ -482,15 +478,13 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           return normalized.replaceAll("\\p{M}+", "").toLowerCase().trim();
      }
 
-     // ==================== FORM HELPERS ====================
-
      private void populateForm(Product product) {
           if (product == null)
                return;
 
           skuField.setText(product.getSku());
           nameField.setText(product.getName());
-          categoryBox.setValue(product.getCategoryEnum()); // ✅ ENUM Category
+          categoryBox.setValue(product.getCategoryEnum());
           quantityField.setText(String.valueOf(product.getQtyOnHand()));
           unitField.setText(product.getUnit());
           priceRetailField.setText(String.valueOf(product.getPriceRetail()));
@@ -498,15 +492,10 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           if (priceCostField != null) {
                priceCostField.setText(String.valueOf(product.getPriceCost()));
           }
-
-          // ✅ Set boolean isActive → String "Hoạt động"/"Ngừng hoạt động"
           statusBox.setValue(product.isActive() ? "Hoạt động" : "Ngừng hoạt động");
-
           if (noteArea != null) {
                noteArea.setText(product.getNote());
           }
-
-          // ✅ Handle new fields
           if (batchNoField != null) {
                batchNoField.setText(product.getBatchNo() != null ? product.getBatchNo() : "");
           }
@@ -529,8 +518,6 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                priceCostField.clear();
           if (noteArea != null)
                noteArea.clear();
-
-          // ✅ Clear new fields
           if (batchNoField != null)
                batchNoField.clear();
           if (expiryDateField != null)
@@ -550,23 +537,18 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
           product.setSku(skuField.getText().trim());
           product.setName(nameField.getText().trim());
-          product.setCategoryEnum(categoryBox.getValue()); // ✅ ENUM Category → String
+          product.setCategoryEnum(categoryBox.getValue());
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
           product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
           product.setPriceCost(priceCostField != null ? parseInt(priceCostField.getText(), 0) : 0);
-
-          // ✅ Convert String → boolean
           product.setActive(statusBox.getValue().equals("Hoạt động"));
-
           product.setNote(noteArea != null ? noteArea.getText() : "");
           product.setCreatedAt(java.time.LocalDateTime.now());
-
           return product;
      }
 
      private void updateFormToProduct(Product product) {
-          // 🔒 CRITICAL: Save ID to prevent it from being lost
           int originalId = product.getId();
 
           product.setSku(skuField.getText().trim());
@@ -576,13 +558,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
           product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
           product.setPriceCost(priceCostField != null ? parseInt(priceCostField.getText(), 0) : 0);
-
-          // ✅ Convert String → boolean
           product.setActive(statusBox.getValue().equals("Hoạt động"));
-
           product.setNote(noteArea != null ? noteArea.getText() : "");
-
-          // 🔒 RESTORE ID (critical for update operation)
           product.setId(originalId);
 
           System.out.println("✅ Updated product data, ID preserved: " + product.getId());

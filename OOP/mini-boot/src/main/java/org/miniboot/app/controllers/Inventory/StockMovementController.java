@@ -103,22 +103,39 @@ public class StockMovementController {
      public Function<HttpRequest, HttpResponse> updateMovement() {
           return (HttpRequest req) -> {
                try {
+                    System.out.println("📥 PUT /stock_movements - Parsing request body...");
+                    System.out.println("   Body size: " + req.body.length + " bytes");
+
                     StockMovement movement = Json.fromBytes(req.body, StockMovement.class);
 
+                    System.out.println("✅ Movement parsed successfully:");
+                    System.out.println("   ID: " + movement.getId());
+                    System.out.println("   ProductID: " + movement.getProductId());
+                    System.out.println("   Qty: " + movement.getQty());
+                    System.out.println("   MoveType: " + movement.getMoveType());
+
                     if (movement.getId() <= 0) {
+                         System.err.println("❌ ERROR: Missing or invalid movement ID: " + movement.getId());
                          return HttpResponse.of(400, "text/plain",
                                    "Missing movement ID".getBytes(StandardCharsets.UTF_8));
                     }
 
+                    System.out.println("🔄 Saving stock movement to database...");
                     StockMovement updated = stockMoveRepo.save(movement);
 
                     if (updated == null) {
+                         System.err.println("❌ ERROR: stockMoveRepo.save() returned null");
                          return HttpResponse.of(500, "text/plain",
                                    "Failed to update stock movement".getBytes(StandardCharsets.UTF_8));
                     }
 
+                    System.out.println("✅ Stock movement updated successfully: ID=" + updated.getId());
                     return Json.ok(updated);
                } catch (Exception e) {
+                    System.err.println("❌ ERROR in updateMovement():");
+                    System.err.println("   Type: " + e.getClass().getName());
+                    System.err.println("   Message: " + e.getMessage());
+                    e.printStackTrace();
                     return HttpResponse.of(400, "text/plain",
                               ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
                }

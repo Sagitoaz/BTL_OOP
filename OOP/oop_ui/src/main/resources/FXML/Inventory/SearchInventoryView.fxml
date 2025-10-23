@@ -111,11 +111,8 @@
                                     <!-- Row 1 -->
                                     <Label style="-fx-font-weight: bold;" text="Cost Price:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                                     <Label fx:id="quickCostPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                           <Label style="-fx-font-weight: bold;" text="Retail Price:" GridPane.rowIndex="2" />
-                           <Label fx:id="quickRetailPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                 </children>
                         <rowConstraints>
-                           <RowConstraints />
                            <RowConstraints />
                            <RowConstraints />
                            <RowConstraints />

@@ -84,8 +84,6 @@ public class SearchInventoryController extends BaseController implements Initial
      @FXML
      private Label quickCostPrice;
      @FXML
-     private Label quickRetailPrice;
-     @FXML
      private Label quickQuantity;
      @FXML
      private Label quickUnit;
@@ -289,8 +287,9 @@ public class SearchInventoryController extends BaseController implements Initial
                     return false;
 
                // Filter by name keyword
-               boolean matchKeyword = keyword.isEmpty() ||
-                         normalizeText(product.getName()).contains(keyword);
+               String name = normalizeText(product.getName() != null ? product.getName() : "");
+               String sku = normalizeText(product.getSku() != null ? product.getSku() : "");
+               boolean matchKeyword = keyword.isEmpty() || name.contains(keyword) || sku.contains(keyword);
 
                // Filter by category
                boolean matchCategory = allCategories ||
@@ -319,19 +318,13 @@ public class SearchInventoryController extends BaseController implements Initial
           return normalized.replaceAll("\\p{M}+", "").toLowerCase().trim();
      }
 
-     // ==================== DETAIL PANEL ====================
-
      private void updateDetail(Product product) {
           if (product == null) {
                clearDetail();
                return;
           }
-
           runOnUIThread(() -> {
-               if (quickRetailPrice != null) {
-                    quickRetailPrice
-                              .setText(product.getPriceRetail() != null ? product.getPriceRetail().toString() : "0");
-               }
+
                if (quickBatchNumber != null) {
                     quickBatchNumber.setText(product.getBatchNo() != null ? product.getBatchNo() : "");
                }
@@ -382,9 +375,6 @@ public class SearchInventoryController extends BaseController implements Initial
 
      private void clearDetail() {
           runOnUIThread(() -> {
-               if (quickRetailPrice != null) {
-                    quickRetailPrice.setText("");
-               }
                if (quickBatchNumber != null) {
                     quickBatchNumber.setText("");
                }
