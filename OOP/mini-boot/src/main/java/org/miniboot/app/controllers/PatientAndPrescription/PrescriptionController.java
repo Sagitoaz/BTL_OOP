@@ -92,12 +92,13 @@ public class PrescriptionController
                         int id = Integer.parseInt(appointmentIdParam.get());
                         List<Prescription> prescriptions = prescriptionRepository.findByAppointmentId(id);
 
+
                         if (!prescriptions.isEmpty()) {
                             String jsonResponse = gson.toJson(prescriptions);
                             return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
                         } else {
                             return HttpResponse.of(404, "text/plain; charset=utf-8",
-                                    "Prescription not found".getBytes(StandardCharsets.UTF_8));
+                                    "Prescription by appointment ID not found".getBytes(StandardCharsets.UTF_8));
                         }
                     } catch (NumberFormatException e) {
                         return HttpResponse.of(400, "text/plain; charset=utf-8",

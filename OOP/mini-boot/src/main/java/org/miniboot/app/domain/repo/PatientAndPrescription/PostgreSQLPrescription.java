@@ -82,6 +82,8 @@ public class PostgreSQLPrescription implements PrescriptionRepository {
     }
     public Prescription save(Prescription prescription){
         if(prescription.getId() <= 0){
+            prescription.setCreated_at(LocalDate.now());
+            prescription.setSignedAt(LocalDate.now());
             return insert(prescription);
         }
         else {

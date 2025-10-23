@@ -13,7 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
 import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.util.CustomerConfig;
+import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 
 /**
  * 🌐 CUSTOMER RECORD SERVICE - NGÀY 8 CUSTOMER API INTEGRATION
@@ -57,7 +57,7 @@ public class CustomerRecordService {
      * GET /customers - Lấy tất cả customers (Sync)
      */
     public ApiResponse<List<Customer>> getAllCustomers() {
-        ApiResponse<String> response = apiClient.get(CustomerConfig.GET_CUSTOMER_ENDPOINT);
+        ApiResponse<String> response = apiClient.get(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
 
         if (response.isSuccess()) {
             try {
@@ -101,7 +101,7 @@ public class CustomerRecordService {
     public ApiResponse<Customer> createCustomer(Customer customer) {
         try {
             String jsonBody = gson.toJson(customer);
-            ApiResponse<String> response = apiClient.post(CustomerConfig.POST_CUSTOMER_ENDPOINT, jsonBody);
+            ApiResponse<String> response = apiClient.post(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT, jsonBody);
 
             if (response.isSuccess()) {
                 Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
@@ -122,7 +122,7 @@ public class CustomerRecordService {
 
         try {
             String jsonBody = gson.toJson(customer);
-            String endpoint = CustomerConfig.PUT_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customer.getId();
+            String endpoint = CustomerAndPrescriptionConfig.PUT_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customer.getId();
             ApiResponse<String> response = apiClient.put(endpoint, jsonBody);
 
             if (response.isSuccess()) {
@@ -140,7 +140,7 @@ public class CustomerRecordService {
      * DELETE /customers/{id} - Xóa customer (Sync)
      */
     public ApiResponse<Boolean> deleteCustomer(int customerId) {
-        String endpoint = CustomerConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
+        String endpoint = CustomerAndPrescriptionConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
         ApiResponse<String> response = apiClient.delete(endpoint);
 
         if (response.isSuccess()) {
@@ -158,7 +158,7 @@ public class CustomerRecordService {
      * ASYNC - GET /customers - Lấy tất cả customers (Async)
      */
     public void getAllCustomersAsync(Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
-        apiClient.getAsync(CustomerConfig.GET_CUSTOMER_ENDPOINT,
+        apiClient.getAsync(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT,
             response -> {
                 if (response.isSuccess()) {
                     try {
@@ -236,7 +236,7 @@ public class CustomerRecordService {
      * ASYNC - Tìm customer theo ID (Async)
      */
     public void findByIdAsync(int id, Consumer<Optional<Customer>> onSuccess, Consumer<String> onError) {
-        String endpoint = CustomerConfig.GET_CUSTOMER_ENDPOINT + "?id=" + id;
+        String endpoint = CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT + "?id=" + id;
 
         apiClient.getAsync(endpoint,
             response -> {
@@ -265,7 +265,7 @@ public class CustomerRecordService {
         try {
             String jsonBody = gson.toJson(customer);
 
-            apiClient.postAsync(CustomerConfig.POST_CUSTOMER_ENDPOINT, jsonBody,
+            apiClient.postAsync(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT, jsonBody,
                 response -> {
                     if (response.isSuccess()) {
                         try {
@@ -296,7 +296,7 @@ public class CustomerRecordService {
 
         try {
             String jsonBody = gson.toJson(customer);
-            String endpoint = CustomerConfig.PUT_CUSTOMER_BY_ID_ENDPOINT
+            String endpoint = CustomerAndPrescriptionConfig.PUT_CUSTOMER_BY_ID_ENDPOINT
                     + "?id=" + customer.getId();
 
             apiClient.putAsync(endpoint, jsonBody,
@@ -323,7 +323,7 @@ public class CustomerRecordService {
      * ASYNC - Xóa customer (Async)
      */
     public void deleteCustomerAsync(int customerId, Consumer<Boolean> onSuccess, Consumer<String> onError) {
-        String endpoint = CustomerConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
+        String endpoint = CustomerAndPrescriptionConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
 
         apiClient.deleteAsync(endpoint,
             response -> {
@@ -354,7 +354,7 @@ public class CustomerRecordService {
      */
     private String buildSearchEndpoint(String searchKey, Customer.Gender gender,
                                      LocalDate dateFrom, LocalDate dateTo) {
-        StringBuilder endpoint = new StringBuilder(CustomerConfig.GET_CUSTOMER_ENDPOINT);
+        StringBuilder endpoint = new StringBuilder(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
         boolean hasParams = false;
 
         if (searchKey != null && !searchKey.trim().isEmpty()) {
