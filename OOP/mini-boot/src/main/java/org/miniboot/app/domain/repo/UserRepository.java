@@ -3,7 +3,7 @@ package org.miniboot.app.domain.repo;
 import org.miniboot.app.domain.models.User;
 import org.miniboot.app.domain.models.Admin;
 import org.miniboot.app.domain.models.Employee;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.io.IOException;
 import java.nio.file.Files;

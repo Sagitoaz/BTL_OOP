@@ -27,6 +27,20 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.oop.Services.PatientAndPrescription.CustomerRecordService;
+import org.example.oop.Services.PatientAndPrescription.PrescriptionService;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController implements Initializable {
 
@@ -39,6 +53,23 @@ public class CustomerHubController implements Initializable {
     private boolean selectionMode = false;
     private Consumer<Customer> onCustomerSelectedCallback;
     private Customer selectedCustomerForCallback;
+
+    @FXML
+    private TableView<Prescription> examHistoryTable;
+
+    private ObservableList<Prescription> prescriptionRecordsList;
+
+    @FXML
+    private TableColumn<Prescription, String> signedAtCollumn;
+
+    @FXML
+    private TableColumn<Prescription, Integer> appointmentIdCollumn;
+
+    @FXML
+    private TableColumn<Prescription, String> chiefComplaintCollumn;
+
+    @FXML
+    private TableColumn<Prescription, String> diagnosisCollumn;
 
     @FXML
     private ComboBox<Customer.Gender> genderFilter;
@@ -71,13 +102,23 @@ public class CustomerHubController implements Initializable {
     @FXML
     private TextArea notesArea;
 
+    private PrescriptionService prescriptionService;
+    private CompletableFuture<Void> currentPrescriptionTask;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        prescriptionService = new PrescriptionService();
         customerRecordsList = FXCollections.observableArrayList();
+        prescriptionRecordsList = FXCollections.observableArrayList();
+
+        // Setup TableView columns for Prescription
+        setupPrescriptionTable();
+
         loadCustomerData();
         // Setup listener cho selection
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
+            loadPrescriptionsForCustomer(newValue);
         });
 
         // Setup gender filter với promptText
@@ -88,17 +129,12 @@ public class CustomerHubController implements Initializable {
             protected void updateItem(Customer.Gender item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    // Nếu không có item nào được chọn, hiển thị prompt text
                     setText(genderFilter.getPromptText());
                 } else {
-                    // Ngược lại, hiển thị tên của item
                     setText(item.toString());
                 }
             }
         });
-
-        // Load data bất đồng bộ để tránh chặn UI
-        //loadCustomerData();
     }
     
     /**
@@ -118,13 +154,42 @@ public class CustomerHubController implements Initializable {
         return selectedCustomerForCallback;
     }
 
+    private void setupPrescriptionTable() {
+        // Setup các cột cho bảng prescription
+        signedAtCollumn.setCellValueFactory(cellData -> {
+            LocalDate signedAt = cellData.getValue().getSignedAt();
+            if (signedAt != null) {
+                return new SimpleStringProperty(signedAt.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            } else {
+                return new SimpleStringProperty("Chưa ký");
+            }
+        });
+
+        appointmentIdCollumn.setCellValueFactory(cellData ->
+            new SimpleIntegerProperty(cellData.getValue().getAppointmentId()).asObject());
+
+        chiefComplaintCollumn.setCellValueFactory(cellData ->
+            new SimpleStringProperty(cellData.getValue().getChiefComplaint() != null ?
+                cellData.getValue().getChiefComplaint() : ""));
+
+        diagnosisCollumn.setCellValueFactory(cellData ->
+            new SimpleStringProperty(cellData.getValue().getDiagnosis() != null ?
+                cellData.getValue().getDiagnosis() : ""));
+
+        // Set items cho table
+        examHistoryTable.setItems(prescriptionRecordsList);
+    }
+
+    private void setCurrentListCustomer() {
+        customerListView.setItems(customerRecordsList);
+    }
     private void loadCustomerData() {
         CustomerRecordService.getInstance().getAllCustomersAsync(
             customers -> {
                 // SUCCESS callback - chạy trong UI Thread
                 customerRecordsList.clear();
                 customerRecordsList.addAll(customers);
-                customerListView.setItems(customerRecordsList);
+                setCurrentListCustomer();
                 System.out.println("✅ Loaded " + customers.size() + " customers");
             },
             error -> {
@@ -135,6 +200,51 @@ public class CustomerHubController implements Initializable {
             }
         );
     }
+
+    private void loadPrescriptionsForCustomer(Customer customer) {
+        // Cancel previous task if still running
+        if (currentPrescriptionTask != null && !currentPrescriptionTask.isDone()) {
+            currentPrescriptionTask.cancel(true);
+            System.out.println("🔄 Cancelled previous prescription loading task");
+        }
+
+        if (customer == null) {
+            prescriptionRecordsList.clear();
+            return;
+        }
+
+        // Create new async task
+        currentPrescriptionTask = CompletableFuture.runAsync(() -> {
+            try {
+                // Check if task was cancelled before starting
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
+
+                List<Prescription> prescriptions = prescriptionService.getPrescriptionByCustomer_id(customer.getId()).getData();
+
+                // Check if task was cancelled before updating UI
+                if (!Thread.currentThread().isInterrupted() && !currentPrescriptionTask.isCancelled()) {
+                    Platform.runLater(() -> {
+                        prescriptionRecordsList.clear();
+
+                        prescriptionRecordsList.addAll(prescriptions);
+
+
+                        System.out.println("✅ Loaded " + prescriptions.size() + " prescriptions for customer: " + customer.getFullName());
+                    });
+                }
+            } catch (Exception e) {
+                if (!Thread.currentThread().isInterrupted() && !currentPrescriptionTask.isCancelled()) {
+                    Platform.runLater(() -> {
+                        prescriptionRecordsList.clear();
+                        System.err.println("❌ Exception loading prescriptions: " + e.getMessage());
+                    });
+                }
+            }
+        });
+    }
+
 
     @FXML
     private void applyFilters(ActionEvent event) {
@@ -151,7 +261,7 @@ public class CustomerHubController implements Initializable {
             customers -> {
                 customerRecordsList.clear();
                 customerRecordsList.addAll(customers);
-                customerListView.setItems(customerRecordsList);
+                setCurrentListCustomer();
             },
             error -> {
                 System.err.println("❌ Error searching customers: " + error);
@@ -247,7 +357,10 @@ public class CustomerHubController implements Initializable {
             stage.centerOnScreen();
             stage.showAndWait();
             Customer updatedPatient = controller.getCurCustomer();
-            updateCustomerRecord(updatedPatient);
+            if(updatedPatient != null){
+                updateCustomerRecord(updatedPatient);
+            }
+
 
         } catch (IOException e) {
             System.err.println("Error opening Add Customer dialog: " + e.getMessage());
@@ -263,6 +376,8 @@ public class CustomerHubController implements Initializable {
 
                 System.out.println("✅ Customer created successfully: " + createdCustomer.getFullName());
                 Platform.runLater(() -> {
+                    customerRecordsList.add(createdCustomer);
+                    setCurrentListCustomer();
 
                 });
             },
@@ -307,12 +422,11 @@ public class CustomerHubController implements Initializable {
                 return;
             }
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
-
             Stage stage = new Stage();
             stage.setTitle("Đơn khám bệnh nhân");
             stage.setScene(new Scene(loader.load()));
             PrescriptionEditorController prescriptionEditorController = loader.getController();
-            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()));
+            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()), null);
             stage.centerOnScreen();
             stage.showAndWait();
         } catch (IOException e) {
@@ -321,6 +435,10 @@ public class CustomerHubController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleEditPrescription(){
+
+    }
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -329,5 +447,11 @@ public class CustomerHubController implements Initializable {
         alert.showAndWait();
     }
 
+    // Cleanup khi controller bị destroy
+    public void cleanup() {
+        if (currentPrescriptionTask != null && !currentPrescriptionTask.isDone()) {
+            currentPrescriptionTask.cancel(true);
+        }
+    }
 
 }

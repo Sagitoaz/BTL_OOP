@@ -1,6 +1,5 @@
 package org.example.oop.Control.PatientAndPrescription;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,8 +8,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Services.CustomerRecordService;
-import org.miniboot.app.domain.models.Customer;
+import org.example.oop.Services.PatientAndPrescription.CustomerRecordService;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.net.URL;
 import java.time.LocalDate;

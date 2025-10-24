@@ -20,10 +20,13 @@ import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentItemRepository;
 import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentRepository;
 import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentStatusLogRepository;
 import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
+import org.miniboot.app.controllers.PatientAndPrescription.PrescriptionController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
 import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLCustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLPrescription;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PrescriptionRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -52,6 +55,7 @@ public class ServerMain {
         PaymentStatusLogRepository paymentStatusRepo = new PostgreSQLPaymentStatusLogRepository();
 
         CustomerRecordRepository customerRecordRepo = new PostgreSQLCustomerRecordRepository();
+        PrescriptionRepository prescriptionRepository = new PostgreSQLPrescription();
         
         System.out.println("✅ Repositories initialized");
 
@@ -72,6 +76,7 @@ public class ServerMain {
         // Stock Movement
         PostgreSQLStockMovmentRepository stockMovementRepo = new PostgreSQLStockMovmentRepository();
         StockMovementController smc = new StockMovementController(stockMovementRepo);
+        PrescriptionController pc = new PrescriptionController(prescriptionRepository);
 
         // Tạo router và mount controllers
         Router router = new Router();
@@ -91,6 +96,7 @@ public class ServerMain {
         // 🔽 ADD: Mount PaymentItem routes
         PaymentItemController.mount(router, pic);
 
+        PrescriptionController.mount(router, pc);
         // mount các controller
         AuthController.mount(router);
         CustomerRecordController.mount(router, crc);

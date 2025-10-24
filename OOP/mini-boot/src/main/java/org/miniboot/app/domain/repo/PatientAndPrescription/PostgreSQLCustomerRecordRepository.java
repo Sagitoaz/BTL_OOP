@@ -2,11 +2,10 @@ package org.miniboot.app.domain.repo.PatientAndPrescription;
 
 import org.miniboot.app.Service.CustomerSearchCriteria;
 import org.miniboot.app.Service.mappers.CustomerAndPrescription.CustomerMapper;
-import org.miniboot.app.auth.PasswordService;
 import org.miniboot.app.config.DatabaseConfig;
 import org.miniboot.app.controllers.UserController;
-import org.miniboot.app.domain.models.Customer;
-import org.miniboot.app.util.CustomerConfig;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
         customer.setCreatedAt(now);
         if(customer.getUsername() == null){
             customer.setUsername(customer.getPhone());
-            String hashedPassword = UserController.hashPassword(CustomerConfig.DEFAULT_PASSWORD);
+            String hashedPassword = UserController.hashPassword(CustomerAndPrescriptionConfig.DEFAULT_PASSWORD);
             customer.setPassword(hashedPassword);
         }
 
@@ -131,7 +130,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
                 customer.setCreatedAt(now);
                 if(customer.getUsername() == null){
                     customer.setUsername(customer.getPhone());
-                    String hashedPassword = UserController.hashPassword(CustomerConfig.DEFAULT_PASSWORD);
+                    String hashedPassword = UserController.hashPassword(CustomerAndPrescriptionConfig.DEFAULT_PASSWORD);
                     customer.setPassword(hashedPassword);
                 }
                 pstmt.setString(1, customer.getUsername());
@@ -178,7 +177,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             return null;
 
         }
-        System.out.println("OK");
+
         return customers;
     }
     public List<Customer> findByFilterAll(CustomerSearchCriteria criteria) {
