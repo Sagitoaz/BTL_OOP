@@ -12,6 +12,7 @@ module org.example.oop {
     requires transitive mini.boot;
     requires javafx.base;
     requires java.net.http;
+    requires jdk.compiler;
 
     opens org.example.oop.View to javafx.fxml;
 

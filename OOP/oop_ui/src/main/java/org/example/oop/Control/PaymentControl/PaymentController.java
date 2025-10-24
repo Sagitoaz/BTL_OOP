@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.oop.Model.Receipt;
+import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Service.HttpPaymentStatusLogService;
 import org.miniboot.app.domain.models.Payment.*;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class PaymentController implements Initializable {
@@ -41,16 +43,40 @@ public class PaymentController implements Initializable {
     private Button btnConfirm;
     @FXML
     private Button btnConfirmAndPrint;
+
     private Payment currentPayment;
     private List<PaymentItem> currentItems;
 
+    // <-- Khai báo các service
+    private HttpPaymentService paymentService;
+    private HttpPaymentStatusLogService statusLogService;
+    private HttpPaymentItemService itemService;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        // <-- Khởi tạo các service
+        paymentService = new HttpPaymentService();
+        statusLogService = new HttpPaymentStatusLogService();
+        itemService = new HttpPaymentItemService();
+
         setupPaymentMethods();
         setupEventHandlers();
         setupListeners();
         handleReset();
     }
+
+    // ========================================================
+    // ✅ HÀM MỚI: Dùng để nhận dữ liệu từ InvoiceController
+    // ========================================================
+    public void initData(String paymentId) {
+        txtInvoiceId.setText(paymentId);
+        handleLoadInvoice(); // Tự động tải hóa đơn
+
+        // Vô hiệu hóa việc sửa mã HĐ vì nó đã được truyền vào
+        txtInvoiceId.setEditable(false);
+        btnLoadInvoice.setDisable(true);
+    }
+    // ========================================================
 
     private void setupPaymentMethods() {
         cbMethod.setItems(FXCollections.observableArrayList(PaymentMethod.values()));
@@ -81,21 +107,24 @@ public class PaymentController implements Initializable {
     }
 
     private void handleLoadInvoice() {
-        String invoiceId = txtInvoiceId.getText().trim();
-        if (invoiceId.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập mã hóa đơn");
+        String invoiceIdStr = txtInvoiceId.getText().trim(); // <-- Đây là ID
+        if (invoiceIdStr.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập mã hóa đơn (ID)");
             return;
         }
 
         try {
-            int id = Integer.parseInt(invoiceId.replace("HD", ""));
-            currentPayment = (new HttpPaymentService()).getPaymentById(id);
+            int id = Integer.parseInt(invoiceIdStr); // <-- Chuyển ID sang int
+
+            // <-- Dùng service đã khởi tạo
+            currentPayment = paymentService.getPaymentById(id);
             if (currentPayment == null) {
-                showAlert(Alert.AlertType.ERROR, "Không tìm thấy", "Không tìm thấy hóa đơn với mã " + invoiceId);
+                showAlert(Alert.AlertType.ERROR, "Không tìm thấy", "Không tìm thấy hóa đơn với ID " + id);
                 return;
             }
 
-            PaymentStatus status = (new HttpPaymentStatusLogService()).getCurrentStatusById(currentPayment.getId()).getStatus();
+            // <-- Dùng service đã khởi tạo
+            PaymentStatus status = statusLogService.getCurrentStatusById(currentPayment.getId()).getStatus();
 
             // Kiểm tra trạng thái thanh toán
             if (status == PaymentStatus.PAID) {
@@ -108,17 +137,17 @@ public class PaymentController implements Initializable {
                 return;
             } else if (status != PaymentStatus.PENDING) {
                 showAlert(Alert.AlertType.WARNING, "Không thể thanh toán",
-                        "Hóa đơn này không ở trạng thái chờ thanh toán");
+                        "Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
                 handleReset();
                 return;
             }
 
-            // Chỉ load thông tin chi tiết nếu hóa đơn đang ở trạng thái PENDING
-//            currentItems = itemRepository.findByPaymentId(id);
+            // <-- SỬA LỖI: Tải các item để có thể in biên lai
+            currentItems = itemService.getAllPaymentItems(Optional.of(id), Optional.empty());
             updatePaymentDisplay();
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Mã hóa đơn không hợp lệ");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Mã hóa đơn (ID) không hợp lệ");
         }
     }
 
@@ -132,6 +161,10 @@ public class PaymentController implements Initializable {
         cbMethod.getSelectionModel().clearSelection();
         currentPayment = null;
         currentItems = null;
+
+        // <-- Kích hoạt lại các nút phòng trường hợp bị initData vô hiệu hóa
+        txtInvoiceId.setEditable(true);
+        btnLoadInvoice.setDisable(false);
         txtInvoiceId.requestFocus();
     }
 
@@ -161,9 +194,11 @@ public class PaymentController implements Initializable {
             currentPayment.setAmountPaid(amountPaid);
             currentPayment.setNote(txtNote.getText());
 
-//            paymentRepository.update(currentPayment);
+            // TODO: Bạn cần một hàm service.update(currentPayment) ở đây
+            // paymentService.update(currentPayment);
 
-            (new HttpPaymentStatusLogService()).updatePaymentStatus(new PaymentStatusLog(
+            // <-- Dùng service đã khởi tạo
+            statusLogService.updatePaymentStatus(new PaymentStatusLog(
                     null,
                     currentPayment.getId(),
                     LocalDateTime.now(),
@@ -199,6 +234,8 @@ public class PaymentController implements Initializable {
     }
 
     private void handlePaymentMethodChange(PaymentMethod method) {
+        if (currentPayment == null) return; // <-- Thêm kiểm tra
+
         switch (method) {
             case CASH -> {
                 txtAmountPaid.setEditable(true);
@@ -209,7 +246,6 @@ public class PaymentController implements Initializable {
                 txtAmountPaid.setText(String.valueOf(currentPayment.getGrandTotal()));
                 txtAmountPaid.setEditable(false);
             }
-            // nếu có MIXED, tuỳ nghiệp vụ bạn thêm logic ở đây
         }
         calculateChange();
     }
@@ -219,7 +255,7 @@ public class PaymentController implements Initializable {
         txtAmountDue.setText(String.format("%,d", currentPayment.getGrandTotal()));
         txtAmountPaid.clear();
         txtChange.clear();
-        cbMethod.getSelectionModel().clearSelection();
+        cbMethod.setValue(PaymentMethod.CASH); // <-- Đặt giá trị mặc định
         txtNote.clear();
     }
 
@@ -228,7 +264,7 @@ public class PaymentController implements Initializable {
             String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
             Receipt receipt = new Receipt(receiptNumber,
                     currentPayment,
-                    currentItems);
+                    currentItems); // <-- currentItems đã được tải ở handleLoadInvoice
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Receipt.fxml"));
             Scene scene = new Scene(loader.load());

@@ -37,4 +37,5 @@ public class Receipt {
     public List<PaymentItem> getItems() {
         return items;
     }
+
 }

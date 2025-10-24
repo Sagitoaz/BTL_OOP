@@ -109,11 +109,11 @@ public class ReceiptController implements Initializable {
 
         // Hiển thị thông tin thanh toán
         lblTotal.setText(String.format("%,d", payment.getGrandTotal()));
-        lblAmountPaid.setText(String.format("%,d", payment.getAmountPaid().intValue()));
+        lblAmountPaid.setText(String.format("%,d", payment.getAmountPaid()));
 
         // Tính tiền thừa
         Integer change = payment.getAmountPaid() - payment.getGrandTotal();
-        lblChange.setText(String.format("%,d", change.intValue()));
+        lblChange.setText(String.format("%,d", change));
     }
 
     private String formatDateTime(LocalDateTime dateTime) {

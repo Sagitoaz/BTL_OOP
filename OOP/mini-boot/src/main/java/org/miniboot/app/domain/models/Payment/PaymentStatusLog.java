@@ -11,6 +11,9 @@ public class PaymentStatusLog {
     private LocalDateTime changedAt;
     private PaymentStatus status;
 
+    public PaymentStatusLog() {
+    }
+
     public PaymentStatusLog(Integer id, int paymentId, LocalDateTime changedAt, PaymentStatus status) {
         this.id = id;
         this.paymentId = paymentId;
@@ -27,12 +30,24 @@ public class PaymentStatusLog {
         return status;
     }
 
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
     public LocalDateTime getChangedAt() {
         return changedAt;
     }
 
+    public void setChangedAt(LocalDateTime changedAt) {
+        this.changedAt = changedAt;
+    }
+
     public int getPaymentId() {
         return paymentId;
+    }
+
+    public void setPaymentId(int paymentId) {
+        this.paymentId = paymentId;
     }
 
     @Override
