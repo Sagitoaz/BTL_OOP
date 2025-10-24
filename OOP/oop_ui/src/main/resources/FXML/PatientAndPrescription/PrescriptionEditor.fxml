@@ -194,8 +194,8 @@
                 </TitledPane>
                 <HBox alignment="CENTER_RIGHT" spacing="15.0">
                     <children>
-                        <Button prefWidth="100" text="Hủy" />
-                        <Button prefWidth="150" text="Lưu Đơn Khám" />
+                        <Button onAction="#handleCancel" prefWidth="100" text="Hủy" />
+                        <Button onAction="#handleSavePrescription" prefWidth="150" text="Lưu Đơn Khám" />
                         <Button prefWidth="180" text="Lưu &amp; In Đơn Kính" />
                     </children>
                 </HBox>

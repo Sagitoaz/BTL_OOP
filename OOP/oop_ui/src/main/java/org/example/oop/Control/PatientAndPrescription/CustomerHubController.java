@@ -375,12 +375,11 @@ public class CustomerHubController implements Initializable {
                 return;
             }
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
-
             Stage stage = new Stage();
             stage.setTitle("Đơn khám bệnh nhân");
             stage.setScene(new Scene(loader.load()));
             PrescriptionEditorController prescriptionEditorController = loader.getController();
-            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()));
+            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()), null);
             stage.centerOnScreen();
             stage.showAndWait();
         } catch (IOException e) {
