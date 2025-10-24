@@ -8,7 +8,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Services.PatientAndPrescription.CustomerRecordService;
+import org.example.oop.Service.CustomerRecordService;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.net.URL;

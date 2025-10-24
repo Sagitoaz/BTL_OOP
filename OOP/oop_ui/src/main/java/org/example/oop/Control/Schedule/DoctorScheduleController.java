@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
 import org.example.oop.Control.SessionStorage;
-import org.example.oop.Services.HttpAppointmentService;
+import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;

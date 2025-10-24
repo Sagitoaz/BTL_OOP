@@ -1,4 +1,4 @@
-package org.example.oop.Services.PatientAndPrescription;
+package org.example.oop.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

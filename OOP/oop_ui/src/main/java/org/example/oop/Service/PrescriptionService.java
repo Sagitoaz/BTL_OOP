@@ -1,4 +1,4 @@
-package org.example.oop.Services.PatientAndPrescription;
+package org.example.oop.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;

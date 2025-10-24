@@ -7,8 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-import org.example.oop.Services.CustomerRecordService;
-import org.miniboot.app.domain.models.Customer;
+import javafx.scene.control.*;
+import org.example.oop.Service.CustomerRecordService;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -18,28 +19,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Services.PatientAndPrescription.CustomerRecordService;
-import org.example.oop.Services.PatientAndPrescription.PrescriptionService;
-import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.example.oop.Service.PrescriptionService;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController implements Initializable {

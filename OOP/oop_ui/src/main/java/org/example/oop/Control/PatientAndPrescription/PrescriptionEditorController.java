@@ -5,9 +5,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import javafx.stage.Stage;
-import org.example.oop.Services.PatientAndPrescription.PrescriptionService;
+import org.example.oop.Service.PrescriptionService;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
-import org.w3c.dom.Text;
 
 public class PrescriptionEditorController implements Initializable {
 

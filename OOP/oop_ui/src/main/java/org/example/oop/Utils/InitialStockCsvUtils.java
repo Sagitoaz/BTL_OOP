@@ -1,5 +1,7 @@
 package org.example.oop.Utils;
 
+import org.miniboot.app.domain.models.Inventory.InitialStockLine;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,7 +12,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.example.oop.Model.Inventory.InitialStockLine;
 
 /**
  * Utility class for CSV operations related to Initial Stock
@@ -112,7 +113,7 @@ public class InitialStockCsvUtils {
 
           // RefId (column 5) - optional
           if (parts.length > 5) {
-               stockLine.setRefid(parts[5].trim());
+               stockLine.setRefId(parts[5].trim());
           }
 
           // Red (column 6) - optional

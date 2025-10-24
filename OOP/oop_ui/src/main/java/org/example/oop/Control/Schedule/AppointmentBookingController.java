@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.example.oop.Services.CustomerRecordService;
-import org.example.oop.Services.HttpAppointmentService;
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.AppointmentType;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.models.TimeSlot;
 
