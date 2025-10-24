@@ -3,10 +3,8 @@ package org.example.oop.Control.Schedule;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.example.oop.Services.CustomerRecordService;
 import org.example.oop.Services.HttpAppointmentService;
@@ -57,7 +55,7 @@ public class AppointmentBookingController implements Initializable {
     private ObservableList<Appointment> doctorAgenda;
 
     // Cache customer names để hiển thị trong Doctor Agenda
-    private Map<Integer, String> customerNameCache = new java.util.HashMap<>();
+    private Map<Integer, String> customerNameCache = new HashMap<>();
 
     // Selected data
     private Customer selectedPatient;
@@ -727,9 +725,9 @@ public class AppointmentBookingController implements Initializable {
     // Load customer names cho các appointments và cache lại
     private void loadCustomerNamesForAppointments(List<Appointment> appointments) {
         // Lấy danh sách unique customer IDs
-        java.util.Set<Integer> customerIds = appointments.stream()
+        Set<Integer> customerIds = appointments.stream()
             .map(Appointment::getCustomerId)
-            .collect(java.util.stream.Collectors.toSet());
+            .collect(Collectors.toSet());
         
         // Load all customers một lần
         Task<Void> task = new Task<>() {

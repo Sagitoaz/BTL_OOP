@@ -46,17 +46,17 @@ import javafx.scene.layout.VBox;
  */
 public class CalendarController implements Initializable {
     
-    // ==================== SERVICES ====================
+    // SERVICES
     private HttpAppointmentService appointmentService;
     private HttpDoctorService doctorService;
     
-    // ==================== DATA ====================
+    // DATA
     private List<Doctor> doctorList;
     private List<Appointment> appointmentList;
     private Doctor selectedDoctor;
     private LocalDate currentWeekStart; // Thứ 2 của tuần hiện tại
     
-    // ==================== CONSTANTS ====================
+    // CONSTANTS
     private static final LocalTime START_TIME = LocalTime.of(8, 0);
     private static final LocalTime END_TIME = LocalTime.of(20, 0);
     private static final int SLOT_DURATION = 30; // 30 phút
@@ -64,12 +64,10 @@ public class CalendarController implements Initializable {
     public static final int TOTAL_HOURS = 12; // 8:00-20:00 = 12 giờ
     private static final int GRID_HEIGHT = TOTAL_HOURS * PIXELS_PER_HOUR; // 720px
     
-    // ==================== FXML CONTROLS ====================
+    // FXML CONTROLS
     @FXML private GridPane calendarGrid;
     @FXML private VBox timeLabelColumn;
     @FXML private AnchorPane appointmentPane;
-    
-    // Controls cần thêm vào FXML
     @FXML private ComboBox<String> doctorComboBox;
     @FXML private DatePicker weekDatePicker;
     @FXML private Button prevWeekBtn;
@@ -77,7 +75,7 @@ public class CalendarController implements Initializable {
     @FXML private Button todayBtn;
     @FXML private Label weekRangeLabel;
     
-    // ==================== INITIALIZATION ====================
+    // INITIALIZATION
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -128,9 +126,7 @@ public class CalendarController implements Initializable {
             });
         }
     }
-    
-    // ==================== SETUP UI ====================
-    
+
     private void setupTimeLabels() {
         timeLabelColumn.getChildren().clear();
         
@@ -173,9 +169,7 @@ public class CalendarController implements Initializable {
             }
         }
     }
-    
-    // ==================== LOAD DATA ====================
-    
+
     private void loadDoctors() {
         Task<List<Doctor>> task = new Task<>() {
             @Override
@@ -247,9 +241,7 @@ public class CalendarController implements Initializable {
         
         new Thread(task).start();
     }
-    
-    // ==================== RENDER APPOINTMENTS ====================
-    
+
     private void renderAppointments() {
         // Clear existing appointments
         appointmentPane.getChildren().clear();
@@ -339,9 +331,7 @@ public class CalendarController implements Initializable {
                 return baseStyle + "-fx-background-color: #BDBDBD;";
         }
     }
-    
-    // ==================== NAVIGATION ====================
-    
+
     @FXML
     private void onPrevWeek() {
         currentWeekStart = currentWeekStart.minusWeeks(1);
@@ -453,8 +443,6 @@ public class CalendarController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
-    // ==================== HELPER METHODS ====================
     
     private void showError(String title, String message) {
         Platform.runLater(() -> {

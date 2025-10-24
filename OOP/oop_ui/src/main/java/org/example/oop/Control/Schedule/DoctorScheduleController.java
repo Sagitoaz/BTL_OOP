@@ -1,7 +1,11 @@
 package org.example.oop.Control.Schedule;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +23,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
+import org.example.oop.Control.SessionStorage;
 import org.example.oop.Services.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
@@ -33,6 +38,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -76,7 +82,7 @@ public class DoctorScheduleController implements Initializable {
     private LocalDate selectedDate;
     private LocalDate weekStart; // Ngày đầu tuần (Monday) cho Week View
     private boolean isDayView = true; // true = Day View, false = Week View
-    private boolean isAdmin = true; // Role: true = Admin (edit), false = Doctor (view only)
+    private boolean isAdmin = false; // Role: true = Admin (edit), false = Doctor (view only) - will be set from session
 
     // CONSTANTS
     private static final LocalTime START_TIME = LocalTime.of(8, 0);   // 8:00 AM
@@ -176,7 +182,7 @@ public class DoctorScheduleController implements Initializable {
         timeLabelsBox.setPadding(new Insets(0, 8, 0, 0));
         
         // Tính tổng chiều cao (8:00 - 17:00 = 9 giờ = 540px)
-        int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
+        int totalHours = (int) Duration.between(START_TIME, END_TIME).toHours();
         double totalHeight = totalHours * PIXELS_PER_HOUR;
         timeLabelsBox.setPrefHeight(totalHeight);
         timeLabelsBox.setMinHeight(totalHeight);
@@ -197,8 +203,23 @@ public class DoctorScheduleController implements Initializable {
         }
     }
     private void setupPermissions() {
-        // TODO: Lấy role từ session/logged user
-        // isAdmin = SessionManager.getCurrentUser().getRole().equals("ADMIN");
+        // Get role từ session user
+        try {
+            String userRole = SessionStorage.getCurrentUserRole();
+            
+            if (userRole != null) {
+                // Check if user is ADMIN or EMPLOYEE (EMPLOYEE includes doctors/nurses with edit rights)
+                isAdmin = userRole.equalsIgnoreCase("ADMIN") || userRole.equalsIgnoreCase("EMPLOYEE");
+                System.out.println("🔐 User role: " + userRole + " | Can edit: " + isAdmin);
+            } else {
+                // Nếu không có session, mặc định là view-only
+                isAdmin = false;
+                System.out.println("⚠️ No session found, permission set to view-only");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error getting user role: " + e.getMessage());
+            isAdmin = false; // Fallback to view-only nếu lỗi
+        }
         
         boolean canEdit = isAdmin;
         
@@ -405,7 +426,7 @@ public class DoctorScheduleController implements Initializable {
 
     private void renderDayView() {
         // Tính chiều cao tổng (8:00 - 17:00 = 9 giờ = 540px)
-        int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
+        int totalHours = (int) Duration.between(START_TIME, END_TIME).toHours();
         double totalHeight = totalHours * PIXELS_PER_HOUR;
 
         schedulePane.setPrefHeight(totalHeight);
@@ -432,7 +453,7 @@ public class DoctorScheduleController implements Initializable {
         // Week view: 7 cột (Thứ 2 - CN)
         LocalDate startOfWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        int totalHours = (int) java.time.Duration.between(START_TIME, END_TIME).toHours();
+        int totalHours = (int) Duration.between(START_TIME, END_TIME).toHours();
         double totalHeight = totalHours * PIXELS_PER_HOUR;
         schedulePane.setPrefHeight(totalHeight);
         schedulePane.setMinHeight(totalHeight);
@@ -534,7 +555,7 @@ public class DoctorScheduleController implements Initializable {
     private int countOverlappingAppointments(Appointment apt, double xStart, double startY, double endY) {
         int count = 0;
         
-        for (javafx.scene.Node node : schedulePane.getChildren()) {
+        for (Node node : schedulePane.getChildren()) {
             if (node instanceof VBox && node.getUserData() instanceof Integer) {
                 int existingId = (int) node.getUserData();
                 
@@ -561,7 +582,7 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private double calculateYPosition(LocalTime time) {
-        long minutesFromStart = java.time.Duration.between(START_TIME, time).toMinutes();
+        long minutesFromStart = Duration.between(START_TIME, time).toMinutes();
         return (minutesFromStart / 60.0) * PIXELS_PER_HOUR;
     }
 
@@ -793,14 +814,215 @@ public class DoctorScheduleController implements Initializable {
 
     @FXML
     private void onSave(ActionEvent event) {
-        // TODO: Lưu thay đổi vào database
-        showInfo("Thông báo", "Đã lưu lịch làm việc");
+        if (currentDoctor == null) {
+            showWarning("Không thể lưu", "Vui lòng chọn bác sĩ trước");
+            return;
+        }
+        
+        if (!isAdmin) {
+            showWarning("Không có quyền", "Bạn không có quyền chỉnh sửa lịch làm việc");
+            return;
+        }
+        
+        System.out.println("💾 Saving working schedule for Doctor #" + currentDoctor.getId());
+        
+        // Collect working days from checkboxes
+        Set<DayOfWeek> workingDays = new HashSet<>();
+        if (mondayChk != null && mondayChk.isSelected()) workingDays.add(DayOfWeek.MONDAY);
+        if (tuesdayChk != null && tuesdayChk.isSelected()) workingDays.add(DayOfWeek.TUESDAY);
+        if (wednesdayChk != null && wednesdayChk.isSelected()) workingDays.add(DayOfWeek.WEDNESDAY);
+        if (thursdayChk != null && thursdayChk.isSelected()) workingDays.add(DayOfWeek.THURSDAY);
+        if (fridayChk != null && fridayChk.isSelected()) workingDays.add(DayOfWeek.FRIDAY);
+        if (saturdayChk != null && saturdayChk.isSelected()) workingDays.add(DayOfWeek.SATURDAY);
+        if (sundayChk != null && sundayChk.isSelected()) workingDays.add(DayOfWeek.SUNDAY);
+        
+        // Collect shifts from checkboxes
+        Set<String> shifts = new HashSet<>();
+        if (morningShiftChk != null && morningShiftChk.isSelected()) shifts.add("MORNING");
+        if (afternoonShiftChk != null && afternoonShiftChk.isSelected()) shifts.add("AFTERNOON");
+        if (eveningShiftChk != null && eveningShiftChk.isSelected()) shifts.add("EVENING");
+        
+        // Validate at least one working day
+        if (workingDays.isEmpty()) {
+            showWarning("Lưu thất bại", "Vui lòng chọn ít nhất một ngày làm việc");
+            return;
+        }
+        
+        // Validate at least one shift
+        if (shifts.isEmpty()) {
+            showWarning("Lưu thất bại", "Vui lòng chọn ít nhất một ca làm việc");
+            return;
+        }
+        
+        // Create/update working schedule
+        WorkingSchedule schedule = doctorSchedules.getOrDefault(currentDoctor.getId(), new WorkingSchedule());
+        schedule.setWorkingDays(workingDays);
+        schedule.setShifts(shifts);
+        doctorSchedules.put(currentDoctor.getId(), schedule);
+        
+        // Log saved data
+        System.out.println("✅ Working days: " + workingDays.stream()
+            .map(d -> d.toString().substring(0, 3))
+            .collect(Collectors.joining(", ")));
+        System.out.println("✅ Shifts: " + String.join(", ", shifts));
+        
+        // TODO: Gọi API backend để lưu vào database khi có endpoint
+        // doctorService.saveWorkingSchedule(currentDoctor.getId(), schedule);
+        
+        showInfo("Lưu thành công", 
+            "Đã lưu lịch làm việc của BS. " + currentDoctor.getFullName() + "\n" +
+            "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
+            "Ca làm: " + shifts.size() + " ca/ngày");
     }
 
     @FXML
     private void onExportPdf(ActionEvent event) {
-        // TODO: Xuất PDF lịch làm việc
-        showInfo("Thông báo", "Chức năng xuất PDF đang phát triển");
+        if (currentDoctor == null) {
+            showWarning("Không thể xuất PDF", "Vui lòng chọn bác sĩ trước");
+            return;
+        }
+        
+        System.out.println("📄 Exporting schedule to PDF for Doctor #" + currentDoctor.getId());
+        
+        try {
+            // Prepare file name with timestamp
+            String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String fileName = String.format("Schedule_%s_%s.txt", 
+                currentDoctor.getFullName().replace(" ", "_"), 
+                timestamp);
+            
+            // Build schedule content
+            StringBuilder content = new StringBuilder();
+            content.append("=".repeat(60)).append("\n");
+            content.append("         LỊCH LÀM VIỆC BÁC SĨ\n");
+            content.append("=".repeat(60)).append("\n\n");
+            
+            content.append("Bác sĩ: ").append(currentDoctor.getFullName()).append("\n");
+            content.append("Mã bác sĩ: #").append(currentDoctor.getId()).append("\n");
+            if (currentDoctor.getLicenseNo() != null && !currentDoctor.getLicenseNo().isEmpty()) {
+                content.append("Giấy phép hành nghề: ").append(currentDoctor.getLicenseNo()).append("\n");
+            }
+            content.append("Ngày xuất: ").append(LocalDate.now().format(
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append("\n\n");
+            
+            content.append("-".repeat(60)).append("\n");
+            content.append("THỜI GIAN LÀM VIỆC:\n");
+            content.append("-".repeat(60)).append("\n");
+            
+            // Get working schedule
+            WorkingSchedule schedule = doctorSchedules.get(currentDoctor.getId());
+            if (schedule != null && !schedule.workingDays.isEmpty()) {
+                content.append("Ngày làm việc:\n");
+                List<DayOfWeek> sortedDays = schedule.workingDays.stream()
+                    .sorted(Comparator.comparingInt(DayOfWeek::getValue))
+                    .collect(Collectors.toList());
+                
+                for (DayOfWeek day : sortedDays) {
+                    String dayName = getDayNameVietnamese(day);
+                    content.append("  • ").append(dayName).append("\n");
+                }
+                content.append("\n");
+                
+                if (!schedule.shifts.isEmpty()) {
+                    content.append("Ca làm việc:\n");
+                    for (String shift : schedule.shifts) {
+                        String shiftName = getShiftNameVietnamese(shift);
+                        content.append("  • ").append(shiftName).append("\n");
+                    }
+                }
+            } else {
+                content.append("Chưa có lịch làm việc được thiết lập.\n");
+            }
+            
+            content.append("\n").append("-".repeat(60)).append("\n");
+            content.append("LỊCH HẸN TRONG TUẦN:\n");
+            content.append("-".repeat(60)).append("\n");
+            
+            // Get appointments for current week
+            if (appointmentList != null && !appointmentList.isEmpty()) {
+                List<Appointment> doctorAppointments = appointmentList.stream()
+                    .filter(apt -> apt.getDoctorId() == currentDoctor.getId())
+                    .sorted(Comparator.comparing(Appointment::getStartTime))
+                    .collect(Collectors.toList());
+                
+                if (!doctorAppointments.isEmpty()) {
+                    for (Appointment apt : doctorAppointments) {
+                        content.append(String.format("• %s %s - %s | Bệnh nhân #%d | %s\n",
+                            apt.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            apt.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                            apt.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                            apt.getCustomerId(),
+                            apt.getStatus().toString()));
+                    }
+                } else {
+                    content.append("Không có lịch hẹn nào trong tuần này.\n");
+                }
+            } else {
+                content.append("Không có lịch hẹn nào.\n");
+            }
+            
+            content.append("\n").append("=".repeat(60)).append("\n");
+            content.append("Hết\n");
+            content.append("=".repeat(60)).append("\n");
+            
+            // Write to file (Desktop location)
+            String desktopPath = System.getProperty("user.home") + "\\Desktop\\";
+            java.io.File desktopDir = new java.io.File(desktopPath);
+            
+            // Create Desktop directory if not exists (shouldn't be needed but just in case)
+            if (!desktopDir.exists()) {
+                desktopDir.mkdirs();
+            }
+            
+            String fullPath = desktopPath + fileName;
+            java.nio.file.Path filePath = Paths.get(fullPath);
+            
+            // Write with explicit charset UTF-8
+            Files.write(filePath, content.toString().getBytes(StandardCharsets.UTF_8));
+            
+            System.out.println("✅ Schedule exported to: " + fullPath);
+            showInfo("Xuất file thành công", 
+                "Đã xuất lịch làm việc ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+            
+            // TODO: Nếu cần PDF thực sự, dùng iText library:
+            // com.itextpdf:itextpdf:5.5.13.3
+            // hoặc Apache PDFBox
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error exporting schedule: " + e.getMessage());
+            e.printStackTrace();
+            
+            String errorMsg = "Không thể xuất lịch làm việc:\n\n" + 
+                            "Lỗi: " + e.getClass().getSimpleName() + "\n" +
+                            "Chi tiết: " + e.getMessage() + "\n\n" +
+                            "Đường dẫn dự kiến: " + System.getProperty("user.home") + "\\Desktop\\" + 
+                            currentDoctor.getFullName().replace(" ", "_") + "_*.txt";
+            
+            showError("Lỗi xuất file", errorMsg);
+        }
+    }
+    
+    // Helper methods for Vietnamese names
+    private String getDayNameVietnamese(DayOfWeek day) {
+        switch (day) {
+            case MONDAY: return "Thứ Hai";
+            case TUESDAY: return "Thứ Ba";
+            case WEDNESDAY: return "Thứ Tư";
+            case THURSDAY: return "Thứ Năm";
+            case FRIDAY: return "Thứ Sáu";
+            case SATURDAY: return "Thứ Bảy";
+            case SUNDAY: return "Chủ Nhật";
+            default: return day.toString();
+        }
+    }
+    
+    private String getShiftNameVietnamese(String shift) {
+        switch (shift.toUpperCase()) {
+            case "MORNING": return "Ca sáng (8:00 - 12:00)";
+            case "AFTERNOON": return "Ca chiều (13:00 - 17:00)";
+            case "EVENING": return "Ca tối (18:00 - 21:00)";
+            default: return shift;
+        }
     }
 
     // UNDO/REDO

@@ -1,14 +1,12 @@
 package org.example.oop.Control.Schedule;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import org.example.oop.Services.CustomerRecordService;
 import org.example.oop.Services.HttpAppointmentService;
@@ -58,7 +56,7 @@ public class AppointmentManagementController implements Initializable {
     private Appointment originalAppointment; // Để revert changes
     
     // Customer name cache để hiển thị trong table
-    private Map<Integer, String> customerNameCache = new java.util.HashMap<>();
+    private Map<Integer, String> customerNameCache = new HashMap<>();
 
     // Pagination
     private int currentPage = 1;
@@ -379,7 +377,7 @@ public class AppointmentManagementController implements Initializable {
                 if (controllerObj != null) {
                     try {
                         // Dùng reflection để gọi getSelectedCustomer()
-                        java.lang.reflect.Method getSelectedMethod = 
+                        Method getSelectedMethod =
                             controllerObj.getClass().getMethod("getSelectedCustomer");
                         Customer selectedCustomer = (Customer) getSelectedMethod.invoke(controllerObj);
                         
@@ -545,13 +543,13 @@ public class AppointmentManagementController implements Initializable {
             customerName,
             doctorName,
             selectedAppointment.getStartTime().toLocalDate().format(
-                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                DateTimeFormatter.ofPattern("dd/MM/yyyy")
             ),
             selectedAppointment.getStartTime().toLocalTime().format(
-                java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                DateTimeFormatter.ofPattern("HH:mm")
             ),
             selectedAppointment.getEndTime().toLocalTime().format(
-                java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                DateTimeFormatter.ofPattern("HH:mm")
             ),
             selectedAppointment.getStatus().toString(),
             selectedAppointment.getNotes() != null ? selectedAppointment.getNotes() : "(Không có)"
@@ -582,7 +580,7 @@ public class AppointmentManagementController implements Initializable {
             
             // Add to timeline
             String timestamp = LocalDateTime.now().format(
-                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
             );
             timelineList.getItems().add("📧 Đã gửi email lúc: " + timestamp);
             
@@ -609,7 +607,7 @@ public class AppointmentManagementController implements Initializable {
         // Append to existing notes với timestamp
         String currentNotes = selectedAppointment.getNotes();
         String timestamp = LocalDateTime.now().format(
-            java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
         );
         
         String newNotes;
@@ -1005,7 +1003,7 @@ public class AppointmentManagementController implements Initializable {
      */
     private void loadCustomerNamesForAppointments(List<Appointment> appointments) {
         // Collect unique customer IDs chưa có trong cache
-        Set<Integer> customerIdsToLoad = new java.util.HashSet<>();
+        Set<Integer> customerIdsToLoad = new HashSet<>();
         for (Appointment apt : appointments) {
             int customerId = apt.getCustomerId();
             if (!customerNameCache.containsKey(customerId)) {
