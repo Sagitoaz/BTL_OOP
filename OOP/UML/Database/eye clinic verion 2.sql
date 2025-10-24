@@ -62,6 +62,7 @@ Table Appointments {
 Table Spectacle_Prescriptions {
   id int [pk, increment]
   appointment_id int [not null, unique, ref: > Appointments.id]
+  customer_id int [not null]
   created_at date
   updated_at date
   chief_complaint text
