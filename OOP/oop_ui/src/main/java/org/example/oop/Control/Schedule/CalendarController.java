@@ -32,10 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 
 /**
  * CalendarController - Hiển thị lịch tuần dạng calendar view
@@ -383,6 +380,51 @@ public class CalendarController implements Initializable {
                 "Tuần: " + currentWeekStart.format(formatter) + " - " + weekEnd.format(formatter)
             );
         }
+    }
+    
+    /**
+     * Public method để pre-select doctor và jump to specific week
+     * Called from AppointmentBookingController khi navigate to Calendar
+     * 
+     * @param doctor Doctor to select (có thể null)
+     * @param date Date to jump to
+     */
+    public void selectDoctorAndDate(Doctor doctor, LocalDate date) {
+        System.out.println("🗓️ CalendarController.selectDoctorAndDate() called");
+        System.out.println("   Doctor: " + (doctor != null ? doctor.getFullName() : "null"));
+        System.out.println("   Date: " + date);
+        
+        // 1. Select doctor nếu có
+        if (doctor != null && doctorList != null) {
+            for (int i = 0; i < doctorList.size(); i++) {
+                if (doctorList.get(i).getId() == doctor.getId()) {
+                    selectedDoctor = doctor;
+                    
+                    if (doctorComboBox != null) {
+                        doctorComboBox.getSelectionModel().select(i);
+                        System.out.println("✅ Doctor selected in ComboBox: " + doctor.getFullName());
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // 2. Jump to week containing date
+        if (date != null) {
+            currentWeekStart = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            
+            if (weekDatePicker != null) {
+                weekDatePicker.setValue(date);
+                System.out.println("✅ DatePicker updated to: " + date);
+            }
+            
+            updateWeekRangeLabel();
+        }
+        
+        // 3. Reload appointments with new selection
+        loadAppointments();
+        
+        System.out.println("✅ Calendar pre-selection completed");
     }
     
     // ==================== APPOINTMENT DETAIL ====================

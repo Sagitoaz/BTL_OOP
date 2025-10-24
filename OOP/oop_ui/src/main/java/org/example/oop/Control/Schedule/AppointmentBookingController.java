@@ -18,6 +18,7 @@ import org.miniboot.app.domain.models.Customer;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.models.TimeSlot;
 
+import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,6 +42,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class AppointmentBookingController implements Initializable {
     // Service để gọi API
@@ -62,6 +64,10 @@ public class AppointmentBookingController implements Initializable {
     private Doctor selectedDoctor;
     private LocalDate selectedDate;
     private TimeSlot selectedSlot;
+    
+    // Patient search optimization
+    private Task<List<Customer>> searchTask;
+    private PauseTransition searchDebounce;
 
     // FXML Controls
     @FXML private TextField patientQuickSearch;
@@ -140,7 +146,7 @@ public class AppointmentBookingController implements Initializable {
             return;
         }
 
-        // ✅ FIX: Load cả agenda và slots nếu đã chọn ngày
+        // Load cả agenda và slots nếu đã chọn ngày
         if (selectedDate != null) {
             loadDoctorAgenda(selectedDoctor.getId(), selectedDate);
             loadAvailableSlots(selectedDoctor.getId(), selectedDate);
@@ -154,7 +160,7 @@ public class AppointmentBookingController implements Initializable {
             return;
         }
 
-        // ✅ FIX: Load cả agenda và slots nếu đã chọn bác sĩ
+        // Load cả agenda và slots nếu đã chọn bác sĩ
         if (selectedDoctor != null) {
             loadDoctorAgenda(selectedDoctor.getId(), selectedDate);
             loadAvailableSlots(selectedDoctor.getId(), selectedDate);
@@ -170,20 +176,29 @@ public class AppointmentBookingController implements Initializable {
             Parent root = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("Thêm bệnh nhân mới");
+            stage.setTitle("Quản lý bệnh nhân");
             stage.setScene(new Scene(root, 1000, 700));
             stage.initModality(Modality.APPLICATION_MODAL);
+            
+            // Callback khi đóng dialog - reload patient table
+            stage.setOnHidden(e -> {
+                System.out.println("✅ CustomerHub closed, reloading patient list...");
+                
+                // Reload toàn bộ danh sách bệnh nhân (clear search)
+                searchPatientsAsync("");
+                
+                // Clear search field để hiển thị tất cả
+                txtPatientKeyword.clear();
+                
+                System.out.println("✅ Patient list reloaded");
+            });
+            
             stage.showAndWait();
 
-            // Reload patient list
-            String keyword = txtPatientKeyword.getText();
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                searchPatientsAsync(keyword.trim());
-            }
-
         } catch (Exception e) {
-            System.err.println("❌ Error opening new patient form: " + e.getMessage());
-            showAlert("Lỗi mở form thêm bệnh nhân: " + e.getMessage());
+            System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Không thể mở màn hình quản lý bệnh nhân.\n" + e.getMessage());
         }
     }
 
@@ -319,7 +334,51 @@ public class AppointmentBookingController implements Initializable {
 
     @FXML
     private void handleVisitTypeSelection(ActionEvent event) {
-        // TODO: Implement visit type selection logic
+        String selectedType = cboVisitType.getValue();
+        
+        if (selectedType == null || selectedType.isEmpty()) {
+            return;
+        }
+        
+        // Update UI và notes prompt based on visit type
+        switch (selectedType) {
+            case "VISIT":
+                // Khám bệnh - 30 minutes
+                lblStatus.setText("Loại: Khám bệnh | Thời gian dự kiến: 30 phút");
+                txtNotes.setPromptText("Ghi chú triệu chứng, lý do khám bệnh...");
+                txtNotes.setStyle(""); // Reset style
+                break;
+                
+            case "FOLLOWUP":
+                // Tái khám - 20 minutes
+                lblStatus.setText("Loại: Tái khám | Thời gian dự kiến: 20 phút");
+                txtNotes.setPromptText("Ghi chú kết quả khám trước, cần theo dõi gì...");
+                txtNotes.setStyle(""); // Reset style
+                break;
+                
+            case "CHECKUP":
+                // Khám sức khỏe - 45 minutes
+                lblStatus.setText("Loại: Khám sức khỏe | Thời gian dự kiến: 45 phút");
+                txtNotes.setPromptText("Ghi chú các chỉ số cần kiểm tra...");
+                txtNotes.setStyle(""); // Reset style
+                break;
+                
+            case "SURGERY":
+                // Phẫu thuật/Thủ thuật - urgent
+                lblStatus.setText("Loại: Phẫu thuật/Thủ thuật | Cần sắp xếp đặc biệt");
+                txtNotes.setPromptText("Mô tả loại phẫu thuật, chuẩn bị cần thiết...");
+                txtNotes.setStyle("-fx-border-color: #ff6b6b; -fx-border-width: 2;");
+                
+                // Show warning alert
+                showAlert("Lưu ý: Phẫu thuật/Thủ thuật cần sắp xếp lịch đặc biệt.\n" +
+                         "Vui lòng liên hệ phòng điều phối để xác nhận chi tiết.");
+                break;
+                
+            default:
+                lblStatus.setText("Đã chọn loại: " + selectedType);
+        }
+        
+        System.out.println("✅ Visit type selected: " + selectedType);
     }
 
     @FXML
@@ -367,7 +426,45 @@ public class AppointmentBookingController implements Initializable {
 
     @FXML
     private void onOpenCalendar(ActionEvent event) {
-        // TODO: Implement open calendar logic
+        try {
+            System.out.println("🗓️ Opening Calendar view...");
+            
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/FXML/Schedule/Calendar.fxml")
+            );
+            Parent root = loader.load();
+            
+            // Get CalendarController
+            CalendarController calendarController = loader.getController();
+            
+            // Pre-select current doctor & date nếu có
+            if (selectedDoctor != null && selectedDate != null) {
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName() + 
+                                 ", date: " + selectedDate);
+                
+                // Pass data to calendar
+                calendarController.selectDoctorAndDate(selectedDoctor, selectedDate);
+            } else if (selectedDoctor != null) {
+                // Chỉ có doctor, date = today
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName());
+                calendarController.selectDoctorAndDate(selectedDoctor, LocalDate.now());
+            } else if (selectedDate != null) {
+                // Chỉ có date, không có doctor
+                System.out.println("✅ Jumping to date: " + selectedDate);
+                calendarController.selectDoctorAndDate(null, selectedDate);
+            }
+            
+            // Replace scene
+            Scene scene = btnOpenCalendar.getScene();
+            scene.setRoot(root);
+            
+            System.out.println("✅ Navigated to Calendar view");
+
+        } catch (Exception e) {
+            System.err.println("❌ Error opening calendar: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Không thể mở lịch tuần.\n" + e.getMessage());
+        }
     }
 
     private void setupListeners() {
@@ -405,9 +502,9 @@ public class AppointmentBookingController implements Initializable {
         TableColumn<TimeSlot, String> durationCol = 
             (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(2);
         TableColumn<TimeSlot, String> roomCol = 
-            (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(3); // ✅ Phòng
+            (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(3);
         TableColumn<TimeSlot, String> statusCol = 
-            (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(4); // ✅ Fix: index 4
+            (TableColumn<TimeSlot, String>) tblAvailableSlots.getColumns().get(4);
         
         // Set cellValueFactory
         startCol.setCellValueFactory(cellData ->
@@ -419,11 +516,10 @@ public class AppointmentBookingController implements Initializable {
         durationCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getDuration() + " phút"));
 
-        // ✅ Cột Phòng - tạm thời để trống
+        // Cột Phòng - tạm thời để trống
         roomCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty("")); // Hoặc "N/A"
-
-        // ✅ Cột Trạng thái - hiện đúng
+        
         statusCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().isAvailable() ? "Trống" : "Đã đặt"));
 
@@ -480,35 +576,89 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void setupPatientSearch() {
-        txtPatientKeyword.textProperty().addListener((obs, oldText, newText) -> {
-            if (newText != null && newText.trim().length() >= 2) {
-                searchPatientsAsync(newText.trim());
-            } else if (newText == null || newText.trim().isEmpty()) {
-                patientList.clear();
+        // Initialize debounce timer (500ms)
+        searchDebounce = new PauseTransition(Duration.millis(500));
+        searchDebounce.setOnFinished(event -> {
+            String keyword = txtPatientKeyword.getText();
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                searchPatientsAsync(keyword.trim());
             }
         });
+        
+        // Real-time search với debounce
+        txtPatientKeyword.textProperty().addListener((obs, oldText, newText) -> {
+            // Reset debounce timer mỗi lần user gõ
+            searchDebounce.stop();
+            
+            if (newText == null || newText.trim().isEmpty()) {
+                // Clear results nếu search field empty
+                patientList.clear();
+                lblStatus.setText("Nhập tên/SĐT để tìm bệnh nhân");
+            } else if (newText.trim().length() >= 2) {
+                // Chỉ search khi nhập >= 2 ký tự
+                lblStatus.setText("Đang tìm kiếm...");
+                searchDebounce.playFromStart();
+            } else {
+                lblStatus.setText("Nhập ít nhất 2 ký tự để tìm kiếm");
+            }
+        });
+        
+        // Load all patients initially
+        System.out.println("✅ Loading all patients initially...");
+        searchPatientsAsync("");
     }
 
     private void searchPatientsAsync(String keyword) {
-        Task<List<Customer>> task = new Task<>() {
+        // Cancel previous search task if still running
+        if (searchTask != null && searchTask.isRunning()) {
+            searchTask.cancel();
+            System.out.println("🚫 Cancelled previous search task");
+        }
+        
+        searchTask = new Task<>() {
             @Override
             protected List<Customer> call() {
-                var response = customerService.searchCustomers(keyword, null, null, null);
-                return response.isSuccess() ? response.getData() : new ArrayList<>();
+                System.out.println("🔍 Searching patients with keyword: '" + keyword + "'");
+                
+                if (keyword == null || keyword.trim().isEmpty()) {
+                    // Load all customers
+                    var response = customerService.getAllCustomers();
+                    return response.isSuccess() ? response.getData() : new ArrayList<>();
+                } else {
+                    // Search by keyword
+                    var response = customerService.searchCustomers(keyword, null, null, null);
+                    return response.isSuccess() ? response.getData() : new ArrayList<>();
+                }
             }
         };
 
-        task.setOnSucceeded(e -> {
-            List<Customer> results = task.getValue();
-            patientList.setAll(results);
-            lblStatus.setText("Tìm thấy " + results.size() + " bệnh nhân");
+        searchTask.setOnSucceeded(e -> {
+            if (!searchTask.isCancelled()) {
+                List<Customer> results = searchTask.getValue();
+                patientList.setAll(results);
+                
+                String message = keyword.isEmpty() 
+                    ? "Tổng số: " + results.size() + " bệnh nhân" 
+                    : "Tìm thấy " + results.size() + " bệnh nhân";
+                    
+                lblStatus.setText(message);
+                System.out.println("✅ " + message);
+            }
         });
 
-        task.setOnFailed(e -> {
-            lblStatus.setText("Lỗi tìm kiếm: " + task.getException().getMessage());
+        searchTask.setOnFailed(e -> {
+            if (!searchTask.isCancelled()) {
+                String errorMsg = "Lỗi tìm kiếm: " + searchTask.getException().getMessage();
+                lblStatus.setText(errorMsg);
+                System.err.println("❌ " + errorMsg);
+            }
+        });
+        
+        searchTask.setOnCancelled(e -> {
+            System.out.println("⚠️ Search task was cancelled");
         });
 
-        new Thread(task).start();
+        new Thread(searchTask).start();
     }
 
     private void loadDoctors() {
