@@ -50,48 +50,6 @@ public class GsonProvider {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME; // ✅ THÊM
 
         return new GsonBuilder()
-                // LocalDateTime adapter
-                .registerTypeAdapter(LocalDateTime.class, 
-                        (JsonDeserializer<LocalDateTime>) (json, type, context) -> 
-                                LocalDateTime.parse(json.getAsString(), dateTimeFormatter))
-                .registerTypeAdapter(LocalDateTime.class,
-                        (JsonSerializer<LocalDateTime>) (src, type, context) -> 
-                                context.serialize(src.format(dateTimeFormatter)))
-
-                // LocalDate adapter
-                .registerTypeAdapter(LocalDate.class,
-                        (JsonDeserializer<LocalDate>) (json, type, context) ->
-                                LocalDate.parse(json.getAsString(), dateFormatter))
-                .registerTypeAdapter(LocalDate.class,
-                        (JsonSerializer<LocalDate>) (src, type, context) ->
-                                context.serialize(src.format(dateFormatter)))
-
-                // ✅ LocalTime adapter - FIX CHO TIMESLOT
-                .registerTypeAdapter(LocalTime.class,
-                        (JsonDeserializer<LocalTime>) (json, type, context) ->
-                                LocalTime.parse(json.getAsString(), timeFormatter))
-                .registerTypeAdapter(LocalTime.class,
-                        (JsonSerializer<LocalTime>) (src, type, context) ->
-                                context.serialize(src.format(timeFormatter)))
-
-                // AppointmentType ENUM adapter
-                .registerTypeAdapter(AppointmentType.class,
-                        (JsonDeserializer<AppointmentType>) (json, type, context) ->
-                                AppointmentType.fromValue(json.getAsString()))
-                .registerTypeAdapter(AppointmentType.class,
-                        (JsonSerializer<AppointmentType>) (src, type, context) ->
-                                context.serialize(src.getValue()))
-                
-                // AppointmentStatus ENUM adapter
-                .registerTypeAdapter(AppointmentStatus.class,
-                        (JsonDeserializer<AppointmentStatus>) (json, type, context) ->
-                                AppointmentStatus.fromValue(json.getAsString()))
-                .registerTypeAdapter(AppointmentStatus.class,
-                        (JsonSerializer<AppointmentStatus>) (src, type, context) ->
-                                context.serialize(src.getValue()))
-                
-
-        return new GsonBuilder()
                 // ✅ QUAN TRỌNG: Gson phải đọc cả snake_case và camelCase
                 // Backend trả về: price_retail, qty_on_hand, price_cost, created_at...
                 // Nhưng Java field names là: priceRetail, qtyOnHand, priceCost, createdAt...
@@ -143,6 +101,47 @@ public class GsonProvider {
                 .registerTypeAdapter(Category.class,
                         (JsonSerializer<Category>) (src, type, context) -> context
                                 .serialize(src.getCode()))
+
+                // LocalDateTime adapter
+                .registerTypeAdapter(LocalDateTime.class,
+                        (JsonDeserializer<LocalDateTime>) (json, type, context) ->
+                                LocalDateTime.parse(json.getAsString(), dateTimeFormatter))
+                .registerTypeAdapter(LocalDateTime.class,
+                        (JsonSerializer<LocalDateTime>) (src, type, context) ->
+                                context.serialize(src.format(dateTimeFormatter)))
+
+                // LocalDate adapter
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonDeserializer<LocalDate>) (json, type, context) ->
+                                LocalDate.parse(json.getAsString(), dateFormatter))
+                .registerTypeAdapter(LocalDate.class,
+                        (JsonSerializer<LocalDate>) (src, type, context) ->
+                                context.serialize(src.format(dateFormatter)))
+
+                // ✅ LocalTime adapter - FIX CHO TIMESLOT
+                .registerTypeAdapter(LocalTime.class,
+                        (JsonDeserializer<LocalTime>) (json, type, context) ->
+                                LocalTime.parse(json.getAsString(), timeFormatter))
+                .registerTypeAdapter(LocalTime.class,
+                        (JsonSerializer<LocalTime>) (src, type, context) ->
+                                context.serialize(src.format(timeFormatter)))
+
+                // AppointmentType ENUM adapter
+                .registerTypeAdapter(AppointmentType.class,
+                        (JsonDeserializer<AppointmentType>) (json, type, context) ->
+                                AppointmentType.fromValue(json.getAsString()))
+                .registerTypeAdapter(AppointmentType.class,
+                        (JsonSerializer<AppointmentType>) (src, type, context) ->
+                                context.serialize(src.getValue()))
+
+                // AppointmentStatus ENUM adapter
+                .registerTypeAdapter(AppointmentStatus.class,
+                        (JsonDeserializer<AppointmentStatus>) (json, type, context) ->
+                                AppointmentStatus.fromValue(json.getAsString()))
+                .registerTypeAdapter(AppointmentStatus.class,
+                        (JsonSerializer<AppointmentStatus>) (src, type, context) ->
+                                context.serialize(src.getValue()))
+
                 .create();
     }
 }

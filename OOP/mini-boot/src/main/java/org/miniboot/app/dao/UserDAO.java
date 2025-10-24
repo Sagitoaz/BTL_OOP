@@ -1,7 +1,7 @@
 package org.miniboot.app.dao;
 
 import org.miniboot.app.config.DatabaseConfig;
-import org.miniboot.app.domain.models.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.User;
 
 import java.sql.*;

@@ -76,7 +76,7 @@ public class ServerMain {
         // Stock Movement
         PostgreSQLStockMovmentRepository stockMovementRepo = new PostgreSQLStockMovmentRepository();
         StockMovementController smc = new StockMovementController(stockMovementRepo);
-        PrescriptionController pc = new PrescriptionController(prescriptionRepository);
+        PrescriptionController prc = new PrescriptionController(prescriptionRepository);
 
         // Tạo router và mount controllers
         Router router = new Router();
@@ -96,7 +96,7 @@ public class ServerMain {
         // 🔽 ADD: Mount PaymentItem routes
         PaymentItemController.mount(router, pic);
 
-        PrescriptionController.mount(router, pc);
+        PrescriptionController.mount(router, prc);
         // mount các controller
         AuthController.mount(router);
         CustomerRecordController.mount(router, crc);
