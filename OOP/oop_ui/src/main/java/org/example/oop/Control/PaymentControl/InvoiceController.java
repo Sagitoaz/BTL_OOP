@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.oop.Service.*;
+import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
 import org.miniboot.app.domain.models.Payment.Payment;
@@ -209,7 +210,7 @@ public class InvoiceController implements Initializable {
         }
 
         try {
-            Product product = productService.getProductById(Integer.parseInt(sku));
+            Product product = productService.getProductBySku(sku);
             if (product != null) {
                 currentSelectedProduct = product; // Lưu sản phẩm lại
                 txtProductName.setText(product.getName());
@@ -322,7 +323,7 @@ public class InvoiceController implements Initializable {
                 StockMovement movement = new StockMovement();
                 movement.setProductId(item.getProductId());
                 movement.setQty(item.getQty());
-                movement.setMoveType("OUT");
+                movement.setMoveType(MoveType.SALE);
                 movement.setRefTable("payments");
                 movement.setRefId(savedPaymentId);
                 movement.setMovedBy(cashierId);
@@ -374,7 +375,7 @@ public class InvoiceController implements Initializable {
                 // Thêm trạng thái PENDING
                 PaymentStatusLog pendingLog = new PaymentStatusLog();
                 pendingLog.setPaymentId(savedPayment.getId());
-                pendingLog.setStatus(PaymentStatus.valueOf("PENDING"));
+                pendingLog.setStatus(PaymentStatus.PENDING);
                 paymentStatusLogService.updatePaymentStatus(pendingLog);
 
                 // ========================================================
@@ -435,10 +436,10 @@ public class InvoiceController implements Initializable {
         } catch (NumberFormatException ignored) {
         }
 
-        return new Payment(null, txtInvoiceCode.getText(), null /* customerId */, cashierId, issuedAt,
+        return new Payment(0, txtInvoiceCode.getText(), 0 /* customerId */, cashierId, issuedAt,
                 Integer.parseInt(txtSubtotal.getText()), Integer.parseInt(txtDiscountAmount.getText()),
                 Integer.parseInt(txtTaxAmount.getText()), 0, Integer.parseInt(txtGrandTotal.getText()),
-                null, null, txtInvoiceNote.getText(), LocalDateTime.now());
+                null, 0, txtInvoiceNote.getText(), LocalDateTime.now());
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

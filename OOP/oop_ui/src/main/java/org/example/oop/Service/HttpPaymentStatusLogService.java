@@ -2,8 +2,8 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Payment.PaymentStatusLog;
+import org.miniboot.app.util.GsonProvider;
 
 import java.io.IOException;
 import java.net.URI;

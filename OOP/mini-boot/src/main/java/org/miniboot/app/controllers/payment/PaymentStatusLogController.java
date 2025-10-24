@@ -1,5 +1,6 @@
 package org.miniboot.app.controllers.payment;
 
+import com.google.gson.Gson;
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
@@ -7,6 +8,7 @@ import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
+import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
 
 import java.nio.charset.StandardCharsets;
@@ -51,7 +53,10 @@ public class PaymentStatusLogController {
 
         return (HttpRequest req) -> {
             try {
-                SetStatusBody body = Json.fromBytes(req.body, SetStatusBody.class);
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);
+
+                SetStatusBody body = gson.fromJson(jsonBody, SetStatusBody.class);
                 if (body == null || body.paymentId() == null || body.status() == null) {
                     return HttpResponse.of(400, "text/plain; charset=utf-8",
                             AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));

@@ -1,4 +1,4 @@
-package org.example.oop.Utils;
+package org.miniboot.app.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

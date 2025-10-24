@@ -9,6 +9,9 @@ public class PaymentItem {
     private int unitPrice;
     private int totalLine;
 
+    public PaymentItem() {
+    }
+
     public PaymentItem(Integer id, Integer productId, int paymentId, String description, int qty, int unitPrice, int totalLine) {
         this.id = id;
         this.productId = productId;

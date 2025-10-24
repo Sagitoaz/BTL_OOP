@@ -1,5 +1,10 @@
 package org.example.oop.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.util.GsonProvider;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,19 +14,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.example.oop.Utils.GsonProvider;
-import org.miniboot.app.domain.models.Appointment;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 /**
  * HttpAppointmentService - Gọi mini-boot qua HTTP API
- * 
+ * <p>
  * ✅ Dùng cho kiến trúc Client-Server
  * ✅ An toàn hơn (có thể thêm authentication)
  * ✅ Hỗ trợ nhiều client (Web, Mobile, Desktop)
- * 
+ * <p>
  * Yêu cầu: ServerMain phải đang chạy trên http://localhost:8080
  */
 public class HttpAppointmentService {

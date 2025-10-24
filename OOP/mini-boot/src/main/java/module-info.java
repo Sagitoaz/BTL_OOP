@@ -26,7 +26,6 @@ module mini.boot {
     // Opens packages for reflection access (Gson, Jackson serialization)
     opens org.miniboot.app.domain.models to com.google.gson, com.fasterxml.jackson.databind;
     opens org.miniboot.app.domain.models.Inventory to com.google.gson, com.fasterxml.jackson.databind;
-    // hậu thêm vào payment
     opens org.miniboot.app.domain.models.Payment to com.google.gson, com.fasterxml.jackson.databind;
-
+    opens org.miniboot.app.controllers.payment to com.fasterxml.jackson.databind, com.google.gson; // Thêm dòng này để mở cho cả Gson và Jackson
 }
