@@ -99,6 +99,32 @@ public class ApiProductService {
           int responseCode = conn.getResponseCode();
           String responseBody = readResponse(conn);
 
+          switch (responseCode) {
+               case 200: {
+                    Product product = gson.fromJson(responseBody, Product.class);
+                    System.out.println("✅ Found product: " + product.getName());
+                    return product;
+               }
+               case 404:
+                    throw new Exception("Product not found");
+               default:
+                    throw new Exception("Server error: " + responseCode);
+          }
+     }
+
+     public Product getProductBySku(String sku) throws Exception {
+          System.out.println("🔄 Fetching product SKU: " + sku);
+
+          HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products/search?sku=" + sku).toURL()
+                    .openConnection();
+          conn.setRequestMethod("GET");
+          conn.setRequestProperty("Accept", "application/json");
+          conn.setConnectTimeout(CONNECT_TIMEOUT);
+          conn.setReadTimeout(READ_TIMEOUT);
+
+          int responseCode = conn.getResponseCode();
+          String responseBody = readResponse(conn);
+
           if (responseCode == 200) {
                Product product = gson.fromJson(responseBody, Product.class);
                System.out.println("✅ Found product: " + product.getName());
@@ -139,7 +165,7 @@ public class ApiProductService {
                // Check if response body is empty
                if (responseBody == null || responseBody.trim().isEmpty()) {
                     System.out.println("⚠️ Warning: Server returned empty response body");
-                    return null; // Return null thay vì throw exception
+                    return null;
                }
 
                Product created = gson.fromJson(responseBody, Product.class);

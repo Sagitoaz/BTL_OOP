@@ -1,6 +1,5 @@
 package org.miniboot.app.domain.repo.Inventory;
 
-import java.nio.file.OpenOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +9,8 @@ public interface ProductRepository {
      List<Product> findAll();
 
      Optional<Product> findById(int id);
+
+     Optional<Product> findBySku(String sku);
 
      boolean deleteById(int id);
 

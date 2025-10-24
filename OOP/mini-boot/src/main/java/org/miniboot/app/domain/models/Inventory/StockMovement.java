@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -15,33 +16,41 @@ import com.google.gson.annotations.SerializedName;
 public class StockMovement {
     private int id;
 
-    @SerializedName(value = "product_id", alternate = { "productId" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("product_id") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "product_id", alternate = { "productId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private int productId;
 
     private int qty; // >0 nhập, <0 xuất
 
-    @SerializedName(value = "move_type", alternate = { "moveType" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("move_type") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "move_type", alternate = { "moveType" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private MoveType moveType;
 
-    @SerializedName(value = "ref_table", alternate = { "refTable" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("ref_table") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "ref_table", alternate = { "refTable" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
-
-    @SerializedName(value = "ref_id", alternate = { "refId" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("ref_id")
+    @SerializedName(value = "ref_id", alternate = { "refId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private Integer refId; // ID của chứng từ nguồn
 
-    @SerializedName(value = "batch_no", alternate = { "batchNo" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("batch_no") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "batch_no", alternate = { "batchNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String batchNo; // Số lô
 
-    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("expiry_date") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDate expiryDate; // Hạn sử dụng
 
-    @SerializedName(value = "serial_no", alternate = { "serialNo" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("serial_no") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "serial_no", alternate = { "serialNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
 
-    @SerializedName(value = "moved_at", alternate = { "movedAt" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("moved_at") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "moved_at", alternate = { "movedAt" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDateTime movedAt;
 
-    @SerializedName(value = "moved_by", alternate = { "movedBy" }) // ✅ Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("moved_by") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "moved_by", alternate = { "movedBy" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private int movedBy; // ID người thực hiện (int, not String)
 
     private String note = null;
