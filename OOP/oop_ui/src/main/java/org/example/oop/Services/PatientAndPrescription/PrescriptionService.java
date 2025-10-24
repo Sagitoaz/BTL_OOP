@@ -1,7 +1,9 @@
 package org.example.oop.Services.PatientAndPrescription;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.example.oop.Utils.ApiClient;
 import org.example.oop.Utils.ApiResponse;
@@ -108,4 +110,138 @@ public class PrescriptionService {
         }
     }
 
+    // Async methods
+    public void getAllPrescriptionAsync(Consumer<List<Prescription>> onSuccess, Consumer<String> onError){
+        apiClient.getAsync(CustomerAndPrescriptionConfig.GET_PRESCRIPTION_ENDPOINT, response ->{
+            if(response.isSuccess()){
+                try{
+                    String responseData = response.getData();
+                    List<Prescription> prescriptions;
+                    if(responseData == null || responseData.trim().isEmpty() || responseData.equals("null")){
+                        prescriptions = new ArrayList<>();
+                    }
+                    else{
+                        Prescription[] prescriptionsArray = gson.fromJson(responseData, Prescription[].class);
+                        if(prescriptionsArray == null) prescriptions = new ArrayList<>();
+                        else{
+                            prescriptions = Arrays.asList(prescriptionsArray);
+                        }
+                        System.out.println("📋 Loaded " + prescriptions.size() + " prescriptions");
+                        onSuccess.accept(prescriptions);
+
+                    }
+                }
+                catch (Exception e){
+                    System.err.println("❌ JSON parse error in getAllPrescription: " + e.getMessage());
+                    onError.accept("JSON parse error: " + e.getMessage());
+                }
+            }
+            else{
+                onError.accept(response.getErrorMessage());
+            }
+        }, onError);
+    }
+    public void getPrescriptionByCustomer_idAsync(Consumer<List<Prescription>> onSuccess, Consumer<String> onError, int customer_id){
+        String endpoint = CustomerAndPrescriptionConfig.GET_PRESCRIPTION_ENDPOINT+"?customer_id=" + customer_id;
+        apiClient.getAsync(endpoint, response ->{
+            if(response.isSuccess()){
+                try{
+                    String responseData = response.getData();
+                    List<Prescription> prescriptions;
+                    if(responseData == null || responseData.trim().isEmpty() || responseData.equals("null")){
+                        prescriptions = new ArrayList<>();
+                    }
+                    else{
+                        Prescription[] prescriptionsArray = gson.fromJson(responseData, Prescription[].class);
+                        if(prescriptionsArray == null) prescriptions = new ArrayList<>();
+                        else{
+                            prescriptions = Arrays.asList(prescriptionsArray);
+                        }
+                        System.out.println("📋 Loaded " + prescriptions.size() + " prescriptions for customer_id " + customer_id);
+                        onSuccess.accept(prescriptions);
+                    }
+
+                }
+                catch (Exception e){
+                    System.err.println("❌ JSON parse error in getPrescriptionByCustomer_id: " + e.getMessage());
+                    onError.accept("JSON parse error: " + e.getMessage());
+                }
+            }
+            else{
+                onError.accept(response.getErrorMessage());
+            }
+        }, onError);
+    }
+    public void getPrescriptionByAppointment_idAsync(Consumer<List<Prescription>> onSuccess, Consumer<String> onError, int appointment_id) {
+        String endpoint = CustomerAndPrescriptionConfig.GET_PRESCRIPTION_ENDPOINT + "?appointment_id=" + appointment_id;
+        apiClient.getAsync(endpoint, response -> {
+            if (response.isSuccess()) {
+                try {
+                    String responseData = response.getData();
+                    List<Prescription> prescriptions;
+                    if (responseData == null || responseData.trim().isEmpty() || responseData.equals("null")) {
+                        prescriptions = new ArrayList<>();
+                    } else {
+                        Prescription[] prescriptionsArray = gson.fromJson(responseData, Prescription[].class);
+                        if (prescriptionsArray == null) prescriptions = new ArrayList<>();
+                        else {
+                            prescriptions = Arrays.asList(prescriptionsArray);
+                        }
+                        System.out.println("📋 Loaded " + prescriptions.size() + " prescriptions for appointment_id " + appointment_id);
+                        onSuccess.accept(prescriptions);
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("❌ JSON parse error in getPrescriptionByAppointment_id: " + e.getMessage());
+                    onError.accept("JSON parse error: " + e.getMessage());
+                }
+            } else {
+                onError.accept(response.getErrorMessage());
+            }
+        }, onError);
+    }
+    public void createPrescriptionAsync(Consumer<Prescription> onSuccess, Consumer<String> onError, Prescription prescription) {
+        String endpoint = CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT;
+        String jsonBody = gson.toJson(prescription);
+        apiClient.postAsync(endpoint, jsonBody, response ->{
+            if(response.isSuccess()){
+                try{
+                    String responseData = response.getData();
+                    Prescription createdPrescription = gson.fromJson(responseData, Prescription.class);
+                    System.out.println("✅ Created prescription with ID " + createdPrescription.getId());
+                    onSuccess.accept(createdPrescription);
+                }
+                catch (Exception e){
+                    System.err.println("❌ JSON parse error in createPrescription: " + e.getMessage());
+                    onError.accept("JSON parse error: " + e.getMessage());
+                }
+            }
+            else{
+                onError.accept(response.getErrorMessage());
+            }
+        }, onError);
+
+    }
+    public void updatePrescriptionAsync(Consumer<Prescription> onSuccess, Consumer<String> onError, Prescription prescription, int id) {
+        String endpoint = CustomerAndPrescriptionConfig.PUT_CUSTOMER_BY_ID_ENDPOINT + "?id=" +id;
+        String jsonBody = gson.toJson(prescription);
+        apiClient.putAsync(endpoint, jsonBody, response->{
+            if(response.isSuccess()){
+                try{
+                    String responseData = response.getData();
+                    Prescription updatedPrescription = gson.fromJson(responseData, Prescription.class);
+                    System.out.println("✅ Updated prescription with ID " + updatedPrescription.getId());
+                    onSuccess.accept(updatedPrescription);
+                }
+                catch (Exception e){
+                    System.err.println("❌ JSON parse error in updatedPrescription: " + e.getMessage());
+                    onError.accept("JSON parse error: " + e.getMessage());
+                }
+            }
+            else{
+                onError.accept(response.getErrorMessage());
+            }
+        }, onError);
+
+    }
 }
