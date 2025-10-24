@@ -10,15 +10,29 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LoginController {
 
+    private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
+
     @FXML
-    private TextField enterPasswordTextField;
+    private TextField usernameTextField;
+
+    @FXML
+    private PasswordField enterPasswordTextField;
+
+    @FXML
+    private TextField visiblePasswordTextField;
+
+    @FXML
+    private Button togglePasswordButton;
 
     @FXML
     private Hyperlink forgotPassword;
@@ -32,19 +46,61 @@ public class LoginController {
     @FXML
     private Button signUpbutton;
 
+    // Trạng thái hiển thị mật khẩu
+    private boolean isPasswordVisible = false;
+
     @FXML
-    private TextField usernameTextField;
+    public void initialize() {
+        // Đồng bộ nội dung giữa PasswordField và TextField
+        enterPasswordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isPasswordVisible) {
+                visiblePasswordTextField.setText(newValue);
+            }
+        });
+
+        visiblePasswordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (isPasswordVisible) {
+                enterPasswordTextField.setText(newValue);
+            }
+        });
+    }
+
+    /**
+     * Toggle hiển thị/ẩn mật khẩu
+     */
+    @FXML
+    void togglePasswordVisibility(ActionEvent event) {
+        isPasswordVisible = !isPasswordVisible;
+
+        if (isPasswordVisible) {
+            // Hiển thị mật khẩu
+            visiblePasswordTextField.setText(enterPasswordTextField.getText());
+            visiblePasswordTextField.setVisible(true);
+            visiblePasswordTextField.setManaged(true);
+            enterPasswordTextField.setVisible(false);
+            enterPasswordTextField.setManaged(false);
+            togglePasswordButton.setText("🙈"); // Icon mắt đóng
+        } else {
+            // Ẩn mật khẩu
+            enterPasswordTextField.setText(visiblePasswordTextField.getText());
+            enterPasswordTextField.setVisible(true);
+            enterPasswordTextField.setManaged(true);
+            visiblePasswordTextField.setVisible(false);
+            visiblePasswordTextField.setManaged(false);
+            togglePasswordButton.setText("👁"); // Icon mắt mở
+        }
+    }
 
     @FXML
     void ForgotPasswordHyperLinkOnClick(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/hello-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ResetPassword.fxml"));
             Parent root = loader.load();
             Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
             state.setScene(new Scene(root));
             state.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load forgot password view", e);
         }
     }
 
@@ -57,7 +113,7 @@ public class LoginController {
             state.setScene(new Scene(root));
             state.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to load signup view", e);
         }
     }
 
@@ -71,7 +127,10 @@ public class LoginController {
     @FXML
     void LoginButtonOnClick(ActionEvent event) {
         String username = usernameTextField.getText().trim();
-        String password = enterPasswordTextField.getText().trim();
+        // Lấy password từ field đang hiển thị
+        String password = isPasswordVisible ?
+                         visiblePasswordTextField.getText().trim() :
+                         enterPasswordTextField.getText().trim();
 
         // validate input
         String msg = validateInput(username, password);
@@ -99,7 +158,7 @@ public class LoginController {
                 stage.setScene(new Scene(root));
                 stage.show();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Failed to load dashboard view", e);
                 invalidLoginMessage.setText("Error loading dashboard");
             }
         } else {

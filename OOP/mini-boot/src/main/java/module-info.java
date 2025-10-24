@@ -18,6 +18,7 @@ module mini.boot {
     exports org.miniboot.app.http;
     exports org.miniboot.app.router;
     exports org.miniboot.app.util;
+    exports org.miniboot.app.dao;
     exports org.miniboot.app.domain.models.Inventory;
     exports org.miniboot.app.domain.models.Inventory.Enum;
     exports org.miniboot.app.domain.models.Payment;
