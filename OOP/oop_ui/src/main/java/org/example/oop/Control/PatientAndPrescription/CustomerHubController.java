@@ -282,6 +282,10 @@ public class CustomerHubController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleEditPrescription(){
+
+    }
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -289,6 +293,5 @@ public class CustomerHubController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
 
 }
