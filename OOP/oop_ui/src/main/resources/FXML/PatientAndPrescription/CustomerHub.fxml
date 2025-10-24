@@ -215,12 +215,11 @@ Kê đơn">
                                             <columns>
 
 
-                                                <TableColumn prefWidth="120" text="Ngày Khám" />
-                                                <TableColumn prefWidth="200" text="Bác Sĩ" />
+                                                <TableColumn fx:id = "signedAtCollumn" prefWidth="120" text="Ngày Khám" />
+                                                <TableColumn fx:id = "appointmentIdCollumn" prefWidth="200" text="ID Buổi khám" />
 
-
-                                                <TableColumn prefWidth="300" text="Lý Do Khám" />
-                                                <TableColumn prefWidth="300" text="Chẩn Đoán" />
+                                                <TableColumn fx:id = "chiefComplaintCollumn" prefWidth="300" text="Lý Do Khám" />
+                                                <TableColumn fx:id = "diagnosisCollumn" prefWidth="300" text="Chẩn Đoán" />
 
 
                                             </columns>

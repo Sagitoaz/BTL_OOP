@@ -3,7 +3,8 @@ package org.example.oop.Control.PatientAndPrescription;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import org.example.oop.Model.PatientAndPrescription.SpectaclePrescription;
+
+import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import org.w3c.dom.Text;
 
 public class PrescriptionEditorController implements Initializable {
@@ -33,7 +34,7 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private TextField prismOsField;
     @FXML
-    private ComboBox<SpectaclePrescription.Base> baseOsCombo;
+    private ComboBox<Prescription.Base> baseOsCombo;
     @FXML
     private TextField addOsField;
     //--Thong so mat phai
@@ -48,7 +49,7 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private TextField prismOdField;
     @FXML
-    private ComboBox<SpectaclePrescription.Base> baseOdCombo;
+    private ComboBox<Prescription.Base> baseOdCombo;
     @FXML
     private TextField addOdField;
 
@@ -60,7 +61,7 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private TextArea prescriptionNotesArea;
     @FXML
-    private ComboBox<SpectaclePrescription.Lens_Type> lensTypeCombo;
+    private ComboBox<Prescription.Lens_Type> lensTypeCombo;
     @FXML
     private CheckBox arCheck;
     @FXML
@@ -70,7 +71,7 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private CheckBox photochromicCheck;
     @FXML
-    private ComboBox<SpectaclePrescription.Material> materialCombo;
+    private ComboBox<Prescription.Material> materialCombo;
 
     //--Thong tin kham--
     @FXML
@@ -79,12 +80,12 @@ public class PrescriptionEditorController implements Initializable {
     private TextArea planArea;
     @Override
     public void initialize(java.net.URL url, java.util.ResourceBundle resourceBundle) {
-        baseOdCombo.getItems().addAll(SpectaclePrescription.Base.UP, SpectaclePrescription.Base.DOWN, SpectaclePrescription.Base.IN,
-                SpectaclePrescription.Base.OUT, SpectaclePrescription.Base.NONE);
-        baseOsCombo.getItems().addAll(SpectaclePrescription.Base.UP, SpectaclePrescription.Base.DOWN, SpectaclePrescription.Base.IN,
-                SpectaclePrescription.Base.OUT, SpectaclePrescription.Base.NONE);
-        lensTypeCombo.getItems().addAll(SpectaclePrescription.Lens_Type.values());
-        materialCombo.getItems().addAll(SpectaclePrescription.Material.values());
+        baseOdCombo.getItems().addAll(Prescription.Base.UP, Prescription.Base.DOWN, Prescription.Base.IN,
+                Prescription.Base.OUT, Prescription.Base.NONE);
+        baseOsCombo.getItems().addAll(Prescription.Base.UP, Prescription.Base.DOWN, Prescription.Base.IN,
+                Prescription.Base.OUT, Prescription.Base.NONE);
+        lensTypeCombo.getItems().addAll(Prescription.Lens_Type.values());
+        materialCombo.getItems().addAll(Prescription.Material.values());
     }
     public void initData(String patientName, int idPatient){
         patientNameField.setText(patientName);

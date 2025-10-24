@@ -15,8 +15,8 @@ import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 public class PrescriptionService {
     private final ApiClient apiClient;
     private final Gson gson;
-    public PrescriptionService(ApiClient apiClient) {
-        this.apiClient = apiClient;
+    public PrescriptionService() {
+        this.apiClient = ApiClient.getInstance();
         this.gson = GsonProvider.getGson();
     }
 
@@ -47,6 +47,11 @@ public class PrescriptionService {
                 String jsonBody = response.getData();
                 Prescription[] prescriptionsArray = gson.fromJson(jsonBody, Prescription[].class);
                 List<Prescription> prescriptions = Arrays.asList(prescriptionsArray);
+
+                for(int i = 0; i < prescriptions.size(); i++){
+                    System.out.println("Prescription " + i + ": " + prescriptions.get(i));
+                }
+
                 return ApiResponse.success(prescriptions, response.getStatusCode());
             }
             catch (Exception e){
