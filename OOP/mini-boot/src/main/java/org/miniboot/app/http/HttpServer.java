@@ -64,8 +64,8 @@ public class HttpServer {
      * Kích thước pool = max(4, số CPU cores * 2) để tối ưu performance
      * Công thức này cân bằng giữa sử dụng tài nguyên và khả năng xử lý đồng thời
      */
-    private final ExecutorService pool =
-            Executors.newFixedThreadPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 2));
+    private final ExecutorService pool = Executors
+            .newFixedThreadPool(Math.max(4, Runtime.getRuntime().availableProcessors() * 2));
 
     /**
      * Constructor khởi tạo HttpServer
@@ -142,7 +142,8 @@ public class HttpServer {
 
         // Đóng ServerSocket để interrupt accept() call
         try {
-            if (socket != null) socket.close();
+            if (socket != null)
+                socket.close();
         } catch (IOException ignore) {
             // Bỏ qua exceptions khi đóng socket - không quan trọng lúc này
         }
@@ -182,17 +183,28 @@ public class HttpServer {
             // Bước 2: Tạo HTTP response dựa trên request
             HttpResponse response = router.dispatch(request);
 
+            System.out.println("📤 Writing response to client...");
+            System.out
+                    .println("   Response body size: " + (response.body != null ? response.body.length : 0) + " bytes");
+
             // Bước 3: Ghi response ra client
             HttpResponseEncoder.write(out, response);
+
+            System.out.println("✅ Response written successfully");
 
             // Bước 4: Log kết quả xử lý
             logRequest(request, response, startTime);
 
         } catch (IllegalArgumentException | IOException e) {
+            System.err.println("❌ Bad Request / IOException: " + e.getMessage());
             // Lỗi do request không hợp lệ hoặc lỗi I/O → HTTP 400 Bad Request
             handleBadRequestError(out, client);
 
         } catch (Exception e) {
+            System.err.println("❌ CAUGHT EXCEPTION in handleClientRequest:");
+            System.err.println("   Type: " + e.getClass().getName());
+            System.err.println("   Message: " + e.getMessage());
+            e.printStackTrace();
             // Lỗi bất ngờ khác → HTTP 500 Internal Server Error
             handleInternalError(out, client, e);
         } finally {
@@ -315,7 +327,8 @@ public class HttpServer {
      */
     private void handleBadRequestError(OutputStream out, Socket client) {
         try {
-            if (out == null) out = client.getOutputStream();
+            if (out == null)
+                out = client.getOutputStream();
             HttpResponse errorResponse = HttpResponse.of(400, AppConfig.TEXT_UTF_8_TYPE, "bad request".getBytes());
             HttpResponseEncoder.write(out, errorResponse);
         } catch (Exception ignore) {
@@ -332,7 +345,8 @@ public class HttpServer {
      */
     private void handleInternalError(OutputStream out, Socket client, Exception originalException) {
         try {
-            if (out == null) out = client.getOutputStream();
+            if (out == null)
+                out = client.getOutputStream();
             HttpResponse errorResponse = HttpResponse.of(500, AppConfig.TEXT_UTF_8_TYPE, "internal error".getBytes());
             HttpResponseEncoder.write(out, errorResponse);
         } catch (Exception ignore) {
@@ -352,7 +366,8 @@ public class HttpServer {
     private void cleanupConnection(OutputStream out, Socket client) {
         // Flush output stream để đảm bảo dữ liệu được gửi
         try {
-            if (out != null) out.flush();
+            if (out != null)
+                out.flush();
         } catch (Exception ignore) {
         }
 
@@ -395,7 +410,8 @@ public class HttpServer {
     }
 
     // === INNER EXCEPTION CLASSES ===
-    // Các exception classes này được sử dụng để phân loại và xử lý lỗi một cách có cấu trúc
+    // Các exception classes này được sử dụng để phân loại và xử lý lỗi một cách có
+    // cấu trúc
 
     /**
      * Exception cho HTTP 400 Bad Request - request không đúng định dạng

@@ -3,7 +3,11 @@ package org.miniboot.app.domain.models.Inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.miniboot.app.domain.models.Inventory.Enum.MovementType;
+import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Model quản lý các giao dịch xuất nhập kho
@@ -11,17 +15,50 @@ import org.miniboot.app.domain.models.Inventory.Enum.MovementType;
  */
 public class StockMovement {
     private int id;
+
+    @JsonProperty("product_id") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "product_id", alternate = { "productId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private int productId;
+
     private int qty; // >0 nhập, <0 xuất
-    private MovementType moveType;
+
+    @JsonProperty("move_type") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "move_type", alternate = { "moveType" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    private MoveType moveType;
+
+    @JsonProperty("ref_table") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "ref_table", alternate = { "refTable" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
+    @JsonProperty("ref_id")
+    @SerializedName(value = "ref_id", alternate = { "refId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private Integer refId; // ID của chứng từ nguồn
+
+    @JsonProperty("batch_no") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "batch_no", alternate = { "batchNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String batchNo; // Số lô
+
+    @JsonProperty("expiry_date") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDate expiryDate; // Hạn sử dụng
+
+    @JsonProperty("serial_no") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "serial_no", alternate = { "serialNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
+
+    @JsonProperty("moved_at") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "moved_at", alternate = { "movedAt" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDateTime movedAt;
+
+    @JsonProperty("moved_by") // ✅ Jackson: Accept snake_case input
+    @SerializedName(value = "moved_by", alternate = { "movedBy" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
     private int movedBy; // ID người thực hiện (int, not String)
+
     private String note = null;
+
+    // ➕ Thêm field để hiển thị tên sản phẩm (không lưu vào DB)
+    @com.fasterxml.jackson.annotation.JsonProperty("product_name") // ✅ Jackson serialize
+    @SerializedName("product_name") // ✅ Gson compatibility
+    private String productName; // ⚠️ KHÔNG dùng transient - cần serialize to JSON!
 
     // Constructors
     public StockMovement() {
@@ -33,7 +70,7 @@ public class StockMovement {
         this.id = id;
         this.productId = productId;
         this.qty = qty;
-        this.moveType = MovementType.valueOf(moveType);
+        this.moveType = MoveType.valueOf(moveType);
         this.refTable = refTable;
         this.refId = refId;
         this.batchNo = batchNo;
@@ -73,10 +110,11 @@ public class StockMovement {
     }
 
     public void setMoveType(String moveType) {
-        this.moveType = MovementType.valueOf(moveType);
+        // Convert to uppercase to handle both "sale" and "SALE" from database
+        this.moveType = moveType != null ? MoveType.valueOf(moveType.toUpperCase()) : null;
     }
 
-    public void setMoveType(MovementType moveType) {
+    public void setMoveType(MoveType moveType) {
         this.moveType = moveType;
     }
 
@@ -136,7 +174,17 @@ public class StockMovement {
         this.movedBy = movedBy;
     }
 
+    // ➕ Getter/Setter cho productName
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
     // Utility methods
+    @JsonIgnore
     public boolean isValid() {
         if (productId <= 0) {
             return false;
@@ -156,6 +204,7 @@ public class StockMovement {
     /**
      * Kiểm tra xem giao dịch có phải là nhập kho không (qty > 0)
      */
+    @JsonIgnore
     public boolean isInMovement() {
         return qty > 0;
     }
@@ -163,6 +212,7 @@ public class StockMovement {
     /**
      * Kiểm tra xem giao dịch có phải là xuất kho không (qty < 0)
      */
+    @JsonIgnore
     public boolean isOutMovement() {
         return qty < 0;
     }
@@ -170,6 +220,7 @@ public class StockMovement {
     /**
      * Lấy giá trị tuyệt đối của qty
      */
+    @JsonIgnore
     public int getAbsoluteQty() {
         return Math.abs(qty);
     }
@@ -216,7 +267,7 @@ public class StockMovement {
         m.id = Integer.parseInt(p[i++]);
         m.productId = Integer.parseInt(p[i++]);
         m.qty = Integer.parseInt(p[i++]);
-        m.moveType = MovementType.valueOf(p[i++]);
+        m.moveType = MoveType.valueOf(p[i++]);
 
         m.refTable = emptyToNull(p[i++]);
         String refIdStr = p[i++];
@@ -258,11 +309,7 @@ public class StockMovement {
                 ", serialNo='" + serialNo + '\'' +
                 ", movedAt=" + movedAt +
                 ", movedBy=" + movedBy +
+                ", note='" + note + '\'' +
                 '}';
-    }
-
-    public Object getCategory() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCategory'");
     }
 }

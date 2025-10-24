@@ -14,35 +14,33 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="750.0"
-            prefWidth="1200.0"
-            xmlns="http://javafx.com/javafx/22.0.1"
-            fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
+<BorderPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
     <top>
         <VBox spacing="8.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
             </padding>
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Label style="-fx-font-size:20px; -fx-font-weight:bold;" text="HÓA ĐƠN BÁN HÀNG"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnNewInvoice" mnemonicParsing="false" text="Mới"/>
-                        <Button fx:id="btnSaveInvoice" mnemonicParsing="false" text="Lưu"/>
-                        <Button fx:id="btnPayInvoice" mnemonicParsing="false" text="Thanh toán"/>
+                        <Label style="-fx-font-size:20px; -fx-font-weight:bold;" text="HÓA ĐƠN BÁN HÀNG" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnNewInvoice" mnemonicParsing="false" text="Mới" />
+                        <Button fx:id="btnSaveInvoice" mnemonicParsing="false" text="Lưu" />
+                        <Button fx:id="btnPayInvoice" mnemonicParsing="false" text="Thanh toán" />
                     </children>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Label text="Mã hóa đơn:"/>
-                        <TextField fx:id="txtInvoiceCode" prefWidth="160" promptText="HD..."/>
-                        <Label text="Ngày:"/>
-                        <DatePicker fx:id="dpInvoiceDate"/>
-                        <Label text="Thu ngân:"/>
-                        <TextField fx:id="txtCashier" prefWidth="200" promptText="ID nhân viên"/>
+                        <Label text="Mã hóa đơn:" />
+                        <TextField fx:id="txtInvoiceCode" prefWidth="160" promptText="HD..." />
+                        <Label text="Ngày:" />
+                        <DatePicker fx:id="dpInvoiceDate" />
+                        <Label text="Thu ngân:" />
+                        <TextField fx:id="txtCashier" prefWidth="200" promptText="ID nhân viên" />
                     </children>
                 </HBox>
             </children>
@@ -51,43 +49,85 @@
     <left>
         <VBox prefWidth="320.0" spacing="10.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets left="10.0" right="10.0" top="10.0"/>
+                <Insets left="10.0" right="10.0" top="10.0" />
             </padding>
             <children>
                 <TitledPane expanded="true" text="THÔNG TIN KHÁCH HÀNG">
                     <content>
                         <GridPane hgap="10" vgap="8">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                             <columnConstraints>
-                                <ColumnConstraints percentWidth="30.0"/>
-                                <ColumnConstraints percentWidth="70.0"/>
+                                <ColumnConstraints percentWidth="30.0" />
+                                <ColumnConstraints percentWidth="70.0" />
                             </columnConstraints>
                             <children>
-                                <Label text="Họ tên:"/>
-                                <TextField fx:id="txtCustomerName" GridPane.columnIndex="1"/>
-                                <Label text="SĐT:" GridPane.rowIndex="1"/>
-                                <TextField fx:id="txtCustomerPhone" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <Label text="SĐT:" />
+                                <HBox spacing="8.0" GridPane.columnIndex="1">
+                                    <children>
+                                        <TextField fx:id="txtCustomerPhone" promptText="Nhập SĐT..." HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="btnFindCustomer" mnemonicParsing="false" prefHeight="25.0" prefWidth="55.0" text="Tìm" />
+                                    </children>
+                                </HBox>
+                                <Label text="Họ tên:" GridPane.rowIndex="1" />
+                                <TextField fx:id="txtCustomerName" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label text="Tuổi:" GridPane.rowIndex="2" />
+                                <TextField fx:id="txtCustomerAge" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label text="Giới tính:" GridPane.rowIndex="3" />
+                                <TextField fx:id="txtCustomerGender" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label text="Địa chỉ:" GridPane.rowIndex="4" />
+                                <TextField fx:id="txtCustomerAddress" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                             </children>
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
                         </GridPane>
                     </content>
                 </TitledPane>
                 <TitledPane expanded="true" text="THÊM MẶT HÀNG">
                     <content>
-                        <VBox spacing="8.0">
+                        <VBox spacing="10.0">
                             <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </padding>
                             <children>
-                                <TextField fx:id="txtSearchProduct" promptText="Tìm sản phẩm theo mã/tên"/>
                                 <HBox alignment="CENTER_LEFT" spacing="8.0">
                                     <children>
-                                        <Label text="Số lượng:"/>
-                                        <TextField fx:id="txtQuantity" prefWidth="60.0" text="1"/>
-                                        <Region HBox.hgrow="ALWAYS"/>
-                                        <Button fx:id="btnAddItem" onAction="#handleAddItem" mnemonicParsing="false"
-                                                text="Thêm"/>
+                                        <Label text="Mã SKU:" />
+                                        <TextField fx:id="txtSkuSearch" promptText="Nhập SKU..." HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="btnFindProduct" mnemonicParsing="false" text="Tìm SP" />
+                                    </children>
+                                </HBox>
+                                <GridPane hgap="10" vgap="8">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="30.0" />
+                                        <ColumnConstraints percentWidth="70.0" />
+                                    </columnConstraints>
+                                    <children>
+                                        <Label text="Tên SP:" />
+                                        <TextField fx:id="txtProductName" editable="false" GridPane.columnIndex="1" />
+                                        <Label text="Kiểu:" GridPane.rowIndex="1" />
+                                        <TextField fx:id="txtProductType" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Đơn giá:" GridPane.rowIndex="2" />
+                                        <TextField fx:id="txtProductPrice" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    </children>
+                           <rowConstraints>
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
+                           </rowConstraints>
+                                </GridPane>
+                                <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                    <children>
+                                        <Label text="Số lượng:" />
+                                        <TextField fx:id="txtQuantity" prefWidth="60.0" text="1" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="btnAddItem" mnemonicParsing="false" onAction="#handleAddItem" text="Thêm" />
                                     </children>
                                 </HBox>
                             </children>
@@ -100,20 +140,20 @@
     <center>
         <VBox spacing="8.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets right="10.0" top="10.0"/>
+                <Insets right="10.0" top="10.0" />
             </padding>
             <children>
                 <TableView fx:id="tableItems" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colName" prefWidth="350.0" text="Tên hàng"/>
-                        <TableColumn fx:id="colQuantity" prefWidth="70.0" text="SL"/>
-                        <TableColumn fx:id="colUnitPrice" prefWidth="120.0" text="Đơn giá"/>
-                        <TableColumn fx:id="colTotal" prefWidth="150.0" text="Thành tiền"/>
+                        <TableColumn fx:id="colName" prefWidth="350.0" text="Tên hàng" />
+                        <TableColumn fx:id="colQuantity" prefWidth="70.0" text="SL" />
+                        <TableColumn fx:id="colUnitPrice" prefWidth="120.0" text="Đơn giá" />
+                        <TableColumn fx:id="colTotal" prefWidth="150.0" text="Thành tiền" />
                     </columns>
                 </TableView>
                 <HBox alignment="CENTER_RIGHT">
                     <children>
-                        <Button fx:id="btnRemoveRow" mnemonicParsing="false" text="Xóa dòng"/>
+                        <Button fx:id="btnRemoveRow" mnemonicParsing="false" text="Xóa dòng" />
                     </children>
                 </HBox>
             </children>
@@ -122,34 +162,40 @@
     <bottom>
         <GridPane hgap="12" vgap="8" BorderPane.alignment="CENTER">
             <padding>
-                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
             </padding>
             <columnConstraints>
-                <ColumnConstraints percentWidth="60.0"/>
-                <ColumnConstraints percentWidth="40.0"/>
+                <ColumnConstraints percentWidth="60.0" />
+                <ColumnConstraints percentWidth="40.0" />
             </columnConstraints>
             <children>
-                <TextArea fx:id="txtInvoiceNote" prefRowCount="3" promptText="Ghi chú cho hóa đơn..."/>
+                <TextArea fx:id="txtInvoiceNote" prefRowCount="3" promptText="Ghi chú cho hóa đơn..." />
                 <GridPane hgap="8" vgap="6" GridPane.columnIndex="1">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" prefWidth="120.0"/>
-                        <ColumnConstraints hgrow="SOMETIMES"/>
+                        <ColumnConstraints halignment="RIGHT" prefWidth="120.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" />
                     </columnConstraints>
                     <children>
-                        <Label text="Tổng tiền hàng:"/>
-                        <TextField fx:id="txtSubtotal" editable="false" promptText="0" GridPane.columnIndex="1"/>
-                        <Label text="Giảm giá:" GridPane.rowIndex="1"/>
-                        <TextField fx:id="txtDiscountAmount" promptText="0" GridPane.columnIndex="1"
-                                   GridPane.rowIndex="1"/>
-                        <Label text="Thuế:" GridPane.rowIndex="2"/>
-                        <TextField fx:id="txtTaxAmount" editable="false" promptText="0" GridPane.columnIndex="1"
-                                   GridPane.rowIndex="2"/>
-                        <Label style="-fx-font-weight: bold;" text="TỔNG CỘNG:" GridPane.rowIndex="3"/>
-                        <TextField fx:id="txtGrandTotal" editable="false" promptText="0" style="-fx-font-weight: bold;"
-                                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <Label text="Tổng tiền hàng:" />
+                        <TextField fx:id="txtSubtotal" editable="false" promptText="0" GridPane.columnIndex="1" />
+                        <Label text="Giảm giá:" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtDiscountAmount" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label text="Thuế:" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtTaxAmount" editable="false" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label style="-fx-font-weight: bold;" text="TỔNG CỘNG:" GridPane.rowIndex="3" />
+                        <TextField fx:id="txtGrandTotal" editable="false" promptText="0" style="-fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                     </children>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
                 </GridPane>
             </children>
+         <rowConstraints>
+            <RowConstraints />
+         </rowConstraints>
         </GridPane>
     </bottom>
 </BorderPane>

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.StockMovementController">
+<BorderPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.StockMovementController">
 
     <!-- TOP: Header & Filters -->
     <top>
@@ -78,10 +78,8 @@
                     <Region HBox.hgrow="ALWAYS" />
                 </HBox>
                 
-                <Separator />
-                
                 <ScrollPane fitToWidth="true">
-                    <VBox spacing="15">
+                    <VBox prefHeight="563.0" prefWidth="541.0" spacing="15">
                         
                         <!-- Product Selection -->
                         <VBox spacing="5">
@@ -137,8 +135,6 @@
                             <Label style="-fx-font-weight: bold;" text="Serial Number " />
                             <TextField fx:id="serialNoField" maxWidth="Infinity" promptText="e.g., SN123456789" />
                         </VBox>
-                        
-                        <Separator />
                   <VBox spacing="5">
                      <children>
                         <HBox spacing="10">
@@ -188,8 +184,6 @@
                     <Button onAction="#onRefreshButton" text="Refresh" />
                     <Button onAction="#onExportButton" text="Export" />
                 </HBox>
-                
-                <Separator />
 
                 <TableView fx:id="movementTable" VBox.vgrow="ALWAYS">
                     <columns>
@@ -206,7 +200,6 @@
                         <TableColumn fx:id="movedAtColumn" prefWidth="160" text="Moved At" />
                         <TableColumn fx:id="movedByColumn" prefWidth="100" text="By User" />
                   <TableColumn fx:id="noteColumn" prefWidth="75.0" text="Note" />
-                        <TableColumn fx:id="actionsColumn" prefWidth="120" text="Actions" />
                     </columns>
                     
                     <placeholder>

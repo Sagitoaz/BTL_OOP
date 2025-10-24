@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -14,10 +12,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="450.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/22.0.1"
+<BorderPane xmlns:fx="http://javafx.com/fxml" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx"
             fx:controller="org.example.oop.Control.PaymentControl.PaymentController">
+
     <top>
         <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
             <padding>
@@ -30,37 +29,45 @@
             </children>
         </HBox>
     </top>
+
     <center>
         <GridPane hgap="12" vgap="10">
             <padding>
                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
             </padding>
+
             <columnConstraints>
-                <ColumnConstraints percentWidth="25.0"/>
-                <ColumnConstraints percentWidth="25.0"/>
-                <ColumnConstraints percentWidth="25.0"/>
-                <ColumnConstraints percentWidth="25.0"/>
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="10.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="10.0"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
             </columnConstraints>
+
             <children>
                 <Label text="Mã hóa đơn:"/>
-                <TextField fx:id="txtInvoiceId" promptText="HD..." GridPane.columnIndex="1"/>
+                <TextField fx:id="txtInvoiceId" maxWidth="1.7976931348623157E308" promptText="HD..."
+                           GridPane.columnIndex="1"/>
                 <Button fx:id="btnLoadInvoice" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Tải"
                         GridPane.columnIndex="2"/>
-
                 <Label text="Tổng cộng:" GridPane.rowIndex="1"/>
-                <TextField fx:id="txtTotal" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <Label text="Còn phải thu:" GridPane.rowIndex="2"/>
-                <TextField fx:id="txtAmountDue" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtTotal" editable="false" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1"
+                           GridPane.rowIndex="1"/>
 
                 <Label text="Phương thức:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="cbMethod" maxWidth="1.7976931348623157E308"
-                          GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                <ComboBox fx:id="cbMethod" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
+                          GridPane.rowIndex="1"/>
+
+                <Label text="Còn phải thu:" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtAmountDue" editable="false" maxWidth="1.7976931348623157E308"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 
                 <Label text="Khách đưa:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <TextField fx:id="txtAmountPaid" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+                <TextField fx:id="txtAmountPaid" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
+                           GridPane.rowIndex="2"/>
 
                 <Label text="Tiền thừa:" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-                <TextField fx:id="txtChange" editable="false" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+                <TextField fx:id="txtChange" editable="false" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
+                           GridPane.rowIndex="3"/>
 
                 <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="4"/>
 
@@ -68,15 +75,24 @@
                 <TextArea fx:id="txtNote" prefRowCount="3" GridPane.columnIndex="1" GridPane.columnSpan="3"
                           GridPane.rowIndex="5"/>
             </children>
+            <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+                <RowConstraints/>
+            </rowConstraints>
         </GridPane>
     </center>
+
     <bottom>
         <HBox alignment="CENTER_RIGHT" spacing="10.0" BorderPane.alignment="CENTER">
             <padding>
                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
             </padding>
             <children>
-                <Button fx:id="btnConfirm" mnemonicParsing="false" text="Xác nhận thanh toán"/>
+                <Button fx:id="btnConfirm" defaultButton="true" mnemonicParsing="false" text="Xác nhận thanh toán"/>
                 <Button fx:id="btnConfirmAndPrint" mnemonicParsing="false" text="Thanh toán &amp; In phiếu"/>
             </children>
         </HBox>
