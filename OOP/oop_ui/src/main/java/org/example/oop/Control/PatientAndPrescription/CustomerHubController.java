@@ -1,5 +1,15 @@
 package org.example.oop.Control.PatientAndPrescription;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
+
+import org.example.oop.Services.CustomerRecordService;
+import org.miniboot.app.domain.models.Customer;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,16 +18,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Services.CustomerRecordService;
-import org.miniboot.app.domain.models.Customer;
-
-import java.io.IOException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ResourceBundle;
 
 public class CustomerHubController implements Initializable {
 
@@ -25,6 +34,11 @@ public class CustomerHubController implements Initializable {
     private ListView<Customer> customerListView;
 
     private ObservableList<Customer> customerRecordsList;
+    
+    // Selection mode & callback
+    private boolean selectionMode = false;
+    private Consumer<Customer> onCustomerSelectedCallback;
+    private Customer selectedCustomerForCallback;
 
     @FXML
     private ComboBox<Customer.Gender> genderFilter;
@@ -72,6 +86,23 @@ public class CustomerHubController implements Initializable {
 
         // Load data bất đồng bộ để tránh chặn UI
         //loadCustomerData();
+    }
+    
+    /**
+     * Enable selection mode - khi đóng dialog sẽ trả về selected customer
+     * @param callback Function sẽ được gọi với selected customer
+     */
+    public void setSelectionMode(Consumer<Customer> callback) {
+        this.selectionMode = true;
+        this.onCustomerSelectedCallback = callback;
+        System.out.println("✅ CustomerHub: Selection mode enabled");
+    }
+    
+    /**
+     * Get selected customer (for manual retrieval)
+     */
+    public Customer getSelectedCustomer() {
+        return selectedCustomerForCallback;
     }
 
     private void loadCustomerData() {
@@ -134,6 +165,14 @@ public class CustomerHubController implements Initializable {
     }
 
     private void setCurrentCustomer(Customer pr) {
+        // Store selected customer for callback
+        this.selectedCustomerForCallback = pr;
+        
+        // Trigger callback nếu đang ở selection mode
+        if (selectionMode && pr != null && onCustomerSelectedCallback != null) {
+            System.out.println("✅ Customer selected in selection mode: " + pr.getFullName() + " (ID: " + pr.getId() + ")");
+        }
+        
         if (pr == null) {
             customerNameLabel.setText("[CHỌN BỆNH NHÂN]");
             customerIdValueLabel.setText("...");

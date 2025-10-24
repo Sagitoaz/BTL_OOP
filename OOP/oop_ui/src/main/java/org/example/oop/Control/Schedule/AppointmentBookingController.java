@@ -519,7 +519,7 @@ public class AppointmentBookingController implements Initializable {
         // Cột Phòng - tạm thời để trống
         roomCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty("")); // Hoặc "N/A"
-        
+
         statusCol.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().isAvailable() ? "Trống" : "Đã đặt"));
 
