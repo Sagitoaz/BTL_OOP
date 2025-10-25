@@ -1,0 +1,54 @@
+# ==========================================
+# RENDER.COM BLUEPRINT
+# Automatic deployment configuration
+# ==========================================
+
+services:
+  - type: web
+    name: miniboot-api
+    runtime: docker
+    dockerfilePath: ./mini-boot/Dockerfile
+    dockerContext: ./mini-boot
+    
+    # Build settings
+    branch: main  # Change this to your main branch name
+    
+    # Environment
+    envVars:
+      # Server Configuration
+      - key: PORT
+        sync: false
+        value: 8080
+      
+      - key: MAX_BODY_BYTES
+        sync: false
+        value: 1000000
+      
+      - key: WORKER_THREADS
+        sync: false
+        value: 64
+      
+      # Logging
+      - key: LOG_LEVEL
+        sync: false
+        value: INFO
+      
+      - key: JSON_PRETTY
+        sync: false
+        value: false
+      
+      # Database Configuration (Add these in Render Dashboard for security)
+      # Go to: Dashboard > Service > Environment > Add Environment Variable
+      # - DB_URL: jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres
+      # - DB_USER: postgres.dwcpuomioxgqznusjewq
+      # - DB_PASSWORD: [YOUR-PASSWORD] (from Render Dashboard Secret Files)
+    
+    # Health check
+    healthCheckPath: /doctors
+    
+    # Auto-deploy
+    autoDeploy: true
+    
+    # Resources (adjust based on your plan)
+    # Free tier limits: 512 MB RAM, 0.1 CPU
+    # Paid plans offer more resources

@@ -1,0 +1,50 @@
+# ==========================================
+# DOCKERIGNORE FOR MINI-BOOT
+# ==========================================
+
+# Build outputs
+target/
+*.class
+*.jar
+*.war
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Sensitive files
+application.properties
+*.env
+.env.*
+
+# Test data
+data/
+test-data/
+
+# Documentation
+*.md
+README.md
+TODO*.md
+TEAM_*.md
+
+# Docker files (we don't need them in the image)
+Dockerfile
+.dockerignore
+docker-compose.yml

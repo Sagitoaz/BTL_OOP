@@ -1,0 +1,62 @@
+# ==========================================
+# DOCKER COMPOSE - LOCAL DEVELOPMENT
+# Test Docker build locally before deploying
+# ==========================================
+
+version: '3.8'
+
+services:
+  miniboot-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: miniboot-api
+    
+    ports:
+      - "8080:8080"
+    
+    environment:
+      # Server Configuration
+      PORT: 8080
+      MAX_BODY_BYTES: 1000000
+      WORKER_THREADS: 64
+      
+      # Logging
+      LOG_LEVEL: INFO
+      JSON_PRETTY: "false"
+      
+      # Database Configuration (Supabase)
+      # IMPORTANT: Replace with your actual credentials
+      DB_URL: jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres
+      DB_USER: postgres.dwcpuomioxgqznusjewq
+      DB_PASSWORD: ${DB_PASSWORD:-your_password_here}
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/doctors"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # Networks
+    networks:
+      - miniboot-network
+
+networks:
+  miniboot-network:
+    driver: bridge
