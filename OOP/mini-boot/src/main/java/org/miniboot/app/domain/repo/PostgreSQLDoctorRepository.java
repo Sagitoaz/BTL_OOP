@@ -1,10 +1,17 @@
 package org.miniboot.app.domain.repo;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 import org.miniboot.app.config.DatabaseConfig;
 import org.miniboot.app.domain.models.Doctor;
-
-import java.sql.*;
-import java.util.*;
 
 /**
  * PostgreSQLDoctorRepository: Implementation của DoctorRepository sử dụng PostgreSQL
@@ -63,15 +70,16 @@ public class PostgreSQLDoctorRepository implements DoctorRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
             
-            if (rs.next()) {
-                Doctor doctor = new Doctor();
-                doctor.setId(rs.getInt("id"));
-                doctor.setFirstName(rs.getString("firstname"));
-                doctor.setLastName(rs.getString("lastname"));
-                doctor.setLicenseNo(rs.getString("license_no"));
-                return Optional.of(doctor);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Doctor doctor = new Doctor();
+                    doctor.setId(rs.getInt("id"));
+                    doctor.setFirstName(rs.getString("firstname"));
+                    doctor.setLastName(rs.getString("lastname"));
+                    doctor.setLicenseNo(rs.getString("license_no"));
+                    return Optional.of(doctor);
+                }
             }
             
         } catch (SQLException e) {
@@ -147,10 +155,11 @@ public class PostgreSQLDoctorRepository implements DoctorRepository {
             pstmt.setString(4, doctor.getLastName());
             pstmt.setString(5, doctor.getLicenseNo());
             
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                doctor.setId(rs.getInt("id"));
-                System.out.println("✅ Saved doctor with ID: " + doctor.getId());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    doctor.setId(rs.getInt("id"));
+                    System.out.println("✅ Saved doctor with ID: " + doctor.getId());
+                }
             }
             
         } catch (SQLException e) {

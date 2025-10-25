@@ -72,11 +72,12 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                Appointment appointment = mapResultSetToAppointment(rs);
-                return Optional.of(appointment);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Appointment appointment = mapResultSetToAppointment(rs);
+                    return Optional.of(appointment);
+                }
             }
 
         } catch (SQLException e) {
@@ -228,11 +229,11 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
             pstmt.setString(2, date);
             pstmt.setString(3, date);
 
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Appointment appointment = mapResultSetToAppointment(rs);
-                appointments.add(appointment);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Appointment appointment = mapResultSetToAppointment(rs);
+                    appointments.add(appointment);
+                }
             }
 
             System.out.println("✅ Found " + appointments.size() +
@@ -322,11 +323,11 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
             System.out.println("🔍 Executing SQL: " + sql);
             System.out.println("📌 Parameters: " + params);
 
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                Appointment appointment = mapResultSetToAppointment(rs);
-                appointments.add(appointment);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Appointment appointment = mapResultSetToAppointment(rs);
+                    appointments.add(appointment);
+                }
             }
 
             System.out.println("✅ Found " + appointments.size() + " appointments with filters");
