@@ -21,14 +21,17 @@ RUN mvn dependency:go-offline -B
 # Copy source code
 COPY src ./src
 
-# Build the application
+# Build the application with maven-shade-plugin
 RUN mvn clean package -DskipTests -B
+
+# List target directory to verify JAR file (for debugging)
+RUN ls -la /app/target/
 
 # Stage 2: Runtime stage
 FROM eclipse-temurin:17-jre-alpine
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init and wget for health check
+RUN apk add --no-cache dumb-init wget
 
 # Create app user for security
 RUN addgroup -g 1001 -S appuser && \
@@ -37,8 +40,11 @@ RUN addgroup -g 1001 -S appuser && \
 # Set working directory
 WORKDIR /app
 
-# Copy the built JAR from build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy the built JAR from build stage (maven-shade creates this)
+COPY --from=build /app/target/mini-boot-*.jar app.jar
+
+# Verify the JAR has main manifest
+RUN jar tf app.jar | grep -i manifest || echo "Warning: No manifest found"
 
 # Copy application properties example (will use env vars at runtime)
 COPY application.properties.example ./application.properties.example
