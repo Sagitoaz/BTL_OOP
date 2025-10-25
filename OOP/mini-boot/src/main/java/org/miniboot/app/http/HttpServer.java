@@ -196,6 +196,12 @@ public class HttpServer {
             logRequest(request, response, startTime);
 
         } catch (IllegalArgumentException | IOException e) {
+            // Xử lý im lặng cho empty request lines (health checks, keep-alive pings)
+            if (e.getMessage() != null && e.getMessage().contains("Empty request line")) {
+                // Đây là health check hoặc keep-alive ping - không cần log
+                return;
+            }
+            
             System.err.println("❌ Bad Request / IOException: " + e.getMessage());
             // Lỗi do request không hợp lệ hoặc lỗi I/O → HTTP 400 Bad Request
             handleBadRequestError(out, client);
