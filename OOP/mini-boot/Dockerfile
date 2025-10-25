@@ -66,9 +66,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Run the application
+# Note: PORT environment variable will be read by ServerMain.java
 CMD ["java", \
      "-Djava.security.egd=file:/dev/./urandom", \
-     "-Dserver.port=${PORT:-8080}", \
-     "-DPORT=${PORT:-8080}", \
      "-jar", \
      "app.jar"]
