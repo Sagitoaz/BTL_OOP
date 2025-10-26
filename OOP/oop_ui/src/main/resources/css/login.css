@@ -1,0 +1,301 @@
+/* ========================================
+   LOGIN & AUTHENTICATION STYLES - MEDICAL PROFESSIONAL
+   Thiết kế: Chuyên nghiệp y tế, đáng tin cậy
+   ======================================== */
+
+/* ========== LOGIN CONTAINER ========== */
+.login-container {
+    -fx-background-color: -fx-background;
+    -fx-alignment: center;
+    -fx-padding: 40px;
+}
+
+.login-box {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 4px;
+    -fx-padding: 40px 36px;
+    -fx-effect: dropshadow(gaussian, rgba(44, 62, 80, 0.1), 12, 0, 0, 2);
+    -fx-max-width: 450px;
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+/* ========== LOGO & BRANDING - MEDICAL ========== */
+.logo-container {
+    -fx-alignment: center;
+    -fx-spacing: 12px;
+    -fx-padding: 0 0 28px 0;
+}
+
+.app-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 600;
+    -fx-fill: #004C99;
+    -fx-alignment: center;
+    -fx-letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5A6C7D;
+    -fx-alignment: center;
+    -fx-font-weight: normal;
+}
+
+/* ========== FORM TITLE - PROFESSIONAL ========== */
+.form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 600;
+    -fx-fill: #004C99;
+    -fx-padding: 0 0 6px 0;
+    -fx-letter-spacing: -0.3px;
+}
+
+.form-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #5A6C7D;
+    -fx-padding: 0 0 24px 0;
+}
+
+/* ========== LOGIN FORM ========== */
+.login-form {
+    -fx-spacing: 18px;
+}
+
+.form-group {
+    -fx-spacing: 7px;
+}
+
+.form-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #2C3E50;
+}
+
+/* ========== INPUT FIELDS - PROFESSIONAL ========== */
+.login-input {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 2px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 2px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 11px 14px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2C3E50;
+    -fx-pref-height: 44px;
+}
+
+.login-input:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.12), 4, 0, 0, 0);
+}
+
+.login-input:hover {
+    -fx-border-color: #3399FF;
+    -fx-background-color: #FFFFFF;
+}
+
+/* Password Container */
+.password-container {
+    -fx-alignment: center-left;
+}
+
+/* ========== PASSWORD TOGGLE BUTTON - DỄ NHÌN ========== */
+.password-toggle-btn {
+    -fx-background-color: #F7FAFC;
+    -fx-text-fill: #0052A3;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-padding: 8px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-min-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-width: 38px;
+    -fx-pref-height: 38px;
+}
+
+.password-toggle-btn:hover {
+    -fx-background-color: #E6F2FF;
+    -fx-border-color: #0052A3;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.password-toggle-btn:pressed {
+    -fx-background-color: #D4E7FF;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.password-container .login-input {
+    -fx-padding: 11px 50px 11px 14px; /* Thêm space bên phải cho button */
+}
+
+/* ========== BUTTONS - MEDICAL PROFESSIONAL ========== */
+.login-button {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 2px;
+    -fx-padding: 13px;
+    -fx-cursor: hand;
+    -fx-pref-height: 48px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.2), 4, 0, 0, 1);
+}
+
+.login-button:hover {
+    -fx-background-color: #004C99;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.3), 6, 0, 0, 2);
+}
+
+.login-button:pressed {
+    -fx-background-color: #003D7A;
+}
+
+/* ========== LINKS - PROFESSIONAL ========== */
+.forgot-password-link {
+    -fx-text-fill: #0066CC;
+    -fx-font-size: 13px;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-padding: 6px 0;
+    -fx-font-weight: 500;
+}
+
+.forgot-password-link:hover {
+    -fx-text-fill: #004C99;
+    -fx-underline: true;
+}
+
+.link-container {
+    -fx-alignment: center-right;
+    -fx-padding: 6px 0;
+}
+
+/* ========== REMEMBER ME ========== */
+.remember-me-box {
+    -fx-alignment: center-left;
+    -fx-padding: 6px 0;
+}
+
+.remember-checkbox .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D9E6;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.remember-checkbox:selected .box {
+    -fx-background-color: #0066CC;
+    -fx-border-color: #0066CC;
+}
+
+.remember-checkbox .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+/* ========== DIVIDER - CLEAN ========== */
+.login-divider {
+    -fx-padding: 20px 0;
+}
+
+.divider-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #95A5B8;
+    -fx-alignment: center;
+}
+
+/* ========== SIGNUP SECTION ========== */
+.signup-section {
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+    -fx-padding: 20px 0 0 0;
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.signup-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #5A6C7D;
+}
+
+.signup-link {
+    -fx-text-fill: #0066CC;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-underline: false;
+}
+
+.signup-link:hover {
+    -fx-text-fill: #004C99;
+    -fx-underline: true;
+}
+
+/* ========== MESSAGES - MEDICAL STYLE ========== */
+.error-message {
+    -fx-background-color: #FFF5F5;
+    -fx-background-radius: 2px;
+    -fx-padding: 10px 14px;
+    -fx-border-color: #DC3545;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.error-message .label {
+    -fx-text-fill: #B52A37;
+    -fx-font-size: 12px;
+}
+
+.success-message {
+    -fx-background-color: #F0F9F4;
+    -fx-background-radius: 2px;
+    -fx-padding: 10px 14px;
+    -fx-border-color: #00A86B;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.success-message .label {
+    -fx-text-fill: #008556;
+    -fx-font-size: 12px;
+}
+
+.info-message {
+    -fx-background-color: #F0F7FF;
+    -fx-background-radius: 2px;
+    -fx-padding: 10px 14px;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 1px;
+    -fx-border-radius: 2px;
+}
+
+.info-message .label {
+    -fx-text-fill: #004C99;
+    -fx-font-size: 12px;
+}
+
+/* ========== FOOTER ========== */
+.login-footer {
+    -fx-alignment: center;
+    -fx-padding: 20px 0 0 0;
+}
+
+.footer-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95A5B8;
+}
+
+/* ========== FOCUS INDICATOR - SUBTLE ========== */
+.login-input:focused, .remember-checkbox:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}

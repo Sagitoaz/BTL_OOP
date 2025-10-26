@@ -5,56 +5,76 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="800.0" prefWidth="1280.0" spacing="10.0"
-      xmlns="http://javafx.com/javafx/21"
-      fx:controller="org.example.oop.Control.PaymentControl.PaymentHistoryController"
->
-    <padding>
-        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-    </padding>
-    <children>
-        <Label style="-fx-font-size:20px; -fx-font-weight:bold;" text="LỊCH SỬ THANH TOÁN"/>
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.PaymentHistoryController">
 
-        <HBox alignment="CENTER_LEFT" spacing="10.0">
-            <children>
-                <Label text="Tìm kiếm:"/>
-                <TextField fx:id="txtKeyword" prefWidth="300.0" promptText="Mã HĐ, tên khách..." HBox.hgrow="ALWAYS"/>
+    <top>
+        <VBox>
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Label styleClass="page-title" text="LỊCH SỬ THANH TOÁN" />
+                <Region HBox.hgrow="ALWAYS" />
+            </HBox>
 
-                <Label text="Trạng thái:"/>
-                <ComboBox fx:id="cbStatus" prefWidth="150.0"/>
+            <Separator />
 
-                <Label text="Từ ngày:"/>
-                <DatePicker fx:id="dpFrom" prefWidth="140.0"/>
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                <padding>
+                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
+                </padding>
+                <Label styleClass="form-label" text="Tìm kiếm:" />
+                <TextField fx:id="txtKeyword" prefWidth="250.0" promptText="Mã HĐ, tên khách..." styleClass="text-field" />
 
-                <Label text="Đến ngày:"/>
-                <DatePicker fx:id="dpTo" prefWidth="140.0"/>
+                <Label styleClass="form-label" text="Trạng thái:" />
+                <ComboBox fx:id="cbStatus" prefWidth="169.0" styleClass="combo-rounded" />
 
-                <Button fx:id="btnFilter" mnemonicParsing="false" text="Lọc"/>
-            </children>
-        </HBox>
+                <Label styleClass="form-label" text="Từ:" />
+                <DatePicker fx:id="dpFrom" prefHeight="45.0" prefWidth="145.0" />
 
-        <TableView fx:id="tablePayments" VBox.vgrow="ALWAYS">
+                <Label styleClass="form-label" text="Đến:" />
+                <DatePicker fx:id="dpTo" prefHeight="45.0" prefWidth="145.0" />
+
+                <Button fx:id="btnFilter" mnemonicParsing="false" styleClass="btn-search" text="🔍 Lọc" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="tablePayments" styleClass="financial-table">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+            </padding>
             <columns>
-                <TableColumn fx:id="colPaymentId" prefWidth="100.0" text="Mã phiếu"/>
-                <TableColumn fx:id="colInvoiceId" prefWidth="100.0" text="Mã Hóa đơn"/>
-                <TableColumn fx:id="colCreatedAt" prefWidth="150.0" text="Ngày giờ"/>
-                <TableColumn fx:id="colCustomer" prefWidth="180.0" text="Khách hàng"/>
-                <TableColumn fx:id="colMethod" prefWidth="110.0" text="Phương thức"/>
-                <TableColumn fx:id="colAmount" prefWidth="120.0" text="Số tiền"/>
-                <TableColumn fx:id="colStatus" prefWidth="100.0" text="Trạng thái"/>
-                <TableColumn fx:id="colStaff" prefWidth="120.0" text="Nhân viên"/>
-                <TableColumn fx:id="colNote" prefWidth="250.0" text="Ghi chú"/>
+                <TableColumn fx:id="colPaymentId" prefWidth="100" text="Mã phiếu" />
+                <TableColumn fx:id="colInvoiceId" prefWidth="90" text="Mã HĐ" />
+                <TableColumn fx:id="colCreatedAt" prefWidth="120" text="Ngày giờ" />
+                <TableColumn fx:id="colCustomer" prefWidth="160" text="Khách hàng" />
+                <TableColumn fx:id="colMethod" prefWidth="130" text="Phương thức" />
+                <TableColumn fx:id="colAmount" prefWidth="120" text="Số tiền" />
+                <TableColumn fx:id="colStatus" prefWidth="100" text="Trạng thái" />
+                <TableColumn fx:id="colStaff" prefWidth="135" text="Nhân viên" />
+                <TableColumn fx:id="colNote" prefWidth="180" text="Ghi chú" />
             </columns>
-            <columnResizePolicy>
-                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-            </columnResizePolicy>
+
+            <placeholder>
+                <VBox alignment="CENTER" spacing="10">
+                    <padding>
+                        <Insets bottom="40" left="40" right="40" top="40" />
+                    </padding>
+                    <Label text="Chưa có lịch sử thanh toán" />
+                    <Label text="Thực hiện thanh toán để xem lịch sử" />
+                </VBox>
+            </placeholder>
         </TableView>
-    </children>
-</VBox>
+    </center>
+</BorderPane>

@@ -6,11 +6,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -20,244 +20,245 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.ProductCRUDController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.ProductCRUDController">
 
-    <!-- TOP: Header with title and quick actions -->
+    <!-- TOP: Header with Professional Styling -->
     <top>
-        <VBox>
-            <HBox alignment="CENTER_LEFT" spacing="15">
-                <padding><Insets bottom="15" left="20" right="20" top="15" /></padding>
-                <Label text="Product Management" />
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+            <padding>
+                <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+            </padding>
+            <children>
+                <Label styleClass="page-title" text="QUẢN LÝ SẢN PHẨM" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="addNewButton" onAction="#onClear" text="Add New Product">
-                    <tooltip><Tooltip text="Create a new product" /></tooltip>
-                </Button>
-            </HBox>
-            <Separator />
-        </VBox>
+                <HBox alignment="CENTER" spacing="12.0">
+                    <children>
+                        <TextField fx:id="searchField" prefWidth="200.0" promptText="Tìm kiếm..." styleClass="text-field">
+                            <tooltip><Tooltip text="Tìm kiếm theo tên, SKU, danh mục" /></tooltip>
+                        </TextField>
+                        <ComboBox fx:id="filterCategoryBox" prefWidth="171.0" promptText="Danh mục" style="-fx-text-fill: #0066CC; -fx-prompt-text-fill: #0066CC;" styleClass="combo-rounded">
+                            <tooltip><Tooltip text="Lọc theo danh mục" /></tooltip>
+                        </ComboBox>
+                        <Button fx:id="clearFilterButton" onAction="#onClearFilter" styleClass="btn-secondary" text="Xóa lọc" />
+                    </children>
+                </HBox>
+                <Button fx:id="addNewButton" onAction="#onClear" styleClass="btn-search" text="+ Thêm mới" />
+                <HBox alignment="CENTER" spacing="8.0">
+                    <children>
+                        <Button fx:id="exportButton" onAction="#onExport" prefHeight="41.0" prefWidth="98.0" styleClass="export-button" text="📊 Export" />
+                        <Button fx:id="importButton" onAction="#onImport" prefHeight="30.0" prefWidth="111.0" styleClass="btn-import" text="📥 Import" />
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
     </top>
 
     <center>
-        <SplitPane dividerPositions="0.65">
-            <!-- LEFT: Search + Table Panel -->
-            <VBox spacing="15">
-                <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+        <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="scroll-pane">
+            <content>
+                <GridPane hgap="16" vgap="16">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="60.0" />
+                        <ColumnConstraints percentWidth="40.0" />
+                    </columnConstraints>
 
-                <!-- Search Section -->
-                <VBox spacing="10">
-                    <Label text="Search and Filter" />
+                    <!-- LEFT: Product List Table -->
+                    <TitledPane expanded="true" styleClass="titled-pane" text="📋 DANH SÁCH SẢN PHẨM" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <content>
+                            <VBox spacing="12.0">
+                                <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </padding>
+                                <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="10">
+                                        <Label fx:id="recordCountLabel" styleClass="form-label" text="0 sản phẩm" />
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="totalValueLabel" styleClass="form-label" text="Tổng giá trị: 0 VNĐ" />
+                                    </HBox>
 
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <TextField fx:id="searchField" prefHeight="36" promptText="Search by name, SKU, or category..." HBox.hgrow="ALWAYS">
-                            <tooltip><Tooltip text="Search products by name, SKU, or category" /></tooltip>
-                        </TextField>
-
-                        <ComboBox fx:id="filterCategoryBox" prefWidth="160" promptText="All Categories">
-                            <tooltip><Tooltip text="Filter by category" /></tooltip>
-                        </ComboBox>
-
-                        <Button fx:id="clearFilterButton" onAction="#onClearFilter" text="Clear">
-                            <tooltip><Tooltip text="Clear all filters" /></tooltip>
-                        </Button>
-                    </HBox>
-                </VBox>
-
-                <Separator />
-
-                <!-- Table Section -->
-                <VBox spacing="8" VBox.vgrow="ALWAYS">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Product List" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="recordCountLabel" text="0 products" />
-                    </HBox>
-
-                    <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
-                        <columnResizePolicy>
-                            <TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY" />
-                        </columnResizePolicy>
-
-                        <columns>
-                            <TableColumn fx:id="idColumn" prefWidth="60" minWidth="60" text="ID" />
-                            <TableColumn fx:id="skuColumn" prefWidth="120" minWidth="120" text="SKU" />
-                            <TableColumn fx:id="nameColumn" prefWidth="220" minWidth="200" text="Product Name" />
-                            <TableColumn fx:id="categoryColumn" prefWidth="140" minWidth="140" text="Category" />
-                            <TableColumn fx:id="quantityColumn" prefWidth="80" minWidth="80" text="Stock" />
-                            <TableColumn fx:id="priceColumn" prefWidth="120" minWidth="120" text="Price (VND)" />
-                            <TableColumn fx:id="statusColumn" prefWidth="100" minWidth="100" text="Status" />
-                        </columns>
-
-                        <placeholder>
-                            <VBox alignment="CENTER" spacing="10">
-                                <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
-                                <Label text="No products found" />
-                                <Label text="Try adjusting your search criteria" />
+                                    <TableView fx:id="productTable" prefHeight="500.0" styleClass="financial-table">
+                                        <columns>
+                                            <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
+                                            <TableColumn fx:id="skuColumn" prefWidth="70.0" text="SKU" />
+                                            <TableColumn fx:id="nameColumn" prefWidth="172.0" text="Tên sản phẩm" />
+                                            <TableColumn fx:id="categoryColumn" prefWidth="115.0" text="Danh mục" />
+                                            <TableColumn fx:id="quantityColumn" prefWidth="91.0" text="Tồn kho" />
+                                            <TableColumn fx:id="priceColumn" prefWidth="115.0" text="Giá (VNĐ)" />
+                                            <TableColumn fx:id="statusColumn" prefWidth="157.0" text="Trạng thái" />
+                                        </columns>
+                                        <placeholder>
+                                            <VBox alignment="CENTER" spacing="10">
+                                                <padding><Insets bottom="40" left="40" right="40" top="40" /></padding>
+                                                <Label text="Không tìm thấy sản phẩm" />
+                                                <Label text="Thử điều chỉnh bộ lọc của bạn" />
+                                            </VBox>
+                                        </placeholder>
+                                    </TableView>
+                                </children>
                             </VBox>
-                        </placeholder>
-                    </TableView>
-                </VBox>
-            </VBox>
+                        </content>
+                    </TitledPane>
 
-            <!-- RIGHT: Form Panel -->
-            <ScrollPane fitToHeight="true" fitToWidth="true" SplitPane.resizableWithParent="false">
-                <content>
-                    <VBox maxWidth="450" prefWidth="420" spacing="20">
-                        <padding><Insets bottom="25" left="25" right="25" top="25" /></padding>
+                    <!-- RIGHT: Product Form -->
+                    <VBox spacing="16.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <!-- Form Details -->
+                        <TitledPane expanded="true" styleClass="titled-pane" text="📝 CHI TIẾT SẢN PHẨM">
+                            <content>
+                                <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="scroll-pane">
+                                    <content>
+                                        <VBox spacing="15">
+                                            <padding>
+                                                <Insets bottom="15" left="15" right="15" top="15" />
+                                            </padding>
+                                            <children>
+                                                <GridPane hgap="12" vgap="12">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints halignment="RIGHT" minWidth="90" />
+                                                        <ColumnConstraints hgrow="ALWAYS" />
+                                                    </columnConstraints>
 
-                        <!-- Form Header -->
-                        <VBox spacing="5">
-                            <Label fx:id="formTitleLabel" text="Product Details" />
-                            <Separator />
-                        </VBox>
+                                                    <Label styleClass="form-label" text="SKU:" GridPane.rowIndex="0" />
+                                                    <TextField fx:id="skuField" promptText="PROD-001" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                        <tooltip><Tooltip text="Mã sản phẩm duy nhất" /></tooltip>
+                                                    </TextField>
 
-                        <!-- Form Fields -->
-                        <GridPane hgap="15" vgap="15">
-                            <columnConstraints>
-                                <ColumnConstraints halignment="RIGHT" minWidth="110" />
-                                <ColumnConstraints hgrow="ALWAYS" />
-                            </columnConstraints>
+                                                    <Label styleClass="form-label" text="Tên:" GridPane.rowIndex="1" />
+                                                    <TextField fx:id="nameField" promptText="Nhập tên sản phẩm" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                        <tooltip><Tooltip text="Tên đầy đủ của sản phẩm" /></tooltip>
+                                                    </TextField>
 
-                            <!-- SKU Field -->
-                            <Label text="SKU:" GridPane.rowIndex="0" />
-                            <TextField fx:id="skuField" promptText="e.g. PROD-001" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <tooltip><Tooltip text="Unique product identifier (Stock Keeping Unit)" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Danh mục:" GridPane.rowIndex="2" />
+                                                    <ComboBox fx:id="categoryBox" prefWidth="200" promptText="Chọn danh mục" style="-fx-text-fill: #0066CC; -fx-prompt-text-fill: #0066CC;" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                        <tooltip><Tooltip text="Danh mục sản phẩm" /></tooltip>
+                                                    </ComboBox>
 
-                            <!-- Name Field -->
-                            <Label text="Name:" GridPane.rowIndex="1" />
-                            <TextField fx:id="nameField" promptText="Enter product name" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <tooltip><Tooltip text="Full product name" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Số lượng:" GridPane.rowIndex="3" />
+                                                    <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                        <TextField fx:id="quantityField" prefWidth="100" promptText="0">
+                                                            <tooltip><Tooltip text="Số lượng tồn kho" /></tooltip>
+                                                        </TextField>
+                                                        <TextField fx:id="unitField" prefWidth="70" promptText="cái">
+                                                            <tooltip><Tooltip text="Đơn vị đo" /></tooltip>
+                                                        </TextField>
+                                                    </HBox>
 
-                            <!-- Category Field -->
-                            <Label text="Category:" GridPane.rowIndex="2" />
-                            <ComboBox fx:id="categoryBox" prefWidth="200" promptText="Select category" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                <tooltip><Tooltip text="Product category" /></tooltip>
-                            </ComboBox>
+                                                    <Label styleClass="form-label" text="Giá vốn:" GridPane.rowIndex="4" />
+                                                    <TextField fx:id="priceCostField" promptText="0 VNĐ" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                        <tooltip><Tooltip text="Giá vốn (VNĐ)" /></tooltip>
+                                                    </TextField>
 
-                            <!-- Quantity Field -->
-                            <Label text="Stock Qty:" GridPane.rowIndex="3" />
-                            <HBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                <TextField fx:id="quantityField" prefWidth="120" promptText="0">
-                                    <tooltip><Tooltip text="Current stock quantity" /></tooltip>
-                                </TextField>
-                                <TextField fx:id="unitField" prefWidth="80" promptText="pcs">
-                                    <tooltip><Tooltip text="Unit of measurement (e.g. pcs, kg, liters)" /></tooltip>
-                                </TextField>
-                            </HBox>
+                                                    <Label styleClass="form-label" text="Giá bán:" GridPane.rowIndex="5" />
+                                                    <TextField fx:id="priceRetailField" promptText="0 VNĐ" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                        <tooltip><Tooltip text="Giá bán lẻ (VNĐ)" /></tooltip>
+                                                    </TextField>
 
-                            <!-- Price Cost Field -->
-                            <Label text="Price Cost:" GridPane.rowIndex="4" />
-                            <TextField fx:id="priceCostField" promptText="0.00 VND" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                <tooltip><Tooltip text="Cost price in VND" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Trạng thái:" GridPane.rowIndex="6" />
+                                                    <ComboBox fx:id="statusBox" prefWidth="200" promptText="Hoạt động" style="-fx-text-fill: #0066CC; -fx-prompt-text-fill: #0066CC;" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                                                        <tooltip><Tooltip text="Trạng thái sản phẩm" /></tooltip>
+                                                    </ComboBox>
 
-                            <!-- Price Retail Field -->
-                            <Label text="Price Retail:" GridPane.rowIndex="5" />
-                            <TextField fx:id="priceRetailField" promptText="0.00 VND" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                <tooltip><Tooltip text="Retail price in VND" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Batch No:" GridPane.rowIndex="7" />
+                                                    <TextField fx:id="batchNoField" promptText="BATCH-001" GridPane.columnIndex="1" GridPane.rowIndex="7">
+                                                        <tooltip><Tooltip text="Số lô (nếu có)" /></tooltip>
+                                                    </TextField>
 
-                            <!-- Status Field -->
-                            <Label text="Status:" GridPane.rowIndex="6" />
-                            <ComboBox fx:id="statusBox" prefWidth="200" promptText="Active" GridPane.columnIndex="1" GridPane.rowIndex="6">
-                                <tooltip><Tooltip text="Product status (Active/Inactive/Discontinued)" /></tooltip>
-                            </ComboBox>
+                                                    <Label styleClass="form-label" text="Hạn dùng:" GridPane.rowIndex="8" />
+                                                    <TextField fx:id="expiryDateField" promptText="YYYY-MM-DD" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                                                        <tooltip><Tooltip text="Ngày hết hạn" /></tooltip>
+                                                    </TextField>
 
-                            <!-- Batch No Field -->
-                            <Label text="Batch No:" GridPane.rowIndex="7" />
-                            <TextField fx:id="batchNoField" promptText="e.g. BATCH-001" GridPane.columnIndex="1" GridPane.rowIndex="7">
-                                <tooltip><Tooltip text="Batch number (if applicable)" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Serial No:" GridPane.rowIndex="9" />
+                                                    <TextField fx:id="serialNoField" promptText="SERIAL-001" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                                        <tooltip><Tooltip text="Số serial" /></tooltip>
+                                                    </TextField>
 
-                            <!-- Expiry Date Field -->
-                            <Label text="Expiry Date:" GridPane.rowIndex="8" />
-                            <TextField fx:id="expiryDateField" promptText="YYYY-MM-DD" GridPane.columnIndex="1" GridPane.rowIndex="8">
-                                <tooltip><Tooltip text="Product expiry date" /></tooltip>
-                            </TextField>
+                                                    <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="10" />
+                                                    <TextArea fx:id="noteArea" prefRowCount="3" promptText="Nhập ghi chú..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                                                        <tooltip><Tooltip text="Ghi chú thêm về sản phẩm" /></tooltip>
+                                                    </TextArea>
+                                       <rowConstraints>
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                          <RowConstraints />
+                                       </rowConstraints>
+                                                </GridPane>
 
-                            <!-- Serial No Field -->
-                            <Label text="Serial No:" GridPane.rowIndex="9" />
-                            <TextField fx:id="serialNoField" promptText="e.g. SERIAL-001" GridPane.columnIndex="1" GridPane.rowIndex="9">
-                                <tooltip><Tooltip text="Serial number" /></tooltip>
-                            </TextField>
+                                                <Separator />
 
-                            <!-- Note Field -->
-                            <Label text="Note:" GridPane.rowIndex="10" />
-                            <TextArea fx:id="noteArea" prefRowCount="4" promptText="Enter notes..." wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10">
-                                <tooltip><Tooltip text="Additional notes about the product" /></tooltip>
-                            </TextArea>
+                                                <HBox alignment="CENTER" spacing="12">
+                                                    <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefWidth="120" styleClass="btn-success" text="💾 Lưu">
+                                                        <tooltip><Tooltip text="Lưu thay đổi" /></tooltip>
+                                                    </Button>
+                                                    <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="120" styleClass="btn-secondary" text="🔄 Làm mới">
+                                                        <tooltip><Tooltip text="Xóa tất cả trường" /></tooltip>
+                                                    </Button>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+                            </content>
+                        </TitledPane>
 
-                            <rowConstraints>
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                            </rowConstraints>
-                        </GridPane>
-
-                        <Separator />
-
-                        <!-- Action Buttons -->
-                        <VBox spacing="10">
-                            <HBox alignment="CENTER" spacing="12">
-                                <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefWidth="120" text="Save">
-                                    <tooltip><Tooltip text="Save product changes" /></tooltip>
-                                </Button>
-                                <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="120" text="Clear">
-                                    <tooltip><Tooltip text="Clear all form fields" /></tooltip>
-                                </Button>
-                            </HBox>
-                        </VBox>
+                        <!-- Quick Stats -->
+                        <TitledPane expanded="true" styleClass="titled-pane" text="📊 THỐNG KÊ NHANH">
+                            <content>
+                                <VBox spacing="12">
+                                    <padding>
+                                        <Insets bottom="15" left="15" right="15" top="15" />
+                                    </padding>
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label styleClass="form-label" text="Tồn kho thấp:" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="lowStockLabel" text="0 sản phẩm" />
+                                        </HBox>
+                                        <Separator />
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label styleClass="form-label" text="Trạng thái:" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="statusLabel" text="Sẵn sàng" />
+                                        </HBox>
+                                        <Separator />
+                                        <VBox spacing="5">
+                                            <Label styleClass="form-label" text="Cập nhật lần cuối:" />
+                                            <Label fx:id="lastUpdateLabel" text="Chưa bao giờ" />
+                                        </VBox>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </TitledPane>
                     </VBox>
-                </content>
-            </ScrollPane>
-        </SplitPane>
+               <rowConstraints>
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+            </content>
+        </ScrollPane>
     </center>
 
     <!-- BOTTOM: Action Bar -->
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="15">
-                <padding><Insets bottom="12" left="20" right="20" top="12" /></padding>
-                <!-- Left Side Actions -->
-                <HBox spacing="10">
-                    <Button fx:id="deleteButton" onAction="#onDelete" text="Delete Selected">
-                        <tooltip><Tooltip text="Delete selected product (cannot be undone)" /></tooltip>
-                    </Button>
-
-                    <Button fx:id="exportButton" onAction="#onExport" text="Export">
-                        <tooltip><Tooltip text="Export products to CSV/Excel" /></tooltip>
-                    </Button>
-
-                    <Button fx:id="importButton" onAction="#onImport" text="Import">
-                        <tooltip><Tooltip text="Import products from file" /></tooltip>
-                    </Button>
-                </HBox>
-
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
+                <padding><Insets bottom="12" left="24" right="24" top="12" /></padding>
+                <Button fx:id="deleteButton" onAction="#onDelete" styleClass="btn-danger" text="🗑 Xóa">
+                    <tooltip><Tooltip text="Xóa sản phẩm đã chọn" /></tooltip>
+                </Button>
                 <Region HBox.hgrow="ALWAYS" />
-
-                <!-- Right Side Status -->
-                <HBox alignment="CENTER_RIGHT" spacing="15">
-                    <VBox alignment="CENTER_RIGHT" spacing="2">
-                        <Label fx:id="totalValueLabel" text="Total Value: 0 VND" />
-                        <Label fx:id="lowStockLabel" text="Low Stock: 0 items" />
-                    </VBox>
-
-                    <Separator orientation="VERTICAL" prefHeight="30" />
-
-                    <VBox alignment="CENTER_RIGHT" spacing="2">
-                        <Label fx:id="statusLabel" text="Ready" />
-                        <Label fx:id="lastUpdateLabel" text="Last updated: Never" />
-                    </VBox>
-                </HBox>
+                <Label fx:id="formTitleLabel" styleClass="form-label" text="Sẵn sàng" />
             </HBox>
         </VBox>
     </bottom>

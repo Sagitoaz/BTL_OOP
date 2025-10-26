@@ -44,7 +44,7 @@ public class LoginController {
     private Button loginButton;
 
     @FXML
-    private Button signUpbutton;
+    private Hyperlink signUpbutton;
 
     // Trạng thái hiển thị mật khẩu
     private boolean isPasswordVisible = false;

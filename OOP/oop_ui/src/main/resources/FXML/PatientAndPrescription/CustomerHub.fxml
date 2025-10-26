@@ -1,241 +1,180 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<SplitPane dividerPositions="0.25" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
+<SplitPane dividerPositions="0.25" prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
+
+    <!-- LEFT PANEL: Customer List & Filters -->
     <items>
-        <VBox spacing="10.0">
+        <VBox spacing="16.0">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
             </padding>
-            <children>
 
+            <TitledPane expanded="true" styleClass="titled-pane" text="👥 BỆNH NHÂN">
+                <VBox spacing="12">
+                    <padding>
+                        <Insets bottom="12" left="12" right="12" top="12" />
+                    </padding>
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <Label text="Bệnh nhân">
-                            <font>
+                    <Button fx:id="addCustomerButton" maxWidth="Infinity" onAction="#onAddCustomerButton" styleClass="btn-success" text="➕ Thêm Mới" />
 
+                    <TextField fx:id="searchField" promptText="Tìm kiếm theo tên hoặc ID..." styleClass="text-field" />
 
-                                <Font name="System Bold" size="18.0" />
-                            </font>
-                        </Label>
+                    <Separator />
 
+                    <Label styleClass="form-label" text="Lọc theo:" />
 
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#onAddCustomerButton" text="+ Thêm Mới" />
-                    </children>
-                </HBox>
-                <TextField fx:id = "searchField" promptText="Tìm kiếm theo tên hoặc ID..." />
+                    <ComboBox fx:id="genderFilter" maxWidth="Infinity" promptText="Giới tính" style="-fx-text-fill: #2C3E50;" styleClass="combo-rounded" />
 
+                    <Label styleClass="form-label" text="Ngày sinh từ:" />
+                    <DatePicker fx:id="dobFromPicker" maxWidth="Infinity" promptText="Chọn ngày bắt đầu" />
 
-                <ComboBox fx:id="genderFilter" maxWidth="1.7976931348623157E308"  promptText="Lọc theo giới tính" />
-                <HBox spacing="5.0">
-                    <children>
-                        <DatePicker fx:id="dobFromPicker" prefWidth="150.0" promptText="Sinh từ ngày" />
+                    <Label styleClass="form-label" text="Ngày sinh đến:" />
+                    <DatePicker fx:id="dobToPicker" maxWidth="Infinity" promptText="Chọn ngày kết thúc" />
 
+                    <HBox spacing="8">
+                        <Button fx:id="applyFilterButton" onAction="#applyFilters" prefWidth="80" style="-fx-background-color: #28a745; -fx-text-fill: white;" styleClass="btn-search" text="Lọc" />
+                        <Button fx:id="resetFilterButton" onAction="#resetFilters" prefWidth="80" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-border-width: 0;" styleClass="btn-secondary" text="Hủy" />
+                    </HBox>
 
-                        <DatePicker fx:id="dobToPicker" prefWidth="150.0" promptText="Đến ngày" />
-                    </children>
-                </HBox>
+                    <Separator />
 
-                <GridPane hgap="5.0">
-                    <columnConstraints>
-
-
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="75.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" percentWidth="25.0" />
-                    </columnConstraints>
-                    <children>
-
-
-                        <Button fx:id="applyFilterButton" maxWidth="1.7976931348623157E308" text="Áp dụng Lọc" onAction="#applyFilters" GridPane.columnIndex="0" />
-                        <Button fx:id="resetFilterButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#resetFilters" text="Hủy" GridPane.columnIndex="1" />
-                    </children>
-                </GridPane>
-
-
-                <Separator />
-                <ListView fx:id="customerListView" VBox.vgrow="ALWAYS" />
-            </children>
+                    <ListView fx:id="customerListView" VBox.vgrow="ALWAYS" />
+                </VBox>
+            </TitledPane>
         </VBox>
     </items>
 
+    <!-- RIGHT PANEL: Customer Details -->
     <items>
         <BorderPane>
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10" />
-
-
-            </padding>
             <top>
                 <VBox>
-                    <BorderPane.margin>
-                        <Insets bottom="10.0" />
-                    </BorderPane.margin>
+                    <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+                        <padding>
+                            <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                        </padding>
 
+                        <Label fx:id="customerNameLabel" styleClass="page-title" text="[CHỌN BỆNH NHÂN]" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" styleClass="btn-secondary" text="Chỉnh sửa" />
+                    </HBox>
 
-                    <children>
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <children>
+                    <Separator />
 
-                                <Label fx:id="customerNameLabel" text="[CHỌN BỆNH NHÂN]">
-                                    <font>
-                                        <Font name="System Bold" size="24.0" />
+                    <GridPane hgap="12.0" styleClass="info-panel" vgap="10.0">
+                        <padding>
+                            <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                            <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
 
-                                    </font>
-                                </Label>
-                                <Region HBox.hgrow="ALWAYS" />
+                        <Label styleClass="form-label" text="Mã BN:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="customerIdValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" text="Chỉnh sửa" />
+                        <Label styleClass="form-label" text="Ngày sinh:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <Label fx:id="customerDobValueLabel" text="-" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                            </children>
-                        </HBox>
+                        <Label styleClass="form-label" text="Giới tính:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="customerGenderValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-
-                        <GridPane hgap="10.0" vgap="5.0">
-
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="NEVER" prefWidth="80.0" />
-                                <ColumnConstraints hgrow="ALWAYS" />
-
-
-                                <ColumnConstraints hgrow="NEVER" prefWidth="80.0" />
-                                <ColumnConstraints hgrow="ALWAYS" />
-                            </columnConstraints>
-
-
-                            <children>
-                                <Label text="Mã BN:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                <Label fx:id="customerIdValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-
-                                <Label text="Ngày sinh:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                                <Label fx:id="customerDobValueLabel" text="..." GridPane.columnIndex="3" GridPane.rowIndex="0" />
-
-                                <Label text="Giới tính:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-
-                                <Label fx:id="customerGenderValueLabel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                <Label text="Tuổi:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-                                <Label fx:id="customerAgeValueLabel" text="..."
-                                       GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                            </children>
-
-                            <VBox.margin>
-                                <Insets top="5.0" />
-
-                            </VBox.margin>
-                        </GridPane>
-
-                    </children>
+                        <Label styleClass="form-label" text="Tuổi:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label fx:id="customerAgeValueLabel" text="-" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
+                    </GridPane>
                 </VBox>
             </top>
 
             <center>
-                <TabPane tabClosingPolicy="UNAVAILABLE">
+                <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
+                        <!-- TAB 1: Overview -->
+                        <Tab text="📋 Tổng Quan">
+                            <VBox spacing="16">
+                                <padding>
+                                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                                </padding>
 
-                        <Tab text="Tổng Quan">
-                            <content>
+                                <TitledPane expanded="true" styleClass="titled-pane" text="📝 THÔNG TIN CHI TIẾT">
+                                    <GridPane hgap="12" vgap="15">
+                                        <padding>
+                                            <Insets bottom="15" left="15" right="15" top="15" />
+                                        </padding>
+                                        <columnConstraints>
+                                            <ColumnConstraints halignment="RIGHT" minWidth="100" />
+                                            <ColumnConstraints hgrow="ALWAYS" />
+                                        </columnConstraints>
 
-                                <GridPane hgap="10" vgap="15">
+                                        <Label styleClass="form-label" text="Địa chỉ:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="addressField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <padding>
+                                        <Label styleClass="form-label" text="Điện thoại:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <TextField fx:id="phoneField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                                        <Insets top="20" />
-                                    </padding>
+                                        <Label styleClass="form-label" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <TextField fx:id="emailField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                                    <columnConstraints>
-
-                                        <ColumnConstraints hgrow="NEVER" prefWidth="120" />
-
-                                        <ColumnConstraints hgrow="ALWAYS" />
-
-                                    </columnConstraints>
-                                    <Label text="Địa chỉ:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-
-                                    <TextField fx:id="addressField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                                    <Label text="Điện thoại:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-
-                                    <TextField fx:id="phoneField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <Label text="Email:"
-                                           GridPane.columnIndex="0"
-                                           GridPane.rowIndex="2" />
-                                    <TextField fx:id="emailField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <Label text="Ghi chú:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-
-
-                                    <TextArea fx:id="notesArea" editable="false" prefHeight="80" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                </GridPane>
-                            </content>
-
-
+                                        <Label styleClass="form-label" text="Ghi chú:" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.valignment="TOP">
+                                            <padding>
+                                                <Insets top="8.0" />
+                                            </padding>
+                                        </Label>
+                                        <TextArea fx:id="notesArea" editable="false" prefRowCount="4" styleClass="text-area" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <rowConstraints>
+                                 <RowConstraints />
+                                 <RowConstraints />
+                                 <RowConstraints />
+                                 <RowConstraints />
+                              </rowConstraints>
+                                    </GridPane>
+                                </TitledPane>
+                            </VBox>
                         </Tab>
 
-                        <Tab text="Lịch sử Khám &amp;
-Kê đơn">
-                            <content>
-                                <BorderPane>
-                                    <top>
-                                        <HBox alignment="CENTER_RIGHT" prefHeight="50.0" spacing="10.0">
-                                            <children>
-                                                <Button fx:id="editPrescriptionButton" onAction="#handleEditPrescription" text="Chỉnh sửa" />
+                        <!-- TAB 2: Exam History -->
+                        <Tab text="📋 Lịch sử Khám &amp; Kê đơn">
+                            <BorderPane>
+                                <top>
+                                    <HBox alignment="CENTER_RIGHT" spacing="12.0" styleClass="filter-bar">
+                                        <padding>
+                                            <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
+                                        </padding>
+                                        <Button fx:id="editPrescriptionButton" onAction="#handleEditPrescription" styleClass="btn-secondary" text="Chỉnh sửa" />
+                                        <Button onAction="#onAddNewPrescription" styleClass="btn-success" text="➕ Thêm Hồ sơ khám mới" />
+                                    </HBox>
+                                </top>
 
-                                                <Button onAction="#onAddNewPrescription" text="+ Thêm Hồ sơ khám mới" />
-                                            </children>
+                                <center>
+                                    <TableView fx:id="examHistoryTable" styleClass="financial-table">
+                                        <columns>
+                                            <TableColumn fx:id="signedAtCollumn" prefWidth="120" text="Ngày Khám" />
+                                            <TableColumn fx:id="appointmentIdCollumn" prefWidth="200" text="ID Buổi khám" />
+                                            <TableColumn fx:id="chiefComplaintCollumn" prefWidth="300" text="Lý Do Khám" />
+                                            <TableColumn fx:id="diagnosisCollumn" prefWidth="300" text="Chẩn Đoán" />
+                                        </columns>
 
-                                        </HBox>
-                                    </top>
-                                    <center>
-
-
-                                        <TableView fx:id="examHistoryTable">
-                                            <columns>
-
-
-                                                <TableColumn fx:id = "signedAtCollumn" prefWidth="120" text="Ngày Khám" />
-                                                <TableColumn fx:id = "appointmentIdCollumn" prefWidth="200" text="ID Buổi khám" />
-
-                                                <TableColumn fx:id = "chiefComplaintCollumn" prefWidth="300" text="Lý Do Khám" />
-                                                <TableColumn fx:id = "diagnosisCollumn" prefWidth="300" text="Chẩn Đoán" />
-
-
-                                            </columns>
-                                            <columnResizePolicy>
-
-
-                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                            </columnResizePolicy>
-
-
-                                        </TableView>
-                                    </center>
-                                </BorderPane>
-
-
-                            </content>
+                                        <placeholder>
+                                            <VBox alignment="CENTER" spacing="10">
+                                                <padding>
+                                                    <Insets bottom="40" left="40" right="40" top="40" />
+                                                </padding>
+                                                <Label text="Chưa có lịch sử khám bệnh" />
+                                                <Label text="Thêm hồ sơ khám mới để bắt đầu" />
+                                            </VBox>
+                                        </placeholder>
+                                    </TableView>
+                                </center>
+                            </BorderPane>
                         </Tab>
                     </tabs>
                 </TabPane>

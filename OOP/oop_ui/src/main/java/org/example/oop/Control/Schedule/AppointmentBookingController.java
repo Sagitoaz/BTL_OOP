@@ -88,10 +88,10 @@ public class AppointmentBookingController implements Initializable {
     @FXML private Button btnOpenCalendar;
     @FXML private Label lblStatus;
     @FXML private ProgressIndicator piLoading;
-    @FXML private TextArea txtPatientName;
-    @FXML private TextArea txtPatientPhone; 
-    @FXML private TextArea txtPatientEmail;
-    @FXML private TextArea txtPatientInsurance;
+    @FXML private TextField txtPatientName;
+    @FXML private TextField txtPatientPhone;
+    @FXML private TextField txtPatientEmail;
+    @FXML private TextField txtPatientInsurance;
     @FXML private TextArea txtPatientNotes;
 
     @Override
