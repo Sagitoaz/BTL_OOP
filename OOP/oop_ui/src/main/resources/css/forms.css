@@ -1,0 +1,461 @@
+/* ========================================
+   FORMS STYLES - MEDICAL PROFESSIONAL
+   Thiết kế: Forms chuyên nghiệp y tế, dễ sử dụng
+   ======================================== */
+
+/* ========== FORM CONTAINER ========== */
+.form-container {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 4px;
+    -fx-padding: 28px;
+    -fx-spacing: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(44, 62, 80, 0.08), 8, 0, 0, 1);
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+.form-content {
+    -fx-spacing: 18px;
+}
+
+/* ========== FORM SECTIONS ========== */
+.form-section {
+    -fx-spacing: 16px;
+    -fx-padding: 16px 0;
+}
+
+.form-section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #2C3E50;
+    -fx-padding: 0 0 10px 0;
+}
+
+.form-section-divider {
+    -fx-background-color: #E8EDF5;
+    -fx-pref-height: 1px;
+}
+
+/* ========== INPUT FIELDS - PROFESSIONAL ========== */
+.text-field, .form-input {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px 16px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2C3E50;
+    -fx-pref-height: 40px;
+}
+
+.text-field:focused, .form-input:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.12), 4, 0, 0, 0);
+}
+
+.text-field:hover, .form-input:hover {
+    -fx-border-color: #3399FF;
+    -fx-background-color: #FFFFFF;
+}
+
+.text-field:disabled, .form-input:disabled {
+    -fx-background-color: #F8F9FA;
+    -fx-text-fill: #B0BEC5;
+    -fx-opacity: 0.7;
+}
+
+/* Text Area */
+.text-area, .form-textarea {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px 16px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2C3E50;
+    -fx-pref-height: 90px;
+}
+
+.text-area:focused, .form-textarea:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 2px;
+}
+
+.text-area .content {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20px;
+}
+
+.text-area .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.text-area .scroll-pane .content {
+    -fx-background-color: transparent;
+}
+
+/* ========== SELECT & COMBO BOX ========== */
+.form-select {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 2px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 2px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px 14px;
+    -fx-pref-height: 42px;
+}
+
+.form-select:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 2px;
+}
+
+.form-select:hover {
+    -fx-border-color: #3399FF;
+}
+
+/* ========== CHECKBOX & RADIO ========== */
+.form-checkbox, .form-radio {
+    -fx-font-size: 13px;
+    -fx-text-fill: #2C3E50;
+    -fx-spacing: 8px;
+}
+
+.form-checkbox .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D9E6;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-padding: 2px;
+}
+
+.form-checkbox:hover .box {
+    -fx-border-color: #0066CC;
+    -fx-background-color: #FFFFFF;
+}
+
+.form-checkbox:selected .box {
+    -fx-background-color: #0066CC;
+    -fx-border-color: #0066CC;
+}
+
+.form-checkbox .mark {
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 3px;
+}
+
+/* ========== VALIDATION STATES ========== */
+.form-input-valid {
+    -fx-border-color: #00A86B !important;
+    -fx-border-width: 2px;
+}
+
+.form-input-invalid {
+    -fx-border-color: #DC3545 !important;
+    -fx-border-width: 2px;
+}
+
+.validation-message {
+    -fx-font-size: 12px;
+    -fx-padding: 4px 0 0 0;
+}
+
+.validation-error {
+    -fx-text-fill: #DC3545;
+}
+
+.validation-success {
+    -fx-text-fill: #00A86B;
+}
+
+.validation-warning {
+    -fx-text-fill: #FF6B35;
+}
+
+/* ========== FORM BUTTONS ========== */
+.form-actions {
+    -fx-spacing: 10px;
+    -fx-padding: 20px 0 0 0;
+    -fx-alignment: center-right;
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.form-button-primary {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 2px;
+    -fx-padding: 11px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.2), 4, 0, 0, 1);
+}
+
+.form-button-primary:hover {
+    -fx-background-color: #004C99;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.3), 6, 0, 0, 2);
+}
+
+.form-button-secondary {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #5A6C7D;
+    -fx-border-color: #D1D9E6;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+    -fx-padding: 11px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.form-button-secondary:hover {
+    -fx-border-color: #0066CC;
+    -fx-text-fill: #0066CC;
+    -fx-background-color: #F5F7FA;
+}
+
+.form-hint {
+    -fx-font-size: 12px;
+    -fx-text-fill: #95A5B8;
+    -fx-wrap-text: true;
+}
+
+/* ========== FORM PROGRESS ========== */
+.form-progress {
+    -fx-padding: 0 0 20px 0;
+}
+
+.form-step {
+    -fx-spacing: 8px;
+    -fx-alignment: center;
+}
+
+.step-number {
+    -fx-background-color: #E8EDF5;
+    -fx-text-fill: #5A6C7D;
+    -fx-background-radius: 50%;
+    -fx-padding: 8px 12px;
+    -fx-font-weight: 600;
+}
+
+.step-active .step-number {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: #FFFFFF;
+}
+
+.step-completed .step-number {
+    -fx-background-color: #00A86B;
+    -fx-text-fill: #FFFFFF;
+}
+
+.step-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: #95A5B8;
+}
+
+.step-active .step-label {
+    -fx-text-fill: #0066CC;
+    -fx-font-weight: 600;
+}
+
+/* ========== PASSWORD TOGGLE BUTTON - Y TẾ CHUYÊN NGHIỆP ========== */
+.password-toggle-btn {
+    -fx-background-color: #F7FAFC;
+    -fx-text-fill: #0052A3;
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-padding: 8px;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 3px;
+    -fx-min-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-width: 38px;
+    -fx-pref-height: 38px;
+}
+
+.password-toggle-btn:hover {
+    -fx-background-color: #E6F2FF;
+    -fx-border-color: #0052A3;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.password-toggle-btn:pressed {
+    -fx-background-color: #D4E7FF;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Container cho password field */
+.password-container {
+    -fx-background-color: transparent;
+}
+
+.password-container .form-input {
+    -fx-padding: 12px 50px 12px 16px; /* Thêm space bên phải cho button */
+}
+
+/* ========== SIGNUP RECTANGULAR FIELDS ========== */
+/* Các field trong trang Signup - hình chữ nhật không bo góc */
+.signup-field {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 0px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 0px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 10px 16px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2C3E50;
+    -fx-pref-height: 44px;
+}
+
+.signup-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #0066CC;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.12), 4, 0, 0, 0);
+}
+
+.signup-field:hover {
+    -fx-border-color: #3399FF;
+    -fx-background-color: #FFFFFF;
+}
+
+.password-container .signup-field {
+    -fx-padding: 12px 50px 12px 16px;
+}
+
+/* ========== DATE PICKER ========== */
+/* DatePicker uses default JavaFX styling */
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .form-container {
+        -fx-padding: 20px;
+    }
+
+    .form-row {
+        -fx-orientation: vertical;
+    }
+}
+
+/* ========== COMBO BOX ROUNDED ========== */
+.combo-box.combo-rounded {
+    -fx-background-color: #FFFFFF !important;
+    -fx-background-radius: 20px !important;
+    -fx-border-color: #D1D9E6 !important;
+    -fx-border-radius: 20px !important;
+    -fx-border-width: 1.5px !important;
+    -fx-padding: 0px;
+    -fx-font-size: 14px;
+    -fx-pref-height: 45px;
+    -fx-min-height: 45px;
+    -fx-max-height: 45px;
+    -fx-effect: dropshadow(gaussian, rgba(44, 62, 80, 0.08), 2, 0, 0, 1);
+}
+
+.combo-box.combo-rounded:hover {
+    -fx-border-color: #0052A3 !important;
+    -fx-background-color: #F8FBFF !important;
+}
+
+.combo-box.combo-rounded:focused {
+    -fx-border-color: #0066CC !important;
+    -fx-border-width: 2px !important;
+    -fx-background-color: #FFFFFF !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 102, 204, 0.15), 4, 0, 0, 1);
+}
+
+/* Fix cho list-cell chính hiển thị giá trị đã chọn */
+.combo-box.combo-rounded .list-cell {
+    -fx-padding: 12px 14px 12px 14px;
+    -fx-text-fill: #2C3E50 !important;
+    -fx-font-size: 14px;
+    -fx-background-color: transparent !important;
+    -fx-alignment: CENTER_LEFT;
+    -fx-content-display: LEFT;
+}
+
+.combo-box.combo-rounded .list-cell:filled {
+    -fx-text-fill: #2C3E50 !important;
+    -fx-background-color: transparent !important;
+}
+
+.combo-box.combo-rounded .list-cell:empty {
+    -fx-text-fill: #2C3E50 !important;
+}
+
+/* Fix cho button area - cell hiển thị ở button */
+.combo-box.combo-rounded > .list-cell {
+    -fx-text-fill: #2C3E50 !important;
+    -fx-background-color: transparent !important;
+    -fx-padding: 12px 14px 12px 14px;
+}
+
+/* Arrow button */
+.combo-box.combo-rounded .arrow-button {
+    -fx-background-radius: 0 20px 20px 0 !important;
+    -fx-padding: 0 12px 0 10px;
+    -fx-background-color: transparent !important;
+}
+
+.combo-box.combo-rounded .arrow {
+    -fx-background-color: #0052A3;
+    -fx-padding: 4px;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z";
+}
+
+.combo-box.combo-rounded:hover .arrow {
+    -fx-background-color: #003d7a;
+}
+
+/* Fix tất cả text nodes */
+.combo-box.combo-rounded .text {
+    -fx-fill: #2C3E50 !important;
+}
+
+.combo-box.combo-rounded .label {
+    -fx-text-fill: #2C3E50 !important;
+}
+
+/* Popup list items */
+.combo-box-popup.combo-rounded .list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-border-color: #D1D9E6;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 10, 0, 0, 3);
+}
+
+.combo-box-popup.combo-rounded .list-view .list-cell {
+    -fx-padding: 10px 14px;
+    -fx-text-fill: #2C3E50;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup.combo-rounded .list-view .list-cell:hover {
+    -fx-background-color: #E6F2FF;
+    -fx-text-fill: #0066CC;
+}
+
+.combo-box-popup.combo-rounded .list-view .list-cell:selected {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: white;
+}

@@ -5,79 +5,103 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="560.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.AddCustomerViewController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.AddCustomerViewController">
 
+    <!-- TOP: Header -->
     <top>
-        <Label text="Chỉnh sửa và thêm hồ sơ Bệnh nhân" BorderPane.alignment="CENTER">
-            <font>
-                <Font name="System Bold" size="22.0" />
-            </font>
-            <BorderPane.margin>
-                <Insets bottom="25.0" />
-            </BorderPane.margin>
-        </Label>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+            <padding>
+                <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+            </padding>
+            <Label styleClass="page-title" text="CHỈNH SỬA VÀ THÊM HỒ SƠ BỆNH NHÂN" />
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
     </top>
 
+    <!-- CENTER: Form -->
     <center>
-        <GridPane hgap="10.0" vgap="15.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" prefWidth="120.0" />
-                <ColumnConstraints hgrow="SOMETIMES" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="35.0" />
-                <RowConstraints minHeight="10.0" prefHeight="80.0" />
-            </rowConstraints>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16.0">
+                <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                </padding>
 
-            <Label text="Họ và Tên:" GridPane.rowIndex="0" />
-            <TextField fx:id="nameField" promptText="Nhập họ và tên bệnh nhân" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <TitledPane expanded="true" styleClass="titled-pane" text="📝 THÔNG TIN BỆNH NHÂN">
+                    <VBox spacing="15">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
 
-            <Label text="Ngày sinh:" GridPane.rowIndex="1" />
-            <DatePicker fx:id="dobPicker" prefWidth="450.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <GridPane hgap="12" vgap="15">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="120" />
+                                <ColumnConstraints hgrow="ALWAYS" />
+                            </columnConstraints>
 
-            <Label text="Giới tính:" GridPane.rowIndex="2" />
-            <ComboBox fx:id="genderComboBox" prefWidth="450.0" promptText="Chọn giới tính..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            <Label styleClass="form-label" text="Họ và Tên:" GridPane.rowIndex="0" />
+                            <TextField fx:id="nameField" promptText="Nhập họ và tên bệnh nhân" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label text="Địa chỉ:" GridPane.rowIndex="3" />
-            <TextField fx:id="addressField" promptText="Nhập địa chỉ" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                            <Label styleClass="form-label" text="Ngày sinh:" GridPane.rowIndex="1" />
+                            <DatePicker fx:id="dobPicker" maxWidth="Infinity" promptText="Chọn ngày sinh" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <Label text="Số điện thoại:" GridPane.rowIndex="4" />
-            <TextField fx:id="phoneField" promptText="Nhập số điện thoại" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                            <Label styleClass="form-label" text="Giới tính:" GridPane.rowIndex="2" />
+                            <ComboBox fx:id="genderComboBox" maxWidth="Infinity" promptText="Chọn giới tính..." styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-            <Label text="Email:" GridPane.rowIndex="5" />
-            <TextField fx:id="emailField" promptText="Nhập email (nếu có)" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                            <Label styleClass="form-label" text="Địa chỉ:" GridPane.rowIndex="3" />
+                            <TextField fx:id="addressField" promptText="Nhập địa chỉ" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-            <Label text="Ghi chú:" GridPane.rowIndex="6" />
-            <TextArea fx:id="notesArea" promptText="Thêm ghi chú về bệnh nhân (nếu có)" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-        </GridPane>
+                            <Label styleClass="form-label" text="Số điện thoại:" GridPane.rowIndex="4" />
+                            <TextField fx:id="phoneField" promptText="Nhập số điện thoại" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                            <Label styleClass="form-label" text="Email:" GridPane.rowIndex="5" />
+                            <TextField fx:id="emailField" promptText="Nhập email (nếu có)" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                            <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="6" GridPane.valignment="TOP">
+                                <padding>
+                                    <Insets top="8.0" />
+                                </padding>
+                            </Label>
+                            <TextArea fx:id="notesArea" prefRowCount="4" promptText="Thêm ghi chú về bệnh nhân (nếu có)" styleClass="text-area" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+                    </VBox>
+                </TitledPane>
+            </VBox>
+        </ScrollPane>
     </center>
 
+    <!-- BOTTOM: Action Buttons -->
     <bottom>
-        <HBox alignment="CENTER_RIGHT" spacing="15.0">
-            <BorderPane.margin>
-                <Insets top="30.0" />
-            </BorderPane.margin>
-            <children>
-                <Button fx:id="deleteButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="90.0" text="Xóa" onAction="#onDeleteButton" />
-                <Button fx:id="saveAndCloseButton" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" onAction="#onSaveAndCloseButton" text="Lưu &amp; Đóng" />
-            </children>
-        </HBox>
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButton" prefWidth="100.0" styleClass="btn-danger" text="Xóa" />
+                <Button fx:id="saveAndCloseButton" defaultButton="true" mnemonicParsing="false" onAction="#onSaveAndCloseButton" prefHeight="43.0" prefWidth="151.0" styleClass="btn-success" text="💾 Lưu &amp; Đóng" />
+            </HBox>
+        </VBox>
     </bottom>
 </BorderPane>
