@@ -14,9 +14,6 @@ module org.example.oop {
     requires java.net.http;
     requires jdk.compiler;
 
-    opens org.example.oop.View to javafx.fxml;
-
-    exports org.example.oop.View;
 
     opens org.example.oop.Control to javafx.fxml;
 
@@ -32,11 +29,6 @@ module org.example.oop {
     exports org.example.oop.Model;
 
     opens org.example.oop.Model to javafx.fxml;
-
-    exports org.example.oop.Data.models;
-    exports org.example.oop.Data.storage;
-
-    opens org.example.oop.Data.models to javafx.fxml;
 
     // ✅ API Services cho Inventory (package: org.example.oop.Service)
     exports org.example.oop.Service;

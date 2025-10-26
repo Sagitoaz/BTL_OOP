@@ -1,10 +1,4 @@
-package org.example.oop.Services;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.example.oop.Utils.GsonProvider;
-import org.miniboot.app.domain.models.Doctor;
-import org.miniboot.app.domain.models.TimeSlot;
+package org.example.oop.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +6,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+
+import org.example.oop.Utils.GsonProvider;
+import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.models.TimeSlot;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class HttpDoctorService {
     private final String baseUrl;
@@ -44,7 +45,8 @@ public class HttpDoctorService {
 
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(),
-                        new TypeToken<List<Doctor>>(){}.getType());
+                        new TypeToken<List<Doctor>>() {
+                        }.getType());
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();
@@ -56,6 +58,7 @@ public class HttpDoctorService {
             return List.of();
         }
     }
+
     /**
      * GET /doctors/available-slots?doctorId={id}&date={date}
      * Lấy danh sách slot trống trong ngày
@@ -76,7 +79,8 @@ public class HttpDoctorService {
 
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(),
-                        new TypeToken<List<TimeSlot>>(){}.getType());
+                        new TypeToken<List<TimeSlot>>() {
+                        }.getType());
             } else if (response.statusCode() == 400) {
                 System.err.println("❌ Bad request: Missing doctorId or date");
                 return List.of();

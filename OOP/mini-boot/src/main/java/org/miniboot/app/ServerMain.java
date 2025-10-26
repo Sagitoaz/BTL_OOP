@@ -3,30 +3,30 @@ package org.miniboot.app;
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.controllers.EmployeeController;
 import org.miniboot.app.controllers.Inventory.InventoryController;
 import org.miniboot.app.controllers.Inventory.StockMovementController;
+import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
+import org.miniboot.app.controllers.PatientAndPrescription.PrescriptionController;
 import org.miniboot.app.controllers.payment.PaymentController;
 import org.miniboot.app.controllers.payment.PaymentItemController;
 import org.miniboot.app.controllers.payment.PaymentStatusLogController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
+import org.miniboot.app.domain.repo.Employee.PostgreSQLEmployeeRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLStockMovmentRepository;
 import org.miniboot.app.domain.repo.Inventory.ProductRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLCustomerRecordRepository;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLPrescription;
+import org.miniboot.app.domain.repo.PatientAndPrescription.PrescriptionRepository;
 import org.miniboot.app.domain.repo.Payment.PaymentItemRepository;
 import org.miniboot.app.domain.repo.Payment.PaymentRepository;
 import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
 import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentItemRepository;
 import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentRepository;
 import org.miniboot.app.domain.repo.Payment.PostgreSQLPaymentStatusLogRepository;
-import org.miniboot.app.controllers.PatientAndPrescription.CustomerRecordController;
-import org.miniboot.app.controllers.PatientAndPrescription.PrescriptionController;
-import org.miniboot.app.domain.repo.AppointmentRepository;
-import org.miniboot.app.domain.repo.DoctorRepository;
-import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
-import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLCustomerRecordRepository;
-import org.miniboot.app.domain.repo.PatientAndPrescription.PostgreSQLPrescription;
-import org.miniboot.app.domain.repo.PatientAndPrescription.PrescriptionRepository;
 import org.miniboot.app.domain.repo.PostgreSQLAppointmentRepository;
 import org.miniboot.app.domain.repo.PostgreSQLDoctorRepository;
 import org.miniboot.app.http.HttpServer;
@@ -56,7 +56,7 @@ public class ServerMain {
 
         CustomerRecordRepository customerRecordRepo = new PostgreSQLCustomerRecordRepository();
         PrescriptionRepository prescriptionRepository = new PostgreSQLPrescription();
-        
+
         System.out.println("✅ Repositories initialized");
 
         // Tạo controllers
@@ -100,6 +100,9 @@ public class ServerMain {
         // mount các controller
         AuthController.mount(router);
         CustomerRecordController.mount(router, crc);
+        // employees
+        PostgreSQLEmployeeRepository employeeRepo = new PostgreSQLEmployeeRepository();
+        EmployeeController.mount(router, employeeRepo);
 
         // Khởi động server
         HttpServer server = new HttpServer(port, router);

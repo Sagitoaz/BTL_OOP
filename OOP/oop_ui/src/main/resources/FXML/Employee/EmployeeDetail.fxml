@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.oop.Control.Employee.EmployeeDetailController"
+            prefHeight="600.0" prefWidth="700.0"
+            style="-fx-background-color: #f5f7fa;">
+
+    <!-- ========== HEADER ========== -->
+    <top>
+        <VBox style="-fx-background-color: linear-gradient(to right, #667eea, #764ba2);">
+            <padding><Insets top="25" right="30" bottom="25" left="30"/></padding>
+            
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <!-- Avatar Section -->
+                <VBox alignment="CENTER" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 15;">
+                    <Label fx:id="avatarLabel" text="👤" style="-fx-font-size: 64px;"/>
+                    <Label fx:id="statusBadge" text="HOẠT ĐỘNG" 
+                           style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4 12; -fx-background-radius: 12;"/>
+                </VBox>
+                
+                <!-- Employee Info -->
+                <VBox spacing="5" VBox.vgrow="ALWAYS">
+                    <Label fx:id="fullNameLabel" text="Nguyễn Văn A" 
+                           style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <HBox spacing="15">
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Label text="👨‍⚕️" style="-fx-font-size: 14px;"/>
+                            <Label fx:id="roleLabel" text="Bác sĩ" 
+                                   style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                        </HBox>
+                        <Separator orientation="VERTICAL" prefHeight="20" style="-fx-background-color: rgba(255,255,255,0.3);"/>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Label text="🆔" style="-fx-font-size: 14px;"/>
+                            <Label fx:id="employeeIdLabel" text="ID: 001" 
+                                   style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.9);"/>
+                        </HBox>
+                    </HBox>
+                    <Label fx:id="usernameLabel" text="@username" 
+                           style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+                </VBox>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <!-- Quick Actions -->
+                <VBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="editButton"
+                           text="✏️ Chỉnh sửa"
+                           onAction="#handleEdit"
+                           style="-fx-background-color: white; -fx-text-fill: #667eea; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                    <Button fx:id="closeButton"
+                           text="✖ Đóng"
+                           onAction="#handleClose"
+                           style="-fx-background-color: rgba(0,0,0,0.2); -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ========== CONTENT ========== -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="20">
+                <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
+
+                <!-- ========== SECTION 1: Thông tin liên hệ ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label text="📞 Thông Tin Liên Hệ" 
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #3498db; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;"/>
+                    
+                    <GridPane hgap="20" vgap="15">
+                        <!-- Email -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e3f2fd; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="📧" style="-fx-font-size: 20px;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Email" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="emailLabel" text="example@clinic.com" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Phone -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e8f5e9; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="📱" style="-fx-font-size: 20px;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Số điện thoại" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="phoneLabel" text="0901234567" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        </columnConstraints>
+                    </GridPane>
+                </VBox>
+
+                <!-- ========== SECTION 2: Thông tin nghề nghiệp ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label text="💼 Thông Tin Nghề Nghiệp" 
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #2ecc71; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;"/>
+                    
+                    <GridPane hgap="20" vgap="15">
+                        <!-- Role -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #fff3cd; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="👨‍⚕️" style="-fx-font-size: 20px;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Vai trò" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="roleDetailLabel" text="Bác sĩ (Doctor)" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- License Number (only for doctors) -->
+                        <HBox fx:id="licenseBox" spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #fce4ec; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="📋" style="-fx-font-size: 20px;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Số giấy phép hành nghề" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="licenseNoLabel" text="BS-12345" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        </columnConstraints>
+                    </GridPane>
+                </VBox>
+
+                <!-- ========== SECTION 3: Thông tin hệ thống ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label text="⚙️ Thông Tin Hệ Thống" 
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #9b59b6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;"/>
+                    
+                    <GridPane hgap="20" vgap="15">
+                        <!-- Created At -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #f3e5f5; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="📅" style="-fx-font-size: 20px;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Ngày tạo tài khoản" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="createdAtLabel" text="01/01/2024 10:30" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- Active Status -->
+                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e8f5e9; -fx-background-radius: 8; -fx-padding: 10;">
+                                <Label text="✓" style="-fx-font-size: 24px; -fx-text-fill: #2ecc71; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label text="Trạng thái hoạt động" style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;"/>
+                                <Label fx:id="activeStatusLabel" text="Đang hoạt động" 
+                                       style="-fx-font-size: 14px; -fx-text-fill: #2ecc71; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        </columnConstraints>
+                    </GridPane>
+                </VBox>
+
+                <!-- ========== SECTION 4: Thống kê (nếu có) ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label text="📊 Thống Kê Hoạt Động" 
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #e67e22; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;"/>
+                    
+                    <HBox spacing="20" alignment="CENTER">
+                        <!-- Total Appointments -->
+                        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #e3f2fd; -fx-background-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                            <Label text="📅" style="-fx-font-size: 28px;"/>
+                            <Label fx:id="totalAppointmentsLabel" text="0" 
+                                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1976d2;"/>
+                            <Label text="Lịch hẹn" style="-fx-font-size: 12px; -fx-text-fill: #1976d2;"/>
+                        </VBox>
+                        
+                        <!-- Total Patients -->
+                        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #e8f5e9; -fx-background-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                            <Label text="👥" style="-fx-font-size: 28px;"/>
+                            <Label fx:id="totalPatientsLabel" text="0" 
+                                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #388e3c;"/>
+                            <Label text="Bệnh nhân" style="-fx-font-size: 12px; -fx-text-fill: #388e3c;"/>
+                        </VBox>
+                        
+                        <!-- Working Days -->
+                        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #fff3e0; -fx-background-radius: 10; -fx-padding: 20;" HBox.hgrow="ALWAYS">
+                            <Label text="⏰" style="-fx-font-size: 28px;"/>
+                            <Label fx:id="workingDaysLabel" text="0" 
+                                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f57c00;"/>
+                            <Label text="Ngày làm việc" style="-fx-font-size: 12px; -fx-text-fill: #f57c00;"/>
+                        </VBox>
+                    </HBox>
+                    
+                    <Label text="ℹ️ Thống kê được tính từ ngày tạo tài khoản" 
+                           style="-fx-font-size: 11px; -fx-text-fill: #95a5a6; -fx-padding: 5 0 0 0;"/>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- ========== FOOTER ========== -->
+    <bottom>
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-background-color: white; -fx-padding: 15 30; -fx-border-color: #ecf0f1; -fx-border-width: 1 0 0 0;">
+            <Button text="🗑️ Xóa nhân viên"
+                   fx:id="deleteButton"
+                   onAction="#handleDelete"
+                   style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Label text="Thông tin chi tiết nhân viên • Cập nhật theo thời gian thực" 
+                   style="-fx-font-size: 11px; -fx-text-fill: #95a5a6;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
