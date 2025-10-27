@@ -15,7 +15,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/Login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/CustomerHub.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("PHÒNG KHÁM MẮT - Eye Clinic Management System");
         stage.setScene(scene);
