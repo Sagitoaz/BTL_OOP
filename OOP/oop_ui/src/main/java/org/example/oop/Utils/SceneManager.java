@@ -54,6 +54,53 @@ public final class SceneManager {
         }
         switchScene(fxmlPath, title);
     }
+    // Navigation History
+
+    public static void goBack(){
+        runOnFxThread(()->{
+            if(navigationHistory.size() <= 1){
+                return;
+            }
+            SceneInfo current = navigationHistory.pop();
+            forwardHistory.push(current);
+            SceneInfo previous = navigationHistory.peek();
+            Parent root = loadFxml(previous.getFxmlPath());
+            if(root == null || primaryStage == null){
+                return;
+            }
+            primaryStage.setScene(root.getScene());
+            if(previous.getTitle() != null && !previous.getTitle().isEmpty()){
+                primaryStage.setTitle(previous.getTitle());
+            }
+            primaryStage.show();
+
+        });
+    }
+    public static void goForward(){
+        runOnFxThread(()->{
+           if(forwardHistory.isEmpty()){
+               return;
+           }
+           SceneInfo next = forwardHistory.pop();
+           navigationHistory.push(next);
+
+           Parent root = loadFxml(next.getFxmlPath());
+           if(root == null || primaryStage == null){
+               return;
+           }
+           primaryStage.setScene(root.getScene());
+           if(next.getTitle() != null && !next.getTitle().isEmpty()){
+               primaryStage.setTitle(next.getTitle());
+           }
+           primaryStage.show();
+        });
+    }
+
+    //Modal Window
+    public static void openModalWindow(String fxmlPath, String title){
+
+    }
+
 
     //Data Passing
     public static void setSceneData(String key, Object value) {
