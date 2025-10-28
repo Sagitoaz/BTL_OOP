@@ -3,6 +3,8 @@ package org.miniboot.app.domain.repo.Payment;
 import org.miniboot.app.config.DatabaseConfig;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentMethod;
+import org.miniboot.app.domain.models.Payment.PaymentStatus;
+import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -159,6 +161,68 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
     }
 
 
+    /**
+     * Lấy tất cả các Payment cùng với trạng thái PaymentStatus hiện tại.
+     *
+     * @return Danh sách các đối tượng PaymentWithStatus.
+     */
+    public List<PaymentWithStatus> getAllPaymentsWithStatus() {
+        // 1. Thay đổi kiểu trả về
+        List<PaymentWithStatus> result = new ArrayList<>();
+
+        // 2. Sử dụng SQL hiệu năng hơn với Window Function
+        final String sql = """
+                WITH RankedStatus AS (
+                    -- Đánh số thứ tự status của mỗi payment, mới nhất là 1
+                    SELECT
+                        payment_id,
+                        status,
+                        ROW_NUMBER() OVER(PARTITION BY payment_id ORDER BY changed_at DESC) as rn
+                    FROM
+                        payment_status_log
+                )
+                SELECT
+                    p.id, p.code, p.customer_id, p.cashier_id, p.issued_at,
+                    p.subtotal, p.discount, p.tax_total, p.rounding, p.grand_total,
+                    p.payment_method, p.amount_paid, p.note, p.created_at,
+                    rs.status  -- Lấy status từ bảng đã xếp hạng
+                FROM
+                    payments p
+                LEFT JOIN
+                    RankedStatus rs ON p.id = rs.payment_id AND rs.rn = 1 -- Chỉ join với status mới nhất
+                ORDER BY
+                    p.created_at DESC
+                """;
+
+        try (Connection conn = dbConfig.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                // Lấy Payment
+                Payment payment = mapResultSetToPayment(rs); // Giả sử bạn có hàm này
+
+                // 3. Xử lý status (QUAN TRỌNG: Phải kiểm tra NULL)
+                String statusStr = rs.getString("status");
+                PaymentStatus paymentStatus = null; // Mặc định là null nếu không có status
+
+                if (statusStr != null) {
+                    paymentStatus = PaymentStatus.valueOf(statusStr);
+                }
+
+                // 4. Thêm vào kết quả bằng DTO (đây là chỗ sửa lỗi chính)
+                result.add(new PaymentWithStatus(payment, paymentStatus));
+            }
+
+            System.out.println("✅ Found " + result.size() + " payments with current status");
+        } catch (SQLException e) {
+            System.err.println("❌ Error fetching payments with status: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /// helper
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         Payment p = new Payment();
         p.setId(rs.getInt("id")); // PK not null

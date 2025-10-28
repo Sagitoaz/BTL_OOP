@@ -4,6 +4,7 @@ package org.example.oop.Service;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.miniboot.app.domain.models.Payment.Payment;
+import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
 import org.miniboot.app.util.GsonProvider;
 
 import java.io.IOException;
@@ -143,6 +144,34 @@ public class HttpPaymentService {
 
         } catch (Exception e) {
             return false;
+        }
+    }
+
+
+    /**
+     * GET /payments/with-status - Lấy danh sách tất cả payments với trạng thái của chúng
+     */
+    public List<PaymentWithStatus> getPaymentsWithStatus() {
+        try {
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + "/payments/with-status"))
+                    .GET()
+                    .header("Accept", "application/json")
+                    .build();
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return gson.fromJson(response.body(),
+                        new TypeToken<List<PaymentWithStatus>>() {
+                        }.getType());
+            } else {
+                System.err.println("❌ HTTP ERROR CODE: " + response.statusCode());
+                return List.of();
+            }
+        } catch (IOException | InterruptedException e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
         }
     }
 }
