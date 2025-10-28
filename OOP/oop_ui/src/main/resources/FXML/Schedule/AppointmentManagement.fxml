@@ -26,17 +26,23 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentManagementController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentManagementController">
 
     <top>
         <VBox>
+            <!-- Navigation Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+            </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="financial-header">
                 <padding>
                     <Insets bottom="18.0" left="28.0" right="28.0" top="18.0" />
                 </padding>
                 <Label styleClass="page-title" text="QUẢN LÝ LỊCH HẸN" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="createBtn" mnemonicParsing="false" onAction="#onCreate" prefWidth="120.0" styleClass="btn-success" text="➕ Tạo hẹn" />
+                <Button fx:id="createBtn" mnemonicParsing="false" onAction="#onCreate" prefHeight="44.0" prefWidth="170.0" styleClass="btn-success" text="Tạo hẹn" textAlignment="CENTER" />
             </HBox>
 
             <Separator />
@@ -82,7 +88,7 @@
     </top>
 
     <center>
-        <SplitPane dividerPositions="0.65" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <SplitPane dividerPositions="0.65" focusTraversable="false" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <items>
                 <VBox spacing="12.0">
                     <padding>
@@ -92,7 +98,7 @@
                         <Label styleClass="form-label" text="Danh sách hẹn" />
                         <Region HBox.hgrow="ALWAYS" />
                         <CheckBox mnemonicParsing="false" text="Chỉ hiện xung đột" />
-                        <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefresh" prefWidth="120.0" styleClass="btn-secondary" text="🔄 Làm mới" />
+                        <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefresh" prefHeight="44.0" prefWidth="145.0" styleClass="btn-secondary" text="Làm mới" textAlignment="CENTER" />
                     </HBox>
 
                     <TableView fx:id="appointmentTable" styleClass="financial-table" VBox.vgrow="ALWAYS">

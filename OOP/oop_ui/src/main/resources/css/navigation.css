@@ -1,0 +1,108 @@
+/* ========================================
+   NAVIGATION BUTTONS STYLESHEET
+   Thiết kế: Nút điều hướng chuyên nghiệp y tế
+   ======================================== */
+
+/* ========== NAVIGATION CONTAINER ========== */
+.navigation-bar {
+    -fx-spacing: 10px;
+    -fx-padding: 8px 12px;
+    -fx-alignment: center-left;
+}
+
+/* ========== NAVIGATION BUTTONS ========== */
+.nav-button {
+    -fx-background-color: #0052A3;
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-padding: 8px 18px;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #003d7a;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 82, 163, 0.12), 3, 0, 0, 1);
+}
+
+.nav-button:hover {
+    -fx-background-color: #003d7a;
+    -fx-effect: dropshadow(gaussian, rgba(0, 82, 163, 0.25), 5, 0, 0, 2);
+    -fx-translate-y: -1;
+}
+
+.nav-button:pressed {
+    -fx-background-color: #002952;
+    -fx-translate-y: 0;
+}
+
+/* ========== SPECIFIC BUTTON STYLES ========== */
+.nav-back-button {
+    -fx-background-color: #00639C;
+}
+
+.nav-back-button:hover {
+    -fx-background-color: #004d7a;
+}
+
+.nav-forward-button {
+    -fx-background-color: #00639C;
+}
+
+.nav-forward-button:hover {
+    -fx-background-color: #004d7a;
+}
+
+.nav-reload-button {
+    -fx-background-color: #00A86B;
+}
+
+.nav-reload-button:hover {
+    -fx-background-color: #007850;
+}
+
+/* ========== NAVIGATION BAR IN HEADER ========== */
+.header .navigation-bar {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 20px;
+    -fx-padding: 6px 10px;
+}
+
+.header .nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-text-fill: white;
+}
+
+.header .nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ========== NAVIGATION BAR STANDALONE ========== */
+.standalone-nav-bar {
+    -fx-background-color: linear-gradient(to right, #0052A3, #00639C);
+    -fx-padding: 10px 20px;
+    -fx-spacing: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 1);
+}
+
+.standalone-nav-bar .nav-button {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    -fx-text-fill: white;
+}
+
+.standalone-nav-bar .nav-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========== FORCE ROUNDED CORNERS ========== */
+.nav-button,
+.nav-back-button,
+.nav-forward-button,
+.nav-reload-button {
+    -fx-background-radius: 20px !important;
+    -fx-border-radius: 20px !important;
+}

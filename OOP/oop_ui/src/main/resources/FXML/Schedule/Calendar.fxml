@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.CalendarController">
+<VBox prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.CalendarController">
 
    <!-- Header -->
    <VBox>
@@ -46,7 +46,7 @@
 
          <Region HBox.hgrow="ALWAYS" />
 
-         <Button fx:id="prevWeekBtn" mnemonicParsing="false" onAction="#onPrevWeek" prefWidth="100.0" styleClass="btn-secondary" text="◀ Trước" />
+         <Button fx:id="prevWeekBtn" mnemonicParsing="false" onAction="#onPrevWeek" prefHeight="44.0" prefWidth="106.0" styleClass="btn-secondary" text="◀ Trước" />
          <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" prefHeight="38.0" prefWidth="135.0" styleClass="btn-search" text="📅 Hôm nay" />
          <Button fx:id="nextWeekBtn" mnemonicParsing="false" onAction="#onNextWeek" prefWidth="100.0" styleClass="btn-secondary" text="Sau ▶" />
       </HBox>
