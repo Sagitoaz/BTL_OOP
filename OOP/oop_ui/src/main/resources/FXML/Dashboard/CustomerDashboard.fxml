@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <BorderPane prefHeight="800.0" prefWidth="1200.0">
+        <!-- Sidebar -->
+        <left>
+            <VBox styleClass="sidebar" prefWidth="250">
+                <children>
+                    <VBox alignment="CENTER" styleClass="sidebar-header">
+                        <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true" />
+                        <Text text="Eye Clinic" styleClass="app-title-sidebar" />
+                    </VBox>
+                    <VBox styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
+                        <Label text="MENU" styleClass="menu-title" />
+                        <VBox fx:id="menuContainer" spacing="8">
+                            <!-- Menu items will be dynamically added here -->
+                        </VBox>
+                    </VBox>
+                    <VBox alignment="BOTTOM_LEFT" styleClass="sidebar-footer">
+                        <Label text="© 2024 Eye Clinic" />
+                    </VBox>
+                </children>
+            </VBox>
+        </left>
+
+        <!-- Main Content -->
+        <center>
+            <VBox styleClass="main-content">
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" styleClass="header" spacing="15">
+                    <!-- Navigation Buttons -->
+                    <HBox spacing="8" styleClass="nav-buttons-group">
+                        <Button styleClass="nav-button nav-back-button" text="◀" fx:id="backButton" />
+                        <Button styleClass="nav-button nav-forward-button" text="▶" fx:id="forwardButton" />
+                        <Button styleClass="nav-button nav-reload-button" text="⟳" fx:id="reloadButton" />
+                    </HBox>
+                    
+                    <Text styleClass="title" text="Patient Dashboard" HBox.hgrow="ALWAYS" />
+                    <MenuButton styleClass="user-menu-button" text="John Doe">
+                        <items>
+                            <MenuItem text="Profile" />
+                            <MenuItem text="Settings" />
+                            <MenuItem text="Logout" />
+                        </items>
+                    </MenuButton>
+                </HBox>
+
+                <!-- Content Body -->
+                <ScrollPane fitToWidth="true" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+                    <VBox spacing="30" styleClass="dashboard-container">
+                        <!-- Welcome Section -->
+                        <VBox spacing="10" styleClass="welcome-section">
+                            <Label text="Xin chào, Bệnh nhân!" styleClass="dashboard-welcome-title" />
+                            <Label text="Chúng tôi luôn sẵn sàng chăm sóc sức khỏe của bạn" styleClass="dashboard-welcome-subtitle" />
+                        </VBox>
+
+                        <!-- Main Functions Grid -->
+                        <VBox spacing="20">
+                            <Label text="DỊCH VỤ CỦA TÔI" styleClass="section-header" />
+                            <GridPane hgap="20" vgap="20" styleClass="function-grid">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50" />
+                                    <ColumnConstraints percentWidth="50" />
+                                </columnConstraints>
+                                
+                                <!-- Row 1 -->
+                                <VBox styleClass="function-card function-card-blue" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="📅" styleClass="function-icon" />
+                                    <Label text="Đặt lịch khám" styleClass="function-title" />
+                                    <Label text="Đặt lịch hẹn với bác sĩ nhanh chóng" styleClass="function-description" wrapText="true" />
+                                    <Button text="Đặt lịch ngay" styleClass="button-primary function-button" maxWidth="Infinity" />
+                                </VBox>
+                                
+                                <VBox styleClass="function-card function-card-green" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="📋" styleClass="function-icon" />
+                                    <Label text="Lịch hẹn của tôi" styleClass="function-title" />
+                                    <Label text="Xem và quản lý các lịch hẹn đã đặt" styleClass="function-description" wrapText="true" />
+                                    <Button text="Xem lịch hẹn" styleClass="button-success function-button" maxWidth="Infinity" />
+                                </VBox>
+                                
+                                <!-- Row 2 -->
+                                <VBox styleClass="function-card function-card-orange" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="📄" styleClass="function-icon" />
+                                    <Label text="Hồ sơ bệnh án" styleClass="function-title" />
+                                    <Label text="Xem lịch sử khám và kết quả điều trị" styleClass="function-description" wrapText="true" />
+                                    <Button text="Xem hồ sơ" styleClass="button-warning function-button" maxWidth="Infinity" />
+                                </VBox>
+                                
+                                <VBox styleClass="function-card function-card-purple" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="💰" styleClass="function-icon" />
+                                    <Label text="Thanh toán" styleClass="function-title" />
+                                    <Label text="Xem hóa đơn và lịch sử thanh toán" styleClass="function-description" wrapText="true" />
+                                    <Button text="Xem hóa đơn" styleClass="button-secondary function-button" maxWidth="Infinity" />
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- Quick Info -->
+                        <VBox spacing="20">
+                            <Label text="THÔNG TIN NHANH" styleClass="section-header" />
+                            <HBox spacing="20" styleClass="quick-stats">
+                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label text="Lịch hẹn sắp tới" styleClass="quick-stat-label" />
+                                    <Label fx:id="upcomingAppointmentsLabel" text="2" styleClass="quick-stat-value quick-stat-blue" />
+                                </VBox>
+                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label text="Hóa đơn chưa thanh toán" styleClass="quick-stat-label" />
+                                    <Label fx:id="unpaidInvoicesLabel" text="1" styleClass="quick-stat-value quick-stat-orange" />
+                                </VBox>
+                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label text="Lần khám gần nhất" styleClass="quick-stat-label" />
+                                    <Label fx:id="lastVisitLabel" text="15/10" styleClass="quick-stat-value quick-stat-green" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </center>
+    </BorderPane>
+</AnchorPane>

@@ -22,8 +22,22 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Button?>
 
-<SplitPane dividerPositions="0.35" prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
+    
+    <top>
+        <!-- Navigation Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;" xmlns:fx="http://javafx.com/fxml/1">
+            <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
+            <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
+            <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+        </HBox>
+    </top>
+    
+    <center>
+        <SplitPane dividerPositions="0.35" styleClass="main-container">
 
     <!-- LEFT PANEL: Customer List & Filters -->
     <items>
@@ -206,3 +220,5 @@
         </BorderPane>
     </items>
 </SplitPane>
+    </center>
+</BorderPane>
