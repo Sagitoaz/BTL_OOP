@@ -3,7 +3,9 @@ package org.example.oop.Utils;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.oop.Model.SceneInfo;
 
@@ -16,6 +18,8 @@ import java.util.Stack;
 public final class SceneManager {
 
     private static Stage primaryStage;
+    private static final int MAX_CACHE_SIZE = 5;
+    private static final int MAX_HISTORY_SIZE = 10;
     private static Map<String , Parent> cachedScenes = new HashMap<>();
     private static Stack<SceneInfo> navigationHistory = new Stack<>();
     private static final Stack<SceneInfo> forwardHistory = new Stack<>();
@@ -25,7 +29,7 @@ public final class SceneManager {
         // Private constructor to prevent instantiation
     }
     public static void setPrimaryStage(Stage primaryStage) {
-        primaryStage = SceneManager.primaryStage;
+        SceneManager.primaryStage = primaryStage;
         if (primaryStage.getTitle() == null || primaryStage.getTitle().isEmpty()) {
             primaryStage.setTitle("Eye Clinic");
         }
@@ -40,7 +44,7 @@ public final class SceneManager {
             if(root == null || primaryStage == null) {
                 return;
             }
-            primaryStage.setScene(root.getScene());
+            primaryStage.setScene(new Scene(root));
             primaryStage.setTitle(title);
             addToHistory(fxmlPath, title);
             forwardHistory.clear();
@@ -68,7 +72,7 @@ public final class SceneManager {
             if(root == null || primaryStage == null){
                 return;
             }
-            primaryStage.setScene(root.getScene());
+            primaryStage.setScene(new Scene(root));
             if(previous.getTitle() != null && !previous.getTitle().isEmpty()){
                 primaryStage.setTitle(previous.getTitle());
             }
@@ -88,7 +92,7 @@ public final class SceneManager {
            if(root == null || primaryStage == null){
                return;
            }
-           primaryStage.setScene(root.getScene());
+           primaryStage.setScene(new Scene(root));
            if(next.getTitle() != null && !next.getTitle().isEmpty()){
                primaryStage.setTitle(next.getTitle());
            }
@@ -98,16 +102,67 @@ public final class SceneManager {
 
     //Modal Window
     public static void openModalWindow(String fxmlPath, String title){
+        runOnFxThread(()->{
+            Parent root = loadFxml(fxmlPath);
+            if(root == null){
+                return;
+            }
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle(title);
+            stage.setResizable(false);
+            stage.initOwner(primaryStage);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
 
+        });
     }
+
+    // Cache Management
+
+    public static void clearCache() {
+        cachedScenes.clear();
+    }
+    public static void removeFromCache(String fxmlPath) {
+        cachedScenes.remove(fxmlPath);
+    }
+    public static void addToCache(String fxmlPath, Parent root) {
+        if(fxmlPath== null || root== null){
+            return;
+        }
+
+        // Nếu đã tồn tại trong cache, xóa để thêm mới (refresh cache)
+        if(cachedScenes.containsKey(fxmlPath)){
+            cachedScenes.remove(fxmlPath);
+        }
+        else{
+            // Nếu cache đầy, xóa phần tử cũ nhất (FIFO)
+            if(cachedScenes.size() >= MAX_CACHE_SIZE){
+                String firstFxml = cachedScenes.keySet().iterator().next();
+                cachedScenes.remove(firstFxml);
+            }
+        }
+        // Lưu vào cachedScenes
+        cachedScenes.put(fxmlPath, root);
+    }
+
 
 
     //Data Passing
     public static void setSceneData(String key, Object value) {
+        if(key == null || value == null){
+            return;
+        }
+
+
         sceneData.put(key, value);
     }
-    public static Object getSceneData(String key) {
-        return sceneData.get(key);
+    @SuppressWarnings("unchecked")
+    public static <T> T getSceneData(String key) {
+        return (T) sceneData.get(key);
+    }
+    public static void removeSceneData(String key) {
+        sceneData.remove(key);
     }
     public static void clearSceneData() {
         sceneData.clear();
@@ -137,6 +192,12 @@ public final class SceneManager {
     }
     // luu history
     private static void addToHistory(String fxmlPath, String title){
+        if(fxmlPath == null || fxmlPath.isEmpty()){
+            return;
+        }
+        if(navigationHistory.size() >= MAX_HISTORY_SIZE){
+            navigationHistory.pop() ;
+        }
         SceneInfo sceneInfo = new SceneInfo();
         sceneInfo.setFxmlPath(fxmlPath);
         sceneInfo.setTitle(title);
