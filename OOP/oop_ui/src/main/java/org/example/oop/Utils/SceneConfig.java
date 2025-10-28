@@ -6,6 +6,12 @@ public final class SceneConfig {
     private SceneConfig() {
     }
 
+    // ========== Dashboard Scene ==========
+    public static final String ADMIN_DASHBOARD_FXML = "/FXML/Dashboard/AdminDashboard.fxml";
+   // public static final String EMPLOYEE_DASHBOARD_FXML = "/FXML/Dashboard/EmployeeDashboard.fxml";
+    public static final String CUSTOMER_DASHBOARD_FXML = "/FXML/Dashboard/CustomerDashboard.fxml";
+    public static final String DOCTOR_DASHBOARD_FXML = "/FXML/Dashboard/DoctorDashboard.fxml";
+
     // ========== AUTHENTICATION SCENES ==========
     public static final String LOGIN_FXML = "/FXML/Login.fxml";
     public static final String CHANGE_PASSWORD_FXML = "/FXML/ChangePassword.fxml";
