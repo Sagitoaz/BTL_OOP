@@ -186,10 +186,63 @@ public class HttpPaymentItemService {
         }
     }
 
+    /**
+     * POST /payment-items
+     * Gửi theo định dạng batch (wrapper object) mà server mong đợi,
+     * TÁI SỬ DỤNG class 'ReplaceBody' đã có.
+     */
+    public List<PaymentItem> saveAllPaymentItems(List<PaymentItem> paymentItems) {
+        if (paymentItems == null || paymentItems.isEmpty()) {
+            return List.of();
+        }
+
+        try {
+            // 1. LẤY paymentId (bạn đã set trong InvoiceController)
+            // (Bạn cần thêm getPaymentId() vào model PaymentItem)
+            int paymentId = paymentItems.get(0).getPaymentId();
+            if (paymentId <= 0) {
+                throw new IllegalArgumentException("Payment ID chưa được gán cho các items.");
+            }
+
+            // 2. TẠO WRAPPER OBJECT BẰNG 'ReplaceBody'
+            // Server mong đợi: record SaveAllBody(Integer paymentId, List<PaymentItem> items)
+            // Cấu trúc này khớp 100% với 'ReplaceBody'
+            var saveBody = new ReplaceBody(paymentId, paymentItems);
+
+            // 3. Chuyển DTO (wrapper) thành JSON
+            // Kết quả sẽ là: {"paymentId": 123, "items": [...]}
+            String jsonBody = gson.toJson(saveBody);
+            System.out.println("📤 Sending JSON (Batch Wrapper): " + jsonBody);
+
+            // 4. Gửi yêu cầu POST đến đúng URL
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/payment-items")) //
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // 5. Server trả về 201 (Created)
+            if (response.statusCode() == 201) {
+                return gson.fromJson(response.body(), new TypeToken<List<PaymentItem>>() {
+                }.getType());
+            } else {
+                System.err.println("❌ HTTP Error: " + response.statusCode());
+                System.err.println("Response Body: " + response.body());
+                return List.of();
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error: " + e.getMessage());
+            return List.of();
+        }
+    }
+
     // DTO cho replace
-    static class ReplaceBody {
-        int paymentId;
-        List<PaymentItem> items;
+    public static class ReplaceBody {
+        public int paymentId;
+        public List<PaymentItem> items;
 
         public ReplaceBody(int paymentId, List<PaymentItem> items) {
             this.paymentId = paymentId;
@@ -204,4 +257,5 @@ public class HttpPaymentItemService {
             return items;
         }
     }
+
 }
