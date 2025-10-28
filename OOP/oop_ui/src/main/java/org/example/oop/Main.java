@@ -15,12 +15,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescriptionCustomerHub.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/Employee/EmployeeDetail.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("PHÒNG KHÁM MẮT - Eye Clinic Management System");
         stage.setScene(scene);
         stage.setWidth(1200);
         stage.setHeight(800);
         stage.show();
-    } //curl -X GET http://localhost:8080/employees
+    }
 }

@@ -18,4 +18,5 @@ public interface EmployeeRepository {
 
      Employee save(Employee product);
 
+     List<Employee> findByRole(String role);
 }

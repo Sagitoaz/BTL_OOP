@@ -1,10 +1,5 @@
 package org.example.oop.Service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.miniboot.app.domain.models.Inventory.StockMovement;
-import org.miniboot.app.util.GsonProvider;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -14,6 +9,12 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import org.miniboot.app.domain.models.Inventory.StockMovement;
+import org.miniboot.app.util.GsonProvider;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class ApiStockMovementService {
     private static final String BASE_URL = "http://localhost:8080";
@@ -133,6 +134,36 @@ public class ApiStockMovementService {
     public StockMovement createStockMovement(StockMovement stockMovement) throws Exception {
         System.out.println("🔄 Creating stock movement for product ID: " + stockMovement.getProductId());
 
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
+                .openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setConnectTimeout(CONNECT_TIMEOUT);
+        conn.setReadTimeout(READ_TIMEOUT);
+        conn.setDoOutput(true);
+
+        String jsonBody = gson.toJson(stockMovement);
+        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = conn.getResponseCode();
+        String responseBody = readResponse(conn);
+
+        if (responseCode >= 200 && responseCode < 300) {
+            StockMovement created = gson.fromJson(responseBody, StockMovement.class);
+            System.out.println("✅ Stock movement created with ID: " + created.getId());
+            return created;
+        } else {
+            throw new Exception("Failed to create stock movement: " + responseBody);
+        }
+    }
+
+    public StockMovement createListStockMovement(List<StockMovement> stockMovement) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
                 .openConnection();
         conn.setRequestMethod("POST");

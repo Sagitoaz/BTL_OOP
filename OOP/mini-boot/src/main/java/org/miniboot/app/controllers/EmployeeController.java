@@ -114,7 +114,7 @@ public class EmployeeController {
                     employee.setPassword(password); // Will be hashed in repository
                     employee.setFirstname(firstname);
                     employee.setLastname(lastname);
-                    employee.setEmployeeRole(role);
+                    employee.setRole(role);
                     employee.setLicenseNo(licenseNo);
                     employee.setEmail(email);
                     employee.setPhone((String) data.get("phone"));
@@ -125,9 +125,7 @@ public class EmployeeController {
                     Employee saved = repository.save(employee);
 
                     System.out.println("✅ Created employee ID: " + saved.getId());
-                    return Json.ok(Map.of(
-                              "message", "Employee created successfully",
-                              "employee", saved));
+                    return Json.ok(saved);
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in createEmployee(): " + e.getMessage());
@@ -140,80 +138,103 @@ public class EmployeeController {
      private Function<HttpRequest, HttpResponse> updateEmployee() {
           return (HttpRequest req) -> {
                try {
-                    // Lấy id từ query param: PUT /employees?id=123
-                    Map<String, List<String>> q = req.query;
-                    Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
-
-                    if (idOpt.isEmpty()) {
-                         return Json.error(400, "Missing employee ID in query parameter");
+                    System.out.println("🔄 Updating employee (read ID from body)...");
+                    // Parse JSON body -> Map
+                    String bodyText = req.bodyText();
+                    Map<String, Object> data = Json.parseMap(bodyText);
+                    if (data == null || data.isEmpty()) {
+                         return Json.error(400, "Body rỗng hoặc JSON không hợp lệ");
                     }
 
-                    int id = idOpt.get();
-                    Optional<Employee> existingOpt = repository.findById(id);
+                    // Lấy ID từ body (bắt buộc)
+                    Object rawId = data.get("id");
+                    Integer id = null;
+                    if (rawId instanceof Number) {
+                         id = ((Number) rawId).intValue();
+                    } else if (rawId instanceof String) {
+                         try {
+                              id = Integer.parseInt(((String) rawId).trim());
+                         } catch (Exception ignore) {
+                         }
+                    }
+                    if (id == null || id <= 0) {
+                         return Json.error(400, "Thiếu hoặc sai ID trong body");
+                    }
 
+                    // Tìm employee hiện có
+                    Optional<Employee> existingOpt = repository.findById(id);
                     if (existingOpt.isEmpty()) {
                          return Json.error(404, "Employee not found with ID: " + id);
                     }
-
                     Employee employee = existingOpt.get();
 
-                    // Parse update data
-                    String body = req.bodyText();
-                    Map<String, Object> data = Json.parseMap(body);
+                    // Helper mini để lấy String/Boolean an toàn từ Map
+                    java.util.function.Function<String, String> getStr = (k) -> {
+                         Object v = data.get(k);
+                         return (v == null) ? null : String.valueOf(v);
+                    };
+                    java.util.function.Function<String, Boolean> getBool = (k) -> {
+                         Object v = data.get(k);
+                         if (v == null)
+                              return null;
+                         if (v instanceof Boolean)
+                              return (Boolean) v;
+                         String s = String.valueOf(v).trim().toLowerCase();
+                         if ("true".equals(s) || "1".equals(s) || "yes".equals(s))
+                              return true;
+                         if ("false".equals(s) || "0".equals(s) || "no".equals(s))
+                              return false;
+                         return null;
+                    };
 
-                    // Update fields (chỉ update những field được gửi lên)
-                    if (data.containsKey("firstname")) {
-                         employee.setFirstname((String) data.get("firstname"));
-                    }
-                    if (data.containsKey("lastname")) {
-                         employee.setLastname((String) data.get("lastname"));
-                    }
+                    // Update các field chỉ khi client gửi lên
+                    if (data.containsKey("firstname"))
+                         employee.setFirstname(getStr.apply("firstname"));
+                    if (data.containsKey("lastname"))
+                         employee.setLastname(getStr.apply("lastname"));
+                    if (data.containsKey("avatar"))
+                         employee.setAvatar(getStr.apply("avatar"));
+
                     if (data.containsKey("role")) {
-                         String newRole = (String) data.get("role");
-                         employee.setEmployeeRole(newRole);
-
-                         // Validate license_no nếu đổi sang doctor
+                         String newRole = getStr.apply("role");
+                         employee.setRole(newRole);
+                         // Nếu đổi sang doctor thì bắt buộc licenseNo
                          if ("doctor".equalsIgnoreCase(newRole)) {
-                              String licenseNo = data.containsKey("licenseNo") ? (String) data.get("licenseNo")
+                              String lic = data.containsKey("licenseNo") ? getStr.apply("licenseNo")
                                         : employee.getLicenseNo();
-                              if (licenseNo == null || licenseNo.trim().isEmpty()) {
+                              if (lic == null || lic.isBlank()) {
                                    return Json.error(400, "License number required for doctors");
                               }
                          }
                     }
-                    if (data.containsKey("licenseNo")) {
-                         employee.setLicenseNo((String) data.get("licenseNo"));
-                    }
+                    if (data.containsKey("licenseNo"))
+                         employee.setLicenseNo(getStr.apply("licenseNo"));
+
                     if (data.containsKey("email")) {
-                         String newEmail = (String) data.get("email");
-                         // Check duplicate email (nếu khác email hiện tại)
-                         if (!newEmail.equals(employee.getEmail())) {
+                         String newEmail = getStr.apply("email");
+                         if (newEmail != null && !newEmail.equals(employee.getEmail())) {
                               if (repository.findByEmail(newEmail).isPresent()) {
                                    return Json.error(409, "Email already exists: " + newEmail);
                               }
                          }
                          employee.setEmail(newEmail);
                     }
-                    if (data.containsKey("phone")) {
-                         employee.setPhone((String) data.get("phone"));
-                    }
-                    if (data.containsKey("avatar")) {
-                         employee.setAvatar((String) data.get("avatar"));
-                    }
+
+                    if (data.containsKey("phone"))
+                         employee.setPhone(getStr.apply("phone"));
+
                     if (data.containsKey("active")) {
-                         employee.setActive((Boolean) data.get("active"));
+                         Boolean active = getBool.apply("active");
+                         if (active == null)
+                              return Json.error(400, "Giá trị 'active' không hợp lệ");
+                         employee.setActive(active);
                     }
 
-                    // Save updates
+                    // Lưu
                     Employee updated = repository.save(employee);
-
                     System.out.println("✅ Updated employee ID: " + updated.getId());
-                    return Json.ok(Map.of(
-                              "message", "Employee updated successfully",
-                              "employee", updated));
+                    return Json.ok(updated);
 
-               } catch (NumberFormatException e) {
-                    return Json.error(400, "Invalid employee ID format");
                } catch (Exception e) {
                     System.err.println("❌ ERROR in updateEmployee(): " + e.getMessage());
                     return Json.error(500, "Error updating employee: " + e.getMessage());
@@ -284,26 +305,20 @@ public class EmployeeController {
      private Function<HttpRequest, HttpResponse> getEmployeesByRole() {
           return (HttpRequest req) -> {
                try {
-                    // Lấy role từ query param: GET /employees/role?role=doctor
-                    Map<String, List<String>> q = req.query;
-                    Optional<String> roleOpt = ExtractHelper.extractString(q, "role");
-
-                    if (roleOpt.isEmpty() || roleOpt.get().trim().isEmpty()) {
-                         return Json.error(400, "Missing role parameter");
+                    Optional<String> rawOpt = ExtractHelper.extractString(req.query, "role");
+                    String raw = rawOpt.orElse("");
+                    String role = raw.trim().toLowerCase();
+                    if (!role.equals("doctor") && !role.equals("nurse")) {
+                         return Json.error(400, "Vai trò không hợp lệ. Chỉ chấp nhận 'doctor' hoặc 'nurse'");
                     }
 
-                    String role = roleOpt.get();
-                    if (!role.equalsIgnoreCase("doctor") && !role.equalsIgnoreCase("nurse")) {
-                         return Json.error(400, "Invalid role. Must be 'doctor' or 'nurse'");
-                    }
-
-                    List<Employee> employees = repository.findByRole(role);
-                    System.out.println("👥 Found " + employees.size() + " " + role + "s");
-                    return Json.ok(employees);
+                    List<Employee> list = repository.findByRole(role);
+                    System.out.println("👥 Found " + list.size() + " " + role + "s");
+                    return Json.ok(list);
 
                } catch (Exception e) {
-                    System.err.println("❌ ERROR in getEmployeesByRole(): " + e.getMessage());
-                    return Json.error(500, "Error fetching employees by role: " + e.getMessage());
+                    System.err.println("❌ Error finding by role: " + e.getMessage());
+                    return Json.error(500, "Error finding by role: " + e.getMessage());
                }
           };
      }
