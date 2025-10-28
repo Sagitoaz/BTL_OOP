@@ -13,6 +13,57 @@
     -fx-min-height: 600;
 }
 
+/* ========== LIST VIEW - ZEBRA STRIPING ========== */
+/* ListView cell màu nền xen kẽ cho danh sách bệnh nhân */
+.list-view {
+    -fx-background-color: white;
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.list-view .list-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 12px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1px 0;
+}
+
+/* Màu xen kẽ cho các hàng chẵn */
+.list-view .list-cell:filled:even {
+    -fx-background-color: #F8F9FA;
+}
+
+/* Màu xen kẽ cho các hàng lẻ */
+.list-view .list-cell:filled:odd {
+    -fx-background-color: #FFFFFF;
+}
+
+/* Hiệu ứng hover */
+.list-view .list-cell:filled:hover {
+    -fx-background-color: #E3F2FD;
+    -fx-cursor: hand;
+}
+
+/* Cell được chọn */
+.list-view .list-cell:filled:selected {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: white;
+}
+
+.list-view .list-cell:filled:selected:hover {
+    -fx-background-color: #0052A3;
+}
+
+/* Focus effect */
+.list-view:focused .list-cell:filled:selected {
+    -fx-background-color: #0066CC;
+    -fx-border-color: #0052A3;
+}
+
 /* ========== CONTENT AREAS ========== */
 .content-pane {
     -fx-background-color: #FFFFFF;
@@ -389,4 +440,3 @@
     -fx-font-size: 14px;
     -fx-text-fill: #95A5B8;
 }
-

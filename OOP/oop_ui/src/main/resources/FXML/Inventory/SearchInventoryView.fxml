@@ -51,7 +51,7 @@
                 <TextField fx:id="searchTextField" prefWidth="220.0" promptText="Tìm kiếm..." styleClass="text-field" />
                 <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Danh mục" styleClass="combo-rounded" />
                 <ComboBox fx:id="statusBox" prefWidth="150.0" promptText="Trạng thái" styleClass="combo-rounded" />
-                <DatePicker fx:id="lastUpdatedPicker" prefWidth="170.0" promptText="Cập nhật lần cuối" />
+                <DatePicker fx:id="lastUpdatedPicker" prefWidth="170.0" promptText="Cập nhật lần cuối" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
                 <Region HBox.hgrow="ALWAYS" />
 

@@ -56,7 +56,7 @@
                     <!-- Ngày -->
                     <VBox spacing="6" GridPane.columnIndex="1">
                         <Label styleClass="form-label" text="Ngày lập:" />
-                        <DatePicker fx:id="dpInvoiceDate" prefWidth="200.0" />
+                        <DatePicker fx:id="dpInvoiceDate" prefWidth="200.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
                     </VBox>
                     <!-- Thu ngân -->
                     <VBox spacing="6" GridPane.columnIndex="2">

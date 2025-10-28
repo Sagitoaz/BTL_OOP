@@ -40,9 +40,9 @@
                 <HBox alignment="CENTER" spacing="12.0">
                     <children>
                         <Label styleClass="form-label" text="Từ:" />
-                        <DatePicker fx:id="dpFrom" prefWidth="140.0" />
-                        <Label styleClass="form-label" text="Đến:" />
-                        <DatePicker fx:id="dpTo" prefWidth="140.0" />
+                        <DatePicker fx:id="dpFrom" prefWidth="140.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+                        <Label text="đến" />
+                        <DatePicker fx:id="dpTo" prefWidth="140.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
                     </children>
                 </HBox>
                 <Button fx:id="btnApply" mnemonicParsing="false" styleClass="btn-search" text="Áp dụng" />

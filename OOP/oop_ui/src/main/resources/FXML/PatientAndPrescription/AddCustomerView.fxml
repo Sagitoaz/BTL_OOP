@@ -55,7 +55,7 @@
                             <TextField fx:id="nameField" promptText="Nhập họ và tên bệnh nhân" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                             <Label styleClass="form-label" text="Ngày sinh:" GridPane.rowIndex="1" />
-                            <DatePicker fx:id="dobPicker" maxWidth="Infinity" promptText="Chọn ngày sinh" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <DatePicker fx:id="dobPicker" maxWidth="Infinity" promptText="Chọn ngày sinh" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                             <Label styleClass="form-label" text="Giới tính:" GridPane.rowIndex="2" />
                             <ComboBox fx:id="genderComboBox" maxWidth="Infinity" promptText="Chọn giới tính..." styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="2" />
