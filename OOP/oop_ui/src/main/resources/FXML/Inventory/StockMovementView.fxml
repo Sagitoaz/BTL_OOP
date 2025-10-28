@@ -49,10 +49,14 @@
                 <ComboBox fx:id="filterMoveTypeBox" prefWidth="150" promptText="Tất cả loại" styleClass="combo-rounded" />
 
                 <Label styleClass="form-label" text="Từ:" />
-                <DatePicker fx:id="filterDateFrom" prefHeight="45.0" prefWidth="150.0" promptText="Ngày bắt đầu" />
+                <DatePicker fx:id="filterDateFrom" prefHeight="45.0" prefWidth="150.0" promptText="Ngày bắt đầu" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
+                <Label text="→" />
                 <Label styleClass="form-label" text="Đến:" />
-                <DatePicker fx:id="filterDateTo" prefHeight="45.0" prefWidth="149.0" promptText="Ngày kết thúc" />
+                <Label styleClass="form-label" text="Đến:" />
+                <DatePicker fx:id="filterDateTo" prefHeight="45.0" prefWidth="149.0" promptText="Ngày kết thúc" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+
+                <Region HBox.hgrow="ALWAYS" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
@@ -121,7 +125,7 @@
 
                                 <!-- Expiry Date -->
                                 <Label styleClass="form-label" text="Hạn dùng:" GridPane.rowIndex="6" />
-                                <DatePicker fx:id="expiryDatePicker" maxWidth="Infinity" promptText="Chọn ngày" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                <!-- Serial Number -->
 
                                 <!-- Serial Number -->
                                 <Label styleClass="form-label" text="Serial No:" GridPane.rowIndex="7" />
@@ -131,7 +135,7 @@
                                 <Label styleClass="form-label" text="Người thực hiện:" GridPane.rowIndex="8" />
                                 <TextField fx:id="movedbyField1" promptText="Tên người thực hiện" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="8" />
 
-                                <!-- Moved At Date -->
+                                <DatePicker fx:id="movedatDatePicker1" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                                 <Label styleClass="form-label" text="Ngày thực hiện:" GridPane.rowIndex="9" />
                                 <DatePicker fx:id="movedatDatePicker1" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 

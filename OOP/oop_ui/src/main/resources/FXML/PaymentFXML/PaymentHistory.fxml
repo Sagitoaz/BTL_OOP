@@ -39,10 +39,12 @@
                 <ComboBox fx:id="cbStatus" prefWidth="169.0" styleClass="combo-rounded" />
 
                 <Label styleClass="form-label" text="Từ:" />
-                <DatePicker fx:id="dpFrom" prefHeight="45.0" prefWidth="145.0" />
+                <DatePicker fx:id="dpFrom" prefHeight="45.0" prefWidth="145.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+
+                <Label text="→" />
 
                 <Label styleClass="form-label" text="Đến:" />
-                <DatePicker fx:id="dpTo" prefHeight="45.0" prefWidth="145.0" />
+                <DatePicker fx:id="dpTo" prefHeight="45.0" prefWidth="145.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
                 <Button fx:id="btnFilter" mnemonicParsing="false" styleClass="btn-search" text="🔍 Lọc" />
             </HBox>

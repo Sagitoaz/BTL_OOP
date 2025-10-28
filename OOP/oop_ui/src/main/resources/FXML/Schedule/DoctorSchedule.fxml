@@ -37,7 +37,7 @@
          <!-- View Controls -->
          <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-padding: 12 28 12 28; -fx-background-color: #f8f9fa;">
             <Label styleClass="form-label" text="Ngày:" />
-            <DatePicker fx:id="datePicker" prefWidth="160.0" promptText="Chọn ngày" />
+            <DatePicker fx:id="datePicker" prefWidth="160.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
             <ToggleButton fx:id="dayViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📅 Ngày" />
             <ToggleButton fx:id="weekViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📆 Tuần" />
             <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" styleClass="btn-search" text="Hôm nay" />

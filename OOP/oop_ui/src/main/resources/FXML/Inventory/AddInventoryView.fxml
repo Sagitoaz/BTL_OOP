@@ -165,7 +165,7 @@
                                                 <TextField fx:id="tfBatchNo" promptText="Để trống nếu không quản lý" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                                                 <Label styleClass="form-label" text="Hạn dùng:" GridPane.rowIndex="1" />
-                                                <DatePicker fx:id="dpExpiryDate" maxWidth="Infinity" promptText="Chọn ngày" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <DatePicker fx:id="dpExpiryDate" maxWidth="Infinity" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                                                 <Label styleClass="form-label" text="Serial No:" GridPane.rowIndex="2" />
                                                 <TextField fx:id="tfSerialNo" promptText="SN-001" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="2" />

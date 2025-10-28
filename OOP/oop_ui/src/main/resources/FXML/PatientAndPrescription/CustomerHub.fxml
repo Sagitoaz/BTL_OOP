@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<SplitPane dividerPositions="0.25" prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
+<SplitPane dividerPositions="0.35" prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
 
     <!-- LEFT PANEL: Customer List & Filters -->
     <items>
@@ -25,15 +44,20 @@
 
                     <Separator />
 
-                    <Label styleClass="form-label" text="Lọc theo:" />
+                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                        <Label styleClass="form-label" text="Lọc theo:" />
+                        <ComboBox fx:id="genderFilter" promptText="Giới tính" style="-fx-text-fill: #2C3E50;" styleClass="combo-rounded" HBox.hgrow="ALWAYS" />
+                    </HBox>
 
-                    <ComboBox fx:id="genderFilter" maxWidth="Infinity" promptText="Giới tính" style="-fx-text-fill: #2C3E50;" styleClass="combo-rounded" />
+                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <Label styleClass="form-label" text="Sinh từ:" />
+                        <DatePicker fx:id="dobFromPicker" prefWidth="150.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 20px; -fx-background-radius: 20px;" HBox.hgrow="ALWAYS" />
+                    </HBox>
 
-                    <Label styleClass="form-label" text="Ngày sinh từ:" />
-                    <DatePicker fx:id="dobFromPicker" maxWidth="Infinity" promptText="Chọn ngày bắt đầu" />
-
-                    <Label styleClass="form-label" text="Ngày sinh đến:" />
-                    <DatePicker fx:id="dobToPicker" maxWidth="Infinity" promptText="Chọn ngày kết thúc" />
+                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                        <Label styleClass="form-label" text="Sinh đến:" />
+                        <DatePicker fx:id="dobToPicker" prefWidth="150.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0; -fx-border-radius: 20px; -fx-background-radius: 20px;" HBox.hgrow="ALWAYS" />
+                    </HBox>
 
                     <HBox spacing="8">
                         <Button fx:id="applyFilterButton" onAction="#applyFilters" prefWidth="80" style="-fx-background-color: #28a745; -fx-text-fill: white;" styleClass="btn-search" text="Lọc" />
@@ -65,38 +89,36 @@
 
                     <Separator />
 
-                    <GridPane hgap="12.0" styleClass="info-panel" vgap="10.0">
-                        <padding>
-                            <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
-                        </padding>
-                        <columnConstraints>
-                            <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
-                            <ColumnConstraints hgrow="ALWAYS" />
-                            <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
-                            <ColumnConstraints hgrow="ALWAYS" />
-                        </columnConstraints>
+                    <!-- Thu gọn GridPane thông tin bệnh nhân -->
+                    <HBox spacing="20.0" style="-fx-padding: 12 24;">
+                        <VBox spacing="8">
+                            <HBox spacing="10">
+                                <Label styleClass="form-label" text="Mã BN:" style="-fx-min-width: 70px;" />
+                                <Label fx:id="customerIdValueLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50; -fx-font-weight: bold;" text="-" />
+                            </HBox>
+                            <HBox spacing="10">
+                                <Label styleClass="form-label" text="Giới tính:" style="-fx-min-width: 70px;" />
+                                <Label fx:id="customerGenderValueLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="-" />
+                            </HBox>
+                        </VBox>
+                        <VBox spacing="8">
+                            <HBox spacing="10">
+                                <Label styleClass="form-label" text="Ngày sinh:" style="-fx-min-width: 80px;" />
+                                <Label fx:id="customerDobValueLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="-" />
+                            </HBox>
+                            <HBox spacing="10">
+                                <Label styleClass="form-label" text="Tuổi:" style="-fx-min-width: 80px;" />
+                                <Label fx:id="customerAgeValueLabel" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" text="-" />
+                            </HBox>
+                        </VBox>
+                    </HBox>
 
-                        <Label styleClass="form-label" text="Mã BN:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label fx:id="customerIdValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                        <Label styleClass="form-label" text="Ngày sinh:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                        <Label fx:id="customerDobValueLabel" text="-" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-
-                        <Label styleClass="form-label" text="Giới tính:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Label fx:id="customerGenderValueLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label styleClass="form-label" text="Tuổi:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Label fx:id="customerAgeValueLabel" text="-" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                  <rowConstraints>
-                     <RowConstraints />
-                     <RowConstraints />
-                  </rowConstraints>
-                    </GridPane>
+                    <Separator />
                 </VBox>
             </top>
 
             <center>
-                <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE">
+                <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                     <tabs>
                         <!-- TAB 1: Overview -->
                         <Tab text="📋 Tổng Quan">
@@ -155,14 +177,16 @@
                                 </top>
 
                                 <center>
-                                    <TableView fx:id="examHistoryTable" styleClass="financial-table">
+                                    <TableView fx:id="examHistoryTable" styleClass="financial-table" minHeight="400.0" prefHeight="600.0" VBox.vgrow="ALWAYS">
                                         <columns>
                                             <TableColumn fx:id="signedAtCollumn" prefWidth="120" text="Ngày Khám" />
                                             <TableColumn fx:id="appointmentIdCollumn" prefWidth="200" text="ID Buổi khám" />
                                             <TableColumn fx:id="chiefComplaintCollumn" prefWidth="300" text="Lý Do Khám" />
                                             <TableColumn fx:id="diagnosisCollumn" prefWidth="300" text="Chẩn Đoán" />
                                         </columns>
-
+                                        <columnResizePolicy>
+                                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                        </columnResizePolicy>
                                         <placeholder>
                                             <VBox alignment="CENTER" spacing="10">
                                                 <padding>

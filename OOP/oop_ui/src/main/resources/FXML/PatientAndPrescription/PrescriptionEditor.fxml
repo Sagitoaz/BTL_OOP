@@ -59,8 +59,8 @@
                         <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                         <TextField fx:id="doctorNameField" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Ngày khám:" GridPane.rowIndex="1" />
+                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
                      <RowConstraints />
