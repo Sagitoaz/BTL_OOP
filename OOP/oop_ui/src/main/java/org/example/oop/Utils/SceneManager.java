@@ -7,8 +7,10 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.example.oop.Model.SceneInfo;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -44,12 +46,14 @@ public final class SceneManager {
             if( primaryStage == null) {
                 return;
             }
-            primaryStage.setScene(loadFxml(fxmlPath));
+            primaryStage.setScene(loadFxmlScene(fxmlPath));
+
 
             primaryStage.setTitle(title);
             addToHistory(fxmlPath, title);
             forwardHistory.clear();
             primaryStage.show();
+            System.out.println("Switching to scene: " + fxmlPath);
         });
     }
     //chuyen scene kem data
@@ -74,9 +78,9 @@ public final class SceneManager {
             if( primaryStage == null){
                 return;
             }
-            primaryStage.setScene(loadFxml(previous.getFxmlPath()));
+            primaryStage.setScene(loadFxmlScene(previous.getFxmlPath()));
 
-            System.out.println("Navigated back to: " + previous.getFxmlPath());
+
             primaryStage.setTitle(previous.getTitle());
             primaryStage.show();
 
@@ -90,7 +94,7 @@ public final class SceneManager {
            }
            SceneInfo next = forwardHistory.pop();
            navigationHistory.push(next);
-           primaryStage.setScene(loadFxml(next.getFxmlPath()));
+           primaryStage.setScene(loadFxmlScene(next.getFxmlPath()));
 
            if(next.getTitle() != null && !next.getTitle().isEmpty()){
                primaryStage.setTitle(next.getTitle());
@@ -100,15 +104,23 @@ public final class SceneManager {
     }
 
     //Modal Window
-    public static void openModalWindow(String fxmlPath, String title){
+    public static void openModalWindow(String fxmlPath, String title, Runnable event) {
         runOnFxThread(()->{
 
             Stage stage = new Stage();
-            stage.setScene(loadFxml(fxmlPath));
+            Scene scene = loadFxmlScene(fxmlPath);
+            if(scene == null){
+                System.err.println("Failed to load scene for: " + fxmlPath);
+                return;
+            }
+            stage.setScene(scene);
             stage.setTitle(title);
             stage.setResizable(false);
             stage.initOwner(primaryStage);
             stage.initModality(Modality.APPLICATION_MODAL);
+            if(event!=null){
+                stage.setOnHidden(e->event.run());
+            }
             stage.showAndWait();
 
         });
@@ -167,7 +179,7 @@ public final class SceneManager {
 
     //Helpers
     // load fxml va cache
-    private static Scene loadFxml(String fxmlPath) {
+    private static Scene loadFxmlScene(String fxmlPath) {
         if(fxmlPath == null || fxmlPath.isEmpty()) {
             return null;
         }

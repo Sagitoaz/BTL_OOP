@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -153,14 +155,6 @@ public class SignUpController {
 
     @FXML
     void backToLoginButtonOnClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Login.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load login view", e);
-        }
+        SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.LOGIN_FXML);
     }
 }

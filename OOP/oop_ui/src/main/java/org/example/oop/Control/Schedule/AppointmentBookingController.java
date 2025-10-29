@@ -138,6 +138,12 @@ public class AppointmentBookingController implements Initializable {
     }
 
     @FXML
+    private void handleReloadButton(){
+        System.out.println("🔄 Reloading Appointment Booking view");
+        //SceneManager.reloadScene();
+    }
+
+    @FXML
     private void handleDoctorSelection(ActionEvent event) {
         String selectedName = cboDoctor.getValue();
         if (selectedName == null) {

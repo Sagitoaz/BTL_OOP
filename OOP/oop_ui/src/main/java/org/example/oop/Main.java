@@ -18,6 +18,6 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         SceneManager.setPrimaryStage(stage);
-        SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.LOGIN_FXML);
+        SceneManager.switchScene(SceneConfig.CUSTOMER_DETAIL_FXML, SceneConfig.Titles.CUSTOMER_DETAIL);
     }
 }

@@ -28,6 +28,7 @@ public final class SceneConfig {
     public static final String ADD_CUSTOMER_VIEW_FXML = "/FXML/PatientAndPrescription/AddCustomerView.fxml";
     public static final String CUSTOMER_HUB_FXML = "/FXML/PatientAndPrescription/CustomerHub.fxml";
     public static final String PRESCRIPTION_EDITOR_FXML = "/FXML/PatientAndPrescription/PrescriptionEditor.fxml";
+    public static final String CUSTOMER_DETAIL_FXML = "/FXML/PatientAndPrescription/CustomerDetailView.fxml";
 
     // ========== PAYMENT SCENES ==========
     public static final String PAYMENT_FXML = "/FXML/PaymentFXML/Payment.fxml";
@@ -64,6 +65,7 @@ public final class SceneConfig {
         public static final String ADD_CUSTOMER = "Thêm và Chỉnh sửa Hồ sơ bệnh nhân  - Eye Clinic";
         public static final String CUSTOMER_HUB = "Quản lý bệnh nhân - Eye Clinic";
         public static final String PRESCRIPTION_EDITOR = "Toa thuốc - Eye Clinic";
+        public static final String CUSTOMER_DETAIL = "Chi tiết bệnh nhân - Eye Clinic";
 
         // Payment
         public static final String PAYMENT = "Thanh toán - Eye Clinic";

@@ -95,28 +95,14 @@ public class LoginController {
 
     @FXML
     void ForgotPasswordHyperLinkOnClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ResetPassword.fxml"));
-            Parent root = loader.load();
-            Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            state.setScene(new Scene(root));
-            state.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load forgot password view", e);
-        }
+        SceneManager.switchScene(SceneConfig.RESET_PASSWORD_FXML, SceneConfig.RESET_PASSWORD_FXML);
     }
 
     @FXML
     void GoToSignUpButtonOnClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Signup.fxml"));
-            Parent root = loader.load();
-            Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            state.setScene(new Scene(root));
-            state.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load signup view", e);
-        }
+
+        SceneManager.switchScene(SceneConfig.SIGNUP_FXML, SceneConfig.SIGNUP_FXML);
+
     }
 
     private String validateInput(String user, String pass) {
@@ -148,10 +134,19 @@ public class LoginController {
             String sessionId = sessionOpt.get();
             // Save sessionId to session storage for later use
             SessionStorage.setCurrentSessionId(sessionId);
+            System.out.println("Login successful" + SessionStorage.getCurrentUsername() + " " + SessionStorage.getCurrentUserRole());
             // Clear error message
             invalidLoginMessage.setText("");
             // Redirect to dashboard
-            SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN"))
+                SceneManager.switchScene(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
+            {
+                SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            }
+            else{
+                SceneManager.switchScene(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            }
 
         } else {
             invalidLoginMessage.setVisible(true);

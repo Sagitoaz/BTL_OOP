@@ -11,6 +11,8 @@ import java.util.*;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.AppointmentType;
@@ -150,6 +152,22 @@ public class AppointmentManagementController implements Initializable {
     }
 
     @FXML
+    private void handleBackButton(){
+        System.out.println("🔙 Back button clicked");
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+
+    @FXML
+    private void handleReloadButton(){
+        System.out.println("🔄 Reloading Appointment Booking view");
+        //SceneManager.reloadScene();
+    }
+
+    @FXML
     private void onApplyFilter(ActionEvent event) {
         System.out.println("Applying filters...");
         currentPage = 1; // Reset về trang đầu
@@ -171,14 +189,7 @@ public class AppointmentManagementController implements Initializable {
     @FXML
     private void onCreate(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
-            );
-            Parent root = loader.load();
-
-            // Replace current scene
-            Scene scene = createBtn.getScene();
-            scene.setRoot(root);
+            SceneManager.switchScene(SceneConfig.APPOINTMENT_BOOKING_FXML, SceneConfig.APPOINTMENT_BOOKING_FXML);
 
         } catch (Exception e) {
             System.err.println("❌ Error: " + e.getMessage());
@@ -363,6 +374,7 @@ public class AppointmentManagementController implements Initializable {
             
             // Get controller và enable selection mode
             Object controllerObj = loader.getController();
+
             
             Stage stage = new Stage();
             stage.setTitle("Chọn bệnh nhân");

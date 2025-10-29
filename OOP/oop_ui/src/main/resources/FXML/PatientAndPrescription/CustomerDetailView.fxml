@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerDetailController">
+
+    <top>
+        <!-- Navigation Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+            <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" onAction="#handleBackButton" />
+            <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" onAction="#handleReloadButton" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="0" styleClass="main-container">
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Label styleClass="page-title" text="CHI TIẾT BỆNH NHÂN" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" styleClass="btn-edit" text="✏ Chỉnh sửa" />
+            </HBox>
+
+            <!-- Content -->
+            <VBox spacing="20.0" VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                </padding>
+
+                <!-- Customer Information Card -->
+                <VBox spacing="12" styleClass="card-container">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+
+                    <Label styleClass="section-header" text="📋 THÔNG TIN BỆNH NHÂN" />
+                    <Separator />
+
+                    <GridPane hgap="30.0" vgap="16.0">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="150.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="250.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="150.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="250.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                        </rowConstraints>
+
+                        <Label styleClass="form-label" text="Mã bệnh nhân:" />
+                        <Label fx:id="customerIdLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="1" />
+
+                        <Label styleClass="form-label" text="Họ và tên:" GridPane.rowIndex="1" />
+                        <Label fx:id="fullNameLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Giới tính:" GridPane.rowIndex="2" />
+                        <Label fx:id="genderLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="form-label" text="Ngày sinh:" GridPane.columnIndex="2" />
+                        <Label fx:id="dobLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="3" />
+
+                        <Label styleClass="form-label" text="Số điện thoại:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Label fx:id="phoneLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Label fx:id="emailLabel" styleClass="form-value" text="N/A" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                    </GridPane>
+                </VBox>
+
+                <!-- Prescription History Card -->
+                <VBox spacing="12" styleClass="card-container" VBox.vgrow="ALWAYS">
+                    <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                    </padding>
+
+                    <Label styleClass="section-header" text="📝 LỊCH SỬ ĐƠN THUỐC" />
+                    <Separator />
+
+                    <TableView fx:id="prescriptionsTable" styleClass="financial-table" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="prescriptionIdColumn" prefWidth="100.0" text="Mã ĐT" />
+                            <TableColumn fx:id="dateIssuedColumn" prefWidth="150.0" text="Ngày cấp" />
+                            <TableColumn fx:id="chiefComplaintColumn" prefWidth="250.0" text="Triệu chứng" />
+                            <TableColumn fx:id="diagnosisColumn" prefWidth="250.0" text="Chẩn đoán" />
+                            <TableColumn fx:id="viewDetailsColumn" prefWidth="120.0" text="Chi tiết" />
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
