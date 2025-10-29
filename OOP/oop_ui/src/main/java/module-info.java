@@ -26,6 +26,10 @@ module org.example.oop {
 
     exports org.example.oop.Control.Schedule;
 
+    opens org.example.oop.Control.DashBoard to javafx.fxml;
+
+    exports org.example.oop.Control.DashBoard;
+
     opens org.example.oop to javafx.fxml;
 
     exports org.example.oop;
