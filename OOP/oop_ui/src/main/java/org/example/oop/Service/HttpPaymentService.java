@@ -126,6 +126,39 @@ public class HttpPaymentService {
     }
 
     /**
+     * PUT /payment - Cập nhật payment
+     */
+    public Payment updatePayment(Payment payment) {
+        try {
+            String jsonBody = gson.toJson(payment);
+            System.out.println("🔄 Updating JSON: " + jsonBody); // Debug
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + "/payments")) // Giả sử API update dùng PUT /payments
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request,
+                    HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) { // 200 OK cho update
+                return gson.fromJson(response.body(), Payment.class);
+            } else {
+                System.err.println("❌ HTTP Error (Update): " + response.statusCode());
+                System.err.println("Response: " + response.body());
+                return null;
+            }
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("❌ Error (Update): " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * Kiểm tra kết nối server
      */
     public boolean isServerAvailable() {
