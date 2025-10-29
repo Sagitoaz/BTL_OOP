@@ -187,10 +187,21 @@ public class PaymentController implements Initializable {
                 return;
             }
 
+            // 1. Cập nhật thông tin vào đối tượng local
             currentPayment.setPaymentMethod(cbMethod.getValue());
             currentPayment.setAmountPaid(amountPaid);
             currentPayment.setNote(txtNote.getText());
 
+            // 2. GỬI CẬP NHẬT LÊN SERVER
+            Payment updatedPayment = paymentService.updatePayment(currentPayment);
+
+            if (updatedPayment == null) {
+                // Có lỗi xảy ra khi cập nhật, không tiếp tục
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể cập nhật thông tin thanh toán. Vui lòng thử lại.");
+                return;
+            }
+
+            // 3. Cập nhật trạng thái (CHỈ SAU KHI update payment thành công)
             statusLogService.updatePaymentStatus(new PaymentStatusLog(
                     null,
                     currentPayment.getId(),

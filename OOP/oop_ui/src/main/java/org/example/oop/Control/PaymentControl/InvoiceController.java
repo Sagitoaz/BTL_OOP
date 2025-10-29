@@ -1,5 +1,6 @@
 package org.example.oop.Control.PaymentControl;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.oop.Service.*;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
@@ -23,6 +25,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -37,11 +41,13 @@ public class InvoiceController implements Initializable {
     private HttpPaymentItemService itemService;
     private ApiStockMovementService stockMovementService;
     private HttpPaymentStatusLogService paymentStatusLogService;
+    private CustomerRecordService customerService; // <-- THÊM MỚI SERVICE
 
+    private List<Product> allProducts = new ArrayList<>();  // Lưu tất cả sản phẩm
 
-    // Biến tạm để lưu sản phẩm đang chọn
+    // Biến tạm để lưu dữ liệu đang chọn
     private Product currentSelectedProduct;
-    // private Customer currentSelectedCustomer; // Tạm thời chưa dùng
+    private Customer currentSelectedCustomer; // <-- THÊM MỚI BIẾN TẠM
 
     // --- Các thành phần UI (@FXML) ---
     @FXML
@@ -105,7 +111,6 @@ public class InvoiceController implements Initializable {
     @FXML
     private TextField txtGrandTotal;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         productService = new ApiProductService();
@@ -113,11 +118,26 @@ public class InvoiceController implements Initializable {
         itemService = new HttpPaymentItemService();
         stockMovementService = new ApiStockMovementService();
         paymentStatusLogService = new HttpPaymentStatusLogService();
+        customerService = CustomerRecordService.getInstance(); // <-- KHỞI TẠO SERVICE
 
         setupTableColumns();
         setupEventListeners();
         setupButtonActions();
         handleNewInvoice();
+
+        // Gọi API để tải tất cả sản phẩm vào bộ nhớ
+        loadAllProducts();
+    }
+
+    // Hàm này sẽ gọi API 1 lần để lấy tất cả sản phẩm
+    private void loadAllProducts() {
+        try {
+            // Lấy tất cả sản phẩm từ API
+            allProducts = productService.getAllProducts();
+            System.out.println("Loaded all products: " + allProducts.size());
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi tải sản phẩm", "Không thể tải danh sách sản phẩm: " + e.getMessage());
+        }
     }
 
     /**
@@ -187,15 +207,65 @@ public class InvoiceController implements Initializable {
 
         // Reset biến tạm
         currentSelectedProduct = null;
-        // currentSelectedCustomer = null;
+        currentSelectedCustomer = null; // <-- CẬP NHẬT: RESET KHÁCH HÀNG
     }
 
     /**
-     * HÀM MỚI: Xử lý tìm kiếm khách hàng (Tạm thời chưa làm)
+     * HÀM CẬP NHẬT: Xử lý tìm kiếm khách hàng bằng SĐT
      */
     @FXML
     private void handleFindCustomer() {
-        showAlert(Alert.AlertType.INFORMATION, "Chưa phát triển", "Chức năng tìm khách hàng sẽ được thêm sau.");
+        String phoneNumber = txtCustomerPhone.getText();
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập Số điện thoại để tìm.");
+            return;
+        }
+
+        // Gọi API bất đồng bộ
+        // Chúng ta dùng searchKey cho SĐT, các trường khác để null
+        customerService.searchCustomersAsync(phoneNumber, null, null, null,
+                // 1. Xử lý khi thành công (onSuccess)
+                (customers) -> {
+                    // Quan trọng: Mọi cập nhật UI phải chạy trên luồng JavaFX
+                    Platform.runLater(() -> {
+                        if (customers == null || customers.isEmpty()) {
+                            // Không tìm thấy
+                            showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không có khách hàng nào với SĐT này.");
+                            this.currentSelectedCustomer = null;
+                            clearCustomerFields(); // Xóa các trường thông tin
+                        } else {
+                            // Tìm thấy -> Lấy khách hàng đầu tiên
+                            Customer foundCustomer = customers.get(0);
+                            this.currentSelectedCustomer = foundCustomer;
+
+                            // Điền thông tin vào UI
+                            txtCustomerName.setText(foundCustomer.getFullName());
+                            txtCustomerAge.setText(String.valueOf(foundCustomer.getAge()));
+                            txtCustomerGender.setText(foundCustomer.getGender() != null ? foundCustomer.getGender().name() : "N/A");
+                            txtCustomerAddress.setText(foundCustomer.getAddress());
+                        }
+                    });
+                },
+                // 2. Xử lý khi có lỗi (onError)
+                (errorMsg) -> {
+                    Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.ERROR, "Lỗi API", "Lỗi khi tìm khách hàng: " + errorMsg);
+                        this.currentSelectedCustomer = null;
+                        clearCustomerFields();
+                    });
+                }
+        );
+    }
+
+    /**
+     * Hàm hỗ trợ: Xóa các trường thông tin khách hàng
+     */
+    private void clearCustomerFields() {
+        txtCustomerName.clear();
+        txtCustomerAge.clear();
+        txtCustomerGender.clear();
+        txtCustomerAddress.clear();
+        // Ghi chú: Không xóa txtCustomerPhone để người dùng có thể sửa lại
     }
 
     /**
@@ -209,26 +279,31 @@ public class InvoiceController implements Initializable {
             return;
         }
 
-        try {
-            Product product = productService.getProductBySku(sku);
-            if (product != null) {
-                currentSelectedProduct = product; // Lưu sản phẩm lại
-                txtProductName.setText(product.getName());
-                txtProductType.setText(product.getCategory());
-                txtProductPrice.setText(String.valueOf(product.getPriceCost()));
-            } else {
-                showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không tìm thấy sản phẩm với SKU này.");
-                currentSelectedProduct = null;
-                txtProductName.clear();
-                txtProductType.clear();
-                txtProductPrice.clear();
-            }
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi Nhập Liệu", "SKU phải là một con số (ID sản phẩm).");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm sản phẩm: " + e.getMessage());
-            e.printStackTrace();
+        // Tìm sản phẩm trong danh sách đã tải về từ API
+        Product product = findProductBySku(sku);
+
+        if (product != null) {
+            currentSelectedProduct = product;
+            txtProductName.setText(product.getName());
+            txtProductType.setText(product.getCategory());
+            txtProductPrice.setText(String.valueOf(product.getPriceCost()));
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không tìm thấy sản phẩm với SKU này.");
+            currentSelectedProduct = null;
+            txtProductName.clear();
+            txtProductType.clear();
+            txtProductPrice.clear();
         }
+    }
+
+    // Hàm tìm sản phẩm trong danh sách đã tải về từ API
+    private Product findProductBySku(String sku) {
+        for (Product product : allProducts) {
+            if (product.getSku() != null && product.getSku().equals(sku)) {
+                return product;
+            }
+        }
+        return null;
     }
 
     /**
@@ -288,7 +363,8 @@ public class InvoiceController implements Initializable {
     }
 
     /**
-     * HÀM MỚI (INTERNAL): Lưu hóa đơn, items, stock, và status UNPAID
+     * HÀM (INTERNAL) ĐÃ CẬP NHẬT:
+     * Sử dụng batch-save cho cả PaymentItems VÀ StockMovements
      */
     private Payment saveInvoiceInternal() {
         if (txtInvoiceCode.getText().isEmpty() || invoiceItems.isEmpty()) {
@@ -312,25 +388,52 @@ public class InvoiceController implements Initializable {
             }
             int savedPaymentId = savedPayment.getId();
 
-            // 3. Lưu PaymentItems
+            // 3. Gán PaymentId và Batch Save Items
             for (PaymentItem item : invoiceItems) {
                 item.setPaymentId(savedPaymentId);
-                itemService.createPaymentItem(item);
+            }
+            List<PaymentItem> savedItems = itemService.saveAllPaymentItems(invoiceItems);
+
+            // 3c. Kiểm tra kết quả batch save
+            if (savedItems == null || savedItems.isEmpty() || savedItems.size() != invoiceItems.size()) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Chi Tiết", "Không thể lưu (batch save) các chi tiết hóa đơn.");
+                // TODO: Cân nhắc "rollback" (xóa) 'savedPayment' đã tạo ở bước 2
+                return null;
             }
 
-            // 4. TẠO STOCK MOVEMENT (TRỪ KHO)
-            for (PaymentItem item : invoiceItems) {
+            // ========================================================
+            // <-- CẬP NHẬT: SỬ DỤNG BATCH SAVE CHO STOCK MOVEMENT
+            // ========================================================
+
+            // 4. Tạo danh sách Stock Movements
+            List<StockMovement> movementsToSave = new ArrayList<>();
+
+            // Dùng savedItems (danh sách đã được xác nhận từ CSDL)
+            for (PaymentItem item : savedItems) {
                 StockMovement movement = new StockMovement();
                 movement.setProductId(item.getProductId());
-                movement.setQty(item.getQty());
+                movement.setQty(item.getQty()); // Số lượng bán ra
                 movement.setMoveType(MoveType.SALE);
                 movement.setRefTable("payments");
                 movement.setRefId(savedPaymentId);
                 movement.setMovedBy(cashierId);
                 movement.setMovedAt(LocalDateTime.now());
                 movement.setNote("Bán hàng tự động từ HĐ: " + savedPayment.getCode());
-                stockMovementService.createStockMovement(movement);
+                movementsToSave.add(movement);
             }
+
+            // 4b. Gọi API để lưu toàn bộ danh sách movements một lần
+            List<StockMovement> savedMovements = stockMovementService.createBulkStockMovements(movementsToSave); //
+
+            // 4c. Kiểm tra kết quả
+            if (savedMovements == null || savedMovements.isEmpty() || savedMovements.size() != movementsToSave.size()) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi Ghi Kho", "Không thể lưu (batch save) các cập nhật kho.");
+                // TODO: Rollback
+                return null;
+            }
+            // ========================================================
+            // KẾT THÚC CẬP NHẬT
+            // ========================================================
 
             // 5. TẠO STATUS LOG = UNPAID
             PaymentStatusLog unpaidLog = new PaymentStatusLog();
@@ -421,12 +524,14 @@ public class InvoiceController implements Initializable {
 
         int tax = 0;
         int grandTotal = subtotal - discount + tax;
-        System.out.println("debug");
         txtSubtotal.setText(String.valueOf(subtotal));
         txtTaxAmount.setText(String.valueOf(tax));
         txtGrandTotal.setText(String.valueOf(grandTotal));
     }
 
+    /**
+     * HÀM ĐÃ CẬP NHẬT: Lấy ID khách hàng từ biến tạm
+     */
     private Payment createPaymentFromUI() {
         LocalDate localDate = dpInvoiceDate.getValue();
         LocalDateTime issuedAt = (localDate != null) ? localDate.atStartOfDay() : LocalDateTime.now();
@@ -436,7 +541,10 @@ public class InvoiceController implements Initializable {
         } catch (NumberFormatException ignored) {
         }
 
-        return new Payment(0, txtInvoiceCode.getText(), 0 /* customerId */, cashierId, issuedAt,
+        // Lấy Customer ID từ biến tạm
+        int customerId = (currentSelectedCustomer != null) ? currentSelectedCustomer.getId() : 0; // <-- CẬP NHẬT Ở ĐÂY
+
+        return new Payment(0, txtInvoiceCode.getText(), customerId, cashierId, issuedAt, // <-- TRUYỀN customerId VÀO ĐÂY
                 Integer.parseInt(txtSubtotal.getText()), Integer.parseInt(txtDiscountAmount.getText()),
                 Integer.parseInt(txtTaxAmount.getText()), 0, Integer.parseInt(txtGrandTotal.getText()),
                 null, 0, txtInvoiceNote.getText(), LocalDateTime.now());
