@@ -18,11 +18,6 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         SceneManager.setPrimaryStage(stage);
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(SceneConfig.CUSTOMER_DASHBOARD_FXML));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("PHÒNG KHÁM MẮT - Eye Clinic Management System");
-        stage.setScene(scene);
-
-        stage.show();
+        SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, "PHÒNG KHÁM MẮT - Eye Clinic Management System");
     }
 }

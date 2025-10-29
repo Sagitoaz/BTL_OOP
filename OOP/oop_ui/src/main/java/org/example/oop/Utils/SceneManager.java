@@ -40,11 +40,12 @@ public final class SceneManager {
     public static void switchScene(String fxmlPath, String title) {
         runOnFxThread(()->{
 
-            Parent root = loadFxml(fxmlPath);
-            if(root == null || primaryStage == null) {
+
+            if( primaryStage == null) {
                 return;
             }
-            primaryStage.setScene(new Scene(root));
+            primaryStage.setScene(loadFxml(fxmlPath));
+
             primaryStage.setTitle(title);
             addToHistory(fxmlPath, title);
             forwardHistory.clear();
@@ -68,15 +69,17 @@ public final class SceneManager {
             SceneInfo current = navigationHistory.pop();
             forwardHistory.push(current);
             SceneInfo previous = navigationHistory.peek();
-            Parent root = loadFxml(previous.getFxmlPath());
-            if(root == null || primaryStage == null){
+
+
+            if( primaryStage == null){
                 return;
             }
-            primaryStage.setScene(new Scene(root));
-            if(previous.getTitle() != null && !previous.getTitle().isEmpty()){
-                primaryStage.setTitle(previous.getTitle());
-            }
+            primaryStage.setScene(loadFxml(previous.getFxmlPath()));
+
+            System.out.println("Navigated back to: " + previous.getFxmlPath());
+            primaryStage.setTitle(previous.getTitle());
             primaryStage.show();
+
 
         });
     }
@@ -87,12 +90,8 @@ public final class SceneManager {
            }
            SceneInfo next = forwardHistory.pop();
            navigationHistory.push(next);
+           primaryStage.setScene(loadFxml(next.getFxmlPath()));
 
-           Parent root = loadFxml(next.getFxmlPath());
-           if(root == null || primaryStage == null){
-               return;
-           }
-           primaryStage.setScene(new Scene(root));
            if(next.getTitle() != null && !next.getTitle().isEmpty()){
                primaryStage.setTitle(next.getTitle());
            }
@@ -103,12 +102,9 @@ public final class SceneManager {
     //Modal Window
     public static void openModalWindow(String fxmlPath, String title){
         runOnFxThread(()->{
-            Parent root = loadFxml(fxmlPath);
-            if(root == null){
-                return;
-            }
+
             Stage stage = new Stage();
-            stage.setScene(new Scene(root));
+            stage.setScene(loadFxml(fxmlPath));
             stage.setTitle(title);
             stage.setResizable(false);
             stage.initOwner(primaryStage);
@@ -171,19 +167,19 @@ public final class SceneManager {
 
     //Helpers
     // load fxml va cache
-    private static Parent loadFxml(String fxmlPath) {
+    private static Scene loadFxml(String fxmlPath) {
         if(fxmlPath == null || fxmlPath.isEmpty()) {
             return null;
         }
         Parent cachedRoot = cachedScenes.get(fxmlPath);
         if(cachedRoot != null) {
-            return cachedRoot;
+            return cachedRoot.getScene();
         }
         try{
             FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
             Parent root = loader.load();
-            cachedScenes.put(fxmlPath, root);
-            return root;
+            addToCache(fxmlPath, root);
+            return new Scene(root);
         } catch ( IOException e) {
             handleLoadError(fxmlPath, e);
             return null;

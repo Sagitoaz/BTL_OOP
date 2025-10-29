@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Services.HttpDoctorService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.AppointmentType;
@@ -125,6 +126,15 @@ public class AppointmentBookingController implements Initializable {
 
         // Setup listeners
         setupListeners();
+    }
+    @FXML
+    private void handleBackButton(){
+        System.out.println("🔙 Back button clicked");
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
     }
 
     @FXML
