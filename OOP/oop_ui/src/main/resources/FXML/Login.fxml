@@ -87,7 +87,7 @@
                         </VBox>
 
                         <!-- Error message -->
-                        <Label fx:id="invalidLoginMessage" managed="false" maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
+                        <Label fx:id="invalidLoginMessage"  maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
 
                         <!-- Forgot password -->
                         <HBox alignment="CENTER_RIGHT" styleClass="link-container">

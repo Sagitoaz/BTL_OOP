@@ -28,6 +28,10 @@ public class CustomerDashBoardController {
     private void handlePaymentHistoryButton(){
         SceneManager.switchScene(SceneConfig.PAYMENT_HISTORY_FXML, SceneConfig.Titles.PAYMENT_HISTORY);
     }
+    @FXML
+    private void handleAppointmentManagement(){
+        SceneManager.switchScene(SceneConfig.APPOINTMENT_MANAGEMENT_FXML, SceneConfig.Titles.APPOINTMENT_MANAGEMENT);
+    }
 
 
 }

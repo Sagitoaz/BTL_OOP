@@ -12,6 +12,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -146,22 +148,13 @@ public class LoginController {
             String sessionId = sessionOpt.get();
             // Save sessionId to session storage for later use
             SessionStorage.setCurrentSessionId(sessionId);
-
             // Clear error message
             invalidLoginMessage.setText("");
-
             // Redirect to dashboard
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/hello-view.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Failed to load dashboard view", e);
-                invalidLoginMessage.setText("Error loading dashboard");
-            }
+            SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+
         } else {
+            invalidLoginMessage.setVisible(true);
             invalidLoginMessage.setText("Invalid username or password");
         }
     }

@@ -18,6 +18,6 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         SceneManager.setPrimaryStage(stage);
-        SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, "PHÒNG KHÁM MẮT - Eye Clinic Management System");
+        SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.LOGIN_FXML);
     }
 }

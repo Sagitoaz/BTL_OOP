@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentMethod;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
@@ -145,6 +146,15 @@ public class PaymentHistoryController implements Initializable {
                 }
             }
         });
+    }
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
     }
 
     private void formatStatusColumn() {

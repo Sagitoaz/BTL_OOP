@@ -46,6 +46,7 @@ public final class SceneConfig {
     public static final class Titles {
         private Titles() {
         }
+        public static final String DASHBOARD = "Phòng kham mắt GOAT DŨNG - Eye Clinic";
 
         // Authentication
         public static final String LOGIN = "Đăng nhập - Eye Clinic";
