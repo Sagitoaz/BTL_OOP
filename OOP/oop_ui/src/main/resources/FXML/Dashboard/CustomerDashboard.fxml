@@ -44,14 +44,14 @@
                 <!-- Header -->
                 <HBox alignment="CENTER_LEFT" spacing="15" styleClass="header">
                     <!-- Navigation Buttons -->
-                    <HBox spacing="8" styleClass="nav-buttons-group">
-                        <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀" />
-                        <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="▶" />
-                        <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳" />
+                    <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+                        <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                        <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                        <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
                     </HBox>
                     
                     <Text styleClass="title" text="Patient Dashboard" HBox.hgrow="ALWAYS" />
-                    <MenuButton styleClass="user-menu-button" text="John Doe">
+                    <MenuButton fx:id="nameField" styleClass="user-menu-button" text="John Doe">
                         <items>
                             <MenuItem text="Profile" />
                             <MenuItem text="Settings" />
@@ -65,7 +65,7 @@
                     <VBox spacing="30" styleClass="dashboard-container">
                         <!-- Welcome Section -->
                         <VBox spacing="10" styleClass="welcome-section">
-                            <Label styleClass="dashboard-welcome-title" text="Xin chào, Bệnh nhân!" />
+                            <Label fx:id="welcomeText" styleClass="dashboard-welcome-title" text="Xin chào, Bệnh nhân!" />
                             <Label styleClass="dashboard-welcome-subtitle" text="Chúng tôi luôn sẵn sàng chăm sóc sức khỏe của bạn" />
                         </VBox>
 
@@ -98,7 +98,7 @@
                                     <Label styleClass="function-icon" text="📄" />
                                     <Label styleClass="function-title" text="Hồ sơ bệnh án" />
                                     <Label styleClass="function-description" text="Xem lịch sử khám và kết quả điều trị" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-warning function-button" text="Xem hồ sơ" />
+                                    <Button maxWidth="Infinity" onAction="#handleCustomerDetailViewButton" styleClass="button-warning function-button" text="Xem hồ sơ" />
                                 </VBox>
                                 
                                 <VBox styleClass="function-card function-card-purple" GridPane.columnIndex="1" GridPane.rowIndex="1">

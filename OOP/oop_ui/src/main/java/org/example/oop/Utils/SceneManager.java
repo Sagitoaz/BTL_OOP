@@ -57,10 +57,14 @@ public final class SceneManager {
         });
     }
     //chuyen scene kem data
-    public static void switchSceneWithData(String fxmlPath,String title,  Object data){
-        if (data != null) {
-            setSceneData("_payload", data);
+    public static void switchSceneWithData(String fxmlPath,String title,String[] key,   Object[] data){
+        for(int i = 0; i< key.length; i++){
+            if(data[i] != null && key[i] != null){
+                setSceneData( key[i], data[i]);
+            }
+
         }
+
         switchScene(fxmlPath, title);
     }
     // Navigation History

@@ -1,19 +1,18 @@
 package org.example.oop.Control.PatientAndPrescription;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import org.example.oop.Service.PrescriptionService;
 import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class CustomerDetailController {
 
@@ -31,16 +30,48 @@ public class CustomerDetailController {
     private Label emailLabel;
 
     @FXML
-    private Button editCustomerButton;
+    private TableView prescriptionsTable;
     @FXML
-    private Button deleteCustomerButton;
+    private TableColumn<Prescription, String> prescriptionIdColumn;
     @FXML
-    private Button addPrescriptionButton;
+    private TableColumn<Prescription, LocalDate> dateIssuedColumn;
+    @FXML
+    private TableColumn<Prescription, String> chiefComplaintColumn;
+    @FXML
+    private TableColumn<Prescription, String> diagnosisColumn;
 
+
+    @FXML
+    private Button editCustomerButton;
 
 
     @FXML
     public void initialize() {
+        Customer customer = SceneManager.getSceneData("accountData");
+        customerIdLabel.setText(String.valueOf(customer.getId()));
+        fullNameLabel.setText(customer.getFullName());
+        genderLabel.setText(customer.getGender().toString());
+        dobLabel.setText(customer.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        phoneLabel.setText(customer.getPhone());
+        emailLabel.setText(customer.getEmail());
+        prescriptionIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        dateIssuedColumn.setCellValueFactory(new PropertyValueFactory<>("created_at"));
+        dateIssuedColumn.setCellFactory(column -> new TableCell<Prescription, LocalDate>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            @Override
+            protected void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(formatter.format(item));
+                }
+            }
+        });
+        chiefComplaintColumn.setCellValueFactory(new PropertyValueFactory<>("chiefComplaint"));
+        diagnosisColumn.setCellValueFactory(new PropertyValueFactory<>("diagnosis"));
+
         setupTableColumns();
     }
 
@@ -51,6 +82,16 @@ public class CustomerDetailController {
     }
 
     private void setupTableColumns() {
+        PrescriptionService prescriptionService = new PrescriptionService();
+        prescriptionService.getPrescriptionByCustomer_idAsync( prescriptions -> {;
+            prescriptionsTable.setItems(FXCollections.observableList(prescriptions));
+
+
+        }, error -> {
+            // Xử lý lỗi nếu có
+            System.err.println("Error retrieving prescriptions: ");
+            CustomerHubController.showErrorAlert("Error retrieving prescriptions", error);
+        }, Integer.parseInt(customerIdLabel.getText()));
 
     }
 

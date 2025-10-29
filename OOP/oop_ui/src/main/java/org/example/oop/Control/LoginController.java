@@ -12,8 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -142,7 +145,15 @@ public class LoginController {
                 SceneManager.switchScene(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
             else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
             {
-                SceneManager.switchScene(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+                Customer customer = CustomerRecordService.getInstance().searchCustomers(
+                        String.valueOf(SessionStorage.getCurrentUserId()),
+                        null,
+                        null,
+                        null
+                ).getData().get(0);
+                String[] key = {"role", "accountData"};
+                Object[] data = {UserRole.CUSTOMER, customer};
+                SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
             }
             else{
                 SceneManager.switchScene(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
