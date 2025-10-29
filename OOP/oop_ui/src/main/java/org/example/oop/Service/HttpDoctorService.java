@@ -19,7 +19,7 @@ public class HttpDoctorService {
     private final Gson gson;
 
     public HttpDoctorService() {
-        this("http://localhost:8080");
+        this("https://btl-oop-i9pi.onrender.com/");
     }
 
     public HttpDoctorService(String baseUrl) {

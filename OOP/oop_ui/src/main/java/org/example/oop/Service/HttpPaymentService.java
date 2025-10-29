@@ -21,7 +21,7 @@ public class HttpPaymentService {
     private final Gson gson;
 
     public HttpPaymentService() {
-        this("http://localhost:8080");
+        this("https://btl-oop-i9pi.onrender.com/");
     }
 
     public HttpPaymentService(String baseUrl) {

@@ -34,7 +34,7 @@ public class HttpAppointmentService {
      * Constructor mặc định - kết nối localhost:8080
      */
     public HttpAppointmentService() {
-        this("http://localhost:8080");
+        this("https://btl-oop-i9pi.onrender.com/");
     }
 
     /**
