@@ -163,7 +163,7 @@ public class ApiStockMovementService {
         }
     }
 
-    public StockMovement createListStockMovement(List<StockMovement> stockMovement) throws Exception {
+    public List<StockMovement> createListStockMovement(List<StockMovement> stockMovements) throws Exception {
         HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
                 .openConnection();
         conn.setRequestMethod("POST");
@@ -173,7 +173,7 @@ public class ApiStockMovementService {
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
 
-        String jsonBody = gson.toJson(stockMovement);
+        String jsonBody = gson.toJson(stockMovements); // Chuyển danh sách thành JSON
         System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
 
         try (OutputStream os = conn.getOutputStream()) {
@@ -185,68 +185,14 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            StockMovement created = gson.fromJson(responseBody, StockMovement.class);
-            System.out.println("✅ Stock movement created with ID: " + created.getId());
-            return created;
+            // Nếu thành công, parse response thành một danh sách StockMovement
+            Type listType = new TypeToken<List<StockMovement>>() {
+            }.getType();
+            List<StockMovement> createdStockMovements = gson.fromJson(responseBody, listType);
+            System.out.println("✅ Stock movements created: " + createdStockMovements.size() + " items");
+            return createdStockMovements;
         } else {
-            throw new Exception("Failed to create stock movement: " + responseBody);
-        }
-    }
-
-    public StockMovement updateStockMovement(StockMovement stockMovement) throws Exception {
-        System.out.println("🔄 Updating stock movement ID: " + stockMovement.getId());
-        if (stockMovement.getId() <= 0) {
-            throw new Exception("Stock movement ID is missing or invalid: " + stockMovement.getId());
-        }
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
-                .openConnection();
-        conn.setRequestMethod("PUT");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Accept", "application/json");
-        conn.setConnectTimeout(CONNECT_TIMEOUT);
-        conn.setReadTimeout(READ_TIMEOUT);
-        conn.setDoOutput(true);
-        String jsonBody = gson.toJson(stockMovement);
-        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
-
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = conn.getResponseCode();
-        String responseBody = readResponse(conn);
-
-        if (responseCode >= 200 && responseCode < 300) {
-            StockMovement updated = gson.fromJson(responseBody, StockMovement.class);
-            System.out.println("✅ Stock movement updated: " + updated.getId());
-            return updated;
-        } else {
-            throw new Exception("Failed to update stock movement: " + responseBody);
-        }
-    }
-
-    // ✅ FIX: Đổi tên method và URL
-    public boolean deleteStockMovement(int id) throws Exception {
-        System.out.println("🔄 Deleting stock movement ID: " + id);
-
-        // ✅ FIX URL: /stock_movements (có 's')
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements?id=" + id).toURL()
-                .openConnection();
-        conn.setRequestMethod("DELETE");
-        conn.setConnectTimeout(CONNECT_TIMEOUT);
-        conn.setReadTimeout(READ_TIMEOUT);
-
-        int responseCode = conn.getResponseCode();
-        String responseBody = readResponse(conn);
-
-        if (responseCode >= 200 && responseCode < 300) {
-            System.out.println("✅ Stock movement deleted: " + responseBody);
-            return true;
-        } else if (responseCode == 404) {
-            throw new Exception("Stock movement not found");
-        } else {
-            throw new Exception("Failed to delete stock movement: " + responseBody);
+            throw new Exception("Failed to create stock movements: " + responseBody);
         }
     }
 
