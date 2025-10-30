@@ -276,17 +276,15 @@
         </ScrollPane>
     </center>
 
-    <!-- ACTION BAR (STICKY) -->
+    <!-- ACTION BAR (STICKY) - Removed status label -->
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
+            <HBox alignment="CENTER_RIGHT" spacing="15" styleClass="financial-header">
                 <padding>
                     <Insets bottom="16" left="24" right="24" top="16" />
                 </padding>
                 <children>
-                    <Label fx:id="lblStatus" styleClass="form-label" text="✓ Sẵn sàng tạo sản phẩm mới" style="-fx-font-size: 13px;" />
-                    <Region HBox.hgrow="ALWAYS" />
                     <Button fx:id="btnClose" mnemonicParsing="false" prefWidth="120" styleClass="btn-secondary" text="✕ Đóng" />
                     <Button fx:id="btnResetProduct" mnemonicParsing="false" prefWidth="140" styleClass="btn-secondary" text="🔄 Làm mới" />
                     <Button fx:id="btnSaveProduct2" defaultButton="true" mnemonicParsing="false" prefWidth="160" styleClass="btn-success" text="💾 Lưu sản phẩm" />

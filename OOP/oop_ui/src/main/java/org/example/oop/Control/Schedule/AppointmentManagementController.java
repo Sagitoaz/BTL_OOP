@@ -10,7 +10,7 @@ import java.util.*;
 
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
-import org.example.oop.Services.HttpDoctorService;
+import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;

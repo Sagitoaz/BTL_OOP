@@ -1,174 +1,179 @@
 /* ========================================
-   PHÒNG KHÁM MẮT - MEDICAL PROFESSIONAL STYLESHEET
-   Thiết kế: Chuyên nghiệp y tế, tin cậy
-   Màu chủ đạo: Xanh dương y tế + Trắng
+   MAIN STYLESHEET - MODERN EYE CLINIC DESIGN
+   Thiết kế: Hiện đại với xanh dương trẻ trung
+   Màu chủ đạo: Xanh dương Ocean + Trắng
    ======================================== */
 
-/* ========== COLOR PALETTE - Y TẾ ========== */
+/* ========== COLOR PALETTE - MODERN BLUE ========== */
 * {
-    /* Primary Medical Colors */
-    -fx-primary: #0066CC;              /* Xanh dương y tế đậm */
-    -fx-primary-dark: #004C99;         /* Xanh dương đậm hơn */
-    -fx-primary-light: #3399FF;        /* Xanh dương nhạt */
-    -fx-primary-lighter: #E6F2FF;      /* Xanh dương rất nhạt - background */
+    /* Primary Ocean Blue Colors */
+    -fx-primary: #0EA5E9;              /* Sky Blue - màu chính */
+    -fx-primary-dark: #0284C7;         /* Ocean Blue - đậm hơn */
+    -fx-primary-darker: #0369A1;       /* Deep Blue - đậm nhất */
+    -fx-primary-light: #38BDF8;        /* Light Sky Blue */
+    -fx-primary-lighter: #E0F2FE;      /* Very Light Blue - background */
 
-    /* Medical Accent Colors */
-    -fx-medical-green: #00A86B;        /* Xanh lá y tế - success */
-    -fx-medical-orange: #FF6B35;       /* Cam y tế - warning */
-    -fx-medical-red: #DC3545;          /* Đỏ y tế - error/urgent */
-    -fx-medical-teal: #17A2B8;         /* Xanh ngọc - info */
+    /* Accent Colors */
+    -fx-medical-green: #10B981;        /* Fresh Green - success */
+    -fx-medical-orange: #F59E0B;       /* Vibrant Orange - warning */
+    -fx-medical-red: #F43F5E;          /* Modern Red - error */
+    -fx-medical-teal: #06B6D4;         /* Cyan - info */
+    -fx-medical-purple: #8B5CF6;       /* Purple - special */
 
-    /* Neutral Medical Colors */
+    /* Neutral Colors */
     -fx-white: #FFFFFF;
-    -fx-background: #F5F7FA;           /* Nền xám nhẹ y tế */
-    -fx-surface: #FFFFFF;              /* Bề mặt trắng */
-    -fx-border: #D1D9E6;               /* Viền xám xanh */
-    -fx-border-light: #E8EDF5;         /* Viền nhạt */
+    -fx-background: #F0F9FF;           /* Light Blue Background */
+    -fx-surface: #FFFFFF;              /* White Surface */
+    -fx-border: #CBD5E0;               /* Gray Border */
+    -fx-border-light: #E0F2FE;         /* Light Blue Border */
 
-    /* Professional Text Colors */
-    -fx-text-primary: #2C3E50;         /* Text chính - xám xanh đậm */
-    -fx-text-secondary: #5A6C7D;       /* Text phụ */
-    -fx-text-hint: #95A5B8;            /* Text gợi ý */
-    -fx-text-disabled: #B0BEC5;        /* Text disabled */
+    /* Text Colors */
+    -fx-text-primary: #0F172A;         /* Dark Slate */
+    -fx-text-secondary: #64748B;       /* Slate Gray */
+    -fx-text-hint: #94A3B8;            /* Light Gray */
+    -fx-text-disabled: #CBD5E0;        /* Very Light Gray */
     -fx-text-white: #FFFFFF;
 
-    /* Professional Shadow */
-    -fx-shadow-color: rgba(44, 62, 80, 0.08);
-    -fx-shadow-hover: rgba(0, 102, 204, 0.15);
+    /* Shadow */
+    -fx-shadow-color: rgba(14, 165, 233, 0.12);
+    -fx-shadow-hover: rgba(14, 165, 233, 0.25);
 
-    /* Square/Professional Border Radius */
-    -fx-radius-small: 2px;             /* Vuông vức hơn */
-    -fx-radius-medium: 4px;
-    -fx-radius-large: 6px;
-    -fx-radius-round: 50%;
+    /* Modern Border Radius */
+    -fx-radius-small: 8px;
+    -fx-radius-medium: 12px;
+    -fx-radius-large: 16px;
+    -fx-radius-round: 25px;
 }
 
 /* ========== ROOT & CONTAINER ========== */
 .root {
     -fx-background-color: -fx-background;
-    -fx-font-family: "Segoe UI", "Arial", "Helvetica", sans-serif;
-    -fx-font-size: 13px;
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", "Arial", sans-serif;
+    -fx-font-size: 14px;
     -fx-text-fill: -fx-text-primary;
 }
 
 .container {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-medium;
-    -fx-padding: 28px;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 8, 0, 0, 1);
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: -fx-radius-large;
+    -fx-padding: 32px;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 15, 0, 0, 5);
     -fx-border-color: -fx-border-light;
     -fx-border-width: 1px;
-    -fx-border-radius: -fx-radius-medium;
+    -fx-border-radius: -fx-radius-large;
 }
 
 .content-pane {
     -fx-background-color: -fx-background;
-    -fx-padding: 24px;
+    -fx-padding: 28px;
 }
 
-/* ========== PROFESSIONAL LABELS ========== */
+/* ========== MODERN LABELS ========== */
 .label {
     -fx-text-fill: -fx-text-primary;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 500;
 }
 
 .label-large {
-    -fx-font-size: 16px;
-    -fx-font-weight: 600;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
     -fx-text-fill: -fx-text-primary;
 }
 
 .label-medium {
-    -fx-font-size: 14px;
-    -fx-font-weight: 500;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
 }
 
 .label-small {
     -fx-font-size: 12px;
     -fx-text-fill: -fx-text-secondary;
-    -fx-font-weight: normal;
+    -fx-font-weight: 500;
 }
 
 .title {
-    -fx-font-size: 26px;
-    -fx-font-weight: 600;
-    -fx-text-fill: -fx-primary-dark;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-primary-darker;
     -fx-letter-spacing: -0.5px;
 }
 
 .subtitle {
-    -fx-font-size: 18px;
-    -fx-font-weight: 500;
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
     -fx-text-fill: -fx-text-primary;
 }
 
 .section-title {
-    -fx-font-size: 15px;
-    -fx-font-weight: 600;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
     -fx-text-fill: -fx-primary;
-    -fx-padding: 0 0 12 0;
-    -fx-border-color: -fx-primary;
-    -fx-border-width: 0 0 2 0;
+    -fx-padding: 0 0 12px 0;
 }
 
-/* ========== PROFESSIONAL TEXT FIELDS ========== */
+/* ========== MODERN TEXT FIELDS ========== */
 .text-field, .text-area, .password-field {
     -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-small;
+    -fx-background-radius: -fx-radius-medium;
     -fx-border-color: -fx-border;
-    -fx-border-radius: -fx-radius-small;
-    -fx-border-width: 1.5px;
-    -fx-padding: 10px 14px;
-    -fx-font-size: 13px;
+    -fx-border-radius: -fx-radius-medium;
+    -fx-border-width: 2px;
+    -fx-padding: 12px 16px;
+    -fx-font-size: 14px;
     -fx-text-fill: -fx-text-primary;
     -fx-prompt-text-fill: -fx-text-hint;
-    -fx-font-weight: normal;
+    -fx-font-weight: 500;
 }
 
 .text-field:focused, .text-area:focused, .password-field:focused {
     -fx-border-color: -fx-primary;
     -fx-border-width: 2px;
-    -fx-background-color: -fx-white;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 4, 0, 0, 0);
+    -fx-background-color: #F8FBFF;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 10, 0, 0, 3);
 }
 
 .text-field:hover, .text-area:hover, .password-field:hover {
     -fx-border-color: -fx-primary-light;
+    -fx-background-color: #FAFBFC;
 }
 
 .text-field:disabled, .text-area:disabled, .password-field:disabled {
-    -fx-background-color: #F8F9FA;
+    -fx-background-color: #F1F5F9;
     -fx-text-fill: -fx-text-disabled;
     -fx-opacity: 0.7;
 }
 
-/* ========== PROFESSIONAL BUTTONS - VUÔNG VỨC ========== */
+/* ========== MODERN BUTTONS ========== */
 .button {
     -fx-background-color: -fx-primary;
     -fx-text-fill: -fx-text-white;
-    -fx-background-radius: -fx-radius-small;
-    -fx-padding: 10px 20px;
-    -fx-font-size: 13px;
+    -fx-background-radius: -fx-radius-round;
+    -fx-padding: 11px 26px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 4, 0, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 10, 0, 0, 4);
     -fx-border-width: 0;
 }
 
 .button:hover {
     -fx-background-color: -fx-primary-dark;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 6, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.6), 15, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 .button:pressed {
-    -fx-background-color: derive(-fx-primary-dark, -10%);
+    -fx-background-color: -fx-primary-darker;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
 }
 
 .button:disabled {
     -fx-background-color: -fx-border;
     -fx-text-fill: -fx-text-disabled;
-    -fx-opacity: 0.6;
+    -fx-opacity: 0.5;
     -fx-cursor: default;
 }
 
@@ -182,12 +187,14 @@
     -fx-background-color: -fx-white;
     -fx-text-fill: -fx-primary;
     -fx-border-color: -fx-primary;
-    -fx-border-width: 1.5px;
-    -fx-border-radius: -fx-radius-small;
+    -fx-border-width: 2px;
+    -fx-border-radius: -fx-radius-round;
 }
 
 .button-secondary:hover {
     -fx-background-color: -fx-primary-lighter;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
 }
 
 .button-success {
@@ -195,7 +202,7 @@
 }
 
 .button-success:hover {
-    -fx-background-color: derive(-fx-medical-green, -10%);
+    -fx-background-color: #059669;
 }
 
 .button-danger {
@@ -203,7 +210,7 @@
 }
 
 .button-danger:hover {
-    -fx-background-color: derive(-fx-medical-red, -10%);
+    -fx-background-color: #E11D48;
 }
 
 .button-warning {
@@ -211,338 +218,353 @@
 }
 
 .button-warning:hover {
-    -fx-background-color: derive(-fx-medical-orange, -10%);
+    -fx-background-color: #D97706;
 }
 
-/* Button Sizes */
-.button-large {
-    -fx-padding: 12px 28px;
-    -fx-font-size: 14px;
+.button-info {
+    -fx-background-color: -fx-medical-teal;
 }
 
-.button-small {
-    -fx-padding: 7px 14px;
-    -fx-font-size: 12px;
+.button-info:hover {
+    -fx-background-color: #0891B2;
 }
 
-/* Icon Button */
-.button-icon {
+/* ========== FOCUS INDICATORS - CLEAN ========== */
+*:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ========== REMOVE BLUE FOCUS OUTLINE ========== */
+.button:focused,
+.text-field:focused,
+.text-area:focused,
+.password-field:focused,
+.combo-box:focused,
+.choice-box:focused,
+.date-picker:focused,
+.check-box:focused,
+.radio-button:focused,
+.hyperlink:focused,
+.spinner:focused,
+.slider:focused,
+.toggle-button:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ========== ENSURE ALL BUTTONS ARE ROUNDED ========== */
+.button,
+Button,
+.btn-add,
+.btn-edit,
+.btn-delete,
+.btn-save,
+.btn-cancel,
+.btn-search,
+.btn-reset,
+.btn-icon,
+.btn-back,
+.btn-forward,
+.btn-reload,
+.btn-print,
+.export-button,
+.quick-action-btn,
+.social-login-button,
+.export-format-button {
+    -fx-background-radius: 25px !important;
+    -fx-border-radius: 25px !important;
+}
+
+/* ========== MODERN CARDS ========== */
+.card {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: -fx-radius-large;
+    -fx-padding: 24px;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 15, 0, 0, 5);
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1px;
+    -fx-border-radius: -fx-radius-large;
+}
+
+.card:hover {
+    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 20, 0, 0, 8);
+    -fx-translate-y: -2px;
+}
+
+/* ========== MODERN LIST VIEW ========== */
+.list-view {
+    -fx-background-color: white;
+    -fx-background-radius: -fx-radius-medium;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1px;
+    -fx-border-radius: -fx-radius-medium;
+}
+
+.list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 8px;
-    -fx-effect: none;
-    -fx-background-radius: -fx-radius-small;
+    -fx-text-fill: -fx-text-primary;
+    -fx-padding: 12px 16px;
+    -fx-font-size: 14px;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 }
 
-.button-icon:hover {
-    -fx-background-color: -fx-primary-lighter;
+.list-cell:hover {
+    -fx-background-color: #F8F9FA;
+    -fx-background-insets: 0;
 }
 
-/* ========== PROFESSIONAL COMBO BOX ========== */
+.list-cell:selected {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E293B;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: white;
+    -fx-text-fill: #1E293B;
+    -fx-background-insets: 0;
+}
+
+/* ========== MODERN COMBO BOX ========== */
 .combo-box {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-small;
+    -fx-background-color: white;
+    -fx-background-radius: -fx-radius-medium;
     -fx-border-color: -fx-border;
-    -fx-border-radius: -fx-radius-small;
-    -fx-border-width: 1.5px;
+    -fx-border-width: 2px;
+    -fx-border-radius: -fx-radius-medium;
 }
 
 .combo-box:focused {
     -fx-border-color: -fx-primary;
-    -fx-border-width: 2px;
+    -fx-background-color: #F8FBFF;
 }
 
-.combo-box:hover {
-    -fx-border-color: -fx-primary-light;
-}
-
-.combo-box .list-cell {
-    -fx-padding: 9px 14px;
-    -fx-text-fill: -fx-text-primary;
-}
-
-.combo-box-popup .list-view {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-small;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 8, 0, 0, 2);
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1px;
-}
-
-.combo-box-popup .list-view .list-cell:hover {
-    -fx-background-color: -fx-primary-lighter;
-}
-
-.combo-box-popup .list-view .list-cell:selected {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: -fx-text-white;
-}
-
-/* ========== PROFESSIONAL DATE PICKER ========== */
-.date-picker {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-small;
-    -fx-border-color: -fx-border;
-    -fx-border-radius: -fx-radius-small;
-    -fx-border-width: 1.5px;
-}
-
-.date-picker:focused {
-    -fx-border-color: -fx-primary;
-    -fx-border-width: 2px;
-}
-
-.date-picker:hover {
-    -fx-border-color: -fx-primary-light;
-}
-
-.date-picker-popup {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-medium;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 10, 0, 0, 2);
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1px;
-}
-
-/* ========== PROFESSIONAL CHECK BOX & RADIO ========== */
-.check-box, .radio-button {
-    -fx-text-fill: -fx-text-primary;
-    -fx-font-size: 13px;
-}
-
-.check-box .box, .radio-button .radio {
-    -fx-background-color: -fx-white;
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1.5px;
-    -fx-border-radius: -fx-radius-small;
-}
-
-.check-box:hover .box, .radio-button:hover .radio {
-    -fx-border-color: -fx-primary;
-}
-
-.check-box:selected .box, .radio-button:selected .radio {
-    -fx-background-color: -fx-primary;
-    -fx-border-color: -fx-primary;
-}
-
-.check-box:selected .mark, .radio-button:selected .dot {
-    -fx-background-color: -fx-white;
-}
-
-/* ========== PROFESSIONAL TABLE VIEW ========== */
-.table-view {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-medium;
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1px;
-    -fx-border-radius: -fx-radius-medium;
-}
-
-.table-view .column-header-background {
-    -fx-background-color: #F8FAFB;
-}
-
-.table-view .column-header {
+/* ========== MODERN SCROLLBAR ========== */
+.scroll-bar {
     -fx-background-color: transparent;
-    -fx-padding: 12px 16px;
-    -fx-border-color: -fx-border;
 }
 
-.table-view .column-header .label {
-    -fx-font-weight: 600;
-    -fx-text-fill: -fx-primary-dark;
-    -fx-font-size: 13px;
+.scroll-bar .thumb {
+    -fx-background-color: -fx-primary-light;
+    -fx-background-radius: 8px;
 }
 
-.table-view .table-cell {
-    -fx-padding: 11px 16px;
-    -fx-text-fill: -fx-text-primary;
-    -fx-border-color: -fx-border-light;
-    -fx-font-size: 13px;
+.scroll-bar .thumb:hover {
+    -fx-background-color: -fx-primary;
 }
 
-.table-row-cell {
-    -fx-background-color: -fx-white;
+.scroll-bar .track {
+    -fx-background-color: #F0F9FF;
+    -fx-background-radius: 8px;
 }
 
-.table-row-cell:odd {
-    -fx-background-color: #FAFBFC;
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
 }
 
-.table-row-cell:hover {
+/* ========== MODERN PROGRESS BAR ========== */
+.progress-bar {
     -fx-background-color: -fx-primary-lighter;
-    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+    -fx-pref-height: 8px;
 }
 
-.table-row-cell:selected {
-    -fx-background-color: #CCE5FF;
-    -fx-text-fill: -fx-text-primary;
+.progress-bar .track {
+    -fx-background-color: #E0F2FE;
+    -fx-background-radius: 8px;
 }
 
-/* ========== PROFESSIONAL SCROLL PANE ========== */
-.scroll-pane {
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, -fx-primary-light, -fx-primary);
+    -fx-background-radius: 8px;
+    -fx-background-insets: 0;
+}
+
+/* ========== MODERN TAB PANE ========== */
+.tab-pane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
 
-.scroll-pane .viewport {
+.tab-pane .tab-header-area {
+    -fx-padding: 0;
     -fx-background-color: transparent;
 }
 
-.scroll-bar {
+.tab-pane .tab-header-background {
     -fx-background-color: transparent;
-    -fx-padding: 2px;
 }
 
-.scroll-bar .thumb {
-    -fx-background-color: #C0C9D5;
-    -fx-background-radius: -fx-radius-small;
+.tab-pane .tab {
+    -fx-background-color: #F1F5F9;
+    -fx-background-radius: 12px 12px 0 0;
+    -fx-padding: 12px 24px;
+    -fx-border-color: transparent;
 }
 
-.scroll-bar .thumb:hover {
-    -fx-background-color: #A0AABA;
+.tab-pane .tab:selected {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #0369A1;
+    -fx-border-color: #0EA5E9;
+    -fx-border-width: 0 0 3px 0;
 }
 
-.scroll-bar .thumb:pressed {
-    -fx-background-color: -fx-primary;
+.tab-pane .tab .tab-label {
+    -fx-text-fill: -fx-text-secondary;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
 }
 
-/* ========== PROFESSIONAL TAB PANE ========== */
-.tab-pane {
-    -fx-background-color: -fx-white;
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #0369A1;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-opacity: 0.9;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: white;
+    -fx-background-radius: 0 0 12px 12px;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 0 2px 2px 2px;
+    -fx-border-radius: 0 0 12px 12px;
+    -fx-padding: 24px;
+}
+
+/* ========== MODERN SPINNER ========== */
+.spinner {
+    -fx-background-color: white;
+    -fx-background-radius: -fx-radius-medium;
     -fx-border-color: -fx-border;
+    -fx-border-width: 2px;
     -fx-border-radius: -fx-radius-medium;
 }
 
-.tab-pane .tab-header-area {
-    -fx-background-color: #F8FAFB;
-    -fx-padding: 8px 8px 0 8px;
-}
-
-.tab {
-    -fx-background-color: transparent;
-    -fx-background-radius: -fx-radius-small -fx-radius-small 0 0;
-    -fx-padding: 10px 18px;
-}
-
-.tab:hover {
-    -fx-background-color: -fx-primary-lighter;
-}
-
-.tab:selected {
-    -fx-background-color: -fx-white;
+.spinner:focused {
     -fx-border-color: -fx-primary;
-    -fx-border-width: 0 0 2px 0;
 }
 
-.tab .tab-label {
-    -fx-text-fill: -fx-text-secondary;
-    -fx-font-weight: 500;
-    -fx-font-size: 13px;
+.spinner .text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-.tab:selected .tab-label {
-    -fx-text-fill: -fx-primary;
-    -fx-font-weight: 600;
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: -fx-primary-lighter;
+    -fx-background-radius: 0;
 }
 
-/* ========== PROFESSIONAL PROGRESS BAR ========== */
-.progress-bar {
-    -fx-background-color: -fx-border-light;
-    -fx-background-radius: 2px;
-}
-
-.progress-bar .bar {
+.spinner .increment-arrow-button:hover,
+.spinner .decrement-arrow-button:hover {
     -fx-background-color: -fx-primary;
-    -fx-background-radius: 2px;
-    -fx-padding: 3px;
 }
 
-/* ========== PROFESSIONAL TOOLTIP ========== */
-.tooltip {
-    -fx-background-color: -fx-primary-dark;
-    -fx-text-fill: white;
-    -fx-background-radius: -fx-radius-small;
-    -fx-padding: 6px 10px;
-    -fx-font-size: 12px;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 6, 0, 0, 2);
-}
-
-/* ========== PROFESSIONAL SEPARATOR ========== */
+/* ========== MODERN SEPARATOR ========== */
 .separator {
-    -fx-background-color: -fx-border-light;
+    -fx-background-color: transparent;
 }
 
 .separator .line {
-    -fx-background-color: -fx-border;
-    -fx-border-width: 0.5px;
-}
-
-/* ========== PROFESSIONAL CARD ========== */
-.card {
-    -fx-background-color: -fx-white;
-    -fx-background-radius: -fx-radius-medium;
-    -fx-padding: 20px;
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 6, 0, 0, 1);
     -fx-border-color: -fx-border-light;
-    -fx-border-width: 1px;
-    -fx-border-radius: -fx-radius-medium;
+    -fx-border-width: 1px 0 0 0;
 }
 
-/* ========== PROFESSIONAL BADGE ========== */
-.badge {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: -fx-white;
-    -fx-background-radius: 3px;
-    -fx-padding: 3px 10px;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
+/* ========== MODERN TOOLTIP ========== */
+.tooltip {
+    -fx-background-color: #0F172A;
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.4), 10, 0, 0, 4);
 }
 
-.badge-success {
-    -fx-background-color: -fx-medical-green;
-}
-
-.badge-warning {
-    -fx-background-color: -fx-medical-orange;
-}
-
-.badge-danger {
-    -fx-background-color: -fx-medical-red;
-}
-
-.badge-info {
-    -fx-background-color: -fx-medical-teal;
-}
-
-.divider {
-    -fx-background-color: -fx-border-light;
-    -fx-pref-height: 1px;
-}
-
-/* ========== PROFESSIONAL SPACING ========== */
-.spacing-small {
-    -fx-spacing: 8px;
-}
-
-.spacing-medium {
-    -fx-spacing: 16px;
-}
-
-.spacing-large {
-    -fx-spacing: 24px;
-}
-
-.padding-small {
+/* ========== MODERN MENU BAR ========== */
+.menu-bar {
+    -fx-background-color: white;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 0 0 1px 0;
     -fx-padding: 8px;
 }
 
-.padding-medium {
-    -fx-padding: 16px;
+.menu-bar .menu {
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 8px;
 }
 
-.padding-large {
+.menu-bar .menu:hover {
+    -fx-background-color: -fx-primary-lighter;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 600;
+}
+
+.context-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 20, 0, 0, 8);
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-padding: 8px;
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 16px;
+}
+
+.menu-item:hover {
+    -fx-background-color: -fx-primary-lighter;
+}
+
+.menu-item .label {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: 500;
+}
+
+/* ========== MODERN ALERT DIALOG ========== */
+.dialog-pane {
+    -fx-background-color: white;
+    -fx-background-radius: 16px;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-hover, 25, 0, 0, 10);
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: -fx-primary;
+    -fx-background-radius: 16px 16px 0 0;
+    -fx-padding: 20px 24px;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.dialog-pane .content {
     -fx-padding: 24px;
+}
+
+.dialog-pane .button-bar {
+    -fx-padding: 16px 24px 24px 24px;
 }
 
 /* ========== UTILITY CLASSES ========== */
@@ -558,10 +580,19 @@
     -fx-alignment: center-right;
 }
 
-.full-width {
-    -fx-max-width: Infinity;
-}
+.mt-10 { -fx-padding: 10px 0 0 0; }
+.mt-20 { -fx-padding: 20px 0 0 0; }
+.mb-10 { -fx-padding: 0 0 10px 0; }
+.mb-20 { -fx-padding: 0 0 20px 0; }
 
-.shadow {
-    -fx-effect: dropshadow(gaussian, -fx-shadow-color, 8, 0, 0, 1);
-}
+.text-primary { -fx-text-fill: -fx-primary; }
+.text-success { -fx-text-fill: -fx-medical-green; }
+.text-danger { -fx-text-fill: -fx-medical-red; }
+.text-warning { -fx-text-fill: -fx-medical-orange; }
+.text-info { -fx-text-fill: -fx-medical-teal; }
+
+.bg-primary { -fx-background-color: -fx-primary; }
+.bg-success { -fx-background-color: -fx-medical-green; }
+.bg-danger { -fx-background-color: -fx-medical-red; }
+.bg-warning { -fx-background-color: -fx-medical-orange; }
+.bg-info { -fx-background-color: -fx-medical-teal; }

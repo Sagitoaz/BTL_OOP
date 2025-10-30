@@ -17,6 +17,6 @@ public class Main extends Application {
         SceneManager.setPrimaryStage(stage);
         SceneManager.clearCache();
         SceneManager.clearSceneData();
-        SceneManager.switchScene(SceneConfig.INVOICE_FXML, SceneConfig.Titles.INVOICE);
+        SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
     }
 }
