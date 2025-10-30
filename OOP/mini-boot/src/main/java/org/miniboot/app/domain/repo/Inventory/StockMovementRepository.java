@@ -1,16 +1,18 @@
 package org.miniboot.app.domain.repo.Inventory;
 
+import org.miniboot.app.domain.models.Inventory.StockMovement;
+
 import java.util.List;
 import java.util.Optional;
 
-import org.miniboot.app.domain.models.Inventory.StockMovement;
-
 public interface StockMovementRepository {
-     List<StockMovement> findAll();
+    List<StockMovement> findAll();
 
-     Optional<StockMovement> findById(int id);
+    Optional<StockMovement> findById(int id);
 
-     boolean deleteById(int id);
+    boolean deleteById(int id);
 
-     StockMovement save(StockMovement stockmovement);
+    StockMovement save(StockMovement stockmovement);
+
+    List<StockMovement> saveAll(List<StockMovement> movements);
 }

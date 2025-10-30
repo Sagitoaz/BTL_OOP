@@ -1,5 +1,27 @@
 package org.example.oop.Control.Employee;
 
+import javafx.animation.PauseTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.example.oop.Control.BaseController;
+import org.example.oop.Service.HttpEmployeeService;
+import org.miniboot.app.domain.models.Employee;
+
 import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
@@ -8,38 +30,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import org.example.oop.Control.BaseController;
-import org.example.oop.Service.HttpEmployeeService;
-import org.miniboot.app.domain.models.Employee;
-
-import javafx.animation.PauseTransition;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
-import javafx.util.Duration;
-
 public class EmployeeManagementController extends BaseController implements Initializable {
 
+    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+    private final HttpEmployeeService service = new HttpEmployeeService();
+    private final ObservableList<Employee> master = FXCollections.observableArrayList();
+    private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(300));
     // ====== Top bar labels ======
     @FXML
     private Label subtitleLabel;
@@ -54,7 +50,6 @@ public class EmployeeManagementController extends BaseController implements Init
     private Label nurseCountLabel;
     @FXML
     private Label activeCountLabel;
-
     // ====== Filters & Actions ======
     @FXML
     private TextField searchField;
@@ -66,7 +61,6 @@ public class EmployeeManagementController extends BaseController implements Init
     private Button refreshButton;
     @FXML
     private Button addButton;
-
     // ====== Table ======
     @FXML
     private TableView<Employee> employeeTableView;
@@ -86,20 +80,11 @@ public class EmployeeManagementController extends BaseController implements Init
     private TableColumn<Employee, String> phoneColumn;
     @FXML
     private TableColumn<Employee, Boolean> activeColumn;
-
     // ====== Delete Button ======
     @FXML
     private Button deleteButton;
-
-    private final HttpEmployeeService service = new HttpEmployeeService();
-
-    private final ObservableList<Employee> master = FXCollections.observableArrayList();
     private FilteredList<Employee> filtered;
     private SortedList<Employee> sorted;
-
-    private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(300));
-
-    private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -109,29 +94,35 @@ public class EmployeeManagementController extends BaseController implements Init
         subtitleLabel.setText("Quản lý thông tin bác sĩ và nhân viên phòng khám");
         statusLabel.setText("Sẵn sàng");
         loadEmployees();
-        employeeTableView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Nếu là double-click
-                Employee selectedEmployee = employeeTableView.getSelectionModel().getSelectedItem();
-                if (selectedEmployee != null) {
-                    openEmployeeDetailView(selectedEmployee); // Gọi hàm mở trang chi tiết
-                }
-            }
-        });
+        // Double-click handler is wired inside setupTable() to keep table-related wiring together.
     }
+
     private void openEmployeeDetailView(Employee employee) {
         try {
-            // Mở cửa sổ chi tiết nhân viên, có thể sử dụng một phương thức tương ứng hoặc mở một cửa sổ FXML mới
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/path/to/EmployeeDetail.fxml")); // Đường dẫn đến FXML của trang chi tiết
+            // Load the real FXML resource from the application's resources folder
+            var res = getClass().getResource("/FXML/Employee/EmployeeDetail.fxml");
+            if (res == null) {
+                showError("Không tìm thấy FXML: /FXML/Employee/EmployeeDetail.fxml");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(res);
             Parent root = loader.load();
 
             // Truyền dữ liệu qua controller của EmployeeDetail
             EmployeeDetailController controller = loader.getController();
-            controller.setEmployeeDetails(employee); // Giả sử bạn có phương thức setEmployeeDetails để thiết lập dữ liệu cho trang chi tiết
+            controller.setEmployeeDetails(employee);
 
-            // Hiển thị cửa sổ chi tiết nhân viên
+            // Hiển thị cửa sổ chi tiết nhân viên như một modal nhỏ
             Stage stage = new Stage();
-            stage.setTitle("Chi tiết nhân viên");
+            stage.setTitle("Chi tiết nhân viên — " + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
             stage.setScene(new Scene(root));
+            // Make it modal relative to the main window if available
+            if (employeeTableView != null && employeeTableView.getScene() != null && employeeTableView.getScene().getWindow() != null) {
+                stage.initOwner(employeeTableView.getScene().getWindow());
+                stage.initModality(Modality.WINDOW_MODAL);
+            }
+            stage.setResizable(true);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -176,12 +167,12 @@ public class EmployeeManagementController extends BaseController implements Init
             }
         });
 
-        // Xử lý sự kiện click vào dòng bảng
+        // Xử lý double-click vào dòng bảng: mở cửa sổ chi tiết
         employeeTableView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Nếu là double click
+            if (event.getClickCount() == 2) {
                 Employee selectedEmployee = employeeTableView.getSelectionModel().getSelectedItem();
                 if (selectedEmployee != null) {
-                    onEdit(selectedEmployee);
+                    openEmployeeDetailView(selectedEmployee);
                 }
             }
         });
