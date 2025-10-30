@@ -9,6 +9,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.net.URL;
@@ -57,6 +58,10 @@ public class AddCustomerViewController implements Initializable
 
     @FXML
     private void onDeleteButton(ActionEvent event){
+        if(SceneManager.getSceneData("role") != "ADMIN"){
+            CustomerHubController.showErrorAlert("Permission Denied", "You do not have permission to delete customer records.");
+            return;
+        }
         Stage stage = (Stage) nameField.getScene().getWindow();
         if(curCustomer != null){
             deleteCustomerRecord(curCustomer);
@@ -64,6 +69,13 @@ public class AddCustomerViewController implements Initializable
         }
         stage.close();
     }
+
+    @FXML
+    private void onCloseButton(ActionEvent event){
+        Stage stage = (Stage) nameField.getScene().getWindow();
+        stage.close();
+    }
+
     @FXML
     private void onSaveAndCloseButton(ActionEvent event){
         if(curCustomer == null){

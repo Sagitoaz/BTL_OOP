@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import org.example.oop.Service.PrescriptionService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
@@ -77,9 +78,7 @@ public class CustomerDetailController {
 
 
 
-    private void populateCustomerDetails() {
 
-    }
 
     private void setupTableColumns() {
         PrescriptionService prescriptionService = new PrescriptionService();
@@ -112,6 +111,7 @@ public class CustomerDetailController {
 
     @FXML
     private void handleEditCustomer() {
+        SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
     }
 

@@ -24,10 +24,10 @@
     <top>
         <VBox>
             <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
-                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
-                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
@@ -108,6 +108,7 @@
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
+                <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" prefWidth="120.0" styleClass="btn-secondary" text="✖ Đóng" />
                 <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButton" prefWidth="100.0" styleClass="btn-danger" text="Xóa" />
                 <Button fx:id="saveAndCloseButton" defaultButton="true" mnemonicParsing="false" onAction="#onSaveAndCloseButton" prefHeight="43.0" prefWidth="151.0" styleClass="btn-success" text="💾 Lưu &amp; Đóng" />
             </HBox>

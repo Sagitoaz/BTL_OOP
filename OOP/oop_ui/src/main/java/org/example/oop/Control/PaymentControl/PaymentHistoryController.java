@@ -233,6 +233,7 @@ public class PaymentHistoryController implements Initializable {
     }
 
     private void loadPayments() {
+        System.out.println("⏳ Đang tải lịch sử thanh toán...");
         try {
             List<PaymentWithStatus> allPayments = paymentService.getPaymentsWithStatus();
             allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
