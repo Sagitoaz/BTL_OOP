@@ -13,11 +13,8 @@ import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.Appointment;
-import org.miniboot.app.domain.models.AppointmentStatus;
-import org.miniboot.app.domain.models.AppointmentType;
+import org.miniboot.app.domain.models.*;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.domain.models.Doctor;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -165,6 +162,7 @@ public class AppointmentManagementController implements Initializable {
     private void handleReloadButton(){
         System.out.println("🔄 Reloading Appointment Booking view");
         //SceneManager.reloadScene();
+        SceneManager.reloadCurrentScene();
     }
 
     @FXML
@@ -906,6 +904,18 @@ public class AppointmentManagementController implements Initializable {
                 String search = qSearch.getText();
 
                 // Call API với filters
+                if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                    Customer customer = SceneManager.getSceneData("accountData");
+                    int customerId = customer.getId();
+                    return appointmentService.getAppointmentsFiltered(
+                            doctorId,
+                            customerId,
+                            status,
+                            fromDate,
+                            toDate,
+                            search
+                    );
+                }
                 return appointmentService.getAppointmentsFiltered(
                         doctorId,
                         null,  // customerId (chưa có UI filter cho customer)

@@ -6,16 +6,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.Appointment;
-import org.miniboot.app.domain.models.AppointmentStatus;
-import org.miniboot.app.domain.models.AppointmentType;
+import org.miniboot.app.domain.models.*;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.domain.models.Doctor;
-import org.miniboot.app.domain.models.TimeSlot;
 
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,16 +25,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -68,6 +55,7 @@ public class AppointmentBookingController implements Initializable {
     private PauseTransition searchDebounce;
 
     // FXML Controls
+    @FXML private Tab tabCustomerSelection;
     @FXML private TextField patientQuickSearch;
     @FXML private Button btnNewPatient;
     @FXML private ComboBox<String> cboCurrentUser;
@@ -94,6 +82,10 @@ public class AppointmentBookingController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+            tabCustomerSelection.setDisable(true);
+        }
         System.out.println("AppointmentBookingController initialized");
 
         // Khởi tạo services
@@ -111,6 +103,7 @@ public class AppointmentBookingController implements Initializable {
         cboVisitType.setItems(FXCollections.observableArrayList(
                 "VISIT", "TEST", "FOLLOWUP", "SURGERY"
         ));
+
 
         // Setup TableViews
         setupPatientTable();
@@ -138,6 +131,7 @@ public class AppointmentBookingController implements Initializable {
     private void handleReloadButton(){
         System.out.println("🔄 Reloading Appointment Booking view");
         //SceneManager.reloadScene();
+        SceneManager.reloadCurrentScene();
     }
 
     @FXML
@@ -466,6 +460,10 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void setupPatientTable() {
+        if(tabCustomerSelection.isDisable()){
+            selectedPatient = SceneManager.getSceneData("accountData");
+            return;
+        }
         TableColumn<Customer, String> nameCol = 
             (TableColumn<Customer, String>) tblPatients.getColumns().get(0);
         TableColumn<Customer, String> phoneCol = 

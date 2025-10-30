@@ -95,6 +95,7 @@ public class CustomerDetailController {
     }
 
     private void loadPrescriptionHistory() {
+        SceneManager.reloadCurrentScene();
 
     }
 

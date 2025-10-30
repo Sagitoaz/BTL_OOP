@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ApiProductService {
-    private static final String BASE_URL = "https://btl-oop-i9pi.onrender.com/";
+    private static final String BASE_URL = "http://localhost:8080/";
     private static final Gson gson = GsonProvider.getGson();
     private static final int CONNECT_TIMEOUT = 30000; // 30 seconds
     private static final int READ_TIMEOUT = 60000; // 60 seconds

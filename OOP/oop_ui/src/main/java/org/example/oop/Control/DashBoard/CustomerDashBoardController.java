@@ -40,6 +40,7 @@ public class CustomerDashBoardController {
     @FXML
     private void handleReloadButton(){
         // Reload page
+        SceneManager.reloadCurrentScene();
     }
     @FXML
     private void handleAppointmentBookingButton(){

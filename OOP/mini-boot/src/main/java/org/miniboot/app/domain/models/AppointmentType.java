@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum AppointmentType {
     VISIT("visit"),
-    Test("test"),
+    TEST("test"),
     SURGERY("surgery"),
     BLOCKED("blocked"); // Thêm cho blocking appointments
 

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ApiStockMovementService {
-    private static final String BASE_URL = "https://btl-oop-i9pi.onrender.com/";
+    private static final String BASE_URL = "http://localhost:8080/";
     private static final Gson gson = GsonProvider.getGson();
 
     // tăng time out tránh mạng yếu

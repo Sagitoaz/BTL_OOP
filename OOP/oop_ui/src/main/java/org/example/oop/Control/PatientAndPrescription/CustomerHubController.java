@@ -318,7 +318,8 @@ public class CustomerHubController implements Initializable {
             stage.showAndWait();
             AddCustomerViewController controller = loader.getController();
             Customer newCustomer = controller.getCurCustomer();
-            addCustomerRecord(newCustomer);
+            customerRecordsList.add(newCustomer);
+            setCurrentListCustomer();
 
         } catch (IOException e) {
             System.err.println("Error opening Add Customer dialog: " + e.getMessage());
@@ -344,7 +345,9 @@ public class CustomerHubController implements Initializable {
             stage.showAndWait();
             Customer updatedPatient = controller.getCurCustomer();
             if(updatedPatient != null){
-                updateCustomerRecord(updatedPatient);
+                int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
+                customerRecordsList.set(selectedIndex, updatedPatient);
+                setCurrentListCustomer();
             }
 
 
@@ -354,50 +357,6 @@ public class CustomerHubController implements Initializable {
         }
     }
 
-    private void addCustomerRecord(Customer pr) {
-        if (pr == null) return;
-
-        CustomerRecordService.getInstance().createCustomerAsync(pr,
-            createdCustomer -> {
-
-                System.out.println("✅ Customer created successfully: " + createdCustomer.getFullName());
-                Platform.runLater(() -> {
-                    customerRecordsList.add(createdCustomer);
-                    setCurrentListCustomer();
-
-                });
-            },
-            error -> {
-                // ERROR callback
-                System.err.println("❌ Error creating customer: " + error);
-                Platform.runLater(() -> {
-                    showErrorAlert("Lỗi tạo bệnh nhân", "Không thể tạo bệnh nhân: " + error);
-                });
-            }
-        );
-    }
-    private void updateCustomerRecord(Customer pr) {
-        if (pr == null) return;
-        System.out.println(pr.getId());
-
-        CustomerRecordService.getInstance().updateCustomerAsync(pr,
-                updatedCustomer -> {
-
-                    System.out.println("✅ Customer updated successfully: " + updatedCustomer.getFullName());
-                    Platform.runLater(() -> {
-
-                    });
-                },
-                error -> {
-                    // ERROR callback
-
-                    System.err.println("❌ Error updating customer: " + error);
-                    Platform.runLater(() -> {
-                        showErrorAlert("Lỗi update bệnh nhân", "Không thể update bệnh nhân: " + error);
-                    });
-                }
-        );
-    }
 
     @FXML
     private void onAddNewPrescription(ActionEvent event) {

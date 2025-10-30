@@ -22,7 +22,7 @@
             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
                 <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
                 <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
-                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+                <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
@@ -64,15 +64,15 @@
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
             <columns>
-                <TableColumn fx:id="colPaymentId" prefWidth="100" text="Mã phiếu" />
-                <TableColumn fx:id="colInvoiceId" prefWidth="90" text="Mã HĐ" />
-                <TableColumn fx:id="colCreatedAt" prefWidth="120" text="Ngày giờ" />
-                <TableColumn fx:id="colCustomer" prefWidth="160" text="Khách hàng" />
-                <TableColumn fx:id="colMethod" prefWidth="130" text="Phương thức" />
-                <TableColumn fx:id="colAmount" prefWidth="120" text="Số tiền" />
-                <TableColumn fx:id="colStatus" prefWidth="100" text="Trạng thái" />
-                <TableColumn fx:id="colStaff" prefWidth="135" text="Nhân viên" />
-                <TableColumn fx:id="colNote" prefWidth="180" text="Ghi chú" />
+                <TableColumn fx:id="colPaymentId" prefWidth="109.0" text="Mã phiếu" />
+                <TableColumn fx:id="colInvoiceId" prefWidth="119.0" text="Mã HĐ" />
+                <TableColumn fx:id="colCreatedAt" prefWidth="143.0" text="Ngày giờ" />
+                <TableColumn fx:id="colCustomer" prefWidth="124.0" text="Khách hàng" />
+                <TableColumn fx:id="colMethod" prefWidth="129.0" text="Phương thức" />
+                <TableColumn fx:id="colAmount" prefWidth="121.0" text="Số tiền" />
+                <TableColumn fx:id="colStatus" prefWidth="107.0" text="Trạng thái" />
+                <TableColumn fx:id="colStaff" prefWidth="120.0" text="Nhân viên" />
+                <TableColumn fx:id="colNote" prefWidth="181.0" text="Ghi chú" />
             </columns>
 
             <placeholder>

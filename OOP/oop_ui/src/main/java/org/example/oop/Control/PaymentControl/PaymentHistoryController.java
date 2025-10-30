@@ -7,10 +7,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentMethod;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -156,6 +158,11 @@ public class PaymentHistoryController implements Initializable {
     private void handleForwardButton(){
         SceneManager.goForward();
     }
+    @FXML
+    private void handleReloadButton(){
+        // Reload page
+        SceneManager.reloadCurrentScene();
+    }
 
     private void formatStatusColumn() {
         colStatus.setCellFactory(col -> new TableCell<>() {
@@ -236,6 +243,17 @@ public class PaymentHistoryController implements Initializable {
         System.out.println("⏳ Đang tải lịch sử thanh toán...");
         try {
             List<PaymentWithStatus> allPayments = paymentService.getPaymentsWithStatus();
+            if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                int customerId = ((Customer)SceneManager.getSceneData("accountData")).getId();
+                System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
+                for(PaymentWithStatus p : allPayments){
+
+                    System.out.println("💰 Payment ID: " + p.getPayment().getId() + ", Customer ID: " + p.getPayment().getCustomerId());
+                }
+                allPayments = allPayments.stream()
+                        .filter(p -> p.getPayment().getCustomerId() == customerId)
+                        .toList();
+            }
             allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
             paymentsWithStatus.setAll(allPayments);
             tablePayments.setItems(paymentsWithStatus);

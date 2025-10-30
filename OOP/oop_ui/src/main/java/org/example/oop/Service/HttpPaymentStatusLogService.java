@@ -17,7 +17,7 @@ public class HttpPaymentStatusLogService {
     private final Gson gson;
 
     public HttpPaymentStatusLogService() {
-        this("https://btl-oop-i9pi.onrender.com/");
+        this("http://localhost:8080/");
     }
 
     public HttpPaymentStatusLogService(String baseUrl) {
