@@ -130,13 +130,13 @@
 }
 
 .table-view .scroll-bar:vertical .thumb {
-    -fx-background-color: #38BDF8;
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
     -fx-background-radius: 6px;
     -fx-background-insets: 2px;
 }
 
 .table-view .scroll-bar:vertical .thumb:hover {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 .table-view .scroll-bar:vertical .increment-button,
@@ -151,13 +151,13 @@
 }
 
 .table-view .scroll-bar:horizontal .thumb {
-    -fx-background-color: #38BDF8;
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
     -fx-background-radius: 6px;
     -fx-background-insets: 2px;
 }
 
 .table-view .scroll-bar:horizontal .thumb:hover {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 /* ========== TABLE CORNER ========== */
@@ -207,18 +207,21 @@
 }
 
 .table-action-btn.view {
-    -fx-background-color: #06B6D4;
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
     -fx-text-fill: white;
 }
 
 .table-action-btn.edit {
-    -fx-background-color: #F59E0B;
+    -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
     -fx-text-fill: white;
 }
 
 .table-action-btn.delete {
-    -fx-background-color: #F43F5E;
-    -fx-text-fill: white;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
 }
 
 .table-action-btn:hover {

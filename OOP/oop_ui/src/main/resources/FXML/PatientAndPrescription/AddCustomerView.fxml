@@ -18,26 +18,17 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.AddCustomerViewController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/global-styles.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.AddCustomerViewController">
 
     <!-- TOP: Header -->
     <top>
-        <VBox>
-            <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
-                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
-                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
-                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
-            </HBox>
-            
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
             <padding>
                 <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
             </padding>
             <Label styleClass="page-title" text="CHỈNH SỬA VÀ THÊM HỒ SƠ BỆNH NHÂN" />
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
-        </VBox>
     </top>
 
     <!-- CENTER: Form -->
@@ -48,7 +39,7 @@
                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                 </padding>
 
-                <TitledPane expanded="true" styleClass="titled-pane" text="📝 THÔNG TIN BỆNH NHÂN">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="📝 THÔNG TIN BỆNH NHÂN">
                     <VBox spacing="15">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -110,7 +101,7 @@
                 </padding>
                 <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" prefWidth="120.0" styleClass="btn-secondary" text="✖ Đóng" />
                 <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButton" prefWidth="100.0" styleClass="btn-danger" text="Xóa" />
-                <Button fx:id="saveAndCloseButton" defaultButton="true" mnemonicParsing="false" onAction="#onSaveAndCloseButton" prefHeight="43.0" prefWidth="151.0" styleClass="btn-success" text="💾 Lưu &amp; Đóng" />
+                <Button fx:id="saveAndCloseButton" defaultButton="true" mnemonicParsing="false" onAction="#onSaveAndCloseButton" prefHeight="49.0" prefWidth="188.0" styleClass="btn-success" text="💾 Lưu &amp; Đóng" />
             </HBox>
         </VBox>
     </bottom>

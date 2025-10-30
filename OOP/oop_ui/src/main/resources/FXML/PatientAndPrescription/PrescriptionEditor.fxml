@@ -49,7 +49,7 @@
                 </padding>
 
                 <!-- Basic Info -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📝 THÔNG TIN Cơ BẢN">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="📝 THÔNG TIN Cơ BẢN">
                     <GridPane hgap="12" vgap="12">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />

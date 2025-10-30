@@ -15,7 +15,7 @@
 
 /* ========== NAVIGATION BUTTONS ========== */
 .nav-button {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-text-fill: white;
     -fx-background-radius: 25px;
     -fx-border-radius: 25px;
@@ -29,41 +29,41 @@
 }
 
 .nav-button:hover {
-    -fx-background-color: #0284C7;
+    -fx-background-color: linear-gradient(to bottom, #0284C7 0%, #0369A1 100%);
     -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.5), 14, 0, 0, 5);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
 .nav-button:pressed {
-    -fx-background-color: #0369A1;
+    -fx-background-color: linear-gradient(to bottom, #0369A1 0%, #075985 100%);
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
 }
 
 /* ========== SPECIFIC BUTTON STYLES ========== */
 .nav-back-button {
-    -fx-background-color: #06B6D4;
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
 }
 
 .nav-back-button:hover {
-    -fx-background-color: #0891B2;
+    -fx-background-color: linear-gradient(to bottom, #0891B2 0%, #0e7490 100%);
 }
 
 .nav-forward-button {
-    -fx-background-color: #06B6D4;
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
 }
 
 .nav-forward-button:hover {
-    -fx-background-color: #0891B2;
+    -fx-background-color: linear-gradient(to bottom, #0891B2 0%, #0e7490 100%);
 }
 
 .nav-reload-button {
-    -fx-background-color: #10B981;
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
 }
 
 .nav-reload-button:hover {
-    -fx-background-color: #059669;
+    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
 }
 
 /* ========== NAVIGATION BAR IN HEADER ========== */

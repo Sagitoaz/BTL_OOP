@@ -60,30 +60,35 @@
 }
 
 /* ========== DANGER BUTTONS - RED (Xóa, Hủy, Từ chối) ========== */
+.btn-danger,
 .btn-delete,
 .btn-cancel,
 .btn-reject,
 .btn-remove,
 .btn-decline {
-    -fx-background-color: linear-gradient(to bottom, #F43F5E 0%, #E11D48 100%);
-    -fx-text-fill: #FFFFFF;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
     -fx-background-radius: 25px;
     -fx-padding: 12px 28px;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-cursor: hand;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.4), 12, 0, 0, 4);
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
 }
 
+.btn-danger:hover,
 .btn-delete:hover,
 .btn-cancel:hover,
 .btn-reject:hover,
 .btn-remove:hover,
 .btn-decline:hover {
-    -fx-background-color: linear-gradient(to bottom, #E11D48 0%, #BE123C 100%);
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.6), 16, 0, 0, 6);
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }

@@ -179,7 +179,7 @@
 
 /* Button Variants */
 .button-primary {
-    -fx-background-color: -fx-primary;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-text-fill: white;
 }
 
@@ -198,35 +198,41 @@
 }
 
 .button-success {
-    -fx-background-color: -fx-medical-green;
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
 }
 
 .button-success:hover {
-    -fx-background-color: #059669;
+    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
 }
 
 .button-danger {
-    -fx-background-color: -fx-medical-red;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: -fx-radius-round;
 }
 
 .button-danger:hover {
-    -fx-background-color: #E11D48;
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
 }
 
 .button-warning {
-    -fx-background-color: -fx-medical-orange;
+    -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
 }
 
 .button-warning:hover {
-    -fx-background-color: #D97706;
+    -fx-background-color: linear-gradient(to bottom, #D97706 0%, #B45309 100%);
 }
 
 .button-info {
-    -fx-background-color: -fx-medical-teal;
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
 }
 
 .button-info:hover {
-    -fx-background-color: #0891B2;
+    -fx-background-color: linear-gradient(to bottom, #0891B2 0%, #0E7490 100%);
 }
 
 /* ========== FOCUS INDICATORS - CLEAN ========== */
@@ -350,12 +356,12 @@ Button,
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: -fx-primary-light;
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
     -fx-background-radius: 8px;
 }
 
 .scroll-bar .thumb:hover {
-    -fx-background-color: -fx-primary;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 .scroll-bar .track {

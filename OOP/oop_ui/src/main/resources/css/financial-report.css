@@ -78,28 +78,31 @@
 }
 
 .btn-print {
-    -fx-background-color: linear-gradient(to bottom, #F43F5E 0%, #E11D48 100%);
-    -fx-text-fill: white;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-padding: 11px 24px;
     -fx-background-radius: 25px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.4), 10, 0, 0, 4);
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
 }
 
 .btn-print:hover {
-    -fx-background-color: linear-gradient(to bottom, #E11D48 0%, #BE123C 100%);
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.6), 14, 0, 0, 6);
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
 .btn-print:focused {
-    -fx-border-color: transparent;
-    -fx-background-color: #F43F5E;
+    -fx-border-color: #F43F5E;
+    -fx-background-color: #FFFFFF;
 }
 
 /* ========== TAB PANE ========== */

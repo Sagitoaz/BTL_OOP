@@ -29,7 +29,7 @@
 }
 
 /* Header đầu tiên (trong top của BorderPane) cần bo tròn góc trên */
-.main-container > .top .financial-header:first-child {
+.main-container > .top .financial-header {
     -fx-background-radius: 14px 14px 0 0;
 }
 
@@ -99,14 +99,26 @@
 
 /* Danger button - Modern Red */
 .btn-danger, .btn-delete, .btn-print {
-    -fx-background-color: linear-gradient(to bottom, #F43F5E 0%, #E11D48 100%);
-    -fx-text-fill: #FFFFFF;
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.4), 10, 0, 0, 4);
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
 }
 
 .btn-danger:hover, .btn-delete:hover, .btn-print:hover {
-    -fx-background-color: linear-gradient(to bottom, #E11D48 0%, #BE123C 100%);
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.6), 15, 0, 0, 6);
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Warning button - Vibrant Orange */
@@ -204,19 +216,19 @@
     -fx-font-weight: 600;
 }
 
-/* ========== SCROLLBAR - Modern Blue Theme ========== */
+/* ========== SCROLLBAR - MODERN BLUE THEME ========== */
 .scroll-bar {
     -fx-background-color: transparent;
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #38BDF8;
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
     -fx-background-radius: 8px;
     -fx-background-insets: 2px;
 }
 
 .scroll-bar .thumb:hover {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 .scroll-bar .track {
@@ -232,7 +244,7 @@
 
 /* ========== TOOLTIPS ========== */
 .tooltip {
-    -fx-background-color: #0369A1;
+    -fx-background-color: linear-gradient(to bottom, #0369A1 0%, #075985 100%);
     -fx-background-radius: 8px;
     -fx-text-fill: white;
     -fx-font-size: 12px;
@@ -242,7 +254,7 @@
 
 /* ========== SEPARATOR ========== */
 .separator .line {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to right, transparent 0%, #0EA5E9 50%, transparent 100%);
     -fx-pref-height: 2px;
 }
 
@@ -555,7 +567,7 @@
 }
 
 .slider .thumb {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
     -fx-background-radius: 10px;
     -fx-pref-width: 18px;
     -fx-pref-height: 18px;
@@ -563,7 +575,7 @@
 }
 
 .slider .thumb:hover {
-    -fx-background-color: #0284C7;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
 }
@@ -583,7 +595,7 @@
 }
 
 .toggle-button:selected {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-text-fill: white;
     -fx-border-color: transparent;
     -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 10, 0, 0, 4);
@@ -617,7 +629,7 @@
 }
 
 .pagination .page-button.selected {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-text-fill: white;
 }
 
@@ -650,14 +662,129 @@
     -fx-padding: 16px;
 }
 
-/* ========== SPLIT PANE ========== */
-.split-pane {
+/* ========== MODERN PURPLE-PINK TITLED PANE (For Patient Info) ========== */
+.titled-pane.patient-info {
+    -fx-border-color: rgba(244, 114, 182, 0.25);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.2), 20, 0, 0, 5);
+}
+
+.titled-pane.patient-info > .title {
+    -fx-background-color: linear-gradient(to right, #F472B6 0%, #FBB6CE 100%);
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-padding: 18px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.35), 12, 0, 0, 3);
+}
+
+.titled-pane.patient-info > .title .text {
+    -fx-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 2, 0, 0, 1);
+}
+
+.titled-pane.patient-info > .title:hover {
+    -fx-background-color: linear-gradient(to right, #EC4899 0%, #F9A8D4 100%);
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.45), 15, 0, 0, 4);
+}
+
+.titled-pane.patient-info > .title .arrow-button {
     -fx-background-color: transparent;
 }
 
-.split-pane .divider {
-    -fx-background-color: #E0F2FE;
-    -fx-padding: 0 2px 0 2px;
+.titled-pane.patient-info > .title .arrow-button .arrow {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 1, 0, 0, 1);
+}
+
+.titled-pane.patient-info > .content {
+    -fx-background-color: #FFFBFE;
+    -fx-border-color: rgba(244, 114, 182, 0.15);
+    -fx-border-width: 0 2px 2px 2px;
+    -fx-border-radius: 0 0 10px 10px;
+    -fx-padding: 24px;
+}
+
+/* Input fields trong patient-info có viền hồng khi focus */
+.titled-pane.patient-info .text-field:focused,
+.titled-pane.patient-info .text-area:focused,
+.titled-pane.patient-info .combo-box:focused,
+.titled-pane.patient-info .combo-rounded:focused,
+.titled-pane.patient-info .date-picker .text-field:focused {
+    -fx-border-color: #F472B6;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3);
+}
+
+.titled-pane.patient-info .text-field:hover,
+.titled-pane.patient-info .text-area:hover,
+.titled-pane.patient-info .combo-box:hover,
+.titled-pane.patient-info .combo-rounded:hover,
+.titled-pane.patient-info .date-picker .text-field:hover {
+    -fx-border-color: #FBB6CE;
+}
+
+/* ========== MEDICAL INFO TITLED PANE (Teal-Cyan Gradient) ========== */
+.titled-pane.medical-info {
+    -fx-border-color: rgba(20, 184, 166, 0.2);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(20, 184, 166, 0.15), 20, 0, 0, 5);
+}
+
+.titled-pane.medical-info > .title {
+    -fx-background-color: linear-gradient(to right, #14B8A6 0%, #06B6D4 100%);
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-padding: 18px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(20, 184, 166, 0.3), 12, 0, 0, 3);
+}
+
+.titled-pane.medical-info > .title .text {
+    -fx-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.titled-pane.medical-info > .title:hover {
+    -fx-background-color: linear-gradient(to right, #0D9488 0%, #0891B2 100%);
+}
+
+.titled-pane.medical-info > .content {
+    -fx-background-color: white;
+    -fx-border-color: rgba(20, 184, 166, 0.1);
+    -fx-border-width: 0 2px 2px 2px;
+    -fx-border-radius: 0 0 10px 10px;
+    -fx-padding: 24px;
+}
+
+/* ========== ORANGE-AMBER TITLED PANE (For Warnings/Alerts) ========== */
+.titled-pane.warning-info {
+    -fx-border-color: rgba(251, 146, 60, 0.2);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(251, 146, 60, 0.15), 20, 0, 0, 5);
+}
+
+.titled-pane.warning-info > .title {
+    -fx-background-color: linear-gradient(to right, #FB923C 0%, #F59E0B 100%);
+    -fx-background-radius: 10px 10px 0 0;
+    -fx-padding: 18px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(251, 146, 60, 0.3), 12, 0, 0, 3);
+}
+
+.titled-pane.warning-info > .title .text {
+    -fx-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+}
+
+.titled-pane.warning-info > .title:hover {
+    -fx-background-color: linear-gradient(to right, #F97316 0%, #D97706 100%);
+}
+
+.titled-pane.warning-info > .content {
+    -fx-background-color: white;
+    -fx-border-color: rgba(251, 146, 60, 0.1);
+    -fx-border-width: 0 2px 2px 2px;
+    -fx-border-radius: 0 0 10px 10px;
+    -fx-padding: 24px;
 }
 
 /* ========== MODERN BADGES ========== */
@@ -670,23 +797,23 @@
 }
 
 .badge-primary {
-    -fx-background-color: #0EA5E9;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 .badge-success {
-    -fx-background-color: #10B981;
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
 }
 
 .badge-danger {
-    -fx-background-color: #F43F5E;
+    -fx-background-color: linear-gradient(to bottom, #F43F5E 0%, #E11D48 100%);
 }
 
 .badge-warning {
-    -fx-background-color: #F59E0B;
+    -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
 }
 
 .badge-info {
-    -fx-background-color: #06B6D4;
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
 }
 
 /* ========== NOTIFICATION STYLES ========== */

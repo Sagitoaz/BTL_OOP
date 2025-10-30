@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -38,10 +39,16 @@ public class AddCustomerViewController implements Initializable
     public void initialize(URL url, ResourceBundle rb) {
         genderComboBox.getItems().addAll(Customer.Gender.values());
         curCustomer = null;
+        UserRole role = (UserRole) SceneManager.getSceneData("role");
+        if( role.name().equalsIgnoreCase("CUSTOMER")){
+            curCustomer = (Customer) SceneManager.getSceneData("accountData");
+        }
+        if(curCustomer != null){
+            initData(curCustomer);
 
+        }
 
     }
-
 
 
     public void initData(Customer customer){
