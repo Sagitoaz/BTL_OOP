@@ -390,7 +390,7 @@ public class InvoiceController extends BaseController implements Initializable {
         for (PaymentItem item : savedItems) {
             StockMovement movement = new StockMovement();
             movement.setProductId(item.getProductId());
-            movement.setQty(item.getQty());
+            movement.setQty(-item.getQty());
             movement.setMoveType(MoveType.SALE);
             movement.setRefTable("payments");
             movement.setRefId(savedPaymentId);
@@ -545,7 +545,6 @@ public class InvoiceController extends BaseController implements Initializable {
     }
 
     private Payment createPaymentFromUI() {
-        // (Giữ nguyên logic)
         LocalDate localDate = dpInvoiceDate.getValue();
         LocalDateTime issuedAt = (localDate != null) ? localDate.atStartOfDay() : LocalDateTime.now();
         int cashierId = 0;
@@ -566,7 +565,6 @@ public class InvoiceController extends BaseController implements Initializable {
     }
 
     private int safeParseInt(String text) {
-        // (Giữ nguyên logic)
         try {
             return Integer.parseInt(text);
         } catch (NumberFormatException e) {
