@@ -13,6 +13,7 @@ module org.example.oop {
     requires javafx.base;
     requires java.net.http;
     requires jdk.compiler;
+    requires bcrypt;
     // các requires khác bạn đã dùng...
     // requires org.controlsfx.controls; v.v.
 
