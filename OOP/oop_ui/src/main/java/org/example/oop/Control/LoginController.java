@@ -145,15 +145,20 @@ public class LoginController {
                 SceneManager.switchScene(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
             else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
             {
-                Customer customer = CustomerRecordService.getInstance().searchCustomers(
-                        String.valueOf(SessionStorage.getCurrentUserId()),
-                        null,
-                        null,
-                        null
-                ).getData().get(0);
-                String[] key = {"role", "accountData"};
-                Object[] data = {UserRole.CUSTOMER, customer};
-                SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                try{
+                    Customer customer = CustomerRecordService.getInstance().searchCustomers(
+                            String.valueOf(SessionStorage.getCurrentUserId()),
+                            null,
+                            null,
+                            null
+                    ).getData().get(0);
+                    String[] key = {"role", "accountData"};
+                    Object[] data = {UserRole.CUSTOMER, customer};
+                    SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                } catch (Exception e) {
+                    invalidLoginMessage.setVisible(true);
+                    invalidLoginMessage.setText("Data loading error. Please try again later.");
+                }
             }
             else{
                 SceneManager.switchScene(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
