@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Consumer;
 
 import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import javafx.application.Platform;
@@ -25,16 +26,19 @@ import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController implements Initializable {
 
+    private List<Customer> allCustomers;
     @FXML
     private ListView<Customer> customerListView;
 
     private ObservableList<Customer> customerRecordsList;
-    
+
+    private Map<Integer, List<Prescription>> cachedPrescriptions;
+
+    private int MAX_CACHE_SIZE = 10;
     // Selection mode & callback
     private boolean selectionMode = false;
     private Consumer<Customer> onCustomerSelectedCallback;
@@ -93,6 +97,7 @@ public class CustomerHubController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        cachedPrescriptions = new HashMap<>();
         prescriptionService = new PrescriptionService();
         customerRecordsList = FXCollections.observableArrayList();
         prescriptionRecordsList = FXCollections.observableArrayList();
@@ -106,7 +111,6 @@ public class CustomerHubController implements Initializable {
             setCurrentCustomer(newValue);
             loadPrescriptionsForCustomer(newValue);
         });
-
         // Setup gender filter với promptText
         genderFilter.getItems().addAll(Customer.Gender.values());
         genderFilter.setPromptText("Lọc theo giới tính");
@@ -121,6 +125,18 @@ public class CustomerHubController implements Initializable {
                 }
             }
         });
+    }
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
     }
     
     /**
@@ -174,6 +190,7 @@ public class CustomerHubController implements Initializable {
             customers -> {
                 // SUCCESS callback - chạy trong UI Thread
                 customerRecordsList.clear();
+                allCustomers = customers;
                 customerRecordsList.addAll(customers);
                 setCurrentListCustomer();
                 System.out.println("✅ Loaded " + customers.size() + " customers");
@@ -198,6 +215,17 @@ public class CustomerHubController implements Initializable {
             prescriptionRecordsList.clear();
             return;
         }
+        if(cachedPrescriptions.containsKey(customer.getId())){
+            prescriptionRecordsList.clear();
+            prescriptionRecordsList.addAll(cachedPrescriptions.get(customer.getId()));
+            if(prescriptionRecordsList.size() > MAX_CACHE_SIZE){
+                // Simple cache eviction: remove oldest entry
+                Integer firstKey = cachedPrescriptions.keySet().iterator().next();
+                cachedPrescriptions.remove(firstKey);
+
+            }
+            return;
+        }
 
         // Create new async task
         currentPrescriptionTask = CompletableFuture.runAsync(() -> {
@@ -213,8 +241,15 @@ public class CustomerHubController implements Initializable {
                 if (!Thread.currentThread().isInterrupted() && !currentPrescriptionTask.isCancelled()) {
                     Platform.runLater(() -> {
                         prescriptionRecordsList.clear();
+                        if(prescriptions != null){
+                            prescriptionRecordsList.addAll(prescriptions);
+                            cachedPrescriptions.put(customer.getId(), prescriptions);
+                        }
+                        else{
+                            cachedPrescriptions.put(customer.getId(), new ArrayList<>());
+                        }
 
-                        prescriptionRecordsList.addAll(prescriptions);
+
 
 
                         System.out.println("✅ Loaded " + prescriptions.size() + " prescriptions for customer: " + customer.getFullName());
@@ -239,21 +274,43 @@ public class CustomerHubController implements Initializable {
         LocalDate dobFrom = dobFromPicker.getValue();
         LocalDate dobTo = dobToPicker.getValue();
 
-        CustomerRecordService.getInstance().searchCustomersAsync(
-            search,
-            gender,
-            dobFrom,
-            dobTo,
-            customers -> {
-                customerRecordsList.clear();
-                customerRecordsList.addAll(customers);
-                setCurrentListCustomer();
-            },
-            error -> {
-                System.err.println("❌ Error searching customers: " + error);
-                showErrorAlert("Lỗi tìm kiếm", error);
+        customerRecordsList.clear();
+        for (Customer customer : allCustomers) {
+            boolean matches = true;
+
+            // Filter by search text
+            if (search != null && !search.isEmpty()) {
+                String lowerSearch = search.toLowerCase();
+                if (!(customer.getFirstname().toLowerCase().contains(lowerSearch) ||
+                      customer.getLastname().toLowerCase().contains(lowerSearch) ||
+                      (customer.getPhone() != null && customer.getPhone().equalsIgnoreCase(lowerSearch)))) {
+                    matches = false;
+                    try{
+                        Integer searchId = Integer.parseInt(search);
+                        if(customer.getId() != searchId){
+                            matches = false;
+                        } else {
+                            matches = true;
+                        }
+                    } catch (NumberFormatException e){
+                        // Ignore parse error
+                    }
+                }
             }
-        );
+            if(gender != null && customer.getGender() != gender){
+                matches = false;
+            }
+            if(dobFrom != null && (customer.getDob() == null || customer.getDob().isBefore(dobFrom))){
+                matches = false;
+            }
+            if(dobTo != null && (customer.getDob() == null || customer.getDob().isAfter(dobTo))) {
+                matches = false;
+            }
+            if (matches) {
+                customerRecordsList.add(customer);
+            }
+        }
+        setCurrentListCustomer();
     }
 
 
@@ -269,7 +326,9 @@ public class CustomerHubController implements Initializable {
         dobToPicker.setValue(null);
 
         // Reload all data
-        loadCustomerData();
+        customerRecordsList.clear();
+        customerRecordsList.addAll(allCustomers);
+        setCurrentListCustomer();
     }
 
     private void setCurrentCustomer(Customer pr) {
