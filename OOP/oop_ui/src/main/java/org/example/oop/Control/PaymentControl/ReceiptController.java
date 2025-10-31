@@ -99,10 +99,10 @@ public class ReceiptController implements Initializable {
         Payment payment = receipt.getPayment();
 
         // Hiển thị thông tin chung
-        lblReceiptNo.setText(receipt.getReceiptNumber());
+        lblReceiptNo.setText(receipt.getPayment().getCode());
         lblDate.setText(payment.getIssuedAt().toString());
         lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
-        lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
+        lblCustomer.setText(payment.getCustomerId() == 0 ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
 
         // Hiển thị danh sách items
         tableReceiptItems.getItems().setAll(receipt.getItems());
@@ -114,6 +114,8 @@ public class ReceiptController implements Initializable {
         // Tính tiền thừa
         Integer change = payment.getAmountPaid() - payment.getGrandTotal();
         lblChange.setText(String.format("%,d", change));
+
+        
     }
 
     private String formatDateTime(LocalDateTime dateTime) {

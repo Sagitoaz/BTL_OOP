@@ -13,133 +13,164 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="1000.0" prefWidth="1200.0" styleClass="scroll-pane" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.ReceiptController">
+<ScrollPane xmlns:fx="http://javafx.com/fxml/1" fitToHeight="true" fitToWidth="true" prefHeight="1000.0" prefWidth="1200.0"
+            styleClass="scroll-pane"
+            stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1"
+            fx:controller="org.example.oop.Control.PaymentControl.ReceiptController">
     <content>
         <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #f5f5f5;">
             <padding>
-                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
             </padding>
 
             <!-- Receipt Paper -->
-            <VBox maxWidth="700.0" prefWidth="700.0" spacing="20.0" style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+            <VBox maxWidth="700.0" prefWidth="700.0" spacing="20.0"
+                  style="-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                 <padding>
-                    <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+                    <Insets bottom="40.0" left="40.0" right="40.0" top="40.0"/>
                 </padding>
 
                 <!-- Header -->
                 <VBox alignment="CENTER" spacing="8.0">
-                    <Text style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: #2c3e50;" text="PHÒNG KHÁM MẮT" />
-                    <Label style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;" text="Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM" />
-                    <Label style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;" text="Hotline: 1900-xxxx | Email: contact@eyeclinic.vn" />
+                    <Text style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: #2c3e50;" text="PHÒNG KHÁM MẮT"/>
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"
+                           text="Địa chỉ: 36/63 đường Nem chua, Phường Rau má, Thanh hóa"/>
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #7f8c8d;"
+                           text="Hotline: 0917576767 | Email: dungcube@eyeclinic.vn"/>
 
-                    <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" text="HÓA ĐƠN THANH TOÁN">
+                    <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"
+                           text="HÓA ĐƠN THANH TOÁN">
                         <padding>
-                            <Insets top="16.0" />
+                            <Insets top="16.0"/>
                         </padding>
                     </Label>
                 </VBox>
 
-                <Separator style="-fx-background-color: #bdc3c7;" />
+                <Separator style="-fx-background-color: #bdc3c7;"/>
 
                 <!-- Receipt Info -->
                 <GridPane hgap="20.0" vgap="14.0">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="100.0" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="RIGHT" minWidth="100.0" />
-                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints halignment="RIGHT" minWidth="100.0"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="100.0"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
+                        <RowConstraints/>
+                        <RowConstraints/>
                     </rowConstraints>
 
-                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Số phiếu:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Label fx:id="lblReceiptNo" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="RC-0001" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Số phiếu:"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblReceiptNo" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="RC-0001"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Ngày:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                    <Label fx:id="lblDate" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="2025-10-10" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Ngày:"
+                           GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblDate" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="2025-10-10"
+                           GridPane.columnIndex="3" GridPane.rowIndex="0"/>
 
-                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Thu ngân:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Label fx:id="lblCashier" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="Nguyễn B" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Thu ngân:"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblCashier" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="Nguyễn B"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Khách hàng:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                    <Label fx:id="lblCustomer" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="Nguyễn A" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #34495e;"
+                           text="Khách hàng:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblCustomer" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="Nguyễn A"
+                           GridPane.columnIndex="3" GridPane.rowIndex="1"/>
                 </GridPane>
 
-                <Separator style="-fx-background-color: #bdc3c7;" />
+                <Separator style="-fx-background-color: #bdc3c7;"/>
 
                 <!-- Items Table - KHÔNG bị nén -->
-                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="CHI TIẾT HÓA ĐƠN" />
-                <TableView fx:id="tableReceiptItems" fixedCellSize="35.0" minHeight="400.0" prefHeight="600.0" maxHeight="800.0" styleClass="financial-table">
+                <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #34495e;"
+                       text="CHI TIẾT HÓA ĐƠN"/>
+                <TableView fx:id="tableReceiptItems" fixedCellSize="35.0" maxHeight="800.0" minHeight="400.0"
+                           prefHeight="600.0" styleClass="financial-table">
                     <columns>
-                        <TableColumn fx:id="colIndex" prefWidth="60.0" style="-fx-alignment: CENTER;" text="STT" />
-                        <TableColumn fx:id="colItemName" prefWidth="221.0" text="Mặt hàng/Dịch vụ" />
-                        <TableColumn fx:id="colQty" prefWidth="87.0" style="-fx-alignment: CENTER;" text="SL" />
-                        <TableColumn fx:id="colUnitPrice" prefWidth="128.0" style="-fx-alignment: CENTER_RIGHT;" text="Đơn giá" />
-                        <TableColumn fx:id="colAmount" prefWidth="120.0" style="-fx-alignment: CENTER_RIGHT;" text="Thành tiền" />
+                        <TableColumn fx:id="colIndex" prefWidth="60.0" style="-fx-alignment: CENTER;" text="STT"/>
+                        <TableColumn fx:id="colItemName" prefWidth="221.0" text="Mặt hàng/Dịch vụ"/>
+                        <TableColumn fx:id="colQty" prefWidth="87.0" style="-fx-alignment: CENTER;" text="SL"/>
+                        <TableColumn fx:id="colUnitPrice" prefWidth="128.0" style="-fx-alignment: CENTER_RIGHT;"
+                                     text="Đơn giá"/>
+                        <TableColumn fx:id="colAmount" prefWidth="120.0" style="-fx-alignment: CENTER_RIGHT;"
+                                     text="Thành tiền"/>
                     </columns>
                     <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                     </columnResizePolicy>
                     <placeholder>
-                        <Label style="-fx-text-fill: #95a5a6; -fx-font-size: 14px;" text="Chưa có sản phẩm nào" />
+                        <Label style="-fx-text-fill: #95a5a6; -fx-font-size: 14px;" text="Chưa có sản phẩm nào"/>
                     </placeholder>
                 </TableView>
 
-                <Separator style="-fx-background-color: #bdc3c7;" />
+                <Separator style="-fx-background-color: #bdc3c7;"/>
 
                 <!-- Summary -->
                 <GridPane hgap="20.0" vgap="12.0">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints halignment="RIGHT" minWidth="200.0" />
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                        <ColumnConstraints halignment="RIGHT" minWidth="200.0"/>
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
                     </rowConstraints>
 
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Tổng tiền:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Label fx:id="lblTotal" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" text="100,000 đ" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Tổng tiền:"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <Label fx:id="lblTotal" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"
+                           text="100,000 đ" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
 
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Khách trả:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Label fx:id="lblAmountPaid" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" text="100,000 đ" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Khách trả:"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <Label fx:id="lblAmountPaid"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" text="100,000 đ"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1"/>
 
-                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;" text="Tiền thối lại:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <Label fx:id="lblChange" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3498db;" text="0 đ" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #34495e;"
+                           text="Tiền thối lại:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <Label fx:id="lblChange" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3498db;"
+                           text="0 đ" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                 </GridPane>
 
-                <Separator style="-fx-background-color: #bdc3c7;" />
+                <Separator style="-fx-background-color: #bdc3c7;"/>
 
                 <!-- Footer -->
                 <VBox alignment="CENTER" spacing="12.0">
                     <padding>
-                        <Insets top="8.0" />
+                        <Insets top="8.0"/>
                     </padding>
 
-                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" text="✓ XIN CẢM ƠN QUÝ KHÁCH!" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;" text="Quý khách vui lòng giữ hóa đơn để bảo hành và đổi trả" />
-                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;" text="Quét mã QR để nhận tư vấn và hỗ trợ trực tuyến" />
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"
+                           text="✓ XIN CẢM ƠN QUÝ KHÁCH!"/>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"
+                           text="Quý khách vui lòng giữ hóa đơn để bảo hành và đổi trả"/>
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"
+                           text="Quét mã QR để nhận tư vấn và hỗ trợ trực tuyến"/>
 
                     <!-- QR Code Placeholder -->
-                    <VBox alignment="CENTER" style="-fx-background-color: #ecf0f1; -fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;">
+                    <VBox alignment="CENTER"
+                          style="-fx-background-color: #ecf0f1; -fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;">
                         <padding>
-                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
                         </padding>
-                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#95a5a6" height="120.0" width="120.0" />
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#95a5a6" height="120.0" width="120.0"/>
                         <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="QR Code">
                             <padding>
-                                <Insets top="8.0" />
+                                <Insets top="8.0"/>
                             </padding>
                         </Label>
                     </VBox>
 
-                    <Label style="-fx-font-size: 11px; -fx-text-fill: #95a5a6; -fx-font-style: italic;" text="Hẹn gặp lại Quý khách!">
+                    <Label style="-fx-font-size: 11px; -fx-text-fill: #95a5a6; -fx-font-style: italic;"
+                           text="Hẹn gặp lại Quý khách!">
                         <padding>
-                            <Insets top="8.0" />
-                            </padding>
+                            <Insets top="8.0"/>
+                        </padding>
                     </Label>
                 </VBox>
             </VBox>

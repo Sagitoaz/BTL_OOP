@@ -318,8 +318,7 @@ public class PaymentController extends BaseController implements Initializable {
 
     private void printReceipt() {
         try {
-            String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
-            Receipt receipt = new Receipt(receiptNumber, currentPayment, currentItems);
+            Receipt receipt = new Receipt(currentPayment, currentItems);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Receipt.fxml"));
             Scene scene = new Scene(loader.load());
@@ -328,7 +327,7 @@ public class PaymentController extends BaseController implements Initializable {
             controller.displayReceipt(receipt);
 
             Stage stage = new Stage();
-            stage.setTitle("In biên lai - " + receiptNumber);
+            stage.setTitle("In biên lai - " + currentPayment.getCode());
             stage.setScene(scene);
             stage.show();
 
