@@ -69,13 +69,13 @@
                         <Insets top="8.0" />
                     </padding>
                     <Button fx:id="applyFilterBtn" mnemonicParsing="false" onAction="#onApplyFilter" prefWidth="100.0" styleClass="btn-search" text="🔍 Lọc" />
-                    <Button fx:id="resetFilterBtn" mnemonicParsing="false" onAction="#onResetFilter" prefWidth="100.0" styleClass="btn-secondary" text="Xóa lọc" />
+                    <Button fx:id="resetFilterBtn" mnemonicParsing="false" onAction="#onResetFilter" prefHeight="49.0" prefWidth="135.0" styleClass="btn-secondary" text="Xóa lọc" />
 
                     <Region prefWidth="20.0" />
 
                     <Button fx:id="confirmBtn" mnemonicParsing="false" onAction="#onConfirm" prefHeight="49.0" prefWidth="136.0" styleClass="btn-success" text="✓ Duyệt" />
                     <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#onCancel" prefWidth="120.0" styleClass="btn-danger" text="✗ Hủy" />
-                    <MenuButton fx:id="moreActionsBtn" mnemonicParsing="false" prefHeight="54.0" prefWidth="156.0" styleClass="btn-secondary" text="⋯ Thao tác">
+                    <MenuButton fx:id="moreActionsBtn" mnemonicParsing="false" prefHeight="58.0" prefWidth="180.0" styleClass="btn-secondary" text="⋯ Thao tác">
                         <items>
                             <MenuItem mnemonicParsing="false" text="Chuyển bác sĩ..." />
                             <MenuItem mnemonicParsing="false" text="Gửi SMS..." />

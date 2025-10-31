@@ -81,7 +81,7 @@
 }
 
 /* Success button - Fresh Green */
-.btn-success, .btn-save, .export-button {
+.btn-success, .export-button {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #10B981;
     -fx-border-color: #10B981;
@@ -90,51 +90,27 @@
     -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.25), 10, 0, 0, 3);
 }
 
-.btn-success:hover, .btn-save:hover, .export-button:hover {
+.btn-success:hover, .export-button:hover {
     -fx-background-color: #F0FDF4;
     -fx-border-color: #059669;
     -fx-text-fill: #059669;
     -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
 }
 
-/* Danger button - Modern Red */
-.btn-danger, .btn-delete, .btn-print {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #F43F5E;
-    -fx-border-color: #F43F5E;
-    -fx-border-width: 2px;
-    -fx-border-radius: 25px;
-    -fx-background-radius: 25px;
-    -fx-padding: 13px 36px;
-    -fx-font-size: 15px;
-    -fx-font-weight: 600;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
-}
-
-.btn-danger:hover, .btn-delete:hover, .btn-print:hover {
-    -fx-background-color: #FEF2F2;
-    -fx-border-color: #E11D48;
-    -fx-text-fill: #E11D48;
-    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-}
-
 /* Warning button - Vibrant Orange */
-.btn-warning, .btn-edit {
+.btn-warning {
     -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
     -fx-text-fill: #FFFFFF;
     -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.4), 10, 0, 0, 4);
 }
 
-.btn-warning:hover, .btn-edit:hover {
+.btn-warning:hover {
     -fx-background-color: linear-gradient(to bottom, #D97706 0%, #B45309 100%);
     -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.6), 15, 0, 0, 6);
 }
 
 /* Secondary button - Modern Gray */
-.btn-secondary, .btn-cancel {
+.btn-secondary {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #64748B;
     -fx-border-color: #CBD5E0;
@@ -143,7 +119,7 @@
     -fx-effect: dropshadow(gaussian, rgba(203, 213, 224, 0.3), 8, 0, 0, 2);
 }
 
-.btn-secondary:hover, .btn-cancel:hover {
+.btn-secondary:hover {
     -fx-border-color: #0EA5E9;
     -fx-text-fill: #0EA5E9;
     -fx-background-color: #F0F9FF;
@@ -705,86 +681,56 @@
     -fx-padding: 24px;
 }
 
-/* Input fields trong patient-info có viền hồng khi focus */
-.titled-pane.patient-info .text-field:focused,
-.titled-pane.patient-info .text-area:focused,
-.titled-pane.patient-info .combo-box:focused,
-.titled-pane.patient-info .combo-rounded:focused,
-.titled-pane.patient-info .date-picker .text-field:focused {
-    -fx-border-color: #F472B6;
-    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3);
+/* ========== MODERN OCEAN BLUE TITLED PANE (For Customer Info) ========== */
+.titled-pane.blue-gradient {
+    -fx-border-color: rgba(14, 165, 233, 0.25) !important;
+    -fx-border-width: 2px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 20, 0, 0, 5) !important;
 }
 
-.titled-pane.patient-info .text-field:hover,
-.titled-pane.patient-info .text-area:hover,
-.titled-pane.patient-info .combo-box:hover,
-.titled-pane.patient-info .combo-rounded:hover,
-.titled-pane.patient-info .date-picker .text-field:hover {
-    -fx-border-color: #FBB6CE;
+.titled-pane.blue-gradient > .title {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%) !important;
+    -fx-background-radius: 10px 10px 0 0 !important;
+    -fx-padding: 18px 20px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.35), 12, 0, 0, 3) !important;
 }
 
-/* ========== MEDICAL INFO TITLED PANE (Teal-Cyan Gradient) ========== */
-.titled-pane.medical-info {
-    -fx-border-color: rgba(20, 184, 166, 0.2);
-    -fx-border-width: 2px;
-    -fx-effect: dropshadow(gaussian, rgba(20, 184, 166, 0.15), 20, 0, 0, 5);
+/* Text trong title - quan trọng nhất */
+.titled-pane.blue-gradient > .title > .text {
+    -fx-fill: white !important;
+    -fx-font-size: 16px !important;
+    -fx-font-weight: 700 !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 2, 0, 0, 1) !important;
 }
 
-.titled-pane.medical-info > .title {
-    -fx-background-color: linear-gradient(to right, #14B8A6 0%, #06B6D4 100%);
-    -fx-background-radius: 10px 10px 0 0;
-    -fx-padding: 18px 20px;
-    -fx-effect: dropshadow(gaussian, rgba(20, 184, 166, 0.3), 12, 0, 0, 3);
+.titled-pane.blue-gradient .title .text {
+    -fx-fill: white !important;
 }
 
-.titled-pane.medical-info > .title .text {
-    -fx-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-weight: 700;
+.titled-pane.blue-gradient Text {
+    -fx-fill: white !important;
 }
 
-.titled-pane.medical-info > .title:hover {
-    -fx-background-color: linear-gradient(to right, #0D9488 0%, #0891B2 100%);
+.titled-pane.blue-gradient > .title:hover {
+    -fx-background-color: linear-gradient(to bottom, #0284C7 0%, #0369A1 100%) !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.45), 15, 0, 0, 4) !important;
 }
 
-.titled-pane.medical-info > .content {
-    -fx-background-color: white;
-    -fx-border-color: rgba(20, 184, 166, 0.1);
-    -fx-border-width: 0 2px 2px 2px;
-    -fx-border-radius: 0 0 10px 10px;
-    -fx-padding: 24px;
+.titled-pane.blue-gradient > .title .arrow-button {
+    -fx-background-color: transparent !important;
 }
 
-/* ========== ORANGE-AMBER TITLED PANE (For Warnings/Alerts) ========== */
-.titled-pane.warning-info {
-    -fx-border-color: rgba(251, 146, 60, 0.2);
-    -fx-border-width: 2px;
-    -fx-effect: dropshadow(gaussian, rgba(251, 146, 60, 0.15), 20, 0, 0, 5);
+.titled-pane.blue-gradient > .title .arrow-button .arrow {
+    -fx-background-color: white !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 1, 0, 0, 1) !important;
 }
 
-.titled-pane.warning-info > .title {
-    -fx-background-color: linear-gradient(to right, #FB923C 0%, #F59E0B 100%);
-    -fx-background-radius: 10px 10px 0 0;
-    -fx-padding: 18px 20px;
-    -fx-effect: dropshadow(gaussian, rgba(251, 146, 60, 0.3), 12, 0, 0, 3);
-}
-
-.titled-pane.warning-info > .title .text {
-    -fx-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-weight: 700;
-}
-
-.titled-pane.warning-info > .title:hover {
-    -fx-background-color: linear-gradient(to right, #F97316 0%, #D97706 100%);
-}
-
-.titled-pane.warning-info > .content {
-    -fx-background-color: white;
-    -fx-border-color: rgba(251, 146, 60, 0.1);
-    -fx-border-width: 0 2px 2px 2px;
-    -fx-border-radius: 0 0 10px 10px;
-    -fx-padding: 24px;
+.titled-pane.blue-gradient > .content {
+    -fx-background-color: #F8FBFF !important;
+    -fx-border-color: rgba(14, 165, 233, 0.15) !important;
+    -fx-border-width: 0 2px 2px 2px !important;
+    -fx-border-radius: 0 0 10px 10px !important;
+    -fx-padding: 24px !important;
 }
 
 /* ========== MODERN BADGES ========== */
