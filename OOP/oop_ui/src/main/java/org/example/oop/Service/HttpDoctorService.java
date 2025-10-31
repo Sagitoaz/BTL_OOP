@@ -1,4 +1,4 @@
-package org.example.oop.Services;
+package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,7 +19,7 @@ public class HttpDoctorService {
     private final Gson gson;
 
     public HttpDoctorService() {
-        this("https://btl-oop-i9pi.onrender.com");
+        this("https://btl-oop-i9pi.onrender.com/");
     }
 
     public HttpDoctorService(String baseUrl) {

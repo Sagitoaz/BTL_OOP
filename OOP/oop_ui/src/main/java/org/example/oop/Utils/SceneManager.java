@@ -129,6 +129,18 @@ public final class SceneManager {
 
         });
     }
+    public static void reloadCurrentScene() {
+        runOnFxThread(()->{
+            if(navigationHistory.isEmpty() || primaryStage == null){
+                return;
+            }
+            SceneInfo current = navigationHistory.peek();
+            removeFromCache(current.getFxmlPath());
+            primaryStage.setScene(loadFxmlScene(current.getFxmlPath()));
+            primaryStage.setTitle(current.getTitle());
+            primaryStage.show();
+        });
+    }
 
     // Cache Management
 

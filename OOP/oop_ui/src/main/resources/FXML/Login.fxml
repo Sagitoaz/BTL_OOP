@@ -71,7 +71,7 @@
                                     <!-- Nút toggle password visibility (icon mắt) -->
                                     <HBox alignment="CENTER_RIGHT" pickOnBounds="false" StackPane.alignment="CENTER_RIGHT">
                                        <children>
-                                          <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" prefHeight="40.0" prefWidth="40.0" styleClass="password-toggle-btn" text="👁">
+                                          <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" prefHeight="40.0" prefWidth="70.0" styleClass="password-toggle-btn" text="👁">
                                              <font>
                                                 <Font size="18.0" />
                                              </font>
@@ -87,7 +87,7 @@
                         </VBox>
 
                         <!-- Error message -->
-                        <Label fx:id="invalidLoginMessage"  maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
+                        <Label fx:id="invalidLoginMessage" maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
 
                         <!-- Forgot password -->
                         <HBox alignment="CENTER_RIGHT" styleClass="link-container">

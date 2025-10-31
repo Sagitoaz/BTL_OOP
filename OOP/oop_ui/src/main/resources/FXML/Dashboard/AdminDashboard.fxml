@@ -15,24 +15,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css, @../../css/global-styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.DashBoard.AdminDashBoardController">
     <BorderPane prefHeight="800.0" prefWidth="1200.0">
         <!-- Sidebar -->
         <left>
             <VBox prefWidth="250" styleClass="sidebar">
                 <children>
-                    <VBox alignment="CENTER" styleClass="sidebar-header">
+                    <VBox alignment="CENTER" spacing="8" styleClass="sidebar-header">
                         <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true" />
                         <Text styleClass="app-title-sidebar" text="Eye Clinic" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;" text="Hệ thống quản lý phòng khám" />
                     </VBox>
                     <VBox styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
-                        <Label styleClass="menu-title" text="MENU" />
+                        <Label styleClass="menu-title" text="MENU CHÍNH" />
                         <VBox fx:id="menuContainer" spacing="8">
                             <!-- Menu items will be dynamically added here -->
                         </VBox>
                     </VBox>
-                    <VBox alignment="BOTTOM_LEFT" styleClass="sidebar-footer">
-                        <Label text="© 2024 Eye Clinic" />
+                    <VBox alignment="BOTTOM_CENTER" styleClass="sidebar-footer">
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.7);" text="© 2025 Eye Clinic System" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px;" text="Version 1.0.0" />
                     </VBox>
                 </children>
             </VBox>
@@ -42,36 +44,41 @@
         <center>
             <VBox styleClass="main-content">
                 <!-- Header -->
-                <HBox alignment="CENTER_LEFT" styleClass="header" spacing="15">
+                <HBox alignment="CENTER_LEFT" spacing="20" styleClass="dashboard-header">
                     <!-- Navigation Buttons -->
-                    <HBox spacing="8" styleClass="nav-buttons-group">
-                        <Button styleClass="nav-button nav-back-button" text="◀" fx:id="backButton" />
-                        <Button styleClass="nav-button nav-forward-button" text="▶" fx:id="forwardButton" />
-                        <Button styleClass="nav-button nav-reload-button" text="⟳" fx:id="reloadButton" />
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="navigation-bar">
+                        <Button fx:id="backButton" onAction="#handleBackButton" styleClass="btn-back" text="◀ Quay lại" />
+                        <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="btn-forward" text="Tiến ▶" />
+                        <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="btn-reload" text="⟳ Tải lại" />
                     </HBox>
-                    
-                    <Text styleClass="title" text="Admin Dashboard" HBox.hgrow="ALWAYS" />
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label styleClass="dashboard-title" text="Trang Quản Trị Hệ Thống" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-font-weight: 500;" text="Quản lý toàn bộ hệ thống phòng khám" />
+                    </VBox>
+
                     <MenuButton styleClass="user-menu-button" text="Admin">
                         <items>
-                            <MenuItem text="Profile" />
-                            <MenuItem text="Settings" />
-                            <MenuItem text="Logout" />
+                            <MenuItem text="Thông tin cá nhân" />
+                            <MenuItem text="Cài đặt" />
+                            <MenuItem text="Đăng xuất" />
                         </items>
                     </MenuButton>
                 </HBox>
 
                 <!-- Content Body -->
-                <ScrollPane fitToWidth="true" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
-                    <VBox spacing="30" styleClass="dashboard-container">
+                <ScrollPane fitToWidth="true" style="-fx-background: #F0F9FF; -fx-background-color: #F0F9FF;" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+                    <VBox spacing="30" style="-fx-padding: 30px;" styleClass="dashboard-container">
                         <!-- Welcome Section -->
-                        <VBox spacing="10" styleClass="welcome-section">
-                            <Label styleClass="dashboard-welcome-title" text="Chào mừng trở lại, Admin!" />
-                            <Label styleClass="dashboard-welcome-subtitle" text="Quản lý hệ thống phòng khám của bạn" />
+                        <VBox spacing="12" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #06B6D4); -fx-background-radius: 20px; -fx-padding: 30px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 20, 0, 0, 8);" styleClass="welcome-section">
+                            <Label style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: 700;" text="Chào mừng trở lại, Admin!" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 16px;" text="Quản lý hệ thống phòng khám hiệu quả và chuyên nghiệp" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0;" text="📅 Hôm nay: Thứ Sáu, 31 tháng 10 năm 2025" />
                         </VBox>
 
                         <!-- Main Functions Grid -->
                         <VBox spacing="20">
-                            <Label styleClass="section-header" text="QUẢN LÝ HỆ THỐNG" />
+                            <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0;" styleClass="section-header" text="🏥 QUẢN LÝ HỆ THỐNG" />
                             <GridPane hgap="20" styleClass="function-grid" vgap="20">
                                 <columnConstraints>
                                     <ColumnConstraints percentWidth="33.33" />
@@ -80,47 +87,47 @@
                                 </columnConstraints>
                                 
                                 <!-- Row 1 -->
-                                <VBox styleClass="function-card function-card-blue" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label styleClass="function-icon" text="👥" />
-                                    <Label styleClass="function-title" text="Quản lý bệnh nhân" />
-                                    <Label styleClass="function-description" text="Xem, chỉnh sửa thông tin bệnh nhân" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-primary function-button" text="Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.15), 15, 0, 0, 5); -fx-border-color: #E0F2FE; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 48px;" text="👥" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #0EA5E9;" text="Quản lý bệnh nhân" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xem, chỉnh sửa thông tin bệnh nhân" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenCustomerHub" styleClass="btn-add" text="➕ Mở" />
                                 </VBox>
                                 
-                                <VBox prefWidth="276.0" styleClass="function-card function-card-green" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label styleClass="function-icon" text="👨‍⚕️" />
-                                    <Label styleClass="function-title" text="Quản lý bác sĩ" />
-                                    <Label styleClass="function-description" text="Quản lý thông tin và lịch làm việc bác sĩ" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-success function-button" text="Mở" />
+                                   <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 15, 0, 0, 5); -fx-border-color: #D1FAE5; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 48px;" text="👨‍⚕️" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="Quản lý bác sĩ" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Quản lý thông tin và lịch làm việc bác sĩ" wrapText="true" />
+                                    <Button maxWidth="Infinity" styleClass="btn-search" text="👁 Mở" />
                                 </VBox>
                                 
-                                <VBox styleClass="function-card function-card-orange" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                    <Label styleClass="function-icon" text="📅" />
-                                    <Label styleClass="function-title" text="Quản lý lịch hẹn" />
-                                    <Label styleClass="function-description" text="Xem và quản lý tất cả lịch hẹn" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-warning function-button" text="Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.15), 15, 0, 0, 5); -fx-border-color: #FEF3C7; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 48px;" text="📅" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #F59E0B;" text="Quản lý lịch hẹn" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xem và quản lý tất cả lịch hẹn" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenAppointmentManagement" styleClass="btn-search" text="📖 Mở" />
                                 </VBox>
                                 
                                 <!-- Row 2 -->
-                                <VBox styleClass="function-card function-card-purple" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <Label styleClass="function-icon" text="💊" />
-                                    <Label styleClass="function-title" text="Quản lý kho thuốc" />
-                                    <Label styleClass="function-description" text="Thêm, cập nhật thuốc và vật tư y tế" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-secondary function-button" text="Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.15), 15, 0, 0, 5); -fx-border-color: #EDE9FE; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 48px;" text="💊" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6;" text="Quản lý kho thuốc" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Thêm, cập nhật thuốc và vật tư y tế" wrapText="true" />
+                                    <Button maxWidth="Infinity" styleClass="btn-search" text="💳 Mở" />
                                 </VBox>
                                 
-                                <VBox styleClass="function-card function-card-red" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <Label styleClass="function-icon" text="💰" />
-                                    <Label styleClass="function-title" text="Quản lý thanh toán" />
-                                    <Label styleClass="function-description" text="Xử lý thanh toán và hóa đơn" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-danger function-button" text="Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.15), 15, 0, 0, 5); -fx-border-color: #FEE2E2; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 48px;" text="💰" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #EF4444;" text="Quản lý thanh toán" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xử lý thanh toán và hóa đơn" wrapText="true" />
+                                    <Button maxWidth="Infinity" styleClass="btn-search" text="💳 Mở" />
                                 </VBox>
                                 
-                                <VBox styleClass="function-card function-card-teal" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                                    <Label styleClass="function-icon" text="📊" />
-                                    <Label styleClass="function-title" text="Báo cáo tài chính" />
-                                    <Label styleClass="function-description" text="Xem báo cáo doanh thu và thống kê" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="button-primary function-button" text="Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.15), 15, 0, 0, 5); -fx-border-color: #CFFAFE; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 48px;" text="📊" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #06B6D4;" text="Báo cáo tài chính" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xem báo cáo doanh thu và thống kê" wrapText="true" />
+                                    <Button maxWidth="Infinity" styleClass="btn-search" text="📊 Mở" />
                                 </VBox>
                         <rowConstraints>
                            <RowConstraints />
@@ -131,19 +138,22 @@
 
                         <!-- Quick Stats -->
                         <VBox spacing="20">
-                            <Label styleClass="section-header" text="THỐNG KÊ NHANH" />
+                            <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0;" styleClass="section-header" text="📊 THỐNG KÊ NHANH" />
                             <HBox spacing="20" styleClass="quick-stats">
-                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
-                                    <Label styleClass="quick-stat-label" text="Bệnh nhân hôm nay" />
-                                    <Label fx:id="todayPatientsLabel" styleClass="quick-stat-value quick-stat-blue" text="24" />
+                                <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px; -fx-alignment: center;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #64748B; -fx-font-weight: 600;" text="Bệnh nhân hôm nay" />
+                                    <Label fx:id="todayPatientsLabel" style="-fx-font-size: 36px; -fx-font-weight: 700; -fx-text-fill: #0EA5E9;" text="24" />
+                                    <Label style="-fx-font-size: 12px; -fx-text-fill: #94A3B8;" text="bệnh nhân" />
                                 </VBox>
-                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
-                                    <Label styleClass="quick-stat-label" text="Lịch hẹn chờ" />
-                                    <Label fx:id="pendingAppointmentsLabel" styleClass="quick-stat-value quick-stat-orange" text="8" />
+                                <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px; -fx-alignment: center;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #64748B; -fx-font-weight: 600;" text="Lịch hẹn chờ" />
+                                    <Label fx:id="pendingAppointmentsLabel" style="-fx-font-size: 36px; -fx-font-weight: 700; -fx-text-fill: #F59E0B;" text="8" />
+                                    <Label style="-fx-font-size: 12px; -fx-text-fill: #94A3B8;" text="lịch hẹn" />
                                 </VBox>
-                                <VBox styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
-                                    <Label styleClass="quick-stat-label" text="Doanh thu hôm nay" />
-                                    <Label fx:id="todayRevenueLabel" styleClass="quick-stat-value quick-stat-green" text="12.5M" />
+                                <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 24px; -fx-alignment: center;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #64748B; -fx-font-weight: 600;" text="Doanh thu hôm nay" />
+                                    <Label fx:id="todayRevenueLabel" style="-fx-font-size: 36px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="12.5M" />
+                                    <Label style="-fx-font-size: 12px; -fx-text-fill: #94A3B8;" text="VNĐ" />
                                 </VBox>
                             </HBox>
                         </VBox>

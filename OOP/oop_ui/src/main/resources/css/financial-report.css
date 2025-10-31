@@ -1,42 +1,48 @@
 /* ========================================
-   FINANCIAL REPORT STYLES - PROFESSIONAL MEDICAL
-   Thiết kế: Chuyên nghiệp y tế với buttons mềm mại
+   FINANCIAL REPORT STYLES - MODERN EYE CLINIC
+   Thiết kế: Hiện đại với gradient xanh dương
+   Phong cách: Clean, Professional & Modern
    ======================================== */
 
 /* ========== HEADER STYLING ========== */
 .financial-header {
-    -fx-background-color: #0066CC;
-    -fx-padding: 20px 24px;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%);
+    -fx-padding: 24px 28px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 15, 0, 0, 4);
+    -fx-background-radius: 12px 12px 0 0;
 }
 
 .financial-header .page-title {
     -fx-text-fill: white;
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0, 0, 1);
 }
 
 .financial-header .form-label {
     -fx-text-fill: white;
     -fx-font-weight: 600;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
 }
 
-/* ========== BUTTONS - Soft & Round ========== */
+/* ========== BUTTONS - MODERN ROUNDED ========== */
 .btn-search {
     -fx-background-color: white;
-    -fx-text-fill: #0066CC;
+    -fx-text-fill: #0EA5E9;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-padding: 10px 24px;
+    -fx-padding: 11px 26px;
     -fx-background-radius: 25px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 8, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 10, 0, 0, 3);
     -fx-border-color: transparent;
     -fx-border-width: 0;
 }
 
 .btn-search:hover {
-    -fx-background-color: #E6F2FF;
+    -fx-background-color: #E0F2FE;
+    -fx-text-fill: #0284C7;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 12, 0, 0, 4);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
@@ -47,51 +53,56 @@
 }
 
 .export-button {
-    -fx-background-color: #00A86B;
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
     -fx-text-fill: white;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-padding: 10px 20px;
+    -fx-padding: 11px 24px;
     -fx-background-radius: 25px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0, 168, 107, 0.3), 8, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);
     -fx-border-color: transparent;
     -fx-border-width: 0;
 }
 
 .export-button:hover {
-    -fx-background-color: #008C5A;
+    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 14, 0, 0, 6);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
 .export-button:focused {
     -fx-border-color: transparent;
-    -fx-background-color: #00A86B;
+    -fx-background-color: #10B981;
 }
 
 .btn-print {
-    -fx-background-color: #DC3545;
-    -fx-text-fill: white;
-    -fx-font-size: 13px;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-padding: 10px 20px;
+    -fx-padding: 11px 24px;
     -fx-background-radius: 25px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(220, 53, 69, 0.3), 8, 0, 0, 3);
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
 }
 
 .btn-print:hover {
-    -fx-background-color: #C82333;
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
 .btn-print:focused {
-    -fx-border-color: transparent;
-    -fx-background-color: #DC3545;
+    -fx-border-color: #F43F5E;
+    -fx-background-color: #FFFFFF;
 }
 
 /* ========== TAB PANE ========== */
@@ -102,123 +113,97 @@
 .financial-tabs .tab-header-area {
     -fx-padding: 0 24px;
     -fx-background-color: white;
-    -fx-border-color: #E8EDF5;
+    -fx-border-color: #E0F2FE;
     -fx-border-width: 0 0 2px 0;
-}
-
-.financial-tabs .tab-header-background {
-    -fx-background-color: transparent;
 }
 
 .financial-tabs .tab {
     -fx-background-color: transparent;
-    -fx-background-radius: 0;
     -fx-padding: 12px 20px;
     -fx-border-width: 0 0 2px 0;
     -fx-border-color: transparent;
 }
 
 .financial-tabs .tab:selected {
-    -fx-background-color: transparent;
-    -fx-border-color: #0066CC;
+    -fx-border-color: #0EA5E9;
 }
 
 .financial-tabs .tab .tab-label {
     -fx-font-size: 14px;
     -fx-font-weight: 600;
-    -fx-text-fill: #5A6C7D;
+    -fx-text-fill: #64748B;
 }
 
 .financial-tabs .tab:selected .tab-label {
-    -fx-text-fill: #0066CC;
+    -fx-text-fill: #0EA5E9;
 }
 
 .financial-tabs .tab:hover {
-    -fx-background-color: rgba(0, 102, 204, 0.05);
+    -fx-background-color: #F0F9FF;
 }
 
-/* ========== TITLED PANE - Soft Pink Design ========== */
-.titled-pane {
+/* ========== REPORT CONTAINER ========== */
+.report-container {
     -fx-background-color: white;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-    -fx-border-radius: 12px;
     -fx-background-radius: 12px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 12, 0, 0, 3);
+    -fx-padding: 28px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.12), 15, 0, 0, 5);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
 }
 
-.titled-pane:hover {
-    -fx-effect: dropshadow(gaussian, rgba(255, 182, 193, 0.15), 16, 0, 0, 4);
-}
-
-.titled-pane > .title {
-    -fx-background-color: linear-gradient(to right, #FFE4E9, #FFF0F3);
-    -fx-background-radius: 12px 12px 0 0;
-    -fx-padding: 18px 22px;
-    -fx-border-color: transparent;
-    -fx-border-width: 0;
-}
-
-.titled-pane > .title .text {
-    -fx-font-size: 15px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #d4a5b8;
-    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.6), 1, 0, 0, 1);
-}
-
-.titled-pane > .title .arrow-button {
-    -fx-background-color: transparent;
-}
-
-.titled-pane > .title .arrow-button .arrow {
-    -fx-background-color: #e6b8c9;
-    -fx-padding: 4px;
-    -fx-shape: "M 0 0 L 8 8 L 16 0 Z";
-}
-
-.titled-pane:expanded > .title .arrow-button .arrow {
-    -fx-rotate: 180;
-}
-
-.titled-pane > .content {
-    -fx-background-color: #FFFBFC;
-    -fx-background-radius: 0 0 12px 12px;
+/* ========== STATS SUMMARY ========== */
+.stats-summary {
+    -fx-spacing: 20px;
     -fx-padding: 20px;
-    -fx-border-color: #FFE4E9;
-    -fx-border-width: 0 2px 2px 2px;
-    -fx-border-radius: 0 0 12px 12px;
-}
-
-/* TitledPane variants with different soft colors */
-.titled-pane.revenue > .title {
-    -fx-background-color: linear-gradient(to right, #FFE4E9, #FFEEF2);
-}
-
-.titled-pane.method > .title {
-    -fx-background-color: linear-gradient(to right, #F0E6F5, #F8F0FB);
-}
-
-.titled-pane.products > .title {
-    -fx-background-color: linear-gradient(to right, #FFF0E4, #FFF7F0);
-}
-
-.titled-pane.staff > .title {
-    -fx-background-color: linear-gradient(to right, #E0F5ED, #F0FAF5);
-}
-
-/* Collapsed state */
-.titled-pane:collapsed > .title {
+    -fx-background-color: #F0F9FF;
     -fx-background-radius: 12px;
+}
+
+.stat-box {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.08), 10, 0, 0, 3);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
     -fx-border-radius: 12px;
 }
 
-/* Focus state */
-.titled-pane:focused > .title {
-    -fx-border-color: rgba(255, 182, 193, 0.3);
-    -fx-border-width: 2px;
+.stat-box:hover {
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 15, 0, 0, 5);
+    -fx-translate-y: -2px;
 }
 
-/* ========== TABLE STYLING - Enhanced with Vibrant Colors ========== */
+.stat-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748B;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0EA5E9;
+}
+
+/* ========== CHART CONTAINER ========== */
+.chart-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 4);
+}
+
+.chart-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+    -fx-padding: 0 0 16px 0;
+}
+
+/* ========== TABLE STYLING - Enhanced with Gradient ========== */
 .financial-table {
     -fx-background-color: white;
     -fx-border-color: transparent;
@@ -228,7 +213,7 @@
 }
 
 .financial-table .column-header-background {
-    -fx-background-color: #0066CC;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
     -fx-background-radius: 8px 8px 0 0;
 }
 
@@ -248,7 +233,11 @@
 }
 
 .financial-table .filler {
-    -fx-background-color: #0066CC;
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+}
+
+.financial-table .corner {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
 }
 
 .financial-table .table-row-cell {
@@ -317,69 +306,118 @@
     -fx-background-color: #E6F2FF;
     -fx-text-fill: #0066CC;
     -fx-font-weight: 600;
-    -fx-background-radius: 4px;
-    -fx-padding: 8px 12px;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 6px;
 }
 
-.financial-table .table-cell.name-cell {
-    -fx-font-weight: 600;
-    -fx-text-fill: #2C3E50;
+/* ========== SCROLLBAR - Modern Blue ========== */
+.financial-table .scroll-bar:vertical {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 8px;
 }
 
-/* Badge styling for table cells */
-.financial-table .badge {
-    -fx-background-color: #0066CC;
-    -fx-text-fill: white;
-    -fx-padding: 4px 10px;
-    -fx-background-radius: 12px;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
+.financial-table .scroll-bar:vertical .thumb {
+    -fx-background-color: #0EA5E9;
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2px;
 }
 
-.financial-table .badge.success {
-    -fx-background-color: #00A86B;
+.financial-table .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #0284C7;
 }
 
-.financial-table .badge.warning {
-    -fx-background-color: #FF6B35;
-}
-
-.financial-table .badge.danger {
-    -fx-background-color: #DC3545;
-}
-
-/* Table scrollbar - Colorful */
-.financial-table .scroll-bar:vertical,
-.financial-table .scroll-bar:horizontal {
-    -fx-background-color: #F5F7FA;
-    -fx-background-radius: 4px;
-}
-
-.financial-table .scroll-bar .thumb {
-    -fx-background-color: #B3D9FF;
-    -fx-background-radius: 4px;
-}
-
-.financial-table .scroll-bar .thumb:hover {
-    -fx-background-color: #0066CC;
-}
-
-.financial-table .scroll-bar .increment-button,
-.financial-table .scroll-bar .decrement-button {
-    -fx-background-color: transparent;
-}
-
-/* Empty table placeholder - Colorful */
+/* ========== EMPTY TABLE PLACEHOLDER ========== */
 .financial-table .placeholder .label {
-    -fx-text-fill: #0066CC;
-    -fx-font-size: 14px;
-    -fx-font-weight: 600;
-    -fx-font-style: italic;
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
 }
 
-/* Table corner - Match header */
-.financial-table .corner {
-    -fx-background-color: #0066CC;
+/* ========== SUMMARY ROW - SPECIAL STYLING ========== */
+.financial-table .table-row-cell.summary-row {
+    -fx-background-color: #E6F2FF;
+    -fx-font-weight: 700;
+    -fx-border-width: 2px 0 0 0;
+    -fx-border-color: #0EA5E9;
+}
+
+.financial-table .table-row-cell.summary-row .table-cell {
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+    -fx-font-size: 14px;
+}
+
+/* ========== DATE RANGE PICKER ========== */
+.date-range-container {
+    -fx-spacing: 12px;
+    -fx-padding: 16px 20px;
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 10, 0, 0, 3);
+}
+
+/* ========== EXPORT OPTIONS ========== */
+.export-options {
+    -fx-spacing: 12px;
+    -fx-padding: 20px;
+    -fx-background-color: #F8FBFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.export-format-button {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 12px 20px;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.export-format-button:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-border-color: #0EA5E9;
+    -fx-text-fill: #0369A1;
+}
+
+.export-format-button:selected {
+    -fx-background-color: #0EA5E9;
+    -fx-text-fill: white;
+    -fx-border-color: #0EA5E9;
+}
+
+/* ========== FILTER PANEL ========== */
+.filter-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-spacing: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 4);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.filter-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+}
+
+/* ========== LOADING OVERLAY ========== */
+.loading-overlay {
+    -fx-background-color: rgba(240, 249, 255, 0.95);
+    -fx-alignment: center;
+}
+
+.loading-message {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #0369A1;
 }
 
 /* ========== CHART STYLING ========== */

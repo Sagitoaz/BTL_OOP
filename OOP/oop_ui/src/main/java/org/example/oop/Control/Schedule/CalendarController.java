@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.example.oop.Service.HttpAppointmentService;
-import org.example.oop.Services.HttpDoctorService;
+import org.example.oop.Service.HttpDoctorService;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.Doctor;

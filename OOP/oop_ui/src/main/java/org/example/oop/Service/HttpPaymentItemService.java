@@ -20,7 +20,7 @@ public class HttpPaymentItemService {
     private final Gson gson;
 
     public HttpPaymentItemService() {
-        this("https://btl-oop-i9pi.onrender.com");
+        this("http://localhost:8080/");
     }
 
     public HttpPaymentItemService(String baseUrl) {

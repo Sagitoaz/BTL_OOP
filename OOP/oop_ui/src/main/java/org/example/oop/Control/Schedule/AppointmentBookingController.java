@@ -6,16 +6,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
-import org.example.oop.Services.HttpDoctorService;
+import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.Appointment;
-import org.miniboot.app.domain.models.AppointmentStatus;
-import org.miniboot.app.domain.models.AppointmentType;
+import org.miniboot.app.domain.models.*;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.domain.models.Doctor;
-import org.miniboot.app.domain.models.TimeSlot;
 
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,17 +25,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -69,6 +55,7 @@ public class AppointmentBookingController implements Initializable {
     private PauseTransition searchDebounce;
 
     // FXML Controls
+    @FXML private Tab tabCustomerSelection;
     @FXML private TextField patientQuickSearch;
     @FXML private Button btnNewPatient;
     @FXML private ComboBox<String> cboCurrentUser;
@@ -78,7 +65,7 @@ public class AppointmentBookingController implements Initializable {
     @FXML private ComboBox<String> cboDoctor;
     @FXML private DatePicker dpDate;
     @FXML private ComboBox<String> cboVisitType;
-    @FXML private TextArea txtNotes;
+    @FXML private TextField txtNotes;
     @FXML private TableView<TimeSlot> tblAvailableSlots;
     @FXML private TableView<Appointment> tblDoctorAgenda;
     @FXML private Button btnCheck;
@@ -87,8 +74,6 @@ public class AppointmentBookingController implements Initializable {
     @FXML private DatePicker dpQuickJump;
     @FXML private ListView<String> lvwDayAgenda;
     @FXML private Button btnOpenCalendar;
-    @FXML private Label lblStatus;
-    @FXML private ProgressIndicator piLoading;
     @FXML private TextField txtPatientName;
     @FXML private TextField txtPatientPhone;
     @FXML private TextField txtPatientEmail;
@@ -97,6 +82,10 @@ public class AppointmentBookingController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+
+        if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+            tabCustomerSelection.setDisable(true);
+        }
         System.out.println("AppointmentBookingController initialized");
 
         // Khởi tạo services
@@ -112,8 +101,9 @@ public class AppointmentBookingController implements Initializable {
 
         // Set up Combobox
         cboVisitType.setItems(FXCollections.observableArrayList(
-                "VISIT", "CHECKUP", "FOLLOWUP", "SURGERY"
+                "VISIT", "TEST", "FOLLOWUP", "SURGERY"
         ));
+
 
         // Setup TableViews
         setupPatientTable();
@@ -141,6 +131,7 @@ public class AppointmentBookingController implements Initializable {
     private void handleReloadButton(){
         System.out.println("🔄 Reloading Appointment Booking view");
         //SceneManager.reloadScene();
+        SceneManager.reloadCurrentScene();
     }
 
     @FXML
@@ -263,8 +254,6 @@ public class AppointmentBookingController implements Initializable {
 
         // Disable button để tránh double-click
         btnBook.setDisable(true);
-        piLoading.setVisible(true);
-        lblStatus.setText("Đang đặt lịch...");
 
         // Gọi API POST /appointments (async)
         Task<Appointment> task = new Task<>() {
@@ -276,11 +265,9 @@ public class AppointmentBookingController implements Initializable {
 
         task.setOnSucceeded(e -> {
             Appointment created = task.getValue();
-            piLoading.setVisible(false);
             btnBook.setDisable(false);
 
             if (created != null) {
-                lblStatus.setText("Đặt lịch thành công!");
                 showAlert("Đặt lịch thành công!\n" +
                         "Mã hẹn: #" + created.getId() + "\n" +
                         "Bác sĩ: " + selectedDoctor.getFullName() + "\n" +
@@ -293,17 +280,14 @@ public class AppointmentBookingController implements Initializable {
                 loadDoctorAgenda(selectedDoctor.getId(), selectedDate);
                 loadAvailableSlots(selectedDoctor.getId(), selectedDate);
             } else {
-                lblStatus.setText("Đặt lịch thất bại");
                 showAlert("Đặt lịch thất bại. Vui lòng thử lại.");
             }
         });
 
         task.setOnFailed(e -> {
-            piLoading.setVisible(false);
             btnBook.setDisable(false);
 
             Throwable ex = task.getException();
-            lblStatus.setText("Lỗi: " + ex.getMessage());
             showAlert("Lỗi đặt lịch:\n" + ex.getMessage() + "\n\nKiểm tra:\n" +
                     "- Server đang xảy ra sự cố\n" +
                     "- Slot có bị trùng");
@@ -323,7 +307,6 @@ public class AppointmentBookingController implements Initializable {
         selectedDate = null;
         selectedSlot = null;
         btnBook.setDisable(true);
-        lblStatus.setText("Sẵn sàng");
     }
 
     @FXML
@@ -343,7 +326,7 @@ public class AppointmentBookingController implements Initializable {
         txtPatientInsurance.setText(""); // Database chưa lưu bảo hiểm
         txtPatientNotes.setText(selected.getNote() != null ? selected.getNote() : "");
 
-        lblStatus.setText("Đã chọn bệnh nhân: " + selected.getFullName());
+        System.out.println("✅ Đã chọn bệnh nhân: " + selected.getFullName());
     }
 
     @FXML
@@ -358,28 +341,24 @@ public class AppointmentBookingController implements Initializable {
         switch (selectedType) {
             case "VISIT":
                 // Khám bệnh - 30 minutes
-                lblStatus.setText("Loại: Khám bệnh | Thời gian dự kiến: 30 phút");
                 txtNotes.setPromptText("Ghi chú triệu chứng, lý do khám bệnh...");
                 txtNotes.setStyle(""); // Reset style
                 break;
                 
             case "FOLLOWUP":
                 // Tái khám - 20 minutes
-                lblStatus.setText("Loại: Tái khám | Thời gian dự kiến: 20 phút");
                 txtNotes.setPromptText("Ghi chú kết quả khám trước, cần theo dõi gì...");
                 txtNotes.setStyle(""); // Reset style
                 break;
                 
             case "CHECKUP":
                 // Khám sức khỏe - 45 minutes
-                lblStatus.setText("Loại: Khám sức khỏe | Thời gian dự kiến: 45 phút");
                 txtNotes.setPromptText("Ghi chú các chỉ số cần kiểm tra...");
                 txtNotes.setStyle(""); // Reset style
                 break;
                 
             case "SURGERY":
                 // Phẫu thuật/Thủ thuật - urgent
-                lblStatus.setText("Loại: Phẫu thuật/Thủ thuật | Cần sắp xếp đặc biệt");
                 txtNotes.setPromptText("Mô tả loại phẫu thuật, chuẩn bị cần thiết...");
                 txtNotes.setStyle("-fx-border-color: #ff6b6b; -fx-border-width: 2;");
                 
@@ -389,7 +368,7 @@ public class AppointmentBookingController implements Initializable {
                 break;
                 
             default:
-                lblStatus.setText("Đã chọn loại: " + selectedType);
+                System.out.println("Đã chọn loại: " + selectedType);
         }
         
         System.out.println("✅ Visit type selected: " + selectedType);
@@ -413,10 +392,6 @@ public class AppointmentBookingController implements Initializable {
             return;
         }
 
-        // Show loading
-        piLoading.setVisible(true);
-        lblStatus.setText("Đang tìm slot trống...");
-
         // Get doctor from selected name
         String selectedName = cboDoctor.getValue();
         Doctor doctor = doctorList.stream()
@@ -426,7 +401,6 @@ public class AppointmentBookingController implements Initializable {
 
         if (doctor == null) {
             showAlert("Không tìm thấy bác sĩ");
-            piLoading.setVisible(false);
             return;
         }
 
@@ -486,6 +460,10 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void setupPatientTable() {
+        if(tabCustomerSelection.isDisable()){
+            selectedPatient = SceneManager.getSceneData("accountData");
+            return;
+        }
         TableColumn<Customer, String> nameCol = 
             (TableColumn<Customer, String>) tblPatients.getColumns().get(0);
         TableColumn<Customer, String> phoneCol = 
@@ -607,13 +585,9 @@ public class AppointmentBookingController implements Initializable {
             if (newText == null || newText.trim().isEmpty()) {
                 // Clear results nếu search field empty
                 patientList.clear();
-                lblStatus.setText("Nhập tên/SĐT để tìm bệnh nhân");
             } else if (newText.trim().length() >= 2) {
                 // Chỉ search khi nhập >= 2 ký tự
-                lblStatus.setText("Đang tìm kiếm...");
                 searchDebounce.playFromStart();
-            } else {
-                lblStatus.setText("Nhập ít nhất 2 ký tự để tìm kiếm");
             }
         });
         
@@ -655,7 +629,6 @@ public class AppointmentBookingController implements Initializable {
                     ? "Tổng số: " + results.size() + " bệnh nhân" 
                     : "Tìm thấy " + results.size() + " bệnh nhân";
                     
-                lblStatus.setText(message);
                 System.out.println("✅ " + message);
             }
         });
@@ -663,7 +636,6 @@ public class AppointmentBookingController implements Initializable {
         searchTask.setOnFailed(e -> {
             if (!searchTask.isCancelled()) {
                 String errorMsg = "Lỗi tìm kiếm: " + searchTask.getException().getMessage();
-                lblStatus.setText(errorMsg);
                 System.err.println("❌ " + errorMsg);
             }
         });
@@ -676,9 +648,6 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void loadDoctors() {
-        piLoading.setVisible(true);
-        lblStatus.setText("Đang tải danh sách bác sĩ...");
-
         Task<List<Doctor>> task = new Task<>() {
             @Override
             protected List<Doctor> call() throws Exception{
@@ -696,13 +665,10 @@ public class AppointmentBookingController implements Initializable {
                 cboDoctor.getItems().add(d.getFullName());
             }
 
-            lblStatus.setText("Đã tải " + doctors.size() + " bác sĩ");
-            piLoading.setVisible(false);
+            System.out.println("✅ Đã tải " + doctors.size() + " bác sĩ");
         });
 
         task.setOnFailed(e -> {
-            lblStatus.setText("Lỗi tải bác sĩ: " + task.getException().getMessage());
-            piLoading.setVisible(false);
             showAlert("Không thể tải danh sách bác sĩ. Kiểm tra server.");
         });
 
@@ -728,11 +694,11 @@ public class AppointmentBookingController implements Initializable {
             // ✅ Load customer names cho các appointments
             loadCustomerNamesForAppointments(appointments);
             
-            lblStatus.setText("Lịch bác sĩ: " + appointments.size() + " lịch hẹn");
+            System.out.println("Lịch bác sĩ: " + appointments.size() + " lịch hẹn");
         });
 
         task.setOnFailed(e -> {
-            lblStatus.setText("Lỗi load lịch: " + task.getException().getMessage());
+            System.out.println("Lỗi load lịch: " + task.getException().getMessage());
         });
 
         new Thread(task).start();
@@ -770,9 +736,6 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void loadAvailableSlots(int doctorId, LocalDate date) {
-        piLoading.setVisible(true);
-        lblStatus.setText("Đang tìm slot trống...");
-
         Task<List<TimeSlot>> task = new Task<>() {
             @Override
             protected List<TimeSlot> call() throws Exception {
@@ -786,13 +749,10 @@ public class AppointmentBookingController implements Initializable {
             availableSlots.setAll(slots);
 
             long availableCount = slots.stream().filter(TimeSlot::isAvailable).count();
-            lblStatus.setText("Tìm thấy " + availableCount + " slot trống / " + slots.size() + " slots");
-            piLoading.setVisible(false);
+            System.out.println("Tìm thấy " + availableCount + " slot trống / " + slots.size() + " slots");
         });
 
         task.setOnFailed(e -> {
-            lblStatus.setText("Lỗi: " + task.getException().getMessage());
-            piLoading.setVisible(false);
             showAlert("Lỗi tải slots: " + task.getException().getMessage());
         });
 

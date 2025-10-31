@@ -13,6 +13,7 @@ public enum AppointmentType {
     SURGERY("surgery"),
     BLOCKED("blocked"); // Thêm cho blocking appointments
 
+
     private final String value;
 
     AppointmentType(String value) {

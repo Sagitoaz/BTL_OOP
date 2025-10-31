@@ -6,7 +6,6 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -40,7 +39,7 @@
             <Label styleClass="page-title" text="ĐẶT LỊCH KHÁM" />
             <Region HBox.hgrow="ALWAYS" />
             <TextField fx:id="patientQuickSearch" prefWidth="250.0" promptText="Tìm bệnh nhân (Tên/Email/SĐT)" styleClass="text-field" />
-            <Button fx:id="btnNewPatient" mnemonicParsing="false" onAction="#onNewPatient" prefHeight="43.0" prefWidth="192.0" styleClass="btn-success" text="➕ Thêm bệnh nhân" />
+            <Button fx:id="btnNewPatient" mnemonicParsing="false" onAction="#onNewPatient" prefHeight="49.0" prefWidth="214.0" styleClass="btn-success" text="➕ Thêm bệnh nhân" />
             <ComboBox fx:id="cboCurrentUser" prefWidth="200.0" styleClass="combo-rounded" />
          </HBox>
          <Separator />
@@ -51,8 +50,107 @@
    <center>
       <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
          <tabs>
+
+            <!-- Tab 2: Đặt lịch khám -->
+            <Tab text="📅 Đặt lịch khám">
+               <VBox spacing="12.0">
+                  <padding>
+                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  </padding>
+
+                  <!-- Appointment Form - 2 Rows with larger size -->
+                  <GridPane hgap="20.0" styleClass="form-container" vgap="16.0">
+                     <padding>
+                        <Insets bottom="18.0" left="22.0" right="22.0" top="18.0" />
+                     </padding>
+                     <columnConstraints>
+                        <ColumnConstraints halignment="RIGHT" minWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" prefWidth="300.0" />
+                        <ColumnConstraints halignment="RIGHT" minWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" prefWidth="300.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="52.0" prefHeight="52.0" />
+                        <RowConstraints minHeight="52.0" prefHeight="52.0" />
+                     </rowConstraints>
+
+                     <Label style="-fx-font-size: 15px;" styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                     <ComboBox fx:id="cboDoctor" maxWidth="Infinity" onAction="#handleDoctorSelection" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                     <Label style="-fx-font-size: 15px;" styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                     <DatePicker fx:id="dpDate" maxWidth="Infinity" onAction="#handleDateSelection" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                     <Label style="-fx-font-size: 15px;" styleClass="form-label" text="Loại khám:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                     <ComboBox fx:id="cboVisitType" maxWidth="Infinity" onAction="#handleVisitTypeSelection" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                     <Label style="-fx-font-size: 15px;" styleClass="form-label" text="Ghi chú:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                     <TextField fx:id="txtNotes" promptText="Ghi chú..." styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                  </GridPane>
+
+                  <Separator />
+
+                  <!-- Available Slots and Doctor Agenda - MUCH LARGER -->
+                  <HBox prefHeight="480.0" spacing="16.0" VBox.vgrow="ALWAYS">
+                     <!-- Available Slots -->
+                     <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: 700;" styleClass="form-label" text="Các khung giờ trống:" />
+                        <TableView fx:id="tblAvailableSlots" styleClass="financial-table" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn prefWidth="110.0" text="Bắt đầu" />
+                              <TableColumn prefWidth="110.0" text="Kết thúc" />
+                              <TableColumn prefWidth="90.0" text="Kéo dài" />
+                              <TableColumn prefWidth="100.0" text="Phòng" />
+                              <TableColumn prefWidth="110.0" text="Trạng thái" />
+                           </columns>
+                        </TableView>
+                     </VBox>
+
+                     <!-- Doctor Agenda -->
+                     <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: 700;" styleClass="form-label" text="Lịch của bác sĩ:" />
+                        <TableView fx:id="tblDoctorAgenda" styleClass="financial-table" VBox.vgrow="ALWAYS">
+                           <columns>
+                              <TableColumn prefWidth="100.0" text="Giờ" />
+                              <TableColumn prefWidth="150.0" text="Bệnh nhân" />
+                              <TableColumn prefWidth="110.0" text="Loại khám" />
+                              <TableColumn prefWidth="110.0" text="Trạng thái" />
+                           </columns>
+                        </TableView>
+                     </VBox>
+                  </HBox>
+
+                  <Separator />
+
+                  <!-- Action Buttons - Larger -->
+                  <HBox alignment="CENTER_RIGHT" spacing="16.0">
+                     <Button fx:id="btnCheck" mnemonicParsing="false" onAction="#onCheckSchedule" prefHeight="48.0" prefWidth="170.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔍 Kiểm tra lịch" />
+                     <Button fx:id="btnBook" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onBookAppointment" prefHeight="48.0" prefWidth="170.0" style="-fx-font-size: 14px;" styleClass="btn-success" text="📅 Đặt lịch" />
+                     <Button fx:id="btnClear" mnemonicParsing="false" onAction="#onClearForm" prefHeight="48.0" prefWidth="140.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔄 Làm mới" />
+                  </HBox>
+               </VBox>
+            </Tab>
+
+            <!-- Tab 3: Lịch bác sĩ -->
+            <Tab text="📆 Lịch bác sĩ">
+               <VBox spacing="16.0">
+                  <padding>
+                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                  </padding>
+
+                  <HBox alignment="CENTER_LEFT" spacing="14.0">
+                     <Label styleClass="form-label" text="Chọn ngày xem lịch:" />
+                     <DatePicker fx:id="dpQuickJump" prefWidth="200.0" />
+                     <Region HBox.hgrow="ALWAYS" />
+                     <Button fx:id="btnOpenCalendar" mnemonicParsing="false" onAction="#onOpenCalendar" prefWidth="140.0" styleClass="btn-secondary" text="📅 Mở lịch đầy đủ" />
+                  </HBox>
+
+                  <Separator />
+
+                  <ListView fx:id="lvwDayAgenda" styleClass="financial-table" VBox.vgrow="ALWAYS" />
+               </VBox>
+            </Tab>
             <!-- Tab 1: Chọn bệnh nhân -->
-            <Tab text="👥 Chọn bệnh nhân">
+            <Tab fx:id="tabCustomerSelection" text="👥 Chọn bệnh nhân">
                <VBox spacing="16.0">
                   <padding>
                      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
@@ -111,124 +209,9 @@
                   </HBox>
                </VBox>
             </Tab>
-
-            <!-- Tab 2: Đặt lịch khám -->
-            <Tab text="📅 Đặt lịch khám">
-               <VBox spacing="16.0">
-                  <padding>
-                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                  </padding>
-
-                  <!-- Appointment Form -->
-                  <GridPane hgap="14.0" styleClass="form-container" vgap="14.0">
-                     <padding>
-                        <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-                     </padding>
-                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" minWidth="120.0" />
-                        <ColumnConstraints hgrow="ALWAYS" prefWidth="300.0" />
-                        <ColumnConstraints halignment="RIGHT" minWidth="120.0" />
-                        <ColumnConstraints hgrow="ALWAYS" prefWidth="300.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                     </rowConstraints>
-
-                     <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                     <ComboBox fx:id="cboDoctor" maxWidth="Infinity" onAction="#handleDoctorSelection" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                     <Label styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                     <DatePicker fx:id="dpDate" maxWidth="Infinity" onAction="#handleDateSelection" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-
-                     <Label styleClass="form-label" text="Loại khám:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                     <ComboBox fx:id="cboVisitType" maxWidth="Infinity" onAction="#handleVisitTypeSelection" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                     <Label styleClass="form-label" text="Ghi chú:" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.valignment="TOP">
-                        <padding><Insets top="8.0" /></padding>
-                     </Label>
-                     <TextArea fx:id="txtNotes" prefRowCount="3" styleClass="text-area" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" />
-                  </GridPane>
-
-                  <Separator />
-
-                  <!-- Available Slots and Doctor Agenda -->
-                  <HBox spacing="16.0" VBox.vgrow="ALWAYS">
-                     <!-- Available Slots -->
-                     <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                        <Label styleClass="form-label" text="Các khung giờ trống:" />
-                        <TableView fx:id="tblAvailableSlots" styleClass="financial-table" VBox.vgrow="ALWAYS">
-                           <columns>
-                              <TableColumn prefWidth="102.0" text="Bắt đầu" />
-                              <TableColumn prefWidth="109.0" text="Kết thúc" />
-                              <TableColumn prefWidth="115.0" text="Kéo dài" />
-                              <TableColumn prefWidth="104.0" text="Phòng" />
-                              <TableColumn prefWidth="124.0" text="Trạng thái" />
-                           </columns>
-                        </TableView>
-                     </VBox>
-
-                     <!-- Doctor Agenda -->
-                     <VBox spacing="8.0" HBox.hgrow="ALWAYS">
-                        <Label styleClass="form-label" text="Lịch của bác sĩ:" />
-                        <TableView fx:id="tblDoctorAgenda" styleClass="financial-table" VBox.vgrow="ALWAYS">
-                           <columns>
-                              <TableColumn prefWidth="117.0" text="Giờ" />
-                              <TableColumn prefWidth="173.0" text="Bệnh nhân" />
-                              <TableColumn prefWidth="146.0" text="Loại khám" />
-                              <TableColumn prefWidth="122.0" text="Trạng thái" />
-                           </columns>
-                        </TableView>
-                     </VBox>
-                  </HBox>
-
-                  <Separator />
-
-                  <!-- Action Buttons -->
-                  <HBox alignment="CENTER_RIGHT" spacing="14.0">
-                     <Button fx:id="btnCheck" mnemonicParsing="false" onAction="#onCheckSchedule" prefWidth="140.0" styleClass="btn-secondary" text="🔍 Kiểm tra lịch" />
-                     <Button fx:id="btnBook" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onBookAppointment" prefWidth="130.0" styleClass="btn-success" text="📅 Đặt lịch" />
-                     <Button fx:id="btnClear" mnemonicParsing="false" onAction="#onClearForm" prefWidth="120.0" styleClass="btn-secondary" text="🔄 Làm mới" />
-                  </HBox>
-               </VBox>
-            </Tab>
-
-            <!-- Tab 3: Lịch bác sĩ -->
-            <Tab text="📆 Lịch bác sĩ">
-               <VBox spacing="16.0">
-                  <padding>
-                     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                  </padding>
-
-                  <HBox alignment="CENTER_LEFT" spacing="14.0">
-                     <Label styleClass="form-label" text="Chọn ngày xem lịch:" />
-                     <DatePicker fx:id="dpQuickJump" prefWidth="200.0" />
-                     <Region HBox.hgrow="ALWAYS" />
-                     <Button fx:id="btnOpenCalendar" mnemonicParsing="false" onAction="#onOpenCalendar" prefWidth="140.0" styleClass="btn-secondary" text="📅 Mở lịch đầy đủ" />
-                  </HBox>
-
-                  <Separator />
-
-                  <ListView fx:id="lvwDayAgenda" styleClass="financial-table" VBox.vgrow="ALWAYS" />
-               </VBox>
-            </Tab>
          </tabs>
       </TabPane>
    </center>
 
-   <!-- BOTTOM: Status Bar -->
-   <bottom>
-      <VBox>
-         <Separator />
-         <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="financial-header">
-            <padding>
-               <Insets bottom="14.0" left="28.0" right="28.0" top="14.0" />
-            </padding>
-            <Label fx:id="lblStatus" styleClass="form-label" text="Sẵn sàng" />
-            <Region HBox.hgrow="ALWAYS" />
-            <ProgressIndicator fx:id="piLoading" prefHeight="20.0" prefWidth="20.0" visible="false" />
-         </HBox>
-      </VBox>
-   </bottom>
+   <!-- BOTTOM: Removed to maximize table space -->
 </BorderPane>
