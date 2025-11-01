@@ -7,7 +7,6 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -19,7 +18,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Employee.EmployeeFormController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f8f9fa;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Employee.EmployeeEditFormController">
 
     <!-- ========== HEADER ========== -->
     <top>
@@ -27,8 +26,8 @@
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <Label style="-fx-font-size: 32px;" text="👤" />
                 <VBox spacing="3">
-                    <Label fx:id="titleLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" text="Thêm Nhân Viên Mới" />
-                    <Label fx:id="subtitleLabel" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.9);" text="Điền đầy đủ thông tin bên dưới" />
+                    <Label fx:id="titleLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;" text="Chỉnh Sửa Nhân Viên" />
+                    <Label fx:id="subtitleLabel" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.9);" text="Cập nhật thông tin nhân viên bên dưới" />
                 </VBox>
             </HBox>
         </VBox>
@@ -38,8 +37,6 @@
     <center>
         <HBox prefHeight="100.0" prefWidth="1280.0" BorderPane.alignment="CENTER">
             <children>
-                <!-- Bên trái: Image (load at runtime in controller to avoid FXML resource errors) -->
-                <ImageView fx:id="leftImageView" fitHeight="697.0" fitWidth="430.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
 
                 <!-- Bên phải: Thông tin nhập liệu -->
                 <VBox prefHeight="697.0" prefWidth="680.0" HBox.hgrow="ALWAYS">
@@ -53,39 +50,7 @@
                                     <Insets bottom="25" left="30" right="30" top="25" />
                                 </padding>
 
-                                <!-- ========== SECTION 1: Thông tin đăng nhập ========== -->
-                                <VBox spacing="15">
-                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #3498db; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="🔐 Thông Tin Đăng Nhập" />
-
-                                    <GridPane hgap="15" vgap="15">
-                                        <!-- Username -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
-                                            <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Tên đăng nhập *" />
-                                            <TextField fx:id="usernameField" promptText="Nhập tên đăng nhập (tối thiểu 3 ký tự, không dấu)" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="usernameError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
-                                        </VBox>
-
-                                        <!-- Password -->
-                                        <VBox fx:id="passwordBox" spacing="6" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                                            <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Mật khẩu *" />
-                                            <PasswordField fx:id="passwordField" promptText="Nhập mật khẩu (tối thiểu 6 ký tự)" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="passwordError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
-                                        </VBox>
-
-                                        <columnConstraints>
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
-                                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
-                                        </columnConstraints>
-                                        <rowConstraints>
-                                            <RowConstraints />
-                                            <RowConstraints />
-                                        </rowConstraints>
-                                    </GridPane>
-                                </VBox>
-
-                                <Separator style="-fx-background-color: #ecf0f1;" />
-
-                                <!-- ========== SECTION 2: Thông tin cá nhân ========== -->
+                                <!-- ========== SECTION 1: Thông tin cá nhân ========== -->
                                 <VBox spacing="15">
                                     <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #2ecc71; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👨‍⚕️ Thông Tin Cá Nhân" />
 
@@ -94,28 +59,24 @@
                                         <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                             <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Họ và tên đệm *" />
                                             <TextField fx:id="firstnameField" promptText="Ví dụ: Nguyễn Văn" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="firstnameError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
 
                                         <!-- Lastname -->
                                         <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                             <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Tên *" />
                                             <TextField fx:id="lastnameField" promptText="Ví dụ: An" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="lastnameError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
 
                                         <!-- Email -->
                                         <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                             <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Email *" />
                                             <TextField fx:id="emailField" promptText="example@eyeclinic.com" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="emailError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
 
                                         <!-- Phone -->
                                         <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                             <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Số điện thoại *" />
                                             <TextField fx:id="phoneField" promptText="0901234567 (10 số)" style="-fx-font-size: 13px; -fx-background-color: #f8f9fa; -fx-border-color: #dce4ec; -fx-border-radius: 6px; -fx-background-radius: 6px; -fx-padding: 10px;" />
-                                            <Label fx:id="phoneError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
 
                                         <columnConstraints>
@@ -131,7 +92,7 @@
 
                                 <Separator style="-fx-background-color: #ecf0f1;" />
 
-                                <!-- ========== SECTION 3: Thông tin nghề nghiệp ========== -->
+                                <!-- ========== SECTION 2: Thông tin nghề nghiệp ========== -->
                                 <VBox spacing="15">
                                     <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: #e67e22; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="💼 Thông Tin Nghề Nghiệp" />
 
@@ -151,7 +112,6 @@
                                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="ℹ️" />
                                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Doctor = Bác sĩ | Nurse = Y tá/Thu ngân/Quản lý" />
                                             </HBox>
-                                            <!-- gợi ý thêm -->
                                             <Label style="-fx-font-size: 11px; -fx-text-fill: #e67e22; -fx-font-style: italic;" text="Chọn Doctor thì PHẢI nhập số giấy phép." />
                                         </VBox>
 
@@ -171,7 +131,6 @@
                                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #f39c12;" text="⚠️" />
                                                 <Label style="-fx-font-size: 11px; -fx-text-fill: #f39c12; -fx-font-weight: bold;" text="Bắt buộc phải nhập số giấy phép hành nghề cho bác sĩ" />
                                             </HBox>
-                                            <Label fx:id="licenseNoError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
                                         <columnConstraints>
                                             <ColumnConstraints />
@@ -182,7 +141,7 @@
                                             <RowConstraints />
                                         </rowConstraints>
                                     </GridPane>
-         
+
                                      <!-- Avatar URL -->
                                      <VBox spacing="6">
                                          <Label style="-fx-font-size: 13px; -fx-text-fill: #34495e; -fx-font-weight: bold;" text="Ảnh đại diện (URL)" />
@@ -197,6 +156,8 @@
                         </HBox>
                     </children>
                 </VBox>
+                <!-- Bên trái: Image (load at runtime in controller to avoid FXML resource errors) -->
+                <ImageView fx:id="leftImageView" fitHeight="697.0" fitWidth="430.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS" />
             </children>
         </HBox>
     </center>

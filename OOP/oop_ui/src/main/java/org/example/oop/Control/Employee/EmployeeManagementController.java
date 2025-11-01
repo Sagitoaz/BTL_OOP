@@ -1,5 +1,17 @@
 package org.example.oop.Control.Employee;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.function.Predicate;
+
+import org.example.oop.Control.BaseController;
+import org.example.oop.Service.HttpEmployeeService;
+import org.miniboot.app.domain.models.Employee;
+
 import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -12,23 +24,20 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.example.oop.Control.BaseController;
-import org.example.oop.Service.HttpEmployeeService;
-import org.miniboot.app.domain.models.Employee;
-
-import java.io.IOException;
-import java.net.URL;
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.function.Predicate;
 
 public class EmployeeManagementController extends BaseController implements Initializable {
 
@@ -94,38 +103,32 @@ public class EmployeeManagementController extends BaseController implements Init
         subtitleLabel.setText("Quản lý thông tin bác sĩ và nhân viên phòng khám");
         statusLabel.setText("Sẵn sàng");
         loadEmployees();
-        // Double-click handler is wired inside setupTable() to keep table-related wiring together.
     }
 
     private void openEmployeeDetailView(Employee employee) {
         try {
-            // Load the real FXML resource from the application's resources folder
             var res = getClass().getResource("/FXML/Employee/EmployeeDetail.fxml");
             if (res == null) {
                 showError("Không tìm thấy FXML: /FXML/Employee/EmployeeDetail.fxml");
                 return;
             }
-
             FXMLLoader loader = new FXMLLoader(res);
             Parent root = loader.load();
-
-            // Truyền dữ liệu qua controller của EmployeeDetail
             EmployeeDetailController controller = loader.getController();
             controller.setEmployeeDetails(employee);
-
-            // Hiển thị cửa sổ chi tiết nhân viên như một modal nhỏ
             Stage stage = new Stage();
-            stage.setTitle("Chi tiết nhân viên — " + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
+            stage.setTitle("Chi tiết nhân viên — "
+                    + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
             stage.setScene(new Scene(root));
-            // Make it modal relative to the main window if available
-            if (employeeTableView != null && employeeTableView.getScene() != null && employeeTableView.getScene().getWindow() != null) {
+            if (employeeTableView != null && employeeTableView.getScene() != null
+                    && employeeTableView.getScene().getWindow() != null) {
                 stage.initOwner(employeeTableView.getScene().getWindow());
                 stage.initModality(Modality.WINDOW_MODAL);
             }
             stage.setResizable(true);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Lỗi mở cửa sổ chi tiết nhân viên: " + e.getMessage());
             showError("Lỗi mở cửa sổ chi tiết nhân viên: " + e.getMessage());
         }
     }
@@ -205,8 +208,6 @@ public class EmployeeManagementController extends BaseController implements Init
         statusFilterComboBox.getSelectionModel().selectFirst();
     }
 
-    // ===================== Data Loading =====================
-
     private void loadEmployees() {
         statusLabel.setText("Đang tải dữ liệu...");
         executeAsync(
@@ -214,8 +215,8 @@ public class EmployeeManagementController extends BaseController implements Init
                     try {
                         return service.getAllEmployee();
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        return List.of(); // Return an empty list on error
+                        System.err.println("Lỗi tải nhân viên: " + e.getMessage());
+                        return List.of();
                     }
                 },
                 list -> {
@@ -313,7 +314,7 @@ public class EmployeeManagementController extends BaseController implements Init
                                 try {
                                     return service.deleteEmployee(selectedEmployee.getId());
                                 } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                    System.err.println("Lỗi xóa nhân viên: " + ex.getMessage());
                                     return false;
                                 }
                             },

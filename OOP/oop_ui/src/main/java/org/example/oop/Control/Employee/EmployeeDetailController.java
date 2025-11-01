@@ -1,5 +1,20 @@
 package org.example.oop.Control.Employee;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.example.oop.Control.BaseController;
+import org.example.oop.Service.HttpAppointmentService;
+import org.example.oop.Service.HttpEmployeeService;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.Employee;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,19 +27,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.example.oop.Control.BaseController;
-import org.example.oop.Service.HttpEmployeeService;
-import org.miniboot.app.domain.models.Employee;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 public class EmployeeDetailController extends BaseController {
 
     private static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
     private final HttpEmployeeService service = new HttpEmployeeService();
+    private final HttpAppointmentService appointmentService = new HttpAppointmentService();
     private Employee employee;
 
     // Header / top
@@ -46,30 +54,22 @@ public class EmployeeDetailController extends BaseController {
     private Label emailLabel;
     @FXML
     private Label phoneLabel;
-
-    // Job
     @FXML
     private Label roleDetailLabel;
     @FXML
-    private HBox licenseBox; // container for license UI
+    private HBox licenseBox;
     @FXML
     private Label licenseNoLabel;
-
-    // System
     @FXML
     private Label createdAtLabel;
     @FXML
     private Label activeStatusLabel;
-
-    // Stats (optional)
     @FXML
     private Label totalAppointmentsLabel;
     @FXML
     private Label totalPatientsLabel;
     @FXML
     private Label workingDaysLabel;
-
-    // Buttons
     @FXML
     private Button editButton;
     @FXML
@@ -79,12 +79,12 @@ public class EmployeeDetailController extends BaseController {
 
     @FXML
     public void initialize() {
-        // Wire actions
-        if (closeButton != null) closeButton.setOnAction(e -> handleClose(e));
-        if (editButton != null) editButton.setOnAction(e -> handleEdit(e));
-        if (deleteButton != null) deleteButton.setOnAction(e -> handleDelete(e));
-
-        // Default hide license box until data loaded
+        if (closeButton != null)
+            closeButton.setOnAction(e -> handleClose(e));
+        if (editButton != null)
+            editButton.setOnAction(e -> handleEdit(e));
+        if (deleteButton != null)
+            deleteButton.setOnAction(e -> handleDelete(e));
         if (licenseBox != null) {
             licenseBox.setVisible(false);
             licenseBox.setManaged(false);
@@ -97,22 +97,15 @@ public class EmployeeDetailController extends BaseController {
     }
 
     private void updateUI() {
-        if (employee == null) return;
-
-        // Header
+        if (employee == null)
+            return;
         fullNameLabel.setText(safe(employee.getFirstname()) + " " + safe(employee.getLastname()));
         roleLabel.setText(safe(employee.getRole()));
         usernameLabel.setText(employee.getUsername() == null ? "" : "@" + employee.getUsername());
         employeeIdLabel.setText("ID: " + employee.getId());
-
-        // Avatar (if avatar URL present we could load image later)
         avatarLabel.setText(employee.getAvatar() != null && !employee.getAvatar().isBlank() ? "🖼️" : "👤");
-
-        // Contact
         emailLabel.setText(safe(employee.getEmail()));
         phoneLabel.setText(safe(employee.getPhone()));
-
-        // Job
         roleDetailLabel.setText(employee.getRole() != null ? employee.getRole().toUpperCase() : "");
         boolean isDoctor = "doctor".equalsIgnoreCase(employee.getRole());
         if (isDoctor && employee.getLicenseNo() != null && !employee.getLicenseNo().isBlank()) {
@@ -124,8 +117,6 @@ public class EmployeeDetailController extends BaseController {
             licenseBox.setManaged(false);
             licenseNoLabel.setText("");
         }
-
-        // System
         LocalDateTime created = employee.getCreatedAt();
         createdAtLabel.setText(created == null ? "—" : CREATED_FMT.format(created));
 
@@ -133,86 +124,145 @@ public class EmployeeDetailController extends BaseController {
         activeStatusLabel.setText(active ? "Đang hoạt động" : "Không hoạt động");
         statusBadge.setText(active ? "HOẠT ĐỘNG" : "KHÓA");
         if (active) {
-            statusBadge.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12;");
+            statusBadge.setStyle(
+                    "-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12;");
             activeStatusLabel.setStyle("-fx-text-fill: #2ecc71; -fx-font-weight: bold;");
         } else {
-            statusBadge.setStyle("-fx-background-color: #f56565; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12;");
+            statusBadge.setStyle(
+                    "-fx-background-color: #f56565; -fx-text-fill: white; -fx-padding: 4 10; -fx-background-radius: 12;");
             activeStatusLabel.setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
         }
+        if (totalAppointmentsLabel != null)
+            totalAppointmentsLabel.setText("—");
+        if (totalPatientsLabel != null)
+            totalPatientsLabel.setText("—");
+        if (workingDaysLabel != null)
+            workingDaysLabel.setText("—");
+        if (appointmentService != null && employee.getId() > 0) {
+            executeAsync(() -> {
+                try {
+                    List<Appointment> appts = appointmentService.getAppointmentsFiltered(employee.getId(), null, null,
+                            null, null, null);
+                    int totalAppointments = appts.size();
+                    Set<Integer> distinctPatients = new HashSet<>();
+                    Set<LocalDate> workingDates = new HashSet<>();
+                    for (Appointment a : appts) {
+                        distinctPatients.add(a.getCustomerId());
+                        if (a.getStartTime() != null)
+                            workingDates.add(a.getStartTime().toLocalDate());
+                    }
+                    int totalPatients = distinctPatients.size();
+                    int workingDays = workingDates.size();
 
-        // Stats: currently no backend endpoint for stats
-        totalAppointmentsLabel.setText("0");
-        totalPatientsLabel.setText("0");
-        workingDaysLabel.setText("0");
+                    return new int[] { totalAppointments, totalPatients, workingDays };
+                } catch (Exception ex) {
+                    System.err.println("Khong the lay appointments: " + ex.getMessage());
+                    return new int[] { 0, 0, 0 };
+                }
+            }, result -> {
+                if (result != null && result.length == 3) {
+                    if (totalAppointmentsLabel != null)
+                        totalAppointmentsLabel.setText(String.valueOf(result[0]));
+                    if (totalPatientsLabel != null)
+                        totalPatientsLabel.setText(String.valueOf(result[1]));
+                    if (workingDaysLabel != null)
+                        workingDaysLabel.setText(String.valueOf(result[2]));
+                } else {
+                    if (totalAppointmentsLabel != null)
+                        totalAppointmentsLabel.setText("0");
+                    if (totalPatientsLabel != null)
+                        totalPatientsLabel.setText("0");
+                    if (workingDaysLabel != null)
+                        workingDaysLabel.setText("0");
+                }
+            }, throwable -> {
+                System.err.println("Không thể lấy thống kê appointments: " + throwable.getMessage());
+                if (totalAppointmentsLabel != null)
+                    totalAppointmentsLabel.setText("0");
+                if (totalPatientsLabel != null)
+                    totalPatientsLabel.setText("0");
+                if (workingDaysLabel != null)
+                    workingDaysLabel.setText("0");
+            });
+        } else {
+            if (totalAppointmentsLabel != null)
+                totalAppointmentsLabel.setText("0");
+            if (totalPatientsLabel != null)
+                totalPatientsLabel.setText("0");
+            if (workingDaysLabel != null)
+                workingDaysLabel.setText("0");
+        }
     }
 
     @FXML
     public void handleClose(ActionEvent event) {
-        if (closeButton == null) return;
+        if (closeButton == null)
+            return;
         Stage stage = (Stage) closeButton.getScene().getWindow();
         stage.close();
     }
 
     @FXML
     public void handleEdit(ActionEvent event) {
-        if (employee == null) return;
+        if (employee == null)
+            return;
         try {
-            var res = getClass().getResource("/FXML/Employee/EmployeeForm.fxml");
+            var res = getClass().getResource("/FXML/Employee/EmployeeEditForm.fxml");
             if (res == null) {
-                showError("Không tìm thấy form chỉnh sửa: /FXML/Employee/EmployeeForm.fxml");
+                showError("Không tìm thấy form chỉnh sửa: /FXML/Employee/EmployeeEditForm.fxml");
                 return;
             }
             FXMLLoader loader = new FXMLLoader(res);
             Parent root = loader.load();
             Object controller = loader.getController();
-            if (controller instanceof EmployeeFormController) {
-                ((EmployeeFormController) controller).setEmployeeForEdit(employee);
+            if (controller instanceof EmployeeEditFormController) {
+                ((EmployeeEditFormController) controller).setEmployeeForEdit(employee);
             }
 
             Stage stage = new Stage();
-            stage.setTitle("Chỉnh sửa nhân viên — " + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
+            stage.setTitle("Chỉnh sửa nhân viên — "
+                    + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
             stage.setScene(new Scene(root));
             if (closeButton != null && closeButton.getScene() != null && closeButton.getScene().getWindow() != null) {
                 stage.initOwner(closeButton.getScene().getWindow());
                 stage.initModality(Modality.WINDOW_MODAL);
             }
             stage.showAndWait();
-
-            // After editing, try to refresh UI from possibly updated employee (re-fetch by id)
             try {
                 Employee refreshed = service.getEmployeeById(employee.getId());
-                if (refreshed != null) setEmployeeDetails(refreshed);
+                if (refreshed != null)
+                    setEmployeeDetails(refreshed);
             } catch (Exception ex) {
-                // ignore refresh errors but log
                 System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Lỗi mở form chỉnh sửa: " + e.getMessage());
             showError("Lỗi mở form chỉnh sửa: " + e.getMessage());
         }
     }
 
     @FXML
     public void handleDelete(ActionEvent event) {
-        if (employee == null) return;
+        if (employee == null)
+            return;
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Xóa nhân viên");
         confirm.setHeaderText(null);
-        confirm.setContentText("Bạn có chắc muốn xóa nhân viên #" + employee.getId() + " (" + employee.getUsername() + ")?");
+        confirm.setContentText(
+                "Bạn có chắc muốn xóa nhân viên #" + employee.getId() + " (" + employee.getUsername() + ")?");
         Optional<ButtonType> pressed = confirm.showAndWait();
         if (pressed.isPresent() && pressed.get() == ButtonType.OK) {
             executeAsync(() -> {
                 try {
                     return service.deleteEmployee(employee.getId());
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    System.err.println("Xóa lỗi: " + ex.getMessage());
                     return false;
                 }
             }, ok -> {
                 if (Boolean.TRUE.equals(ok)) {
                     showSuccess("Đã xóa nhân viên #" + employee.getId());
-                    // close detail window
                     handleClose(null);
                 } else {
                     showError("Xóa thất bại");

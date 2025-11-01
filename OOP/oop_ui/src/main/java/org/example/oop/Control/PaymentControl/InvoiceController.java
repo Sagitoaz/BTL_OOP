@@ -423,14 +423,14 @@ public class InvoiceController implements Initializable {
             }
 
             // 4b. Gọi API để lưu toàn bộ danh sách movements một lần
-            List<StockMovement> savedMovements = stockMovementService.createBulkStockMovements(movementsToSave); //
-
-            // 4c. Kiểm tra kết quả
-            if (savedMovements == null || savedMovements.isEmpty() || savedMovements.size() != movementsToSave.size()) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi Ghi Kho", "Không thể lưu (batch save) các cập nhật kho.");
-                // TODO: Rollback
-                return null;
-            }
+//            List<StockMovement> savedMovements = stockMovementService.createBulkStockMovements(movementsToSave); //
+//
+//            // 4c. Kiểm tra kết quả
+//            if (savedMovements == null || savedMovements.isEmpty() || savedMovements.size() != movementsToSave.size()) {
+//                showAlert(Alert.AlertType.ERROR, "Lỗi Ghi Kho", "Không thể lưu (batch save) các cập nhật kho.");
+//                // TODO: Rollback
+//                return null;
+//            }
             // ========================================================
             // KẾT THÚC CẬP NHẬT
             // ========================================================
