@@ -10,6 +10,8 @@ import java.util.function.Predicate;
 
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.animation.PauseTransition;
@@ -285,8 +287,7 @@ public class EmployeeManagementController extends BaseController implements Init
 
     @FXML
     private void handleAdd() {
-        showWarning(
-                "Chức năng thêm nhân viên sẽ mở form riêng. Tạm thời bạn có thể gọi API createEmployee() trong service.");
+        SceneManager.switchScene(SceneConfig.EMPLOYEE_FORM_FXML, SceneConfig.Titles.EMPLOYEE_FORM);
     }
 
     private void onEdit(Employee e) {

@@ -37,5 +37,10 @@ public class AdminDashBoardController {
         SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
 
     }
+    @FXML
+    private  void handleOpenEmployeeManagement(){
+        SceneManager.switchScene(SceneConfig.EMPLOYEE_MANAGEMENT_FXML, SceneConfig.Titles.EMPLOYEE_MANAGEMENT);
+
+    }
 
 }

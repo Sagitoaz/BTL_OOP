@@ -94,11 +94,11 @@
                                     <Button maxWidth="Infinity" onAction="#handleOpenCustomerHub" styleClass="btn-add" text="➕ Mở" />
                                 </VBox>
                                 
-                                   <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 15, 0, 0, 5); -fx-border-color: #D1FAE5; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label style="-fx-font-size: 48px;" text="👨‍⚕️" />
-                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="Quản lý bác sĩ" />
-                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Quản lý thông tin và lịch làm việc bác sĩ" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="👁 Mở" />
+                                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 15, 0, 0, 5); -fx-border-color: #D1FAE5; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 48px;" text="👨‍💼" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="Quản lý nhân viên" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Quản lý thông tin nhân viên và bác sĩ" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenEmployeeManagement" styleClass="btn-search" text="👁 Mở" />
                                 </VBox>
                                 
                                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.15), 15, 0, 0, 5); -fx-border-color: #FEF3C7; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="2" GridPane.rowIndex="0">
