@@ -406,66 +406,7 @@ public class InvoiceController extends BaseController implements Initializable {
         unpaidLog.setStatus(PaymentStatus.valueOf("UNPAID"));
         paymentStatusLogService.updatePaymentStatus(unpaidLog);
 
-            // 3. Gán PaymentId và Batch Save Items
-            for (PaymentItem item : invoiceItems) {
-                item.setPaymentId(savedPaymentId);
-            }
-            List<PaymentItem> savedItems = itemService.saveAllPaymentItems(invoiceItems);
-
-            // 3c. Kiểm tra kết quả batch save
-            if (savedItems == null || savedItems.isEmpty() || savedItems.size() != invoiceItems.size()) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Chi Tiết", "Không thể lưu (batch save) các chi tiết hóa đơn.");
-                // TODO: Cân nhắc "rollback" (xóa) 'savedPayment' đã tạo ở bước 2
-                return null;
-            }
-
-            // ========================================================
-            // <-- CẬP NHẬT: SỬ DỤNG BATCH SAVE CHO STOCK MOVEMENT
-            // ========================================================
-
-            // 4. Tạo danh sách Stock Movements
-            List<StockMovement> movementsToSave = new ArrayList<>();
-
-            // Dùng savedItems (danh sách đã được xác nhận từ CSDL)
-            for (PaymentItem item : savedItems) {
-                StockMovement movement = new StockMovement();
-                movement.setProductId(item.getProductId());
-                movement.setQty(item.getQty()); // Số lượng bán ra
-                movement.setMoveType(MoveType.SALE);
-                movement.setRefTable("payments");
-                movement.setRefId(savedPaymentId);
-                movement.setMovedBy(cashierId);
-                movement.setMovedAt(LocalDateTime.now());
-                movement.setNote("Bán hàng tự động từ HĐ: " + savedPayment.getCode());
-                movementsToSave.add(movement);
-            }
-
-            // 4b. Gọi API để lưu toàn bộ danh sách movements một lần
-//            List<StockMovement> savedMovements = stockMovementService.createBulkStockMovements(movementsToSave); //
-//
-//            // 4c. Kiểm tra kết quả
-//            if (savedMovements == null || savedMovements.isEmpty() || savedMovements.size() != movementsToSave.size()) {
-//                showAlert(Alert.AlertType.ERROR, "Lỗi Ghi Kho", "Không thể lưu (batch save) các cập nhật kho.");
-//                // TODO: Rollback
-//                return null;
-//            }
-            // ========================================================
-            // KẾT THÚC CẬP NHẬT
-            // ========================================================
-
-            // 5. TẠO STATUS LOG = UNPAID
-            PaymentStatusLog unpaidLog = new PaymentStatusLog();
-            unpaidLog.setPaymentId(savedPaymentId);
-            unpaidLog.setStatus(PaymentStatus.valueOf("UNPAID"));
-            paymentStatusLogService.updatePaymentStatus(unpaidLog);
-
-            return savedPayment; // Trả về payment đã lưu thành công
-
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn/Kho/Status", e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
+        return savedPayment; // Trả về payment đã lưu thành công
     }
 
     /**
@@ -633,3 +574,4 @@ public class InvoiceController extends BaseController implements Initializable {
         }
     }
 }
+
