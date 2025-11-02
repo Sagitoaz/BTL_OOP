@@ -1,8 +1,9 @@
 package org.example.oop.Service;
 
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
+import org.example.oop.Utils.ErrorHandler;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
 import org.miniboot.app.util.GsonProvider;
@@ -14,6 +15,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
+/**
+ * HttpPaymentService - Payment API Service
+ * ✅ Updated với ErrorHandler framework (Ngày 2 - Person 4)
+ */
 public class HttpPaymentService {
 
     private final String baseUrl;
@@ -21,7 +26,7 @@ public class HttpPaymentService {
     private final Gson gson;
 
     public HttpPaymentService() {
-        this("http://localhost:8080/");
+        this(ApiConfig.getBaseUrl());
     }
 
     public HttpPaymentService(String baseUrl) {
@@ -32,10 +37,11 @@ public class HttpPaymentService {
 
     /**
      * GET /payment - Lấy tất cả các payment
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public List<Payment> getAllPayments() {
         try {
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + "/payments"))
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + ApiConfig.paymentsEndpoint()))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
@@ -43,16 +49,24 @@ public class HttpPaymentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<Payment>>() {
-                        }.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải danh sách thanh toán")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<Payment>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse payments list");
+                    return List.of();
+                }
             } else {
-                System.err.println("HTTP ERROR CODE: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tải danh sách thanh toán");
                 return List.of();
             }
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải danh sách thanh toán");
             return List.of();
         }
     }
@@ -60,11 +74,11 @@ public class HttpPaymentService {
     /**
      * GET /payment?id={}
      * Lấy payment theo id
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Payment getPaymentById(int paymentId) {
         try {
-            String url = String.format("%s/payments?id=%d",
-                    baseUrl, paymentId);
+            String url = String.format("%s%s?id=%d", baseUrl, ApiConfig.paymentsEndpoint(), paymentId);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -76,32 +90,40 @@ public class HttpPaymentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<Payment>() {
-                        }.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải thông tin thanh toán")) {
+                    return null;
+                }
+
+                try {
+                    return gson.fromJson(response.body(), new TypeToken<Payment>() {
+                    }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse payment by ID");
+                    return null;
+                }
+            } else if (response.statusCode() == 404) {
+                return null;
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tải thông tin thanh toán");
                 return null;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải thông tin thanh toán");
             return null;
         }
-
     }
 
     /**
      * POST /payment - Tạo payment mới
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Payment create(Payment payment) {
         try {
             String jsonBody = gson.toJson(payment);
-            System.out.println("📤 Sending JSON: " + jsonBody); // Debug
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments"))
+                    .uri(URI.create(baseUrl + ApiConfig.paymentsEndpoint()))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -111,30 +133,37 @@ public class HttpPaymentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 201 || response.statusCode() == 200) {
-                return gson.fromJson(response.body(), Payment.class);
+                if (!ErrorHandler.validateResponse(response.body(), "Tạo thanh toán mới")) {
+                    return null;
+                }
+
+                try {
+                    return gson.fromJson(response.body(), Payment.class);
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse created payment");
+                    return null;
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                System.err.println("Response: " + response.body());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tạo thanh toán mới");
                 return null;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tạo thanh toán mới");
             return null;
         }
     }
 
     /**
      * PUT /payment - Cập nhật payment
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Payment updatePayment(Payment payment) {
         try {
             String jsonBody = gson.toJson(payment);
-            System.out.println("🔄 Updating JSON: " + jsonBody); // Debug
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments")) // Giả sử API update dùng PUT /payments
+                    .uri(URI.create(baseUrl + ApiConfig.paymentsEndpoint()))
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -143,17 +172,24 @@ public class HttpPaymentService {
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() == 200) { // 200 OK cho update
-                return gson.fromJson(response.body(), Payment.class);
+            if (response.statusCode() == 200) {
+                if (!ErrorHandler.validateResponse(response.body(), "Cập nhật thanh toán")) {
+                    return null;
+                }
+
+                try {
+                    return gson.fromJson(response.body(), Payment.class);
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse updated payment");
+                    return null;
+                }
             } else {
-                System.err.println("❌ HTTP Error (Update): " + response.statusCode());
-                System.err.println("Response: " + response.body());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể cập nhật thanh toán");
                 return null;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error (Update): " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Cập nhật thanh toán");
             return null;
         }
     }
@@ -165,7 +201,7 @@ public class HttpPaymentService {
         try {
             // Thay đổi từ /echo sang /appointments vì đã xóa EchoController
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments"))
+                    .uri(URI.create(baseUrl + ApiConfig.paymentsEndpoint()))
                     .GET()
                     .timeout(java.time.Duration.ofSeconds(5))
                     .build();
@@ -180,31 +216,41 @@ public class HttpPaymentService {
         }
     }
 
-
     /**
-     * GET /payments/with-status - Lấy danh sách tất cả payments với trạng thái của chúng
+     * GET /payments/with-status - Lấy danh sách tất cả payments với trạng thái của
+     * chúng
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public List<PaymentWithStatus> getPaymentsWithStatus() {
         try {
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + "/payments/with-status"))
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(baseUrl + ApiConfig.paymentsWithStatusEndpoint()))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
-            System.out.println("⏳ Sending request to: " + baseUrl + "/payments/with-status");
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<PaymentWithStatus>>() {
-                        }.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải danh sách thanh toán với trạng thái")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<PaymentWithStatus>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse payments with status");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP ERROR CODE: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(),
+                        "Không thể tải danh sách thanh toán với trạng thái");
                 return List.of();
             }
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải danh sách thanh toán với trạng thái");
             return List.of();
         }
     }

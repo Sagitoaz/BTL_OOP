@@ -2,6 +2,8 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
+import org.example.oop.Utils.ErrorHandler;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.util.GsonProvider;
 
@@ -21,8 +23,9 @@ import java.util.Optional;
  * ✅ Dùng cho kiến trúc Client-Server
  * ✅ An toàn hơn (có thể thêm authentication)
  * ✅ Hỗ trợ nhiều client (Web, Mobile, Desktop)
+ * ✅ Updated Day 7: Sử dụng ApiConfig endpoint management
  * <p>
- * Yêu cầu: ServerMain phải đang chạy trên http://localhost:8080
+ * Yêu cầu: ServerMain phải đang chạy
  */
 public class HttpAppointmentService {
 
@@ -31,14 +34,14 @@ public class HttpAppointmentService {
     private final Gson gson;
 
     /**
-     * Constructor mặc định - kết nối localhost:8080
+     * Constructor mặc định - sử dụng ApiConfig baseUrl
      */
     public HttpAppointmentService() {
-        this("https://btl-oop-i9pi.onrender.com/");
+        this(ApiConfig.getBaseUrl());
     }
 
     /**
-     * Constructor với custom URL
+     * Constructor với custom URL (for testing)
      */
     public HttpAppointmentService(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -48,11 +51,12 @@ public class HttpAppointmentService {
 
     /**
      * GET /appointments - Lấy tất cả appointments
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public List<Appointment> getAllAppointments() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/appointments"))
+                    .uri(URI.create(baseUrl + ApiConfig.appointmentsEndpoint()))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
@@ -61,17 +65,30 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<Appointment>>() {
-                        }.getType());
+                // Validate response trước khi parse
+                if (!ErrorHandler.validateResponse(response.body(), "Tải danh sách lịch hẹn")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<Appointment>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse appointments data");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                // Hiển thị thông báo lỗi user-friendly
+                ErrorHandler.showUserFriendlyError(
+                        response.statusCode(),
+                        "Không thể tải danh sách lịch hẹn");
                 return List.of();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            // Xử lý lỗi kết nối
+            ErrorHandler.handleConnectionError(e, "Tải danh sách lịch hẹn");
             return List.of();
         }
     }
@@ -79,14 +96,13 @@ public class HttpAppointmentService {
     /**
      * GET /appointments?doctorId={id}&date={date}
      * Lấy appointments theo doctor và date
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public List<Appointment> getByDoctorAndDate(int doctorId, LocalDate date) {
         try {
             String url = String.format("%s/appointments?doctorId=%d&date=%s",
                     baseUrl, doctorId, date.toString());
-            
-            System.out.println("🔍 DEBUG: Calling API: " + url);
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
@@ -97,36 +113,41 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                List<Appointment> appointments = gson.fromJson(response.body(), 
-                        new TypeToken<List<Appointment>>(){}.getType());
-                System.out.println("✅ DEBUG: Received " + appointments.size() + " appointments");
-                // Debug first appointment if exists
-                if (!appointments.isEmpty()) {
-                    System.out.println("📅 DEBUG: First appointment date: " + appointments.get(0).getStartTime());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải lịch hẹn theo bác sĩ và ngày")) {
+                    return List.of();
                 }
-                return appointments;
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<Appointment>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse appointments by doctor and date");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(
+                        response.statusCode(),
+                        "Không thể tải lịch hẹn của bác sĩ");
                 return List.of();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải lịch hẹn theo bác sĩ và ngày");
             return List.of();
         }
     }
 
     /**
      * POST /appointments - Tạo appointment mới
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Appointment create(Appointment appointment) {
         try {
             String jsonBody = gson.toJson(appointment);
-            System.out.println("Sending JSON: " + jsonBody);
-            
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/appointments"))
+                    .uri(URI.create(baseUrl + ApiConfig.appointmentsEndpoint()))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -136,26 +157,36 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 201 || response.statusCode() == 200) {
-                return gson.fromJson(response.body(), Appointment.class);
+                if (!ErrorHandler.validateResponse(response.body(), "Tạo lịch hẹn mới")) {
+                    return null;
+                }
+
+                try {
+                    return gson.fromJson(response.body(), Appointment.class);
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse created appointment");
+                    return null;
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                System.err.println("Response: " + response.body());
+                ErrorHandler.showUserFriendlyError(
+                        response.statusCode(),
+                        "Không thể tạo lịch hẹn mới");
                 return null;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tạo lịch hẹn mới");
             return null;
         }
     }
 
     /**
      * GET /appointments?id={id} - Tìm appointment theo ID
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Optional<Appointment> findById(int id) {
         try {
-            String url = String.format("%s/appointments?id=%d", baseUrl, id);
+            String url = String.format("%s%s?id=%d", baseUrl, ApiConfig.appointmentsEndpoint(), id);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -167,18 +198,26 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                Appointment appointment = gson.fromJson(response.body(), Appointment.class);
-                return Optional.ofNullable(appointment);
+                if (!ErrorHandler.validateResponse(response.body(), "Tìm lịch hẹn theo ID")) {
+                    return Optional.empty();
+                }
+
+                try {
+                    Appointment appointment = gson.fromJson(response.body(), Appointment.class);
+                    return Optional.ofNullable(appointment);
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse appointment by ID");
+                    return Optional.empty();
+                }
             } else if (response.statusCode() == 404) {
                 return Optional.empty();
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tìm lịch hẹn");
                 return Optional.empty();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tìm lịch hẹn theo ID");
             return Optional.empty();
         }
     }
@@ -196,7 +235,7 @@ public class HttpAppointmentService {
             String searchKeyword) {
         try {
             // Build URL với query string
-            StringBuilder url = new StringBuilder(baseUrl + "/appointments?");
+            StringBuilder url = new StringBuilder(baseUrl + ApiConfig.appointmentsEndpoint() + "?");
             boolean hasParam = false;
 
             if (doctorId != null) {
@@ -205,36 +244,39 @@ public class HttpAppointmentService {
             }
 
             if (customerId != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("customerId=").append(customerId);
                 hasParam = true;
             }
 
             if (status != null && !status.equals("Tất cả")) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("status=").append(status);
                 hasParam = true;
             }
 
             if (fromDate != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("fromDate=").append(fromDate.toString());
                 hasParam = true;
             }
 
             if (toDate != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("toDate=").append(toDate.toString());
                 hasParam = true;
             }
 
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 // URL encode search keyword
                 url.append("search=").append(URLEncoder.encode(searchKeyword.trim(), "UTF-8"));
             }
-
-            System.out.println("🔍 Calling API: " + url);
 
             // Execute request
             HttpRequest request = HttpRequest.newBuilder()
@@ -247,16 +289,28 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<Appointment>>(){}.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tìm kiếm lịch hẹn với filters")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<Appointment>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse filtered appointments");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tìm kiếm lịch hẹn");
                 return List.of();
             }
 
+        } catch (IOException | InterruptedException e) {
+            ErrorHandler.handleConnectionError(e, "Tìm kiếm lịch hẹn với filters");
+            return List.of();
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleJsonParseError(e, "Filtered appointments");
             return List.of();
         }
     }
@@ -264,6 +318,7 @@ public class HttpAppointmentService {
     /**
      * GET /appointments?doctorId={id}&fromDate={from}&toDate={to}
      * Lấy appointments theo doctor và khoảng ngày
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public List<Appointment> getByDoctorAndDateRange(int doctorId, LocalDate fromDate, LocalDate toDate) {
         try {
@@ -280,16 +335,25 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<Appointment>>(){}.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải lịch hẹn theo khoảng ngày")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(),
+                            new TypeToken<List<Appointment>>() {
+                            }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse appointments by date range");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tải lịch hẹn theo khoảng ngày");
                 return List.of();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải lịch hẹn theo khoảng ngày");
             return List.of();
         }
     }
@@ -297,14 +361,14 @@ public class HttpAppointmentService {
     /**
      * UPDATE appointment
      * PUT /appointments
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public Appointment update(Appointment appointment) {
         try {
             String jsonBody = gson.toJson(appointment);
-            System.out.println("📤 Updating appointment: " + jsonBody);
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/appointments"))
+                    .uri(URI.create(baseUrl + ApiConfig.appointmentsEndpoint()))
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
@@ -314,16 +378,23 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                System.out.println("✅ Update successful");
-                return gson.fromJson(response.body(), Appointment.class);
+                if (!ErrorHandler.validateResponse(response.body(), "Cập nhật lịch hẹn")) {
+                    return null;
+                }
+
+                try {
+                    return gson.fromJson(response.body(), Appointment.class);
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse updated appointment");
+                    return null;
+                }
             } else {
-                System.err.println("❌ Update failed: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể cập nhật lịch hẹn");
                 return null;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Cập nhật lịch hẹn");
             return null;
         }
     }
@@ -331,11 +402,11 @@ public class HttpAppointmentService {
     /**
      * DELETE appointment
      * DELETE /appointments?id={id}
+     * ✅ Updated với ErrorHandler framework (Ngày 2)
      */
     public boolean delete(int id) {
         try {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
-            System.out.println("📤 Deleting appointment: " + id);
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -346,20 +417,17 @@ public class HttpAppointmentService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                System.out.println("✅ Delete successful");
                 return true;
             } else {
-                System.err.println("❌ Delete failed: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể xóa lịch hẹn");
                 return false;
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Xóa lịch hẹn");
             return false;
         }
     }
-
 
     /**
      * Kiểm tra kết nối server

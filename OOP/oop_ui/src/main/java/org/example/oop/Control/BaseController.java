@@ -6,10 +6,15 @@ import java.util.function.Supplier;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
+
+import org.example.oop.Utils.LoadingManager;
 
 /**
  * Base Controller với Task utilities để xử lý background operations
  * Tất cả controllers khác extends từ class này để có các method tiện ích
+ * 
+ * ✅ Updated Ngày 5 (28/10): Integrated LoadingManager support
  */
 public abstract class BaseController {
 
@@ -160,5 +165,233 @@ public abstract class BaseController {
       */
      protected void showWarning(String message) {
           showAlert(Alert.AlertType.WARNING, "Cảnh báo", message);
+     }
+
+     // ================================
+     // LOADING INDICATOR METHODS (Ngày 5 - 28/10)
+     // ================================
+
+     /**
+      * Execute async task với loading indicator
+      * 
+      * @param <T>            Type của result
+      * @param container      StackPane để hiển thị loading overlay
+      * @param loadingMessage Message hiển thị khi loading
+      * @param taskSupplier   Supplier cung cấp dữ liệu (background thread)
+      * @param onSuccess      Callback khi success (UI thread)
+      * @param onError        Callback khi error (UI thread)
+      * 
+      *                       CÁCH DÙNG:
+      * 
+      *                       <pre>
+      *                       executeWithLoading(
+      *                                 rootPane, // Container
+      *                                 "Đang tải dữ liệu...", // Loading message
+      *                                 () -> service.getData(), // Background task
+      *                                 data -> table.setItems(data), // Success callback
+      *                                 error -> showError(error) // Error callback
+      *                       );
+      *                       </pre>
+      */
+     protected <T> void executeWithLoading(
+               StackPane container,
+               String loadingMessage,
+               Supplier<T> taskSupplier,
+               Consumer<T> onSuccess,
+               Consumer<Throwable> onError) {
+
+          // Validate input
+          if (container == null) {
+               System.err.println("⚠️ BaseController.executeWithLoading(): container is null");
+               if (onError != null) {
+                    onError.accept(new IllegalArgumentException("Container cannot be null"));
+               }
+               return;
+          }
+
+          // Show loading overlay
+          LoadingManager.show(container, loadingMessage);
+
+          // Create JavaFX Task
+          Task<T> task = new Task<>() {
+               @Override
+               protected T call() throws Exception {
+                    System.out.println("🔄 Task running with loading in thread: " + Thread.currentThread().getName());
+                    return taskSupplier.get();
+               }
+          };
+
+          // Handle success
+          task.setOnSucceeded(event -> {
+               System.out.println("✅ Task succeeded, hiding loading...");
+               LoadingManager.hide(container);
+               try {
+                    T result = task.getValue();
+                    if (onSuccess != null) {
+                         onSuccess.accept(result);
+                    }
+               } catch (Exception e) {
+                    System.err.println("❌ Error in success callback: " + e.getMessage());
+                    if (onError != null) {
+                         onError.accept(e);
+                    }
+               }
+          });
+
+          // Handle failure
+          task.setOnFailed(event -> {
+               System.err.println("❌ Task failed, hiding loading...");
+               LoadingManager.hide(container);
+               Throwable exception = task.getException();
+               if (onError != null) {
+                    onError.accept(exception);
+               } else {
+                    handleError(exception);
+               }
+          });
+
+          // Handle cancellation
+          task.setOnCancelled(event -> {
+               System.out.println("ℹ️ Task cancelled by user");
+               LoadingManager.hide(container);
+          });
+
+          // Start background thread
+          Thread backgroundThread = new Thread(task);
+          backgroundThread.setDaemon(true);
+          backgroundThread.setName("API-Worker-Loading-" + System.currentTimeMillis());
+          backgroundThread.start();
+     }
+
+     /**
+      * Execute async task với loading indicator và cancel button
+      * 
+      * @param <T>            Type của result
+      * @param container      StackPane container
+      * @param loadingMessage Loading message
+      * @param taskSupplier   Background task supplier
+      * @param onSuccess      Success callback
+      * @param onError        Error callback
+      * 
+      *                       User có thể click Cancel để dừng task
+      */
+     protected <T> void executeWithCancelableLoading(
+               StackPane container,
+               String loadingMessage,
+               Supplier<T> taskSupplier,
+               Consumer<T> onSuccess,
+               Consumer<Throwable> onError) {
+
+          // Validate input
+          if (container == null) {
+               System.err.println("⚠️ BaseController.executeWithCancelableLoading(): container is null");
+               if (onError != null) {
+                    onError.accept(new IllegalArgumentException("Container cannot be null"));
+               }
+               return;
+          }
+
+          // Create task first (cần reference để cancel)
+          Task<T> task = new Task<>() {
+               @Override
+               protected T call() throws Exception {
+                    System.out.println("🔄 Cancelable task running in thread: " + Thread.currentThread().getName());
+                    return taskSupplier.get();
+               }
+          };
+
+          // Show loading với cancel button
+          LoadingManager.showWithCancel(container, loadingMessage, () -> {
+               if (task.isRunning()) {
+                    System.out.println("🚫 Cancelling task...");
+                    task.cancel();
+               }
+          });
+
+          // Handle success
+          task.setOnSucceeded(event -> {
+               LoadingManager.hide(container);
+               try {
+                    T result = task.getValue();
+                    if (onSuccess != null) {
+                         onSuccess.accept(result);
+                    }
+               } catch (Exception e) {
+                    if (onError != null) {
+                         onError.accept(e);
+                    }
+               }
+          });
+
+          // Handle failure
+          task.setOnFailed(event -> {
+               LoadingManager.hide(container);
+               Throwable exception = task.getException();
+               if (onError != null) {
+                    onError.accept(exception);
+               } else {
+                    handleError(exception);
+               }
+          });
+
+          // Handle cancellation
+          task.setOnCancelled(event -> {
+               LoadingManager.hide(container);
+               showWarning("Thao tác đã bị hủy bởi người dùng.");
+          });
+
+          // Start background thread
+          Thread backgroundThread = new Thread(task);
+          backgroundThread.setDaemon(true);
+          backgroundThread.setName("API-Worker-Cancelable-" + System.currentTimeMillis());
+          backgroundThread.start();
+     }
+
+     /**
+      * Execute simple async với loading (no return value)
+      * Dùng cho operations như delete, update
+      * 
+      * @param container      StackPane container
+      * @param loadingMessage Loading message
+      * @param runnable       Action cần thực hiện
+      * @param onSuccess      Success callback
+      */
+     protected void executeWithLoading(
+               StackPane container,
+               String loadingMessage,
+               Runnable runnable,
+               Runnable onSuccess) {
+
+          executeWithLoading(
+                    container,
+                    loadingMessage,
+                    () -> {
+                         runnable.run();
+                         return null;
+                    },
+                    result -> {
+                         if (onSuccess != null) {
+                              onSuccess.run();
+                         }
+                    },
+                    this::handleError);
+     }
+
+     /**
+      * Execute async với loading và default error handler
+      * 
+      * @param <T>            Type của result
+      * @param container      StackPane container
+      * @param loadingMessage Loading message
+      * @param taskSupplier   Background task
+      * @param onSuccess      Success callback
+      */
+     protected <T> void executeWithLoading(
+               StackPane container,
+               String loadingMessage,
+               Supplier<T> taskSupplier,
+               Consumer<T> onSuccess) {
+
+          executeWithLoading(container, loadingMessage, taskSupplier, onSuccess, this::handleError);
      }
 }
