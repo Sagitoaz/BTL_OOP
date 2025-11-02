@@ -10,8 +10,9 @@ import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
-import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.*;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.AppointmentStatus;
+import org.miniboot.app.domain.models.AppointmentType;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import javafx.animation.PauseTransition;

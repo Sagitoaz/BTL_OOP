@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ApiStockMovementService {
-    private static final String BASE_URL = "http://localhost:8080/";
+    private static final String BASE_URL = System.getProperty("API_STOCK_BASE_URL", "http://localhost:8080");
     private static final Gson gson = GsonProvider.getGson();
 
     // tăng time out tránh mạng yếu
@@ -67,8 +67,6 @@ public class ApiStockMovementService {
                     List<StockMovement> movements = gson.fromJson(responseBody, listType);
 
                     System.out.println("✅ Loaded " + movements.size() + " stock movements");
-
-                    // ✅ DEBUG: In ra movement đầu tiên
                     if (!movements.isEmpty()) {
                         StockMovement first = movements.get(0);
                         System.out.println("📦 First movement: ID=" + first.getId() +
@@ -104,7 +102,6 @@ public class ApiStockMovementService {
                 (lastException != null ? lastException.getMessage() : "Unknown error"));
     }
 
-    // ✅ FIX URL
     public StockMovement getStockMovementById(int id) throws Exception {
         System.out.println("🔄 Fetching stock movement ID: " + id);
 
@@ -129,7 +126,6 @@ public class ApiStockMovementService {
         }
     }
 
-    // ✅ FIX: Đổi tên method và URL
     public StockMovement createStockMovement(StockMovement stockMovement) throws Exception {
         System.out.println("🔄 Creating stock movement for product ID: " + stockMovement.getProductId());
 
@@ -159,6 +155,50 @@ public class ApiStockMovementService {
             return created;
         } else {
             throw new Exception("Failed to create stock movement: " + responseBody);
+        }
+    }
+
+    public List<StockMovement> createListStockMovement(List<StockMovement> stockMovements) throws Exception {
+        String url = BASE_URL + "/stock_movements/batch"; // Đảm bảo URL phù hợp với route phía server
+        System.out.println("🔄 Creating multiple stock movements...");
+
+        // Đảm bảo danh sách không trống
+        if (stockMovements == null || stockMovements.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách stock movements không thể trống.");
+        }
+
+        // Chuyển danh sách thành JSON
+        String jsonBody = gson.toJson(stockMovements);
+        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
+
+        // Gửi yêu cầu POST tới server
+        HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL()
+                .openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setConnectTimeout(CONNECT_TIMEOUT);
+        conn.setReadTimeout(READ_TIMEOUT);
+        conn.setDoOutput(true);
+
+        // Gửi JSON
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = conn.getResponseCode();
+        String responseBody = readResponse(conn);
+
+        // Kiểm tra phản hồi thành công
+        if (responseCode >= 200 && responseCode < 300) {
+            Type listType = new TypeToken<List<StockMovement>>() {
+            }.getType();
+            List<StockMovement> createdMovements = gson.fromJson(responseBody, listType);
+            System.out.println("✅ Created " + createdMovements.size() + " stock movements.");
+            return createdMovements;
+        } else {
+            throw new Exception("Failed to create stock movements: " + responseBody);
         }
     }
 
