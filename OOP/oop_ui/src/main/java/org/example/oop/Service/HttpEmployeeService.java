@@ -58,6 +58,26 @@ public class HttpEmployeeService {
         return b;
     }
 
+    public String getPasswordByUsernameOrEmail(String input) throws Exception {
+        String url = baseUrl + "/api/employees/password?input=" + java.net.URLEncoder.encode(input, "UTF-8");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .timeout(DEFAULT_TIMEOUT)
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            // Giả sử server trả về JSON: { "passwordHash": "..." }
+            com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(response.body()).getAsJsonObject();
+            return obj.has("passwordHash") ? obj.get("passwordHash").getAsString() : null;
+        } else if (response.statusCode() == 404) {
+            return null; // Không tìm thấy user
+        } else {
+            throw new Exception("Server error: " + response.statusCode() + " - " + response.body());
+        }
+    }
+
     public List<Employee> getAllEmployee() throws Exception {
         System.out.println("Sending request to fetch all employees...");
         HttpRequest req = reqBuilder("/employees")
@@ -241,11 +261,58 @@ public class HttpEmployeeService {
             }.getType();
             return gson.fromJson(res.body(), listType);
         } else if (res.statusCode() == 400) {
-            System.err.println("Bad request: " + extractMessage(res.body(), "Vai trò không hợp lệ. Chỉ chấp nhận 'doctor' hoặc 'nurse'"));
+            System.err.println("Bad request: "
+                    + extractMessage(res.body(), "Vai trò không hợp lệ. Chỉ chấp nhận 'doctor' hoặc 'nurse'"));
             throw new Exception(
                     extractMessage(res.body(), "Vai trò không hợp lệ. Chỉ chấp nhận 'doctor' hoặc 'nurse'"));
         }
         System.err.println("HTTP Error " + res.statusCode() + " body=" + res.body());
         throw new Exception("HTTP Error " + res.statusCode() + " body=" + res.body());
+    }
+
+    /**
+     * Đổi mật khẩu cho user
+     * @param usernameOrEmail Tên tài khoản hoặc email
+     * @param oldPassword Mật khẩu hiện tại
+     * @param newPassword Mật khẩu mới
+     * @return true nếu thành công
+     * @throws Exception nếu mật khẩu cũ sai hoặc lỗi server
+     */
+    public boolean changePassword(String usernameOrEmail, String oldPassword, String newPassword) throws Exception {
+        Map<String, String> body = new HashMap<>();
+        body.put("usernameOrEmail", usernameOrEmail);
+        body.put("oldPassword", oldPassword);
+        body.put("newPassword", newPassword);
+
+        String jsonBody = gson.toJson(body);
+
+        HttpRequest req = reqBuilder("/employees/change-password")
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("Accept", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> res = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+        int code = res.statusCode();
+
+        if (code == 200) {
+            System.out.println("✅ Password changed successfully");
+            return true;
+        } else if (code == 401) {
+            String msg = extractMessage(res.body(), "Mật khẩu hiện tại không đúng");
+            System.err.println("❌ " + msg);
+            throw new Exception(msg);
+        } else if (code == 404) {
+            String msg = extractMessage(res.body(), "Không tìm thấy người dùng");
+            System.err.println("❌ " + msg);
+            throw new Exception(msg);
+        } else if (code == 400) {
+            String msg = extractMessage(res.body(), "Dữ liệu không hợp lệ");
+            System.err.println("❌ " + msg);
+            throw new Exception(msg);
+        }
+
+        System.err.println("❌ Failed to change password: HTTP " + code + " body=" + res.body());
+        throw new Exception("Lỗi server: " + code);
     }
 }

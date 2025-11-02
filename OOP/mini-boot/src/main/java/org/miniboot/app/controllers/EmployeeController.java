@@ -29,8 +29,9 @@ public class EmployeeController {
           router.delete("/employees", ec.deleteEmployee()); // DELETE /employees?id=1
           router.get("/employees/search", ec.searchEmployees()); // GET /employees/search?keyword=john
           router.get("/employees/role", ec.getEmployeesByRole()); // GET /employees/role?role=doctor
-
-          System.out.println("✅ Mounted EmployeeController with 6 endpoints");
+          router.get("/employees/password", ec.findPasswordByUsernameOrEmail()); // GET /employees/password?input=abc
+          router.put("/employees/change-password", ec.changePassword()); // PUT /employees/change-password
+          System.out.println("✅ Mounted EmployeeController with 8 endpoints");
      }
 
      private Function<HttpRequest, HttpResponse> getAllEmployees() {
@@ -319,6 +320,83 @@ public class EmployeeController {
                } catch (Exception e) {
                     System.err.println("❌ Error finding by role: " + e.getMessage());
                     return Json.error(500, "Error finding by role: " + e.getMessage());
+               }
+          };
+     }
+
+     private Function<HttpRequest, HttpResponse> findPasswordByUsernameOrEmail() {
+          return (HttpRequest req) -> {
+               try {
+                    Optional<String> inputOpt = ExtractHelper.extractString(req.query, "input");
+                    if (inputOpt.isEmpty() || inputOpt.get().trim().isEmpty()) {
+                         return Json.error(400, "Missing input (username or email)");
+                    }
+                    String input = inputOpt.get().trim();
+
+                    String passwordHash = repository.findPasswordByUsernameOrEmail(input);
+                    if (passwordHash != null && !passwordHash.isBlank()) {
+                         return Json.ok(Map.of("passwordHash", passwordHash));
+                    } else {
+                         return Json.error(404, "User not found");
+                    }
+               } catch (Exception e) {
+                    System.err.println("❌ ERROR in findPasswordByUsernameOrEmail(): " + e.getMessage());
+                    return Json.error(500, "Error: " + e.getMessage());
+               }
+          };
+     }
+
+     private Function<HttpRequest, HttpResponse> changePassword() {
+          return (HttpRequest req) -> {
+               try {
+                    String bodyText = req.bodyText();
+                    Map<String, Object> data = Json.parseMap(bodyText);
+                    if (data == null || data.isEmpty()) {
+                         return Json.error(400, "Body rỗng hoặc JSON không hợp lệ");
+                    }
+
+                    String usernameOrEmail = (String) data.get("usernameOrEmail");
+                    String oldPassword = (String) data.get("oldPassword");
+                    String newPassword = (String) data.get("newPassword");
+
+                    if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
+                         return Json.error(400, "Thiếu username hoặc email");
+                    }
+                    if (oldPassword == null || oldPassword.trim().isEmpty()) {
+                         return Json.error(400, "Thiếu mật khẩu hiện tại");
+                    }
+                    if (newPassword == null || newPassword.trim().isEmpty()) {
+                         return Json.error(400, "Thiếu mật khẩu mới");
+                    }
+                    if (newPassword.length() < 8) {
+                         return Json.error(400, "Mật khẩu mới phải có ít nhất 8 ký tự");
+                    }
+
+                    String currentPasswordHash = repository.findPasswordByUsernameOrEmail(usernameOrEmail);
+                    if (currentPasswordHash == null) {
+                         return Json.error(404, "Không tìm thấy người dùng");
+                    }
+
+                    at.favre.lib.crypto.bcrypt.BCrypt.Result result = 
+                         at.favre.lib.crypto.bcrypt.BCrypt.verifyer().verify(oldPassword.toCharArray(), currentPasswordHash);
+                    if (!result.verified) {
+                         return Json.error(401, "Mật khẩu hiện tại không đúng");
+                    }
+
+                    String newPasswordHash = at.favre.lib.crypto.bcrypt.BCrypt.withDefaults()
+                         .hashToString(10, newPassword.toCharArray());
+                    boolean changed = repository.changePassword(usernameOrEmail, newPasswordHash);
+
+                    if (changed) {
+                         System.out.println("✅ Password changed for: " + usernameOrEmail);
+                         return Json.ok(Map.of("message", "Đổi mật khẩu thành công"));
+                    } else {
+                         return Json.error(500, "Không thể đổi mật khẩu");
+                    }
+
+               } catch (Exception e) {
+                    System.err.println("❌ ERROR in changePassword(): " + e.getMessage());
+                    return Json.error(500, "Error: " + e.getMessage());
                }
           };
      }

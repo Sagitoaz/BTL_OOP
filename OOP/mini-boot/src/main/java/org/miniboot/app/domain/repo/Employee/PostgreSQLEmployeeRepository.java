@@ -60,6 +60,23 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
      }
 
      @Override
+     public String findPasswordByUsernameOrEmail(String username) {
+          String sql = "SELECT password FROM employees WHERE username = ? or email = ?";
+          try (Connection conn = dbConfig.getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+               pstmt.setString(1, username);
+               pstmt.setString(2, username);
+               try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next())
+                         return rs.getString("password");
+               }
+          } catch (SQLException e) {
+               System.err.println("❌ Error finding employee by ID: " + e.getMessage());
+          }
+          return null;
+     }
+
+     @Override
      public Optional<Employee> findByUserName(String username) {
           String sql = "SELECT * FROM employees WHERE username = ?";
           try (Connection conn = dbConfig.getConnection();
@@ -331,5 +348,25 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
      /** PASSWORD HASHING */
      private String hashPassword(String plainPassword) {
           return BCrypt.withDefaults().hashToString(10, plainPassword.toCharArray());
+     }
+
+     /** CHANGE PASSWORD */
+     @Override
+     public boolean changePassword(String usernameOrEmail, String newPasswordHash) {
+          String sql = "UPDATE employees SET password = ? WHERE username = ? OR email = ?";
+          try (Connection conn = dbConfig.getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+               pstmt.setString(1, newPasswordHash);
+               pstmt.setString(2, usernameOrEmail);
+               pstmt.setString(3, usernameOrEmail);
+               int rowsAffected = pstmt.executeUpdate();
+               if (rowsAffected > 0) {
+                    System.out.println("✅ Password changed for user: " + usernameOrEmail);
+                    return true;
+               }
+          } catch (SQLException e) {
+               System.err.println("❌ Error changing password: " + e.getMessage());
+          }
+          return false;
      }
 }

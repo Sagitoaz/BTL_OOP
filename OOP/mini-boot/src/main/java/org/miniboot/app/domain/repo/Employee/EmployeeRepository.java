@@ -10,6 +10,8 @@ public interface EmployeeRepository {
 
      Optional<Employee> findById(int id);
 
+     String findPasswordByUsernameOrEmail(String username);
+
      Optional<Employee> findByUserName(String userName);
 
      Optional<Employee> findByEmail(String email);
@@ -19,4 +21,6 @@ public interface EmployeeRepository {
      Employee save(Employee product);
 
      List<Employee> findByRole(String role);
+
+     boolean changePassword(String usernameOrEmail, String newPasswordHash);
 }
