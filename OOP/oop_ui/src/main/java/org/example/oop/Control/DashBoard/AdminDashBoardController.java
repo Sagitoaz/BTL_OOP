@@ -27,4 +27,15 @@ public class AdminDashBoardController {
     private void handleOpenAppointmentManagement(){
         SceneManager.switchScene(SceneConfig.APPOINTMENT_MANAGEMENT_FXML, SceneConfig.Titles.APPOINTMENT_MANAGEMENT);
     }
+    @FXML
+    private void handleOpenInventory(){
+        SceneManager.switchScene(SceneConfig.PRODUCT_CRUD_VIEW_FXML, SceneConfig.Titles.PRODUCT_CRUD);
+
+    }
+    @FXML
+    private void handleOpenPayment(){
+        SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
+
+    }
+
 }

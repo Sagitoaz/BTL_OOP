@@ -113,14 +113,14 @@
                                     <Label style="-fx-font-size: 48px;" text="💊" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6;" text="Quản lý kho thuốc" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Thêm, cập nhật thuốc và vật tư y tế" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="💳 Mở" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenInventory" styleClass="btn-search" text="💳 Mở" />
                                 </VBox>
                                 
                                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.15), 15, 0, 0, 5); -fx-border-color: #FEE2E2; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label style="-fx-font-size: 48px;" text="💰" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #EF4444;" text="Quản lý thanh toán" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xử lý thanh toán và hóa đơn" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="💳 Mở" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenPayment" styleClass="btn-search" text="💳 Mở" />
                                 </VBox>
                                 
                                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.15), 15, 0, 0, 5); -fx-border-color: #CFFAFE; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="2" GridPane.rowIndex="1">
