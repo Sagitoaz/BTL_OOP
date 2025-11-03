@@ -28,9 +28,9 @@
         <VBox>
             <!-- Navigation Bar -->
             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
-                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
-                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
-                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+                <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <!-- Header với tiêu đề và button thêm mới -->
@@ -39,8 +39,13 @@
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
                 <children>
-                    <Label styleClass="page-title" text="📦 QUẢN L�Y SẢN PHẨM" />
+                    <Label styleClass="page-title" text="📦 QUẢN LÝ SẢN PHẨM" />
                     <Region HBox.hgrow="ALWAYS" />
+                   <Button fx:id="deleteButton" onAction="#onDelete" styleClass="btn-danger" text="🗑 Xóa">
+                       <tooltip>
+                     <Tooltip text="Xóa sản phẩm đã chọn" />
+                  </tooltip>
+                   </Button>
                     <Button fx:id="addNewButton" onAction="#onClear" styleClass="btn-success" text="➕ Thêm mới" />
                 </children>
             </HBox>
@@ -217,8 +222,14 @@
                                                     <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefWidth="120" styleClass="btn-success" text="💾 Lưu">
                                                         <tooltip><Tooltip text="Lưu thay đổi" /></tooltip>
                                                     </Button>
-                                                    <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="120" styleClass="btn-secondary" text="🔄 Làm mới">
-                                                        <tooltip><Tooltip text="Xóa tất cả trường" /></tooltip>
+                                                    <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="180.0" styleClass="btn-secondary" text="🔄 Làm mới">
+                                                        <tooltip><Tooltip text="Xóa tất cả trường">
+                                                <font>
+                                                   <Font size="10.0" />
+                                                </font></Tooltip></tooltip>
+                                          <font>
+                                             <Font size="10.0" />
+                                          </font>
                                                     </Button>
                                                 </HBox>
                                             </children>
@@ -269,14 +280,6 @@
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
-                <padding><Insets bottom="12" left="24" right="24" top="12" /></padding>
-                <Button fx:id="deleteButton" onAction="#onDelete" styleClass="btn-danger" text="🗑 Xóa">
-                    <tooltip><Tooltip text="Xóa sản phẩm đã chọn" /></tooltip>
-                </Button>
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="formTitleLabel" styleClass="form-label" text="Sẵn sàng" />
-            </HBox>
         </VBox>
     </bottom>
 

@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
 import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
 
@@ -201,6 +202,18 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      private void setupLoadingIndicator() {
           // loadingIndicator removed from FXML - no action needed
      }
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
      // ==================== ASYNC DATA LOADING ====================
 
      /**
