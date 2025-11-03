@@ -206,8 +206,8 @@
                                 <Label styleClass="form-label" text="Diễn tiến:" />
                                 <ListView fx:id="timelineList" VBox.vgrow="ALWAYS" />
                                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
-                                    <Button fx:id="sendSmsBtn" onAction="#onSendSms" prefWidth="140.0" styleClass="btn-secondary" text="SMS nhắc hẹn" />
-                                    <Button fx:id="sendEmailBtn" onAction="#onSendEmail" prefWidth="130.0" styleClass="btn-secondary" text="Gửi Email" />
+                                    <Button fx:id="sendSmsBtn" onAction="#onSendSms" prefHeight="49.0" prefWidth="187.0" styleClass="btn-secondary" text="SMS nhắc hẹn" />
+                                    <Button fx:id="sendEmailBtn" onAction="#onSendEmail" prefHeight="49.0" prefWidth="162.0" styleClass="btn-secondary" text="Gửi Email" />
                                 </HBox>
                             </VBox>
                         </Tab>
@@ -219,7 +219,7 @@
                                 </padding>
                                 <TextArea fx:id="extraNoteArea" styleClass="text-area" VBox.vgrow="ALWAYS" />
                                 <HBox alignment="CENTER_RIGHT">
-                                    <Button fx:id="saveNoteBtn" onAction="#onSaveNote" prefWidth="140.0" styleClass="btn-success" text="💾 Lưu ghi chú" />
+                                    <Button fx:id="saveNoteBtn" onAction="#onSaveNote" prefHeight="49.0" prefWidth="182.0" styleClass="btn-success" text="💾 Lưu ghi chú" />
                                 </HBox>
                             </VBox>
                         </Tab>
@@ -232,18 +232,6 @@
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="financial-header">
-                <padding>
-                    <Insets bottom="14.0" left="28.0" right="28.0" top="14.0" />
-                </padding>
-                <Label fx:id="lblSummary" styleClass="form-label" text="Tổng: 0 hẹn | Hiển thị: 0" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="firstPageBtn" onAction="#onFirstPage" prefWidth="45.0" styleClass="btn-secondary" text="⟪" />
-                <Button fx:id="prevPageBtn" onAction="#onPrevPage" prefWidth="45.0" styleClass="btn-secondary" text="‹" />
-                <Label fx:id="lblPage" styleClass="form-label" text="Trang 1/1" />
-                <Button fx:id="nextPageBtn" onAction="#onNextPage" prefWidth="45.0" styleClass="btn-secondary" text="›" />
-                <Button fx:id="lastPageBtn" onAction="#onLastPage" prefWidth="45.0" styleClass="btn-secondary" text="⟫" />
-            </HBox>
         </VBox>
     </bottom>
 </BorderPane>

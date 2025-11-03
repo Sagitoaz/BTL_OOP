@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController implements Initializable {
 
-    private List<Customer> allCustomers;
+    private List<Customer> allCustomers = new ArrayList<>(); // ✅ Khởi tạo để tránh NullPointerException
     @FXML
     private ListView<Customer> customerListView;
 

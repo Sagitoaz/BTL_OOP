@@ -113,6 +113,9 @@ public final class SceneManager {
 
             Stage stage = new Stage();
             Scene scene = loadFxmlScene(fxmlPath);
+            FXMLLoader loader = (FXMLLoader)scene.getProperties().get("fxmlLoader");
+            SceneManager.setSceneData("fxmlLoader", loader);
+
             if(scene == null){
                 System.err.println("Failed to load scene for: " + fxmlPath);
                 return;
@@ -206,8 +209,10 @@ public final class SceneManager {
         try{
             FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
             Parent root = loader.load();
+            Scene scene =  new Scene(root);
+            scene.getProperties().put("fxmlLoader", loader);
             addToCache(fxmlPath, root);
-            return new Scene(root);
+            return scene;
         } catch ( IOException e) {
             handleLoadError(fxmlPath, e);
             return null;

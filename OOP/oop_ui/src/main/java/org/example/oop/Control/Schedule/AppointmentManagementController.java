@@ -365,32 +365,20 @@ public class AppointmentManagementController implements Initializable {
         try {
             System.out.println("🔍 Opening CustomerHub in selection mode...");
             
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/PatientAndPrescription/CustomerHub.fxml")
-            );
-            Parent root = loader.load();
-            
-            // Get controller và enable selection mode
-            Object controllerObj = loader.getController();
 
-            
-            Stage stage = new Stage();
-            stage.setTitle("Chọn bệnh nhân");
-            stage.setScene(new Scene(root, 1000, 700));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            
-            // ✅ TỰ ĐỘNG HÓA: Callback khi đóng dialog
-            stage.setOnHidden(e -> {
+
+            Runnable runnable = () -> {
                 System.out.println("✅ CustomerHub closed");
-                
+                Object controllerObj = ((FXMLLoader)SceneManager.getSceneData("fxmlLoader") ).getController();
+                System.out.println("🔍 Retrieved controller: " + controllerObj);
                 // Kiểm tra controller type (để tránh ClassCastException)
                 if (controllerObj != null) {
                     try {
                         // Dùng reflection để gọi getSelectedCustomer()
                         Method getSelectedMethod =
-                            controllerObj.getClass().getMethod("getSelectedCustomer");
+                                controllerObj.getClass().getMethod("getSelectedCustomer");
                         Customer selectedCustomer = (Customer) getSelectedMethod.invoke(controllerObj);
-                        
+
                         if (selectedCustomer != null) {
                             System.out.println("✅ Auto-selected customer: " + selectedCustomer.getFullName());
                             updatePatientField(selectedCustomer);
@@ -402,12 +390,16 @@ public class AppointmentManagementController implements Initializable {
                         // Fallback: Show manual input dialog
                         showManualCustomerIdDialog();
                     }
+                    finally {
+                        // Clear temporary data
+                        SceneManager.removeSceneData("fxmlLoader");
+                    }
                 } else {
+                    SceneManager.removeSceneData("fxmlLoader");
                     showManualCustomerIdDialog();
                 }
-            });
-            
-            stage.showAndWait();
+            };
+            SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
 
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
