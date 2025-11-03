@@ -320,37 +320,38 @@
 .btn-back,
 .btn-forward,
 .btn-reload {
-    -fx-background-color: linear-gradient(to bottom, #F8FAFC 0%, #F1F5F9 100%) !important;
-    -fx-text-fill: #475569 !important;
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+    -fx-text-fill: white !important;
     -fx-background-radius: 22px !important;
-    -fx-padding: 10px 20px !important;
-    -fx-font-size: 13px !important;
+    -fx-padding: 10px 22px !important;
+    -fx-font-size: 14px !important;
     -fx-font-weight: 600 !important;
     -fx-cursor: hand !important;
-    -fx-border-color: #CBD5E0 !important;
-    -fx-border-width: 2px !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0 !important;
     -fx-border-radius: 22px !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 6, 0, 0, 2) !important;
-    -fx-padding: 10px 22px;
-    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3) !important;
+}
+
 .btn-back:hover,
 .btn-forward:hover,
 .btn-reload:hover {
-    -fx-background-color: linear-gradient(to bottom, #FFFBFE 0%, #FBE7F3 100%) !important;
-    -fx-border-color: #F472B6 !important;
-    -fx-text-fill: #EC4899 !important;
-    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3) !important;
-.nav-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #EC4899 0%, #DB2777 100%);
-    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.5), 14, 0, 0, 5);
+    -fx-background-color: linear-gradient(to bottom, #EC4899 0%, #DB2777 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.5), 14, 0, 0, 5) !important;
     -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
 .btn-back:pressed,
 .btn-forward:pressed,
 .btn-reload:pressed {
-.nav-button:pressed {
-    -fx-background-color: linear-gradient(to bottom, #DB2777 0%, #BE185D 100%);
+    -fx-background-color: linear-gradient(to bottom, #DB2777 0%, #BE185D 100%) !important;
+    -fx-text-fill: white !important;
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
+}
+
 /* ========== NAVIGATION CONTAINER ========== */
 .navigation-bar {
     -fx-spacing: 10px;
@@ -359,21 +360,4 @@
     -fx-background-color: #ffffff;
     -fx-border-color: #e5e7eb;
     -fx-border-width: 0 0 1 0;
-    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%);
-}
-
-.nav-forward-button {
-    -fx-background-color: linear-gradient(to bottom, #FBB6CE 0%, #F472B6 100%);
-}
-
-.nav-forward-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%);
-}
-
-.nav-reload-button {
-    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
-}
-
-.nav-reload-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
 }
