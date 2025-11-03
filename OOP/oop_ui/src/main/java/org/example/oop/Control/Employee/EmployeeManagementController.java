@@ -72,6 +72,13 @@ public class EmployeeManagementController extends BaseController implements Init
     private Button refreshButton;
     @FXML
     private Button addButton;
+    // ====== Navigation Buttons ======
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button forwardButton;
+    @FXML
+    private Button reloadButton;
     // ====== Table ======
     @FXML
     private TableView<Employee> employeeTableView;
@@ -349,5 +356,21 @@ public class EmployeeManagementController extends BaseController implements Init
     }
 
     public void onTableRowClick(MouseEvent mouseEvent) {
+    }
+
+    // ===================== Navigation Actions =====================
+    @FXML
+    private void handleBackButton() {
+        SceneManager.goBack();
+    }
+
+    @FXML
+    private void handleForwardButton() {
+        SceneManager.goForward();
+    }
+
+    @FXML
+    private void handleReloadButton() {
+        SceneManager.reloadCurrentScene();
     }
 }

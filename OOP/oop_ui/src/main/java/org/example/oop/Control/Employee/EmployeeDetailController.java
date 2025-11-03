@@ -12,6 +12,7 @@ import java.util.Set;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Employee;
 
@@ -76,6 +77,18 @@ public class EmployeeDetailController extends BaseController {
     private Button closeButton;
     @FXML
     private Button deleteButton;
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
     @FXML
     public void initialize() {

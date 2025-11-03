@@ -94,6 +94,7 @@ public class CustomerHubController implements Initializable {
 
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
+    private boolean isInitializing = true; // ✅ Flag để tránh load prescription khi khởi tạo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -105,12 +106,17 @@ public class CustomerHubController implements Initializable {
         // Setup TableView columns for Prescription
         setupPrescriptionTable();
 
-        loadCustomerData();
-        // Setup listener cho selection
+        // Setup listener cho selection - NHƯNG chỉ active sau khi load xong
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
-            loadPrescriptionsForCustomer(newValue);
+            // ✅ Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
+            if (!isInitializing) {
+                loadPrescriptionsForCustomer(newValue);
+            }
         });
+
+        loadCustomerData();
+
         // Setup gender filter với promptText
         genderFilter.getItems().addAll(Customer.Gender.values());
         genderFilter.setPromptText("Lọc theo giới tính");
@@ -193,11 +199,16 @@ public class CustomerHubController implements Initializable {
                 allCustomers = customers;
                 customerRecordsList.addAll(customers);
                 setCurrentListCustomer();
-                System.out.println("✅ Loaded " + customers.size() + " customers");
+
+                // ✅ Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
+                isInitializing = false;
+
+                System.out.println("✅ Loaded " + customers.size() + " customers - Ready for user interaction");
             },
             error -> {
                 // ERROR callback - handle error gracefully
                 System.err.println("❌ Error loading customers: " + error);
+                isInitializing = false; // ✅ Vẫn set false ngay cả khi lỗi
                 // Có thể show alert nếu cần
                 showErrorAlert("Lỗi tải dữ liệu", error);
             }
