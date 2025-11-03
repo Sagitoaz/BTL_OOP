@@ -115,31 +115,11 @@ public class EmployeeManagementController extends BaseController implements Init
     }
 
     private void openEmployeeDetailView(Employee employee) {
-        try {
-            var res = getClass().getResource("/FXML/Employee/EmployeeDetail.fxml");
-            if (res == null) {
-                showError("Không tìm thấy FXML: /FXML/Employee/EmployeeDetail.fxml");
-                return;
-            }
-            FXMLLoader loader = new FXMLLoader(res);
-            Parent root = loader.load();
-            EmployeeDetailController controller = loader.getController();
-            controller.setEmployeeDetails(employee);
-            Stage stage = new Stage();
-            stage.setTitle("Chi tiết nhân viên — "
-                    + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
-            stage.setScene(new Scene(root));
-            if (employeeTableView != null && employeeTableView.getScene() != null
-                    && employeeTableView.getScene().getWindow() != null) {
-                stage.initOwner(employeeTableView.getScene().getWindow());
-                stage.initModality(Modality.WINDOW_MODAL);
-            }
-            stage.setResizable(true);
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("Lỗi mở cửa sổ chi tiết nhân viên: " + e.getMessage());
-            showError("Lỗi mở cửa sổ chi tiết nhân viên: " + e.getMessage());
-        }
+
+        SceneManager.removeSceneData("employeeDetailData");
+        SceneManager.setSceneData("employeeDetailData", employee);
+        SceneManager.switchScene(SceneConfig.EMPLOYEE_DETAIL_FXML, SceneConfig.Titles.EMPLOYEE_DETAIL);
+
     }
 
     // ===================== UI Wiring =====================
@@ -294,7 +274,7 @@ public class EmployeeManagementController extends BaseController implements Init
 
     @FXML
     private void handleAdd() {
-        SceneManager.switchScene(SceneConfig.EMPLOYEE_FORM_FXML, SceneConfig.Titles.EMPLOYEE_FORM);
+        SceneManager.openModalWindow(SceneConfig.EMPLOYEE_FORM_FXML, SceneConfig.Titles.EMPLOYEE_FORM, null);
     }
 
     private void onEdit(Employee e) {

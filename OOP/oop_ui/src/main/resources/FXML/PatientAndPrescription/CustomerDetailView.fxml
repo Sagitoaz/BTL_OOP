@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -14,85 +15,136 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/global-styles.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerDetailController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f7fa;" stylesheets="@../../css/buttons.css,@../../css/navigation.css,@../../css/employee-pink-theme.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerDetailController">
 
+    <!-- ========== HEADER ========== -->
     <top>
-        <VBox spacing="0">
+        <VBox>
             <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" onAction="#handleBackButton" />
-                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" onAction="#handleReloadButton" />
+            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="navigation-bar">
+                <Button onAction="#handleBackButton" styleClass="btn-back" text="◀ Quay lại" />
+                <Button onAction="#handleReloadButton" styleClass="btn-reload" text="⟳ Tải lại" />
             </HBox>
 
-            <!-- Header màu hồng -->
-            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-background-color: linear-gradient(to right, #F472B6, #FBB6CE); -fx-padding: 20px 24px;">
-                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 2, 0, 0, 1);" text="📋 CHI TIẾT BỆNH NHÂN" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" style="-fx-background-color: white; -fx-text-fill: #F472B6; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;" text="✏ Chỉnh sửa" />
-            </HBox>
+            <!-- Customer Header -->
+            <VBox style="-fx-background-color: linear-gradient(to right, #F472B6, #FBB6CE);">
+                <padding>
+                    <Insets bottom="25" left="30" right="30" top="25" />
+                </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="20">
+                    <!-- Avatar Section -->
+                    <VBox alignment="CENTER" spacing="8" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 15px;">
+                        <Label style="-fx-font-size: 64px;" text="👤" />
+                        <Label style="-fx-background-color: #F472B6; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4px 12px; -fx-background-radius: 12px;" text="BỆNH NHÂN" />
+                    </VBox>
+
+                    <!-- Customer Info -->
+                    <VBox spacing="8" VBox.vgrow="ALWAYS">
+                        <Label fx:id="fullNameLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;" text="N/A" />
+                        <HBox spacing="10">
+                            <Label fx:id="genderLabel" style="-fx-font-size: 15px; -fx-text-fill: white; -fx-font-weight: bold;" text="N/A" />
+                        </HBox>
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- Quick Actions -->
+                    <VBox alignment="CENTER_RIGHT" spacing="10">
+                        <Button fx:id="editCustomerButton" mnemonicParsing="false" onAction="#handleEditCustomer" prefHeight="48.0" prefWidth="163.0" styleClass="btn-primary" text="✏️ Chỉnh sửa" />
+                    </VBox>
+                </HBox>
+            </VBox>
         </VBox>
     </top>
 
+    <!-- ========== CONTENT ========== -->
     <center>
-        <VBox spacing="0" style="-fx-background-color: #FFFBFE;">
-            <!-- Content -->
-            <VBox spacing="20.0" VBox.vgrow="ALWAYS">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="20">
                 <padding>
-                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    <Insets bottom="20" left="30" right="30" top="20" />
                 </padding>
 
-                <!-- Customer Information Card -->
-                <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-border-color: rgba(244, 114, 182, 0.25); -fx-border-width: 2px; -fx-border-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.2), 20, 0, 0, 5);">
-                    <padding>
-                        <Insets bottom="20" left="20" right="20" top="20" />
-                    </padding>
+                <!-- ========== SECTION 1: Thông tin cơ bản ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👤 Thông Tin Cơ Bản" />
 
-                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6;" text="📋 THÔNG TIN BỆNH NHÂN" />
-                    <Separator style="-fx-background-color: rgba(244, 114, 182, 0.3);" />
+                    <GridPane hgap="20" vgap="15">
+                        <!-- Customer ID -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #fce4ec; -fx-background-radius: 8px; -fx-padding: 10px;">
+                                <Label style="-fx-font-size: 20px;" text="🆔" />
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Mã bệnh nhân" />
+                                <Label fx:id="customerIdLabel" style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" text="ID: N/A" />
+                            </VBox>
+                        </HBox>
 
-                    <GridPane hgap="30.0" vgap="16.0">
+                        <!-- Date of Birth -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e3f2fd; -fx-background-radius: 8px; -fx-padding: 10px;">
+                                <Label style="-fx-font-size: 20px;" text="🎂" />
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Ngày sinh" />
+                                <Label fx:id="dobLabel" style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" text="N/A" />
+                            </VBox>
+                        </HBox>
+
                         <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="150.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="250.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" prefWidth="150.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="250.0" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                         </columnConstraints>
                         <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                            <RowConstraints />
                         </rowConstraints>
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Mã bệnh nhân:" />
-                        <Label fx:id="customerIdLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="1" />
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Họ và tên:" GridPane.rowIndex="1" />
-                        <Label fx:id="fullNameLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Giới tính:" GridPane.rowIndex="2" />
-                        <Label fx:id="genderLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Ngày sinh:" GridPane.columnIndex="2" />
-                        <Label fx:id="dobLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="3" />
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Số điện thoại:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <Label fx:id="phoneLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-
-                        <Label style="-fx-font-size: 13px; -fx-text-fill: #EC4899; -fx-font-weight: bold;" text="Email:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <Label fx:id="emailLabel" style="-fx-font-size: 13px; -fx-text-fill: #2c3e50;" text="N/A" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                     </GridPane>
                 </VBox>
 
-                <!-- Prescription History Card -->
-                <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-border-color: rgba(244, 114, 182, 0.25); -fx-border-width: 2px; -fx-border-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.2), 20, 0, 0, 5);" VBox.vgrow="ALWAYS">
-                    <padding>
-                        <Insets bottom="20" left="20" right="20" top="20" />
-                    </padding>
+                <!-- ========== SECTION 2: Thông tin liên hệ ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="📞 Thông Tin Liên Hệ" />
 
-                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6;" text="📝 LỊCH SỬ ĐƠN THUỐC" />
-                    <Separator style="-fx-background-color: rgba(244, 114, 182, 0.3);" />
+                    <GridPane hgap="20" vgap="15">
+                        <!-- Phone -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e8f5e9; -fx-background-radius: 8px; -fx-padding: 10px;">
+                                <Label style="-fx-font-size: 20px;" text="📱" />
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Số điện thoại" />
+                                <Label fx:id="phoneLabel" style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" text="N/A" />
+                            </VBox>
+                        </HBox>
 
-                    <TableView fx:id="prescriptionsTable" style="-fx-background-color: white; -fx-border-color: transparent; -fx-table-cell-border-color: rgba(244, 114, 182, 0.1);" VBox.vgrow="ALWAYS">
+                        <!-- Email -->
+                        <HBox alignment="CENTER_LEFT" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox alignment="CENTER" style="-fx-background-color: #e3f2fd; -fx-background-radius: 8px; -fx-padding: 10px;">
+                                <Label style="-fx-font-size: 20px;" text="📧" />
+                            </VBox>
+                            <VBox spacing="3">
+                                <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Email" />
+                                <Label fx:id="emailLabel" style="-fx-font-size: 14px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" text="N/A" />
+                            </VBox>
+                        </HBox>
+
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints />
+                        </rowConstraints>
+                    </GridPane>
+                </VBox>
+
+                <!-- ========== SECTION 3: Lịch sử đơn thuốc ========== -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" VBox.vgrow="ALWAYS">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="📝 Lịch Sử Đơn Thuốc" />
+
+                    <TableView fx:id="prescriptionsTable" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="prescriptionIdColumn" minWidth="80.0" maxWidth="80.0" prefWidth="80.0" text="Mã ĐT" resizable="false" style="-fx-alignment: CENTER;" />
                             <TableColumn fx:id="dateIssuedColumn" minWidth="120.0" maxWidth="120.0" prefWidth="120.0" text="Ngày cấp" resizable="false" style="-fx-alignment: CENTER;" />
@@ -102,10 +154,28 @@
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                         </columnResizePolicy>
-                    </TableView>
 
+                        <!-- Placeholder khi table rỗng -->
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="15" style="-fx-padding: 50;">
+                                <Label style="-fx-font-size: 48px;" text="📋" />
+                                <Label style="-fx-font-size: 16px; -fx-text-fill: #95a5a6; -fx-font-weight: bold;" text="Chưa có đơn thuốc" />
+                                <Label style="-fx-font-size: 13px; -fx-text-fill: #bdc3c7;" text="Bệnh nhân chưa có lịch sử đơn thuốc nào" />
+                            </VBox>
+                        </placeholder>
+                    </TableView>
                 </VBox>
+
             </VBox>
-        </VBox>
+        </ScrollPane>
     </center>
+
+    <!-- ========== FOOTER ========== -->
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: white; -fx-padding: 15 30; -fx-border-color: #ecf0f1; -fx-border-width: 1 0 0 0;">
+            <Region HBox.hgrow="ALWAYS" />
+            <Label style="-fx-font-size: 11px; -fx-text-fill: #95a5a6;" text="Thông tin chi tiết bệnh nhân • Cập nhật theo thời gian thực" />
+        </HBox>
+    </bottom>
+
 </BorderPane>

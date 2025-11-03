@@ -102,8 +102,11 @@ public class EmployeeDetailController extends BaseController {
             licenseBox.setVisible(false);
             licenseBox.setManaged(false);
         }
+        if(SceneManager.getSceneData("employeeDetailData") != null){
+            Employee emp = (Employee)SceneManager.getSceneData("employeeDetailData");
+            setEmployeeDetails(emp);
+        }
     }
-
     public void setEmployeeDetails(Employee employee) {
         this.employee = employee;
         updateUI();

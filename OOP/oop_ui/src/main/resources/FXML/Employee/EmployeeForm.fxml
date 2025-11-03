@@ -203,8 +203,8 @@
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
-                <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" prefHeight="49.0" prefWidth="120.0" styleClass="btn-secondary" text="Hủy Bỏ" />
-                <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSave" prefHeight="49.0" prefWidth="180.0" styleClass="btn-success" text="💾 Lưu Thông Tin" />
+                <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" prefHeight="51.0" prefWidth="138.0" styleClass="btn-secondary" text="Hủy Bỏ" />
+                <Button fx:id="saveButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSave" prefHeight="51.0" prefWidth="199.0" styleClass="btn-success" text="💾 Lưu Thông Tin" />
             </HBox>
         </VBox>
     </bottom>

@@ -170,7 +170,7 @@
             <HBox alignment="CENTER" spacing="8">
                 <Label style="-fx-font-size: 12px; -fx-text-fill: #2ecc71;" text="●" />
                 <Label fx:id="statusLabel" style="-fx-font-size: 12px; -fx-text-fill: #2ecc71; -fx-font-weight: bold;" text="Sẵn sàng" />
-                <Button fx:id="deleteButton" onAction="#handleDelete" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20;" text="🗑 Xóa" />
+                <Button fx:id="deleteButton" onAction="#handleDelete" styleClass="btn-delete" text="🗑 Xóa" />
             </HBox>
 
             <Separator orientation="VERTICAL" prefHeight="20" />
