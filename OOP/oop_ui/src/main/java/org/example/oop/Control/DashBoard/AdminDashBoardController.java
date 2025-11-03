@@ -34,7 +34,7 @@ public class AdminDashBoardController {
     }
     @FXML
     private void handleOpenPayment(){
-        SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
+        SceneManager.switchScene(SceneConfig.INVOICE_FXML, SceneConfig.Titles.INVOICE);
 
     }
     @FXML

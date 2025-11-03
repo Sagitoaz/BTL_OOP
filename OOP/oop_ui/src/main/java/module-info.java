@@ -15,6 +15,7 @@ module org.example.oop {
     requires jdk.compiler;
     requires bcrypt;
 
+
     // các requires khác bạn đã dùng...
     // requires org.controlsfx.controls; v.v.
 

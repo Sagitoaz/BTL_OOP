@@ -14,6 +14,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.*;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 import org.miniboot.app.domain.models.Inventory.Product;
@@ -115,6 +117,18 @@ public class InvoiceController extends BaseController implements Initializable {
     private TextField txtTaxAmount;
     @FXML
     private TextField txtGrandTotal;
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -489,19 +503,11 @@ public class InvoiceController extends BaseController implements Initializable {
                                 // 4. Thành công Tác vụ 2 (chạy trên UI thread)
                                 // Mở cửa sổ thanh toán
                                 try {
-                                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Payment.fxml"));
-                                    Scene scene = new Scene(fxmlLoader.load());
-                                    PaymentController paymentController = fxmlLoader.getController();
-                                    paymentController.initData(String.valueOf(savedPayment.getId()));
+                                    SceneManager.setSceneData("savedPaymentId", String.valueOf(savedPayment.getId()));
 
-                                    Stage paymentStage = new Stage();
-                                    paymentStage.setTitle("Thanh toán Hóa đơn: " + savedPayment.getCode());
-                                    paymentStage.setScene(scene);
-                                    paymentStage.centerOnScreen();
-                                    paymentStage.show();
+                                    SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
 
-                                    Stage currentStage = (Stage) btnPayInvoice.getScene().getWindow();
-                                    currentStage.close();
+
 
                                 } catch (Exception ex) {
                                     showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán", "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + ex.getMessage());

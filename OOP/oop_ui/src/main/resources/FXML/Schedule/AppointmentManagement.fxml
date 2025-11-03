@@ -154,25 +154,29 @@
                                         <Label styleClass="form-label" text="Bệnh nhân:" GridPane.rowIndex="4" />
                                         <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                             <TextField fx:id="patientField" editable="false" styleClass="text-field" HBox.hgrow="ALWAYS" />
-                                            <Button fx:id="choosePatientBtn" onAction="#onChoosePatient" styleClass="btn-search" text="Chọn..." />
                                         </HBox>
 
-                                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.rowIndex="5" />
-                                        <ComboBox fx:id="doctorCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.rowIndex="6" />
+                                        <ComboBox fx:id="doctorCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
-                                        <Label styleClass="form-label" text="Dịch vụ:" GridPane.rowIndex="6" />
-                                        <ComboBox fx:id="serviceCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                        <Label styleClass="form-label" text="Dịch vụ:" GridPane.rowIndex="7" />
+                                        <ComboBox fx:id="serviceCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-                                        <Label styleClass="form-label" text="Phòng:" GridPane.rowIndex="7" />
-                                        <ComboBox fx:id="roomCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                        <Label styleClass="form-label" text="Phòng:" GridPane.rowIndex="8" />
+                                        <ComboBox fx:id="roomCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="8" />
 
-                                        <Label styleClass="form-label" text="Trạng thái:" GridPane.rowIndex="8" />
-                                        <ComboBox fx:id="statusCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                        <Label styleClass="form-label" text="Trạng thái:" GridPane.rowIndex="9" />
+                                        <ComboBox fx:id="statusCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 
-                                        <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="9" GridPane.valignment="TOP">
+                                        <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="10" GridPane.valignment="TOP">
                                             <padding><Insets top="8.0" /></padding>
                                         </Label>
-                                        <TextArea fx:id="noteArea" prefRowCount="3" styleClass="text-area" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                                        <TextArea fx:id="noteArea" prefRowCount="3" styleClass="text-area" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                                         <Button fx:id="choosePatientBtn" onAction="#onChoosePatient" prefHeight="40.0" prefWidth="123.0" styleClass="btn-search" text="Chọn..." GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                 <GridPane.margin>
+                                    <Insets />
+                                 </GridPane.margin>
+                              </Button>
                            <rowConstraints>
                               <RowConstraints />
                               <RowConstraints />
@@ -184,6 +188,7 @@
                               <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />
+                                 <RowConstraints />
                            </rowConstraints>
                                     </GridPane>
 
