@@ -406,37 +406,9 @@ public class AppointmentBookingController implements Initializable {
     private void onOpenCalendar(ActionEvent event) {
         try {
             System.out.println("🗓️ Opening Calendar view...");
-            
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/Schedule/Calendar.fxml")
-            );
-            Parent root = loader.load();
-            
-            // Get CalendarController
-            CalendarController calendarController = loader.getController();
-            
-            // Pre-select current doctor & date nếu có
-            if (selectedDoctor != null && selectedDate != null) {
-                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName() + 
-                                 ", date: " + selectedDate);
-                
-                // Pass data to calendar
-                calendarController.selectDoctorAndDate(selectedDoctor, selectedDate);
-            } else if (selectedDoctor != null) {
-                // Chỉ có doctor, date = today
-                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName());
-                calendarController.selectDoctorAndDate(selectedDoctor, LocalDate.now());
-            } else if (selectedDate != null) {
-                // Chỉ có date, không có doctor
-                System.out.println("✅ Jumping to date: " + selectedDate);
-                calendarController.selectDoctorAndDate(null, selectedDate);
-            }
-            
-            // Replace scene
-            Scene scene = btnOpenCalendar.getScene();
-            scene.setRoot(root);
-            
-            System.out.println("✅ Navigated to Calendar view");
+            SceneManager.setSceneData("selectedDoctor", selectedDoctor);
+            SceneManager.setSceneData("selectedDate", selectedDate);
+            SceneManager.openModalWindow(SceneConfig.CALENDAR_FXML, SceneConfig.Titles.CALENDAR, null);
 
         } catch (Exception e) {
             System.err.println("❌ Error opening calendar: " + e.getMessage());

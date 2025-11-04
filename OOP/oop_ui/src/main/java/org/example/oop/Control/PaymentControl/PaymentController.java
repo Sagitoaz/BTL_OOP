@@ -17,6 +17,7 @@ import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Service.HttpPaymentStatusLogService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.*;
 
@@ -335,25 +336,11 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void printReceipt() {
-        try {
+
             String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
+
             Receipt receipt = new Receipt(receiptNumber, currentPayment, currentItems);
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Receipt.fxml"));
-            Scene scene = new Scene(loader.load());
-
-            ReceiptController controller = loader.getController();
-            controller.displayReceipt(receipt);
-
-            Stage stage = new Stage();
-            stage.setTitle("In biên lai - " + receiptNumber);
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 4. SỬ DỤNG phương thức kế thừa
-            showError("Không thể tạo biên lai: " + e.getMessage());
-        }
+            SceneManager.setSceneData("receiptNumber", receipt);
+            SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
     }
 }

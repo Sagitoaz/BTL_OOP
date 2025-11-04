@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
 
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.Doctor;
@@ -79,6 +80,27 @@ public class CalendarController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if(SceneManager.getSceneData("selectedDoctor") != null || SceneManager.getSceneData("selectedDate") != null){
+            selectedDoctor = SceneManager.getSceneData("selectedDoctor");
+            LocalDate selectedDate = SceneManager.getSceneData("selectedDate");
+            if (selectedDoctor != null && selectedDate != null) {
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName() +
+                        ", date: " + selectedDate);
+
+                // Pass data to calendar
+                selectDoctorAndDate(selectedDoctor, selectedDate);
+            } else if (selectedDoctor != null) {
+                // Chỉ có doctor, date = today
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName());
+                selectDoctorAndDate(selectedDoctor, LocalDate.now());
+            } else if (selectedDate != null) {
+                // Chỉ có date, không có doctor
+                System.out.println("✅ Jumping to date: " + selectedDate);
+                selectDoctorAndDate(null, selectedDate);
+            }
+            SceneManager.removeSceneData("selectedDoctor");
+            SceneManager.removeSceneData("selectedDate");
+        }
         System.out.println("✅ CalendarController initialized");
         
         // 1. Khởi tạo services
