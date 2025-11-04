@@ -38,8 +38,8 @@
             </padding>
             <Label styleClass="page-title" text="ĐẶT LỊCH KHÁM" />
             <Region HBox.hgrow="ALWAYS" />
-            <TextField fx:id="patientQuickSearch" prefWidth="250.0" promptText="Tìm bệnh nhân (Tên/Email/SĐT)" styleClass="text-field" />
             <Button fx:id="btnNewPatient" mnemonicParsing="false" onAction="#onNewPatient" prefHeight="49.0" prefWidth="214.0" styleClass="btn-success" text="➕ Thêm bệnh nhân" />
+            <TextField fx:id="patientQuickSearch" prefWidth="250.0" promptText="Tìm bệnh nhân (Tên/Email/SĐT)" styleClass="text-field" />
             <ComboBox fx:id="cboCurrentUser" prefWidth="200.0" styleClass="combo-rounded" />
          </HBox>
          <Separator />

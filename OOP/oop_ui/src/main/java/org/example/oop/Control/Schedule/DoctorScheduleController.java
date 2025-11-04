@@ -26,6 +26,7 @@ import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
 import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.Doctor;
@@ -135,6 +136,19 @@ public class DoctorScheduleController implements Initializable {
     @FXML private Button exportPdfBtn;
     @FXML private Button undoBtn;
     @FXML private Button redoBtn;
+
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
     // INITIALIZATION
 
@@ -817,21 +831,21 @@ public class DoctorScheduleController implements Initializable {
 
     // ADD SCHEDULE
 
-    @FXML
-    private void onAddSchedule(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
-            );
-            Parent root = loader.load();
-
-            Scene scene = addScheduleBtn.getScene();
-            scene.setRoot(root);
-
-        } catch (Exception e) {
-            showInfo("Lỗi", e.getMessage());
-        }
-    }
+//    @FXML
+//    private void onAddSchedule(ActionEvent event) {
+//        try {
+//            FXMLLoader loader = new FXMLLoader(
+//                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
+//            );
+//            Parent root = loader.load();
+//
+//            Scene scene = addScheduleBtn.getScene();
+//            scene.setRoot(root);
+//
+//        } catch (Exception e) {
+//            showInfo("Lỗi", e.getMessage());
+//        }
+//    }
 
     // SAVE/EXPORT
 

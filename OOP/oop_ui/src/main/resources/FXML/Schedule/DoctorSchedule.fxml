@@ -23,10 +23,10 @@
    <top>
       <VBox>
          <!-- Navigation Bar -->
-         <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-            <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
-            <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
-            <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+         <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+            <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+            <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+            <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
          </HBox>
          <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="financial-header">
             <padding>
@@ -36,7 +36,7 @@
             <Region HBox.hgrow="ALWAYS" />
             <Label styleClass="form-label" text="Bác sĩ:" />
             <ComboBox fx:id="cboDoctorSelect" prefWidth="240.0" promptText="-- Chọn bác sĩ --" styleClass="combo-rounded" />
-            <Button fx:id="btnRefresh" mnemonicParsing="false" onAction="#onRefresh" prefWidth="120.0" styleClass="btn-secondary" text="🔄 Làm mới" />
+            <Button fx:id="btnRefresh" mnemonicParsing="false" onAction="#onRefresh" prefHeight="49.0" prefWidth="161.0" styleClass="btn-secondary" text="🔄 Làm mới" />
          </HBox>
          <Separator />
 
@@ -44,12 +44,11 @@
          <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-padding: 12 28 12 28; -fx-background-color: #f8f9fa;">
             <Label styleClass="form-label" text="Ngày:" />
             <DatePicker fx:id="datePicker" prefWidth="160.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
-            <ToggleButton fx:id="dayViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📅 Ngày" />
-            <ToggleButton fx:id="weekViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📆 Tuần" />
+            <ToggleButton fx:id="dayViewBtn" prefHeight="49.0" prefWidth="137.0" styleClass="btn-secondary" text="📅 Ngày" />
+            <ToggleButton fx:id="weekViewBtn" prefHeight="49.0" prefWidth="134.0" styleClass="btn-secondary" text="📆 Tuần" />
             <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" styleClass="btn-search" text="Hôm nay" />
             <Region HBox.hgrow="ALWAYS" />
             <TextField fx:id="searchField" prefWidth="200.0" promptText="🔍 Tìm kiếm..." />
-            <Button fx:id="addScheduleBtn" mnemonicParsing="false" onAction="#onAddSchedule" styleClass="btn-primary" text="➕ Thêm ca" />
          </HBox>
          <Separator />
       </VBox>
@@ -75,7 +74,7 @@
 
          <!-- CENTER: Schedule Display -->
          <ScrollPane fx:id="scheduleScrollPane" fitToHeight="true" fitToWidth="true" styleClass="scroll-pane" HBox.hgrow="ALWAYS">
-            <AnchorPane fx:id="schedulePane" style="-fx-background-color: white;" />
+            <AnchorPane fx:id="schedulePane" prefHeight="476.0" prefWidth="827.0" style="-fx-background-color: white;" />
          </ScrollPane>
 
          <!-- RIGHT: Filters & Controls -->
@@ -105,7 +104,7 @@
                   <CheckBox fx:id="morningShiftChk" text="Ca sáng (8:00-12:00)" />
                   <CheckBox fx:id="afternoonShiftChk" text="Ca chiều (13:00-17:00)" />
                   <CheckBox fx:id="eveningShiftChk" text="Ca tối (17:00-20:00)" />
-                  <Button fx:id="applyShiftBtn" mnemonicParsing="false" onAction="#onApplyShift" styleClass="btn-primary" text="Áp dụng" />
+                  <Button fx:id="applyShiftBtn" mnemonicParsing="false" onAction="#onApplyShift" styleClass="btn-success" text="Áp dụng" />
                </VBox>
 
                <Separator />
@@ -136,15 +135,15 @@
    <bottom>
       <VBox>
          <Separator />
-         <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="financial-header">
+         <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="1200.0" spacing="14.0" styleClass="financial-header">
             <padding>
                <Insets bottom="14.0" left="28.0" right="28.0" top="14.0" />
             </padding>
             <Button fx:id="undoBtn" mnemonicParsing="false" onAction="#onUndo" styleClass="btn-secondary" text="↶ Hoàn tác" />
             <Button fx:id="redoBtn" mnemonicParsing="false" onAction="#onRedo" styleClass="btn-secondary" text="↷ Làm lại" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#onSave" prefHeight="16.0" prefWidth="150.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);" text="💾 LƯU" />
-            <Button fx:id="exportPdfBtn" mnemonicParsing="false" onAction="#onExportPdf" prefHeight="20.0" prefWidth="150.0" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);" text="📄 XUẤT PDF" />
+            <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#onSave" prefHeight="16.0" prefWidth="150.0" styleClass="btn-save" text="💾 LƯU" />
+            <Button fx:id="exportPdfBtn" mnemonicParsing="false" onAction="#onExportPdf" prefHeight="20.0" prefWidth="150.0" styleClass="btn-danger" text="📄 XUẤT PDF" />
          </HBox>
       </VBox>
    </bottom>

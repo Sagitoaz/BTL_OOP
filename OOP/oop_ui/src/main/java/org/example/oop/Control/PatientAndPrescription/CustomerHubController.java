@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
@@ -379,52 +380,43 @@ public class CustomerHubController implements Initializable {
     }
     @FXML
     private void onAddCustomerButton(){
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Thêm Bệnh Nhân Mới");
-            stage.setScene(new Scene(loader.load()));
-            stage.centerOnScreen();
-            stage.showAndWait();
-            AddCustomerViewController controller = loader.getController();
-            Customer newCustomer = controller.getCurCustomer();
-            customerRecordsList.add(newCustomer);
-            setCurrentListCustomer();
 
-        } catch (IOException e) {
-            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
-        }
+            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
+
+
+            if(SceneManager.getSceneData("newCustomer")!= null){
+                Customer newCustomer = (Customer) SceneManager.getSceneData("newCustomer");
+                customerRecordsList.add(newCustomer);
+                setCurrentListCustomer();
+                SceneManager.removeSceneData("newCustomer");
+
+            }
+
     }
 
     @FXML
     private void handleEditCustomer(ActionEvent event) {
-        try {
+
             if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
                 showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi Chỉnh sửa bệnh nhân");
                 return;
             }
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Chỉnh sửa Bệnh Nhân ");
-            stage.setScene(new Scene(loader.load()));
-            AddCustomerViewController controller = loader.getController();
+            Customer selectedCustomer = customerListView.getSelectionModel().getSelectedItem();
+            SceneManager.removeSceneData("selectedCustomer");
+             SceneManager.setSceneData("selectedCustomer", selectedCustomer);
+            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
-            controller.initData(customerListView.getSelectionModel().getSelectedItem());
-            stage.centerOnScreen();
-            stage.showAndWait();
-            Customer updatedPatient = controller.getCurCustomer();
-            if(updatedPatient != null){
+
+
+            if(SceneManager.getSceneData("updatedCustomer")!= null){
                 int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
+                Customer updatedPatient = (Customer) SceneManager.getSceneData("updatedCustomer");
                 customerRecordsList.set(selectedIndex, updatedPatient);
                 setCurrentListCustomer();
+                SceneManager.removeSceneData("updatedCustomer");
             }
 
-
-        } catch (IOException e) {
-            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
-        }
     }
 
 

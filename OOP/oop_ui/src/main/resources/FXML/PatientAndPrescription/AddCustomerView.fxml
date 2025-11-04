@@ -99,7 +99,7 @@
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
-                <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" prefWidth="120.0" styleClass="btn-secondary" text="✖ Đóng" />
+                <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onCloseButton" prefHeight="49.0" prefWidth="142.0" styleClass="btn-secondary" text="✖ Đóng" />
                 <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDeleteButton" prefWidth="100.0" styleClass="btn-danger" text="Xóa" />
                 <Button fx:id="saveAndCloseButton" defaultButton="true" mnemonicParsing="false" onAction="#onSaveAndCloseButton" prefHeight="49.0" prefWidth="188.0" styleClass="btn-success" text="💾 Lưu &amp; Đóng" />
             </HBox>

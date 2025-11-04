@@ -42,5 +42,9 @@ public class AdminDashBoardController {
         SceneManager.switchScene(SceneConfig.EMPLOYEE_MANAGEMENT_FXML, SceneConfig.Titles.EMPLOYEE_MANAGEMENT);
 
     }
+    @FXML
+    private  void handleOpenDoctorSchedule(){
+        SceneManager.switchScene(SceneConfig.DOCTOR_SCHEDULE_FXML, SceneConfig.Titles.DOCTOR_SCHEDULE);
+    }
 
 }
