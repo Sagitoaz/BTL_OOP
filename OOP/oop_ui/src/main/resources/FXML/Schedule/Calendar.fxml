@@ -6,156 +6,144 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<VBox prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.CalendarController">
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="700.0" prefHeight="720.0" prefWidth="980.0" spacing="8.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.CalendarController">
-   <children>
-      <!-- Navigation Controls -->
-      <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="12.0">
+   <!-- Header -->
+   <VBox>
+      <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
          <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+            <Insets bottom="18.0" left="28.0" right="28.0" top="18.0" />
          </padding>
-         <children>
-            <Label text="Bác sĩ:" />
-            <ComboBox fx:id="doctorComboBox" prefWidth="200.0" promptText="Chọn bác sĩ" />
-            
-            <Label text="Tuần:" />
-            <DatePicker fx:id="weekDatePicker" promptText="Chọn ngày" />
-            
-            <Button fx:id="prevWeekBtn" mnemonicParsing="false" onAction="#onPrevWeek" text="◀ Trước" />
-            <Button fx:id="nextWeekBtn" mnemonicParsing="false" onAction="#onNextWeek" text="Sau ▶" />
-            <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" text="Hôm nay" />
-            
-            <Label fx:id="weekRangeLabel" text="Tuần: 20/10/2025 - 26/10/2025" HBox.hgrow="ALWAYS" />
-         </children>
+         <Label styleClass="page-title" text="LỊCH TUẦN" />
+         <Region HBox.hgrow="ALWAYS" />
+         <Label fx:id="weekRangeLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Tuần: 20/10/2025 - 26/10/2025" />
       </HBox>
-      
-      <!-- Day Headers -->
-      <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="200.0" spacing="4.0">
+      <Separator />
+   </VBox>
+
+   <!-- Filter and Navigation Controls -->
+   <VBox spacing="12.0">
+      <padding>
+         <Insets bottom="16.0" left="28.0" right="28.0" top="16.0" />
+      </padding>
+
+      <HBox alignment="CENTER_LEFT" spacing="14.0">
+         <Label styleClass="form-label" text="Bác sĩ:" />
+         <ComboBox fx:id="doctorComboBox" prefWidth="220.0" promptText="Chọn bác sĩ" styleClass="combo-rounded" />
+
+         <Region prefWidth="20.0" />
+
+         <Label styleClass="form-label" text="Chọn tuần:" />
+         <DatePicker fx:id="weekDatePicker" prefHeight="45.0" prefWidth="179.0" promptText="Chọn ngày" />
+
+         <Region HBox.hgrow="ALWAYS" />
+
+         <Button fx:id="prevWeekBtn" mnemonicParsing="false" onAction="#onPrevWeek" prefHeight="44.0" prefWidth="106.0" styleClass="btn-secondary" text="◀ Trước" />
+         <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" prefHeight="38.0" prefWidth="135.0" styleClass="btn-search" text="📅 Hôm nay" />
+         <Button fx:id="nextWeekBtn" mnemonicParsing="false" onAction="#onNextWeek" prefWidth="100.0" styleClass="btn-secondary" text="Sau ▶" />
+      </HBox>
+   </VBox>
+
+   <Separator />
+
+   <!-- Calendar Grid -->
+   <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+      <VBox spacing="0.0">
          <padding>
-            <Insets bottom="4.0" left="8.0" right="8.0" top="4.0" />
+            <Insets bottom="20.0" left="20.0" right="20.0" top="12.0" />
          </padding>
-         <children>
-            <Label prefWidth="80.0" text="Giờ" />
-            <GridPane alignment="CENTER" HBox.hgrow="ALWAYS">
+
+         <!-- Day Headers -->
+         <HBox spacing="0.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 0 2 0;">
+            <padding>
+               <Insets bottom="12.0" top="12.0" />
+            </padding>
+
+            <!-- Time Column Header -->
+            <VBox alignment="CENTER" prefWidth="90.0" style="-fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+               <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;" text="Thời gian" />
+            </VBox>
+
+            <!-- Day Headers Grid -->
+            <GridPane HBox.hgrow="ALWAYS">
               <columnConstraints>
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="14.2857" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                 <RowConstraints />
               </rowConstraints>
-               <children>
-                  <Label style="-fx-font-weight: bold;" text="Thứ 2" />
-                  <Label style="-fx-font-weight: bold;" text="Thứ 3" GridPane.columnIndex="1" />
-                  <Label style="-fx-font-weight: bold;" text="Thứ 4" GridPane.columnIndex="2" />
-                  <Label style="-fx-font-weight: bold;" text="Thứ 5" GridPane.columnIndex="3" />
-                  <Label style="-fx-font-weight: bold;" text="Thứ 6" GridPane.columnIndex="4" />
-                  <Label style="-fx-font-weight: bold;" text="Thứ 7" GridPane.columnIndex="5" />
-                  <Label style="-fx-font-weight: bold;" text="Chủ nhật" GridPane.columnIndex="6" />
-               </children>
+              <children>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="0">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Hai" />
+                    <Label fx:id="dateLabel0" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="20/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="1">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Ba" />
+                    <Label fx:id="dateLabel1" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="21/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="2">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Tư" />
+                    <Label fx:id="dateLabel2" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="22/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="3">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Năm" />
+                    <Label fx:id="dateLabel3" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="23/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="4">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Sáu" />
+                    <Label fx:id="dateLabel4" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="24/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="5">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Thứ Bảy" />
+                    <Label fx:id="dateLabel5" style="-fx-font-size: 12px; -fx-text-fill: #6c757d;" text="25/10" />
+                 </VBox>
+                 <VBox alignment="CENTER" spacing="4.0" GridPane.columnIndex="6">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" text="Chủ Nhật" />
+                    <Label fx:id="dateLabel6" style="-fx-font-size: 12px; -fx-text-fill: #e74c3c;" text="26/10" />
+                 </VBox>
+              </children>
             </GridPane>
-         </children>
-      </HBox>
-      
-      <!-- Calendar Grid -->
-      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="541.0" prefWidth="980.0" VBox.vgrow="ALWAYS">
-         <content>
-            <HBox prefHeight="720.0" prefWidth="965.0" spacing="4.0">
-               <children>
-                  <!-- Time Labels Column -->
-                  <VBox fx:id="timeLabelColumn" alignment="TOP_RIGHT" prefHeight="720.0" prefWidth="80.0" spacing="0.0">
-                     <children>
-                        <Label text="8:00" />
-                        <Label text="8:30" />
-                        <Label text="9:00" />
-                        <Label text="9:30" />
-                        <Label text="10:00" />
-                        <Label text="10:30" />
-                        <Label text="11:00" />
-                        <Label text="11:30" />
-                        <Label text="12:00" />
-                        <Label text="12:30" />
-                        <Label text="13:00" />
-                        <Label text="13:30" />
-                        <Label text="14:00" />
-                        <Label text="14:30" />
-                        <Label text="15:00" />
-                        <Label text="15:30" />
-                        <Label text="16:00" />
-                        <Label text="16:30" />
-                        <Label text="17:00" />
-                        <Label text="17:30" />
-                        <Label text="18:00" />
-                        <Label text="18:30" />
-                        <Label text="19:00" />
-                        <Label text="19:30" />
-                        <Label text="20:00" />
-                     </children>
-                  </VBox>
-                  
-                  <!-- Calendar Grid + Appointment Overlay -->
-                  <StackPane prefHeight="720.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
-                     <children>
-                        <!-- Background Grid -->
-                        <GridPane fx:id="calendarGrid" prefHeight="720.0" prefWidth="100.0">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="14.2857" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                        </GridPane>
-                        
-                        <!-- Appointment Overlay (Transparent layer on top) -->
-                        <AnchorPane fx:id="appointmentPane" pickOnBounds="false" prefHeight="720.0" prefWidth="200.0" />
-                     </children>
-                  </StackPane>
-               </children>
-            </HBox>
-         </content>
-      </ScrollPane>
-   </children>
+         </HBox>
+
+         <!-- Calendar Body - Dynamic Content Area -->
+         <HBox spacing="0.0" style="-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 1 1 1;" VBox.vgrow="ALWAYS">
+
+            <!-- Time Label Column -->
+            <VBox fx:id="timeLabelColumn" alignment="TOP_RIGHT" prefWidth="90.0" spacing="0.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
+               <padding>
+                  <Insets bottom="0.0" left="8.0" right="8.0" top="0.0" />
+               </padding>
+            </VBox>
+
+            <!-- Calendar Grid with Appointments -->
+            <VBox HBox.hgrow="ALWAYS">
+               <GridPane fx:id="calendarGrid" style="-fx-background-color: white; -fx-border-color: #e0e0e0;">
+                  <columnConstraints>
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                  </columnConstraints>
+               </GridPane>
+            </VBox>
+         </HBox>
+      </VBox>
+   </ScrollPane>
 </VBox>

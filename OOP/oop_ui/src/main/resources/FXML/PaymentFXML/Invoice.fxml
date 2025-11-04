@@ -4,6 +4,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
@@ -17,185 +19,239 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="750.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
     <top>
-        <VBox spacing="8.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <Label style="-fx-font-size:20px; -fx-font-weight:bold;" text="HÓA ĐƠN BÁN HÀNG" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="btnNewInvoice" mnemonicParsing="false" text="Mới" />
-                        <Button fx:id="btnSaveInvoice" mnemonicParsing="false" text="Lưu" />
-                        <Button fx:id="btnPayInvoice" mnemonicParsing="false" text="Thanh toán" />
-                    </children>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <Label text="Mã hóa đơn:" />
-                        <TextField fx:id="txtInvoiceCode" prefWidth="160" promptText="HD..." />
-                        <Label text="Ngày:" />
-                        <DatePicker fx:id="dpInvoiceDate" />
-                        <Label text="Thu ngân:" />
-                        <TextField fx:id="txtCashier" prefWidth="200" promptText="ID nhân viên" />
-                    </children>
-                </HBox>
-            </children>
+        <VBox>
+            <!-- Navigation Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
+                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
+                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            </HBox>
+            
+            <!-- Header với các button chính -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Label styleClass="page-title" text="HÓA ĐƠN BÁN HÀNG" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnNewInvoice" mnemonicParsing="false" prefHeight="43.0" prefWidth="98.0" styleClass="btn-success" text="➕ Mới" textAlignment="CENTER" wrapText="true" />
+                <Button fx:id="btnSaveInvoice" mnemonicParsing="false" prefHeight="43.0" prefWidth="114.0" styleClass="btn-success" text="💾 Lưu" textAlignment="CENTER" wrapText="true" />
+                <Button fx:id="btnPayInvoice" mnemonicParsing="false" prefHeight="38.0" prefWidth="141.0" styleClass="btn-search" text="💰 Thanh toán" textAlignment="CENTER" wrapText="true" />
+            </HBox>
+            <Separator />
+            <!-- Thông tin hóa đơn -->
+            <GridPane hgap="16" styleClass="info-section" vgap="12">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                </rowConstraints>
+                <children>
+                    <!-- Mã HĐ -->
+                    <VBox spacing="6" GridPane.columnIndex="0">
+                        <Label styleClass="form-label" text="Mã hóa đơn:" />
+                        <TextField fx:id="txtInvoiceCode" promptText="HD..." styleClass="text-field" />
+                    </VBox>
+                    <!-- Ngày -->
+                    <VBox spacing="6" GridPane.columnIndex="1">
+                        <Label styleClass="form-label" text="Ngày lập:" />
+                        <DatePicker fx:id="dpInvoiceDate" prefWidth="200.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+                    </VBox>
+                    <!-- Thu ngân -->
+                    <VBox spacing="6" GridPane.columnIndex="2">
+                        <Label styleClass="form-label" text="Thu ngân:" />
+                        <TextField fx:id="txtCashier" promptText="ID nhân viên" styleClass="text-field" />
+                    </VBox>
+                </children>
+            </GridPane>
+            <Separator />
         </VBox>
     </top>
-    <left>
-        <VBox prefWidth="320.0" spacing="10.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets left="10.0" right="10.0" top="10.0" />
-            </padding>
-            <children>
-                <TitledPane expanded="true" text="THÔNG TIN KHÁCH HÀNG">
-                    <content>
-                        <GridPane hgap="10" vgap="8">
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </padding>
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="30.0" />
-                                <ColumnConstraints percentWidth="70.0" />
-                            </columnConstraints>
+
+    <center>
+        <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="scroll-pane">
+            <content>
+                <HBox spacing="20.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                    </padding>
+                    <children>
+                        <!-- LEFT PANEL: Customer Info & Add Item -->
+                        <VBox prefWidth="380.0" spacing="16.0">
                             <children>
-                                <Label text="SĐT:" />
-                                <HBox spacing="8.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <TextField fx:id="txtCustomerPhone" promptText="Nhập SĐT..." HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="btnFindCustomer" mnemonicParsing="false" prefHeight="25.0" prefWidth="55.0" text="Tìm" />
-                                    </children>
-                                </HBox>
-                                <Label text="Họ tên:" GridPane.rowIndex="1" />
-                                <TextField fx:id="txtCustomerName" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                <Label text="Tuổi:" GridPane.rowIndex="2" />
-                                <TextField fx:id="txtCustomerAge" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <Label text="Giới tính:" GridPane.rowIndex="3" />
-                                <TextField fx:id="txtCustomerGender" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                <Label text="Địa chỉ:" GridPane.rowIndex="4" />
-                                <TextField fx:id="txtCustomerAddress" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                            </children>
-                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                     </rowConstraints>
-                        </GridPane>
-                    </content>
-                </TitledPane>
-                <TitledPane expanded="true" text="THÊM MẶT HÀNG">
-                    <content>
-                        <VBox spacing="10.0">
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </padding>
-                            <children>
-                                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                    <children>
-                                        <Label text="Mã SKU:" />
-                                        <TextField fx:id="txtSkuSearch" promptText="Nhập SKU..." HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="btnFindProduct" mnemonicParsing="false" text="Tìm SP" />
-                                    </children>
-                                </HBox>
-                                <GridPane hgap="10" vgap="8">
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="30.0" />
-                                        <ColumnConstraints percentWidth="70.0" />
-                                    </columnConstraints>
-                                    <children>
-                                        <Label text="Tên SP:" />
-                                        <TextField fx:id="txtProductName" editable="false" GridPane.columnIndex="1" />
-                                        <Label text="Kiểu:" GridPane.rowIndex="1" />
-                                        <TextField fx:id="txtProductType" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                        <Label text="Đơn giá:" GridPane.rowIndex="2" />
-                                        <TextField fx:id="txtProductPrice" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                              <RowConstraints />
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
-                                <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                    <children>
-                                        <Label text="Số lượng:" />
-                                        <TextField fx:id="txtQuantity" prefWidth="60.0" text="1" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <Button fx:id="btnAddItem" mnemonicParsing="false" onAction="#handleAddItem" text="Thêm" />
-                                    </children>
-                                </HBox>
+                                <!-- Thông tin khách hàng -->
+                                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="👤 THÔNG TIN KHÁCH HÀNG">
+                                    <content>
+                                        <VBox spacing="12.0">
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                            <children>
+                                                <!-- SĐT với button tìm kiếm -->
+                                                <VBox spacing="6">
+                                                    <Label styleClass="form-label" text="Số điện thoại:" />
+                                                    <HBox spacing="8.0">
+                                                        <children>
+                                                            <TextField fx:id="txtCustomerPhone" prefHeight="41.0" prefWidth="148.0" promptText="Nhập SĐT..." styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                            <Button fx:id="btnFindCustomer" mnemonicParsing="false" prefHeight="38.0" prefWidth="80.0" styleClass="btn-search" text="🔍" />
+                                                        </children>
+                                                    </HBox>
+                                                </VBox>
+                                                <!-- Họ tên -->
+                                                <VBox spacing="6">
+                                                    <Label styleClass="form-label" text="Họ và tên:" />
+                                                    <TextField fx:id="txtCustomerName" editable="false" styleClass="text-field" />
+                                                </VBox>
+                                                <!-- Tuổi và Giới tính trên 1 hàng -->
+                                                <HBox spacing="12">
+                                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                        <Label styleClass="form-label" text="Tuổi:" />
+                                                        <TextField fx:id="txtCustomerAge" editable="false" styleClass="text-field" />
+                                                    </VBox>
+                                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                        <Label styleClass="form-label" text="Giới tính:" />
+                                                        <TextField fx:id="txtCustomerGender" editable="false" styleClass="text-field" />
+                                                    </VBox>
+                                                </HBox>
+                                                <!-- Địa chỉ -->
+                                                <VBox spacing="6">
+                                                    <Label styleClass="form-label" text="Địa chỉ:" />
+                                                    <TextField fx:id="txtCustomerAddress" editable="false" styleClass="text-field" />
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
+
+                                <!-- Thêm mặt hàng -->
+                                <TitledPane expanded="true" styleClass="titled-pane" text="➕ THÊM MẶT HÀNG">
+                                    <content>
+                                        <VBox spacing="12.0">
+                                            <padding>
+                                                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                            </padding>
+                                            <children>
+                                                <!-- SKU với button tìm kiếm -->
+                                                <VBox spacing="6">
+                                                    <Label styleClass="form-label" text="Mã sản phẩm (SKU):" />
+                                                    <HBox spacing="8.0">
+                                                        <children>
+                                                            <TextField fx:id="txtSkuSearch" prefHeight="41.0" prefWidth="148.0" promptText="Nhập SKU..." styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                            <Button fx:id="btnFindProduct" mnemonicParsing="false" prefHeight="36.0" prefWidth="80.0" styleClass="btn-search" text="🔍" />
+                                                        </children>
+                                                    </HBox>
+                                                </VBox>
+                                                <!-- Tên sản phẩm -->
+                                                <VBox spacing="6">
+                                                    <Label styleClass="form-label" text="Tên sản phẩm:" />
+                                                    <TextField fx:id="txtProductName" editable="false" styleClass="text-field" />
+                                                </VBox>
+                                                <!-- Kiểu và Giá trên 1 hàng -->
+                                                <HBox spacing="12">
+                                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                        <Label styleClass="form-label" text="Loại:" />
+                                                        <TextField fx:id="txtProductType" editable="false" styleClass="text-field" />
+                                                    </VBox>
+                                                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                                        <Label styleClass="form-label" text="Đơn giá:" />
+                                                        <TextField fx:id="txtProductPrice" editable="false" styleClass="text-field" />
+                                                    </VBox>
+                                                </HBox>
+                                                <!-- Số lượng và button thêm -->
+                                                <HBox alignment="CENTER_LEFT" spacing="12">
+                                                    <VBox prefWidth="100" spacing="6">
+                                                        <Label styleClass="form-label" text="Số lượng:" />
+                                                        <TextField fx:id="txtQuantity" styleClass="text-field" text="1" />
+                                                    </VBox>
+                                                    <Region HBox.hgrow="ALWAYS" />
+                                                    <Button fx:id="btnAddItem" alignment="BOTTOM_RIGHT" mnemonicParsing="false" onAction="#handleAddItem" prefHeight="40.0" prefWidth="150.0" styleClass="btn-success" text="➕ Thêm" />
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </TitledPane>
                             </children>
                         </VBox>
-                    </content>
-                </TitledPane>
-            </children>
-        </VBox>
-    </left>
-    <center>
-        <VBox spacing="8.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets right="10.0" top="10.0" />
-            </padding>
-            <children>
-                <TableView fx:id="tableItems" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colName" prefWidth="350.0" text="Tên hàng" />
-                        <TableColumn fx:id="colQuantity" prefWidth="70.0" text="SL" />
-                        <TableColumn fx:id="colUnitPrice" prefWidth="120.0" text="Đơn giá" />
-                        <TableColumn fx:id="colTotal" prefWidth="150.0" text="Thành tiền" />
-                    </columns>
-                </TableView>
-                <HBox alignment="CENTER_RIGHT">
-                    <children>
-                        <Button fx:id="btnRemoveRow" mnemonicParsing="false" text="Xóa dòng" />
+
+                        <!-- RIGHT PANEL: Items Table & Summary -->
+                        <VBox spacing="16.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <!-- Danh sách mặt hàng -->
+                                <VBox spacing="12.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="DANH SÁCH SẢN PHẨM" />
+                                        <TableView fx:id="tableItems" prefHeight="320.0" prefWidth="775.0" styleClass="financial-table">
+                                            <columns>
+                                                <TableColumn fx:id="colName" prefWidth="250.0" text="Tên sản phẩm" />
+                                                <TableColumn fx:id="colQuantity" prefWidth="108.0" text="SL" />
+                                                <TableColumn fx:id="colUnitPrice" prefWidth="163.0" text="Đơn giá" />
+                                                <TableColumn fx:id="colTotal" prefWidth="317.0" text="Thành tiền" />
+                                            </columns>
+                                        </TableView>
+                                        <HBox alignment="CENTER_RIGHT">
+                                            <children>
+                                                <Button fx:id="btnRemoveRow" mnemonicParsing="false" prefHeight="38.0" prefWidth="130.0" styleClass="btn-danger" text="Xóa dòng" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Phần thanh toán -->
+                                <VBox spacing="12.0">
+                                    <children>
+                                        <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="💰 THÔNG TIN THANH TOÁN" />
+                                        <GridPane hgap="20" vgap="12">
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="40.0" />
+                                                <ColumnConstraints percentWidth="60.0" />
+                                            </columnConstraints>
+                                            <children>
+                                                <!-- Ghi chú bên trái -->
+                                                <VBox spacing="8" GridPane.columnIndex="0">
+                                                    <Label styleClass="form-label" text="Ghi chú:" />
+                                                    <TextArea fx:id="txtInvoiceNote" prefHeight="140.0" prefRowCount="5" promptText="Nhập ghi chú..." styleClass="text-area" wrapText="true" />
+                                                </VBox>
+
+                                                <!-- Các trường tính toán bên phải -->
+                                                <VBox spacing="12" GridPane.columnIndex="1">
+                                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                                        <Label prefWidth="110.0" styleClass="form-label" text="Tổng tiền:" />
+                                                        <TextField fx:id="txtSubtotal" editable="false" promptText="0 VNĐ" styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                                        <Label prefWidth="110.0" styleClass="form-label" text="Giảm giá:" />
+                                                        <TextField fx:id="txtDiscountAmount" promptText="0 VNĐ" styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                    </HBox>
+                                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                                        <Label prefWidth="110.0" styleClass="form-label" text="Thuế VAT:" />
+                                                        <TextField fx:id="txtTaxAmount" editable="false" promptText="0 VNĐ" styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                    </HBox>
+                                                    <Separator />
+                                                    <HBox alignment="CENTER_LEFT" spacing="12">
+                                                        <Label prefWidth="110.0" style="-fx-font-weight: bold; -fx-font-size: 16px;" text="TỔNG CỘNG:" />
+                                                        <TextField fx:id="txtGrandTotal" editable="false" promptText="0 VNĐ" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #d32f2f;" styleClass="text-field" HBox.hgrow="ALWAYS" />
+                                                    </HBox>
+                                                </VBox>
+                                            </children>
+                                            <rowConstraints>
+                                                <RowConstraints />
+                                            </rowConstraints>
+                                        </GridPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </VBox>
                     </children>
                 </HBox>
-            </children>
-        </VBox>
+            </content>
+        </ScrollPane>
     </center>
-    <bottom>
-        <GridPane hgap="12" vgap="8" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
-            </padding>
-            <columnConstraints>
-                <ColumnConstraints percentWidth="60.0" />
-                <ColumnConstraints percentWidth="40.0" />
-            </columnConstraints>
-            <children>
-                <TextArea fx:id="txtInvoiceNote" prefRowCount="3" promptText="Ghi chú cho hóa đơn..." />
-                <GridPane hgap="8" vgap="6" GridPane.columnIndex="1">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" prefWidth="120.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" />
-                    </columnConstraints>
-                    <children>
-                        <Label text="Tổng tiền hàng:" />
-                        <TextField fx:id="txtSubtotal" editable="false" promptText="0" GridPane.columnIndex="1" />
-                        <Label text="Giảm giá:" GridPane.rowIndex="1" />
-                        <TextField fx:id="txtDiscountAmount" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label text="Thuế:" GridPane.rowIndex="2" />
-                        <TextField fx:id="txtTaxAmount" editable="false" promptText="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label style="-fx-font-weight: bold;" text="TỔNG CỘNG:" GridPane.rowIndex="3" />
-                        <TextField fx:id="txtGrandTotal" editable="false" promptText="0" style="-fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    </children>
-               <rowConstraints>
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-                  <RowConstraints />
-               </rowConstraints>
-                </GridPane>
-            </children>
-         <rowConstraints>
-            <RowConstraints />
-         </rowConstraints>
-        </GridPane>
-    </bottom>
 </BorderPane>

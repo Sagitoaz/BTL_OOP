@@ -1,0 +1,230 @@
+/* ========================================
+   TABLES STYLES - MODERN EYE CLINIC DESIGN
+   Thiết kế: Bảng dữ liệu hiện đại với xanh dương
+   Phong cách: Clean, Professional & Easy to Read
+   ======================================== */
+
+/* ========== TABLE CONTAINER ========== */
+.table-container {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 16px;
+    -fx-padding: 28px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 20, 0, 0, 5);
+    -fx-border-color: rgba(14, 165, 233, 0.1);
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+}
+
+/* ========== TABLE VIEW - MODERN DESIGN ========== */
+.table-view {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-fixed-cell-size: 52px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.08), 10, 0, 0, 3);
+}
+
+/* Bo tròn viewport của table */
+.table-view .virtual-flow {
+    -fx-background-color: transparent;
+}
+
+.table-view .clipped-container {
+    -fx-background-color: transparent;
+}
+
+.table-view .sheet {
+    -fx-background-color: transparent;
+}
+
+/* Table Header - Blue Gradient */
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+    -fx-background-radius: 10px 10px 0 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 16px 18px;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 0 1px 0 0;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #FFFFFF;
+    -fx-alignment: center-left;
+}
+
+.table-view .column-header:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Sorting Arrow */
+.table-view .arrow {
+    -fx-background-color: #FFFFFF;
+}
+
+.table-view .filler {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+    -fx-background-radius: 0 10px 0 0;
+}
+
+/* ========== TABLE CELLS ========== */
+.table-view .table-cell {
+    -fx-padding: 14px 18px;
+    -fx-text-fill: #1E293B;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-border-color: #F1F5F9;
+    -fx-border-width: 0 0 1px 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cell-size: 52px;
+}
+
+/* ========== TABLE ROWS ========== */
+.table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-background-insets: 0;
+    -fx-cell-size: 52px;
+    -fx-pref-height: 52px;
+    -fx-min-height: 52px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #F8FBFF;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-cursor: hand;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #BAE6FD;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #0369A1;
+    -fx-font-weight: 600;
+}
+
+/* ========== EMPTY TABLE ========== */
+.table-view .placeholder {
+    -fx-background-color: transparent;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+}
+
+/* ========== TABLE SCROLLBAR ========== */
+.table-view .scroll-bar:vertical {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 8px;
+}
+
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2px;
+}
+
+.table-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+}
+
+.table-view .scroll-bar:vertical .increment-button,
+.table-view .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 8px;
+}
+
+.table-view .scroll-bar:horizontal .thumb {
+    -fx-background-color: linear-gradient(to bottom, #38BDF8 0%, #0EA5E9 100%);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2px;
+}
+
+.table-view .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+}
+
+/* ========== TABLE CORNER ========== */
+.table-view .corner {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+    -fx-background-radius: 0 10px 0 0;
+}
+
+/* ========== COLUMN RESIZE INDICATOR ========== */
+.table-view .column-resize-line {
+    -fx-background-color: #0EA5E9;
+    -fx-padding: 0 1px;
+}
+
+/* ========== TABLE CONTEXT MENU ========== */
+.table-view .context-menu {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 15, 0, 0, 5);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.table-view .context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 10px 16px;
+}
+
+.table-view .context-menu .menu-item:hover {
+    -fx-background-color: #E0F2FE;
+}
+
+.table-view .context-menu .menu-item .label {
+    -fx-text-fill: #334155;
+    -fx-font-weight: 500;
+}
+
+/* ========== ACTION COLUMN BUTTONS ========== */
+.table-action-btn {
+    -fx-background-radius: 8px;
+    -fx-padding: 6px 12px;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.table-action-btn.view {
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
+    -fx-text-fill: white;
+}
+
+.table-action-btn.edit {
+    -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
+    -fx-text-fill: white;
+}
+
+.table-action-btn.delete {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+}
+
+.table-action-btn:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}

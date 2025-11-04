@@ -1,9 +1,9 @@
 package org.example.oop;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 
 import java.io.IOException;
 
@@ -14,11 +14,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescriptionCustomerHub.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Eye Clinic Management System");
-        stage.setScene(scene);
-        stage.centerOnScreen();
-        stage.show();
+        SceneManager.setPrimaryStage(stage);
+        SceneManager.clearCache();
+        SceneManager.clearSceneData();
+        SceneManager.switchScene(SceneConfig.FINANCIAL_REPORT_FXML, SceneConfig.Titles.FINANCIAL_REPORT);
     }
 }

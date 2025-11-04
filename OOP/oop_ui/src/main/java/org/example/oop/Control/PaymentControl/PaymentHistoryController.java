@@ -5,12 +5,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Service.HttpPaymentService;
-import org.example.oop.Service.HttpPaymentStatusLogService;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentMethod;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
+import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -19,10 +21,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PaymentHistoryController implements Initializable {
-    // Chi tiết hóa đơn sẽ được thêm sau
     private final HttpPaymentService paymentService;
-    private final HttpPaymentStatusLogService paymentStatusLogService;
-    private final ObservableList<Payment> payments;
+    private final ObservableList<PaymentWithStatus> paymentsWithStatus;
+
+    // Dữ liệu tải về từ API sẽ được lưu trữ ở đây
+    private List<PaymentWithStatus> allPaymentsWithStatus;
+
     @FXML
     private TextField txtKeyword;
     @FXML
@@ -32,63 +36,83 @@ public class PaymentHistoryController implements Initializable {
     @FXML
     private DatePicker dpFrom, dpTo;
     @FXML
-    private TableView<Payment> tablePayments;
+    private TableView<PaymentWithStatus> tablePayments;
     @FXML
-    private TableColumn<Payment, String> colPaymentId;
+    private TableColumn<PaymentWithStatus, String> colPaymentId;
     @FXML
-    private TableColumn<Payment, String> colInvoiceId;
+    private TableColumn<PaymentWithStatus, String> colInvoiceId;
     @FXML
-    private TableColumn<Payment, LocalDateTime> colCreatedAt;
+    private TableColumn<PaymentWithStatus, LocalDateTime> colCreatedAt;
     @FXML
-    private TableColumn<Payment, String> colCustomer;
+    private TableColumn<PaymentWithStatus, String> colCustomer;
     @FXML
-    private TableColumn<Payment, PaymentMethod> colMethod;
+    private TableColumn<PaymentWithStatus, PaymentMethod> colMethod;
     @FXML
-    private TableColumn<Payment, Integer> colAmount;
+    private TableColumn<PaymentWithStatus, Integer> colAmount;
     @FXML
-    private TableColumn<Payment, PaymentStatus> colStatus;
+    private TableColumn<PaymentWithStatus, PaymentStatus> colStatus;
     @FXML
-    private TableColumn<Payment, String> colStaff;
+    private TableColumn<PaymentWithStatus, String> colStaff;
     @FXML
-    private TableColumn<Payment, String> colNote;
+    private TableColumn<PaymentWithStatus, String> colNote;
 
     public PaymentHistoryController() {
         this.paymentService = new HttpPaymentService();
-        this.paymentStatusLogService = new HttpPaymentStatusLogService();
-        this.payments = FXCollections.observableArrayList();
+        this.paymentsWithStatus = FXCollections.observableArrayList();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupTableColumns();
         setupFilters();
-        loadPayments();
+        loadPayments();  // Tải dữ liệu ngay khi khởi tạo controller
     }
 
     private void setupTableColumns() {
-        // Thiết lập các cột cho bảng hóa đơn
-        colPaymentId.setCellValueFactory(new PropertyValueFactory<>("code"));
-        colInvoiceId.setCellValueFactory(new PropertyValueFactory<>("code")); // Tạm thời dùng code
-        colCreatedAt.setCellValueFactory(new PropertyValueFactory<>("issuedAt"));
-        colCustomer.setCellValueFactory(cellData -> {
-            Payment payment = cellData.getValue();
-            Integer customerId = payment.getCustomerId();
-            // TODO: Lấy tên khách hàng từ CustomerRepository
-            return new javafx.beans.property.SimpleStringProperty(
-                    customerId != null ? "KH" + customerId : "");
+        colPaymentId.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return new javafx.beans.property.SimpleStringProperty(payment != null ? payment.getCode() : "");
         });
-        colAmount.setCellValueFactory(new PropertyValueFactory<>("grandTotal"));
-        colMethod.setCellValueFactory(new PropertyValueFactory<>("paymentMethod"));
+
+        colInvoiceId.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return new javafx.beans.property.SimpleStringProperty(payment != null ? payment.getCode() : "");
+        });
+
+        colCreatedAt.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return payment != null ? new javafx.beans.property.SimpleObjectProperty<>(payment.getIssuedAt()) : null;
+        });
+
+        colCustomer.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            Integer customerId = payment != null ? payment.getCustomerId() : 0;
+            return new javafx.beans.property.SimpleStringProperty(customerId != null ? "KH" + customerId : "");
+        });
+
+        colAmount.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return payment != null ? new javafx.beans.property.SimpleIntegerProperty(payment.getGrandTotal()).asObject() : null;
+        });
+
+        colMethod.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return payment != null ? new javafx.beans.property.SimpleObjectProperty<>(payment.getPaymentMethod()) : null;
+        });
+
         colStaff.setCellValueFactory(cellData -> {
-            Payment payment = cellData.getValue();
-            int staffId = payment.getCashierId();
-            // TODO: Lấy tên nhân viên từ StaffRepository
+            Payment payment = cellData.getValue().getPayment();
+            int staffId = payment != null ? payment.getCashierId() : 0;
             return new javafx.beans.property.SimpleStringProperty("NV" + staffId);
         });
-        colNote.setCellValueFactory(new PropertyValueFactory<>("note"));
+
+        colNote.setCellValueFactory(cellData -> {
+            Payment payment = cellData.getValue().getPayment();
+            return payment != null ? new javafx.beans.property.SimpleStringProperty(payment.getNote()) : null;
+        });
+
         colStatus.setCellValueFactory(cellData -> {
-            Payment payment = cellData.getValue();
-            PaymentStatus status = paymentStatusLogService.getCurrentStatusById(payment.getId()).getStatus();
+            PaymentStatus status = cellData.getValue().getStatus();
             return new javafx.beans.property.SimpleObjectProperty<>(status);
         });
 
@@ -96,8 +120,6 @@ public class PaymentHistoryController implements Initializable {
         formatDateColumn();
         formatMoneyColumns();
         formatStatusColumn();
-
-        // Chi tiết sẽ được thêm sau
     }
 
     private void formatDateColumn() {
@@ -108,8 +130,7 @@ public class PaymentHistoryController implements Initializable {
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.atZone(ZoneId.systemDefault())
-                            .toLocalDateTime().toString());
+                    setText(item.atZone(ZoneId.systemDefault()).toLocalDateTime().toString());
                 }
             }
         });
@@ -127,6 +148,20 @@ public class PaymentHistoryController implements Initializable {
                 }
             }
         });
+    }
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        // Reload page
+        SceneManager.reloadCurrentScene();
     }
 
     private void formatStatusColumn() {
@@ -168,22 +203,23 @@ public class PaymentHistoryController implements Initializable {
         // Thiết lập xử lý double-click để xem chi tiết
         tablePayments.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
-                Payment selected = tablePayments.getSelectionModel().getSelectedItem();
+                PaymentWithStatus selected = tablePayments.getSelectionModel().getSelectedItem();
                 if (selected != null)
-                    showPaymentDetails(selected);
+                    showPaymentDetails(selected.getPayment());
             }
         });
     }
 
     private void searchPayments() {
         try {
-            List<Payment> filtered = paymentService.getAllPayments();
+            // Dữ liệu đã tải, chỉ lọc trong bộ nhớ
+            List<PaymentWithStatus> filtered = allPaymentsWithStatus;
 
             // Lọc theo mã hóa đơn
             String keyword = txtKeyword.getText().trim();
             if (!keyword.isEmpty()) {
                 filtered = filtered.stream()
-                        .filter(p -> p.getCode().toLowerCase().contains(keyword.toLowerCase()))
+                        .filter(p -> p.getPayment().getCode().toLowerCase().contains(keyword.toLowerCase()))
                         .toList();
             }
 
@@ -191,33 +227,42 @@ public class PaymentHistoryController implements Initializable {
             PaymentStatus status = cbStatus.getValue();
             if (status != null) {
                 filtered = filtered.stream()
-                        .filter(p -> paymentStatusLogService.getCurrentStatusById(p.getId()).getStatus() == status)
+                        .filter(p -> p.getStatus() == status)
                         .toList();
             }
 
             // Cập nhật bảng
-            payments.setAll(filtered);
+            paymentsWithStatus.setAll(filtered);
 
         } catch (Exception e) {
             e.printStackTrace();
-//            AlertUtils.showError("Lỗi", "Không thể tìm kiếm hóa đơn", e.getMessage());
         }
     }
 
     private void loadPayments() {
+        System.out.println("⏳ Đang tải lịch sử thanh toán...");
         try {
-            List<Payment> allPayments = paymentService.getAllPayments();
-            payments.setAll(allPayments);
-            tablePayments.setItems(payments);
+            List<PaymentWithStatus> allPayments = paymentService.getPaymentsWithStatus();
+            if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                int customerId = ((Customer)SceneManager.getSceneData("accountData")).getId();
+                System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
+                for(PaymentWithStatus p : allPayments){
+
+                    System.out.println("💰 Payment ID: " + p.getPayment().getId() + ", Customer ID: " + p.getPayment().getCustomerId());
+                }
+                allPayments = allPayments.stream()
+                        .filter(p -> p.getPayment().getCustomerId() == customerId)
+                        .toList();
+            }
+            allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
+            paymentsWithStatus.setAll(allPayments);
+            tablePayments.setItems(paymentsWithStatus);
         } catch (Exception e) {
             e.printStackTrace();
-//            AlertUtils.showError("Lỗi", "Không thể tải dữ liệu hóa đơn", e.getMessage());
         }
     }
 
     private void showPaymentDetails(Payment payment) {
         // TODO: Sẽ thêm chức năng xem chi tiết sau
-//        AlertUtils.showError("Thông báo", "Chức năng đang được phát triển",
-//                "Xem chi tiết hóa đơn " + payment.getCode());
     }
 }

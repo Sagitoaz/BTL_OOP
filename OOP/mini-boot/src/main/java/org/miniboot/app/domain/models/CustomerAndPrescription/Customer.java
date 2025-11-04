@@ -13,9 +13,19 @@ import java.time.LocalDateTime;
  */
 public class Customer implements User {
     public enum Gender{
-        MALE,
-        FEMALE,
-        OTHER;
+        MALE("NAM"),
+        FEMALE("NỮ"),
+        OTHER("KHÁC");
+        private final String display_Name;
+
+        Gender(String base) {
+            this.display_Name = base;
+        }
+
+        @Override
+        public String toString() {
+            return display_Name;
+        }
     }
     private int id;
     private String username;

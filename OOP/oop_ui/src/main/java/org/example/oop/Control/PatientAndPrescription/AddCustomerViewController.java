@@ -9,7 +9,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -34,13 +36,21 @@ public class AddCustomerViewController implements Initializable
 
     private Customer curCustomer = null;
 
+    private boolean isCreateMode = false;
+
     public void initialize(URL url, ResourceBundle rb) {
         genderComboBox.getItems().addAll(Customer.Gender.values());
         curCustomer = null;
+        UserRole role = (UserRole) SceneManager.getSceneData("role");
+        if( role.name().equalsIgnoreCase("CUSTOMER")){
+            curCustomer = (Customer) SceneManager.getSceneData("accountData");
+        }
+        if(curCustomer != null){
+            initData(curCustomer);
 
+        }
 
     }
-
 
 
     public void initData(Customer customer){
@@ -57,6 +67,10 @@ public class AddCustomerViewController implements Initializable
 
     @FXML
     private void onDeleteButton(ActionEvent event){
+        if(SceneManager.getSceneData("role") != "ADMIN"){
+            CustomerHubController.showErrorAlert("Permission Denied", "You do not have permission to delete customer records.");
+            return;
+        }
         Stage stage = (Stage) nameField.getScene().getWindow();
         if(curCustomer != null){
             deleteCustomerRecord(curCustomer);
@@ -64,9 +78,17 @@ public class AddCustomerViewController implements Initializable
         }
         stage.close();
     }
+
+    @FXML
+    private void onCloseButton(ActionEvent event){
+        Stage stage = (Stage) nameField.getScene().getWindow();
+        stage.close();
+    }
+
     @FXML
     private void onSaveAndCloseButton(ActionEvent event){
         if(curCustomer == null){
+            isCreateMode = true;
             curCustomer = new Customer();
         }
         String name = nameField.getText();
@@ -89,6 +111,14 @@ public class AddCustomerViewController implements Initializable
         curCustomer.setAddress(address);
         curCustomer.setEmail(email);
         curCustomer.setNote(notes);
+        if(isCreateMode){
+            CustomerRecordService.getInstance().createCustomer(curCustomer);
+        } else {
+            CustomerRecordService.getInstance().updateCustomer(curCustomer);
+            if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                SceneManager.setSceneData("accountData", curCustomer);
+            }
+        }
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }

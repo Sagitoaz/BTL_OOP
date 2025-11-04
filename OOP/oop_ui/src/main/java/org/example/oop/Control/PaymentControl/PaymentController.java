@@ -1,12 +1,18 @@
 package org.example.oop.Control.PaymentControl;
 
+// 1. IMPORT BaseController
+
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
@@ -20,7 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class PaymentController implements Initializable {
+// 3. KẾ THỪA TỪ BaseController
+public class PaymentController extends BaseController implements Initializable {
     @FXML
     private TextField txtInvoiceId;
     @FXML
@@ -107,48 +114,79 @@ public class PaymentController implements Initializable {
     }
 
     private void handleLoadInvoice() {
-        String invoiceIdStr = txtInvoiceId.getText().trim(); // <-- Đây là ID
+        String invoiceIdStr = txtInvoiceId.getText().trim();
         if (invoiceIdStr.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập mã hóa đơn (ID)");
+            // 4. SỬ DỤNG phương thức kế thừa
+            showWarning("Vui lòng nhập mã hóa đơn (ID)");
             return;
         }
 
+        int id;
         try {
-            int id = Integer.parseInt(invoiceIdStr); // <-- Chuyển ID sang int
-
-            // <-- Dùng service đã khởi tạo
-            currentPayment = paymentService.getPaymentById(id);
-            if (currentPayment == null) {
-                showAlert(Alert.AlertType.ERROR, "Không tìm thấy", "Không tìm thấy hóa đơn với ID " + id);
-                return;
-            }
-
-            // <-- Dùng service đã khởi tạo
-            PaymentStatus status = statusLogService.getCurrentStatusById(currentPayment.getId()).getStatus();
-
-            // Kiểm tra trạng thái thanh toán
-            if (status == PaymentStatus.PAID) {
-                showAlert(Alert.AlertType.WARNING, "Đã thanh toán", "Hóa đơn này đã được thanh toán trước đó");
-                handleReset();
-                return;
-            } else if (status == PaymentStatus.CANCELLED) {
-                showAlert(Alert.AlertType.WARNING, "Đã hủy", "Hóa đơn này đã bị hủy");
-                handleReset();
-                return;
-            } else if (status != PaymentStatus.PENDING) {
-                showAlert(Alert.AlertType.WARNING, "Không thể thanh toán",
-                        "Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
-                handleReset();
-                return;
-            }
-
-            // <-- SỬA LỖI: Tải các item để có thể in biên lai
-            currentItems = itemService.getAllPaymentItems(Optional.of(id), Optional.empty());
-            updatePaymentDisplay();
-
+            id = Integer.parseInt(invoiceIdStr);
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Mã hóa đơn (ID) không hợp lệ");
+            // 4. SỬ DỤNG phương thức kế thừa
+            showError("Mã hóa đơn (ID) không hợp lệ");
+            return;
         }
+
+        // (Tùy chọn: Thêm logic hiển thị loading...)
+        // loadingSpinner.setVisible(true);
+
+        // 5. BỌC CÁC LỆNH GỌI API TRONG executeAsync
+        executeAsync(
+                // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
+                () -> {
+                    // 1. Lấy payment
+                    Payment payment = paymentService.getPaymentById(id);
+                    if (payment == null) {
+                        // Ném lỗi để onError xử lý
+                        throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
+                    }
+
+                    // 2. Lấy trạng thái
+                    PaymentStatus status = statusLogService.getCurrentStatusById(payment.getId()).getStatus();
+
+                    // 3. Kiểm tra trạng thái
+                    if (status == PaymentStatus.PAID) {
+                        throw new RuntimeException("Hóa đơn này đã được thanh toán trước đó");
+                    } else if (status == PaymentStatus.CANCELLED) {
+                        throw new RuntimeException("Hóa đơn này đã bị hủy");
+                    } else if (status != PaymentStatus.PENDING) {
+                        throw new RuntimeException("Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
+                    }
+
+                    // 4. Gán biến global (vẫn an toàn vì onSuccess sẽ đọc sau)
+                    currentPayment = payment;
+                    currentItems = itemService.getAllPaymentItems(Optional.of(id), Optional.empty());
+
+                    return true; // Trả về true nếu mọi thứ thành công
+                },
+
+                // --------- KHI THÀNH CÔNG (UI THREAD) ---------
+                (success) -> {
+                    // (Tùy chọn: Ẩn loading)
+                    // loadingSpinner.setVisible(false);
+
+                    // Cập nhật giao diện với dữ liệu đã tải
+                    updatePaymentDisplay();
+                },
+
+                // --------- KHI CÓ LỖI (UI THREAD) ---------
+                (error) -> {
+                    // (Tùy chọn: Ẩn loading)
+                    // loadingSpinner.setVisible(false);
+
+                    // Nếu là lỗi nghiệp vụ ta tự ném ra (RuntimeException)
+                    if (error instanceof RuntimeException) {
+                        showWarning(error.getMessage());
+                    } else {
+                        // Nếu là lỗi kết nối, mạng, ... dùng hàm handleError chung
+                        handleError(error);
+                    }
+                    handleReset(); // Reset form khi có lỗi
+                }
+        );
     }
 
     private void handleReset() {
@@ -158,63 +196,82 @@ public class PaymentController implements Initializable {
         txtAmountPaid.clear();
         txtChange.clear();
         txtNote.clear();
-        cbMethod.getSelectionModel().clearSelection();
+        cbMethod.setValue(PaymentMethod.CASH); // Reset về CASH thay vì clear
         currentPayment = null;
         currentItems = null;
 
-        // <-- Kích hoạt lại các nút phòng trường hợp bị initData vô hiệu hóa
         txtInvoiceId.setEditable(true);
         btnLoadInvoice.setDisable(false);
         txtInvoiceId.requestFocus();
     }
 
     private void handleConfirmPayment(boolean shouldPrint) {
+        // --- 1. VALIDATION (Chạy trên UI thread) ---
         if (currentPayment == null) {
-            showAlert(Alert.AlertType.WARNING, "Lỗi", "Vui lòng tải hóa đơn trước khi thanh toán");
+            showWarning("Vui lòng tải hóa đơn trước khi thanh toán");
             return;
         }
         if (cbMethod.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng chọn phương thức thanh toán");
+            showWarning("Vui lòng chọn phương thức thanh toán");
             return;
         }
         if (txtAmountPaid.getText().isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập số tiền thanh toán");
+            showWarning("Vui lòng nhập số tiền thanh toán");
             return;
         }
 
+        Integer amountPaid;
         try {
-            Integer amountPaid = Integer.parseInt(txtAmountPaid.getText());
+            amountPaid = Integer.parseInt(txtAmountPaid.getText());
             if (amountPaid < currentPayment.getGrandTotal()) {
-                showAlert(Alert.AlertType.ERROR, "Số tiền không đủ",
-                        "Số tiền thanh toán phải lớn hơn hoặc bằng tổng tiền");
+                showError("Số tiền thanh toán phải lớn hơn hoặc bằng tổng tiền");
                 return;
             }
-
-            currentPayment.setPaymentMethod(cbMethod.getValue());
-            currentPayment.setAmountPaid(amountPaid);
-            currentPayment.setNote(txtNote.getText());
-
-            // TODO: Bạn cần một hàm service.update(currentPayment) ở đây
-            // paymentService.update(currentPayment);
-
-            // <-- Dùng service đã khởi tạo
-            statusLogService.updatePaymentStatus(new PaymentStatusLog(
-                    null,
-                    currentPayment.getId(),
-                    LocalDateTime.now(),
-                    PaymentStatus.PAID)
-            );
-
-            if (shouldPrint) {
-                printReceipt();
-            }
-
-            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đã thanh toán hóa đơn thành công");
-            handleReset();
-
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Số tiền không hợp lệ");
+            showError("Số tiền không hợp lệ");
+            return;
         }
+
+        // Cập nhật thông tin vào đối tượng local
+        currentPayment.setPaymentMethod(cbMethod.getValue());
+        currentPayment.setAmountPaid(amountPaid);
+        currentPayment.setNote(txtNote.getText());
+
+        // (Tùy chọn: Hiển thị loading...)
+
+        // --- 2. GỌI API (Chạy trên Background thread) ---
+        executeAsync(
+                // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
+                () -> {
+                    // 1. GỬI CẬP NHẬT LÊN SERVER
+                    Payment updatedPayment = paymentService.updatePayment(currentPayment);
+
+                    if (updatedPayment == null) {
+                        throw new RuntimeException("Không thể cập nhật thông tin thanh toán. Vui lòng thử lại.");
+                    }
+
+                    // 2. Cập nhật trạng thái
+                    statusLogService.updatePaymentStatus(new PaymentStatusLog(
+                            null,
+                            currentPayment.getId(),
+                            LocalDateTime.now(),
+                            PaymentStatus.PAID)
+                    );
+                },
+
+                // --------- KHI THÀNH CÔNG (UI THREAD) ---------
+                () -> {
+                    // (Tùy chọn: Ẩn loading...)
+
+                    if (shouldPrint) {
+                        printReceipt();
+                    }
+
+                    showSuccess("Đã thanh toán hóa đơn thành công");
+                    handleReset();
+                }
+                // Khi lỗi, hàm handleError chung của BaseController sẽ tự động được gọi
+        );
     }
 
     private void calculateChange() {
@@ -234,7 +291,7 @@ public class PaymentController implements Initializable {
     }
 
     private void handlePaymentMethodChange(PaymentMethod method) {
-        if (currentPayment == null) return; // <-- Thêm kiểm tra
+        if (currentPayment == null) return;
 
         switch (method) {
             case CASH -> {
@@ -255,16 +312,13 @@ public class PaymentController implements Initializable {
         txtAmountDue.setText(String.format("%,d", currentPayment.getGrandTotal()));
         txtAmountPaid.clear();
         txtChange.clear();
-        cbMethod.setValue(PaymentMethod.CASH); // <-- Đặt giá trị mặc định
+        cbMethod.setValue(PaymentMethod.CASH);
         txtNote.clear();
     }
 
     private void printReceipt() {
         try {
-            String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
-            Receipt receipt = new Receipt(receiptNumber,
-                    currentPayment,
-                    currentItems); // <-- currentItems đã được tải ở handleLoadInvoice
+            Receipt receipt = new Receipt(currentPayment, currentItems);
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Receipt.fxml"));
             Scene scene = new Scene(loader.load());
@@ -273,21 +327,14 @@ public class PaymentController implements Initializable {
             controller.displayReceipt(receipt);
 
             Stage stage = new Stage();
-            stage.setTitle("In biên lai - " + receiptNumber);
+            stage.setTitle("In biên lai - " + currentPayment.getCode());
             stage.setScene(scene);
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tạo biên lai");
+            // 4. SỬ DỤNG phương thức kế thừa
+            showError("Không thể tạo biên lai: " + e.getMessage());
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }

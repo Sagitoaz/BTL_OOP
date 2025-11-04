@@ -22,201 +22,210 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container"
+            stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css"
+            xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
 
+    <!-- TOP: Header & Filters -->
     <top>
-        <HBox prefHeight="80.0" spacing="10.0" BorderPane.alignment="CENTER">
-            <padding><Insets bottom="12.0" left="20.0" right="20.0" top="12.0" /></padding>
-            <children>
-                <TextField fx:id="searchTextField" prefWidth="220.0" promptText="Search..." />
-                <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Category" />
-                <ComboBox fx:id="statusBox" prefWidth="150.0" promptText="Status" />
-                <DatePicker fx:id="lastUpdatedPicker" prefWidth="170.0" promptText="Last Updated" />
-                <Region prefHeight="18.0" prefWidth="167.0" HBox.hgrow="ALWAYS" />
-                <Button fx:id="searchButton" onAction="#OnClickSearchButton" text="Search" />
-                <Button fx:id="resetButton" onAction="#OnClickResetButton" text="Reset" />
-                <Button fx:id="exportButton" onAction="#OnClickExportButton" text="Export" />
-            </children>
-        </HBox>
+        <VBox>
+            <!-- Navigation Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
+                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
+                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            </HBox>
+            
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Label styleClass="page-title" text="TÌM KIẾM VÀ LƯỢC XEM KHO" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="countLabel" styleClass="form-label" text="0 sản phẩm" />
+            </HBox>
+
+            <Separator />
+
+            <!-- Filters Row -->
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                <padding>
+                    <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
+                </padding>
+                <TextField fx:id="searchTextField" prefWidth="220.0" promptText="Tìm kiếm..." styleClass="text-field" />
+                <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Danh mục" styleClass="combo-rounded" />
+                <ComboBox fx:id="statusBox" prefWidth="150.0" promptText="Trạng thái" styleClass="combo-rounded" />
+                <DatePicker fx:id="lastUpdatedPicker" prefWidth="170.0" promptText="Cập nhật lần cuối" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button fx:id="searchButton" onAction="#OnClickSearchButton" styleClass="btn-search" text="🔍 Tìm kiếm" />
+                <Button fx:id="resetButton" onAction="#OnClickResetButton" styleClass="btn-secondary" text="🔄 Làm mới" />
+                <Button fx:id="exportButton" onAction="#OnClickExportButton" styleClass="export-button" text="📊 Export" />
+            </HBox>
+        </VBox>
     </top>
 
     <center>
-        <TableView fx:id="inventoryTable" prefHeight="665.0" prefWidth="900.0" BorderPane.alignment="CENTER">
+        <TableView fx:id="inventoryTable" styleClass="financial-table" BorderPane.alignment="CENTER">
             <columns>
-                <TableColumn fx:id="idColumn" prefWidth="70.0" sortable="true" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="180.0" sortable="true" text="Name" />
-                <TableColumn fx:id="skuColumn" prefWidth="120.0" sortable="true" text="SKU" />
-                <TableColumn fx:id="categoryColumn" prefWidth="130.0" sortable="true" text="Category" />
-                <TableColumn fx:id="statusColumn" prefWidth="110.0" sortable="true" text="Status" />
-                <TableColumn fx:id="quantityColumn" prefWidth="95.0" sortable="true" text="Quantity" />
-                <TableColumn fx:id="unitColumn" prefWidth="80.0" sortable="true" text="Unit" />
-                <TableColumn fx:id="priceColumn" prefWidth="120.0" sortable="true" text="Unit Price" />
-                <TableColumn fx:id="lastUpdatedColumn" prefWidth="160.0" sortable="true" text="Last Updated" />
+                <TableColumn fx:id="idColumn" prefWidth="55" sortable="true" text="ID" />
+                <TableColumn fx:id="nameColumn" prefWidth="151" sortable="true" text="Tên sản phẩm" />
+                <TableColumn fx:id="skuColumn" prefWidth="117" sortable="true" text="SKU" />
+                <TableColumn fx:id="categoryColumn" prefWidth="102" sortable="true" text="Danh mục" />
+                <TableColumn fx:id="statusColumn" prefWidth="98" sortable="true" text="Trạng thái" />
+                <TableColumn fx:id="quantityColumn" prefWidth="101" sortable="true" text="Số lượng" />
+                <TableColumn fx:id="unitColumn" prefWidth="74" sortable="true" text="Đơn vị" />
+                <TableColumn fx:id="priceColumn" prefWidth="115" sortable="true" text="Đơn giá" />
+                <TableColumn fx:id="lastUpdatedColumn" prefWidth="259" sortable="true" text="Cập nhật lần cuối" />
             </columns>
+
+            <placeholder>
+                <VBox alignment="CENTER" spacing="10">
+                    <padding>
+                        <Insets bottom="40" left="40" right="40" top="40" />
+                    </padding>
+                    <Label text="Không tìm thấy sản phẩm" />
+                    <Label text="Thử điều chỉnh bộ lọc của bạn" />
+                </VBox>
+            </placeholder>
         </TableView>
     </center>
 
     <right>
-        <ScrollPane fitToWidth="true" prefWidth="380.0">
-            <VBox spacing="8.0" BorderPane.alignment="CENTER">
-                <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                <children>
-                    <!-- BASIC INFORMATION -->
-                    <TitledPane expanded="true" text="Item Details">
-                        <content>
-                            <VBox spacing="10.0">
-                                <Label fx:id="itemName" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Name" />
-                                <Separator />
-                                <GridPane hgap="10.0" vgap="8.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints percentWidth="40" />
-                                        <ColumnConstraints percentWidth="60" />
-                                    </columnConstraints>
-                                    <children>
-                                        <!-- Row 0 -->
-                                        <Label style="-fx-font-weight: bold;" text="SKU:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                        <Label fx:id="quickSku" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+        <ScrollPane fitToWidth="true" prefWidth="380.0" styleClass="scroll-pane">
+            <VBox spacing="16.0" BorderPane.alignment="CENTER">
+                <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                </padding>
 
-                                        <!-- Row 2 -->
-                                        <Label style="-fx-font-weight: bold;" text="Category:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                        <Label fx:id="quickCategory" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- BASIC INFORMATION -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="📝 CHI TIẾT SẢN PHẨM">
+                    <VBox spacing="10.0">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <Label fx:id="itemName" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Tên sản phẩm" />
+                        <Separator />
+                        <GridPane hgap="10.0" vgap="8.0">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="40" />
+                                <ColumnConstraints percentWidth="60" />
+                            </columnConstraints>
 
-                                        <!-- Row 3 -->
-                                        <Label style="-fx-font-weight: bold;" text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                        <Label fx:id="quickStatus" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    </children>
-                           <rowConstraints>
-                              <RowConstraints />
-                              <RowConstraints />
-                              <RowConstraints />
-                           </rowConstraints>
-                                </GridPane>
-                            </VBox>
-                        </content>
-                    </TitledPane>
+                            <Label styleClass="form-label" text="SKU:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <Label fx:id="quickSku" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <!-- PRICING INFORMATION -->
-                    <TitledPane expanded="true" text="Pricing Information">
-                        <content>
-                            <GridPane hgap="10.0" prefHeight="0.0" prefWidth="340.0" vgap="8.0">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="45" />
-                                    <ColumnConstraints percentWidth="55" />
-                                </columnConstraints>
-                                <children>
-                                    <!-- Row 0 -->
-                                    <Label style="-fx-font-weight: bold;" text="Unit Price:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <Label fx:id="quickPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-      
-                                    <!-- Row 1 -->
-                                    <Label style="-fx-font-weight: bold;" text="Cost Price:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <Label fx:id="quickCostPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                </children>
-                        <rowConstraints>
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                        </rowConstraints>
-                            </GridPane>
-                        </content>
-                    </TitledPane>
+                            <Label styleClass="form-label" text="Danh mục:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <Label fx:id="quickCategory" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                    <!-- STOCK INFORMATION -->
-                    <TitledPane expanded="true" text="Stock Information">
-                        <content>
-                            <GridPane hgap="10.0" vgap="8.0">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="45" />
-                                    <ColumnConstraints percentWidth="55" />
-                                </columnConstraints>
-                                <children>
-                                    <!-- Row 0 -->
-                                    <Label style="-fx-font-weight: bold;" text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <Label fx:id="quickQuantity" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="Trạng thái:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <Label fx:id="quickStatus" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        </GridPane>
+                    </VBox>
+                </TitledPane>
 
-                                    <!-- Row 1 -->
-                                    <Label style="-fx-font-weight: bold;" text="Unit:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <Label fx:id="quickUnit" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                </children>
-                        <rowConstraints>
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                        </rowConstraints>
-                            </GridPane>
-                        </content>
-                    </TitledPane>
+                <!-- PRICING INFORMATION -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="💰 THÔNG TIN GIÁ">
+                    <GridPane hgap="10.0" vgap="8.0">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="45" />
+                            <ColumnConstraints percentWidth="55" />
+                        </columnConstraints>
 
-                    <!-- ADDITIONAL DETAILS -->
-                    <TitledPane expanded="false" text="Additional Details">
-                        <content>
-                            <GridPane hgap="10.0" vgap="8.0">
-                                <columnConstraints>
-                                    <ColumnConstraints percentWidth="45" />
-                                    <ColumnConstraints percentWidth="55" />
-                                </columnConstraints>
-                                <children>
-                                    <!-- Row 0 -->
-                                    <Label style="-fx-font-weight: bold;" text="Batch Number:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <Label fx:id="quickBatchNumber" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label styleClass="form-label" text="Đơn giá:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="quickPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                                    <!-- Row 1 -->
-                                    <Label style="-fx-font-weight: bold;" text="Expiry Date:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <Label fx:id="quickExpiryDate" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Giá vốn:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="quickCostPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    </GridPane>
+                </TitledPane>
 
-                                    <!-- Row 2 -->
-                                    <Label style="-fx-font-weight: bold;" text="Serial No" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                                    <Label fx:id="quickserialNo" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <!-- STOCK INFORMATION -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="📦 THÔNG TIN TỒN KHO">
+                    <GridPane hgap="10.0" vgap="8.0">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="45" />
+                            <ColumnConstraints percentWidth="55" />
+                        </columnConstraints>
 
-                                    <!-- Row 3 -->
-                                    <Label style="-fx-font-weight: bold;" text="Created At" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                                    <Label fx:id="quickCreatedAt" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                </children>
-                        <rowConstraints>
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                           <RowConstraints />
-                        </rowConstraints>
-                            </GridPane>
-                        </content>
-                    </TitledPane>
+                        <Label styleClass="form-label" text="Số lượng:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="quickQuantity" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <!-- IMAGE -->
-                    <TitledPane expanded="false" text="Product Image">
-                        <content>
-                            <VBox alignment="CENTER">
-                                <ImageView fx:id="itemImage" fitHeight="240.0" fitWidth="320.0" pickOnBounds="true" preserveRatio="true" />
-                            </VBox>
-                        </content>
-                    </TitledPane>
+                        <Label styleClass="form-label" text="Đơn vị:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="quickUnit" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    </GridPane>
+                </TitledPane>
 
-                    <!-- NOTES -->
-                    <TitledPane expanded="true" text="Notes">
-                        <content>
-                            <TextArea fx:id="itemDescription" prefRowCount="4" promptText="Additional information and notes..." wrapText="true" />
-                        </content>
-                    </TitledPane>
+                <!-- ADDITIONAL DETAILS -->
+                <TitledPane expanded="false" styleClass="titled-pane" text="THÔNG TIN BỔ SUNG">
+                    <GridPane hgap="10.0" vgap="8.0">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="45" />
+                            <ColumnConstraints percentWidth="55" />
+                        </columnConstraints>
 
-                </children>
+                        <Label styleClass="form-label" text="Batch No:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="quickBatchNumber" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="form-label" text="Hạn dùng:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="quickExpiryDate" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Serial No:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="quickserialNo" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label styleClass="form-label" text="Ngày tạo:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="quickCreatedAt" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </GridPane>
+                </TitledPane>
+
+                <!-- IMAGE -->
+                <TitledPane expanded="false" styleClass="titled-pane" text="HÌNH ẢNH">
+                    <VBox alignment="CENTER">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <ImageView fx:id="itemImage" fitHeight="240.0" fitWidth="320.0" pickOnBounds="true" preserveRatio="true" />
+                    </VBox>
+                </TitledPane>
+
+                <!-- NOTES -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="📝 GHI CHÚ">
+                    <VBox>
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <TextArea fx:id="itemDescription" prefRowCount="4" promptText="Thông tin và ghi chú bổ sung..." styleClass="text-area" wrapText="true" />
+                    </VBox>
+                </TitledPane>
             </VBox>
         </ScrollPane>
     </right>
 
     <bottom>
-        <HBox spacing="10.0" BorderPane.alignment="CENTER">
-            <padding><Insets bottom="6.0" left="12.0" right="12.0" top="6.0" /></padding>
-            <children>
-                <Label fx:id="messageLabel" text="Ready" />
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="12" left="24" right="24" top="12" />
+                </padding>
+                <Label fx:id="messageLabel" styleClass="form-label" text="Sẵn sàng" />
                 <Region HBox.hgrow="ALWAYS" />
                 <ProgressIndicator fx:id="loadingIndicator" prefHeight="18.0" prefWidth="18.0" visible="false" />
-                <Label fx:id="countLabel" text="0 items" />
-            </children>
-        </HBox>
+            </HBox>
+        </VBox>
     </bottom>
 
 </BorderPane>

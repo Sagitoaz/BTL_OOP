@@ -11,195 +11,220 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" prefHeight="800.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PrescriptionEditorController">
-    <content>
-        <VBox spacing="15.0">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.PrescriptionEditorController">
+
+    <!-- TOP: Header -->
+    <top>
+        <VBox>
+            <!-- Navigation Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
+                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
+                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
             </padding>
-            <children>
-                <Label text="HỒ SƠ KHÁM &amp; KÊ ĐƠN">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Label>
-                <GridPane hgap="10" vgap="10">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" prefWidth="100" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                        <ColumnConstraints hgrow="NEVER" prefWidth="100" />
-                        <ColumnConstraints hgrow="ALWAYS" />
-                    </columnConstraints>
-                    <Label text="Bệnh nhân:" />
-                    <TextField fx:id="patientNameField" editable="false" GridPane.columnIndex="1" />
-                    <Label text="Bác sĩ:" GridPane.columnIndex="2" />
-                    <TextField fx:id="doctorNameField" GridPane.columnIndex="3" />
-                    <Label text="Ngày khám:" GridPane.rowIndex="1" />
-                    <DatePicker fx:id="examDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <rowConstraints>
+            <Label styleClass="page-title" text="HỒ SƠ KHÁM &amp; KÊ ĐƠN" />
+            <Region HBox.hgrow="ALWAYS" />
+        </HBox>
+        </VBox>
+    </top>
+
+    <!-- CENTER: Form -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="16.0">
+                <padding>
+                    <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
+                </padding>
+
+                <!-- Basic Info -->
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="📝 THÔNG TIN Cơ BẢN">
+                    <GridPane hgap="12" vgap="12">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" minWidth="100" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                            <ColumnConstraints halignment="RIGHT" minWidth="100" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <Label styleClass="form-label" text="Bệnh nhân:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="patientNameField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <TextField fx:id="doctorNameField" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                        <Label styleClass="form-label" text="Ngày khám:" GridPane.rowIndex="1" />
+                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
+                    </GridPane>
+                </TitledPane>
+
+                <!-- Chief Complaint -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="LÝ DO KHÁM &amp; TIỀN SỬ">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <Label styleClass="form-label" text="Lý do chính (Chief Complaint):" />
+                        <TextField fx:id="chiefComplaintField" promptText="VD: Mắt mờ khi nhìn xa, kiểm tra định kỳ, khô mắt..." styleClass="text-field" />
+                    </VBox>
+                </TitledPane>
+
+                <!-- Objective Measurements -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="📊 THÔNG SỐ ĐO ĐẠC">
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+                        <Label styleClass="form-label" text="Kết quả đo khúc xạ:" />
+                        <TextArea fx:id="refractionNotesArea" prefRowCount="4" promptText="Ghi chú kết quả đo bằng máy hoặc retinoscopy..." styleClass="text-area" wrapText="true" />
+                    </VBox>
+                </TitledPane>
+
+                <!-- Prescription -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="👓 ĐƠN KÍNH THUỐC">
+                    <VBox spacing="15.0">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+
+                        <GridPane hgap="8" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="80.0" />
+                                <ColumnConstraints prefWidth="80" />
+                                <ColumnConstraints prefWidth="80" />
+                                <ColumnConstraints prefWidth="80" />
+                                <ColumnConstraints prefWidth="80" />
+                                <ColumnConstraints prefWidth="80" />
+                                <ColumnConstraints prefWidth="120" />
+                                <ColumnConstraints prefWidth="80" />
+                            </columnConstraints>
+
+                            <Label styleClass="form-label" text="" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="SPH" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="CYL" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="AXIS" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="VA" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="PRISM" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="BASE" GridPane.columnIndex="6" GridPane.rowIndex="0" />
+                            <Label styleClass="form-label" text="ADD" GridPane.columnIndex="7" GridPane.rowIndex="0" />
+
+                            <Label styleClass="form-label" text="Mắt Phải (OD)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="sphOdField" prefWidth="80" promptText="+/-#.##" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                            <TextField fx:id="cylOdField" prefWidth="80" promptText="-#.##" styleClass="text-field" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                            <TextField fx:id="axisOdField" prefWidth="80" promptText="0-180" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                            <TextField fx:id="vaOdField" prefWidth="80" promptText="20/20" styleClass="text-field" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                            <TextField fx:id="prismOdField" prefWidth="80" promptText="#.##" styleClass="text-field" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                            <ComboBox fx:id="baseOdCombo" prefWidth="120" promptText="In/Out/Up/Down" styleClass="combo-rounded" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                            <TextField fx:id="addOdField" prefWidth="80" promptText="+#.##" styleClass="text-field" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+
+                            <Label styleClass="form-label" text="Mắt Trái (OS)" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="sphOsField" prefWidth="80" promptText="+/-#.##" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            <TextField fx:id="cylOsField" prefWidth="80" promptText="-#.##" styleClass="text-field" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                            <TextField fx:id="axisOsField" prefWidth="80" promptText="0-180" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                            <TextField fx:id="vaOsField" prefWidth="80" promptText="20/20" styleClass="text-field" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                            <TextField fx:id="prismOsField" prefWidth="80" promptText="#.##" styleClass="text-field" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+                            <ComboBox fx:id="baseOsCombo" prefWidth="120" promptText="In/Out/Up/Down" styleClass="combo-rounded" GridPane.columnIndex="6" GridPane.rowIndex="2" />
+                            <TextField fx:id="addOsField" prefWidth="80" promptText="+#.##" styleClass="text-field" GridPane.columnIndex="7" GridPane.rowIndex="2" />
+                     <rowConstraints>
                         <RowConstraints />
                         <RowConstraints />
-                    </rowConstraints>
-                </GridPane>
-                <TitledPane collapsible="false" text="Lý do đến khám &amp; Tiền sử">
-                    <content>
+                        <RowConstraints />
+                     </rowConstraints>
+                        </GridPane>
+
+                        <Separator />
+
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label styleClass="form-label" text="PD (Khoảng cách đồng tử):" />
+                            <TextField fx:id="pdField" prefWidth="100" promptText="## mm" styleClass="text-field" />
+                        </HBox>
+
+                        <Separator />
+
+                        <Label styleClass="form-label" text="Ghi chú thêm cho đơn kính:" />
+                        <TextArea fx:id="prescriptionNotesArea" prefRowCount="3" promptText="VD: Mài mỏng chiết suất cao, ưu tiên tròng nhẹ..." styleClass="text-area" wrapText="true" />
+
+                        <Separator />
+
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label styleClass="form-label" text="Loại tròng kính:" />
+                            <ComboBox fx:id="lensTypeCombo" prefWidth="250.0" promptText="Chọn loại tròng kính" styleClass="combo-rounded" />
+                        </HBox>
+
                         <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" />
-                            </padding>
-                            <Label text="Lý do chính (Chief Complaint):" />
-                            <TextField fx:id="chiefComplaintField" promptText="VD: Mắt mờ khi nhìn xa, kiểm tra định kỳ, khô mắt..." />
-                        </VBox>
-                    </content>
-                </TitledPane>
-                <TitledPane collapsible="false" text="Các thông số đo đạc khách quan">
-                    <content>
-                        <VBox spacing="15">
-                            <padding>
-                                <Insets top="10" />
-                            </padding>
-                            <Label text="Kết quả đo khúc xạ:">
-                                <font>
-                                    <Font name="System Bold" size="12.0" />
-                                </font>
-                            </Label>
-                            <TextArea fx:id="refractionNotesArea" prefHeight="100" promptText="Ghi chú kết quả đo bằng máy hoặc retinoscopy..." wrapText="true" />
-                        </VBox>
-                    </content>
-                </TitledPane>
-                <TitledPane collapsible="false" text="Đơn Kính Thuốc Chính Thức (Official Spectacle Prescription)">
-                    <content>
-                        <VBox spacing="15.0">
-                            <padding>
-                                <Insets top="10" />
-                            </padding>
-                            <GridPane hgap="5" vgap="8">
+                            <Label styleClass="form-label" text="Tư vấn Tròng kính:" />
+                            <GridPane hgap="20" vgap="8">
                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="NEVER" minWidth="80.0" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
-                                    <ColumnConstraints hgrow="NEVER" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
+                                    <ColumnConstraints hgrow="ALWAYS" />
                                 </columnConstraints>
 
-                                <Label text="" GridPane.columnIndex="0" />
-                                <Label text="SPH" GridPane.columnIndex="1" />
-                                <Label text="CYL" GridPane.columnIndex="2" />
-                                <Label text="AXIS" GridPane.columnIndex="3" />
-                                <Label text="VA" GridPane.columnIndex="4" />
-                                <Label text="PRISM" GridPane.columnIndex="5" />
-                                <Label text="BASE" GridPane.columnIndex="6" />
-                                <Label text="ADD" GridPane.columnIndex="7" />
-
-                                <Label text="Mắt Phải (OD)" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <font><Font name="System Bold" size="12.0" /></font>
-                                </Label>
-                                <TextField fx:id="sphOdField" prefWidth="70" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                <TextField fx:id="cylOdField" prefWidth="70" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                <TextField fx:id="axisOdField" prefWidth="70" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                <TextField fx:id="vaOdField" prefWidth="70" promptText="20/20" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                <TextField fx:id="prismOdField" prefWidth="70" promptText="#.##" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                <ComboBox fx:id="baseOdCombo" prefWidth="110" promptText="In/Out/Up/Down" GridPane.columnIndex="6" GridPane.rowIndex="1" />
-                                <TextField fx:id="addOdField" prefWidth="70" promptText="+#.##" GridPane.columnIndex="7" GridPane.rowIndex="1" />
-
-                                <Label text="Mắt Trái (OS)" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                    <font><Font name="System Bold" size="12.0" /></font>
-                                </Label>
-                                <TextField fx:id="sphOsField" prefWidth="70" promptText="+/-#.##" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                <TextField fx:id="cylOsField" prefWidth="70" promptText="-#.##" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                <TextField fx:id="axisOsField" prefWidth="70" promptText="0-180" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                <TextField fx:id="vaOsField" prefWidth="70" promptText="20/20" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                <TextField fx:id="prismOsField" prefWidth="70" promptText="#.##" GridPane.columnIndex="5" GridPane.rowIndex="2" />
-                                <ComboBox fx:id="baseOsCombo" prefWidth="110" promptText="In/Out/Up/Down" GridPane.columnIndex="6" GridPane.rowIndex="2" />
-                                <TextField fx:id="addOsField" prefWidth="70" promptText="+#.##" GridPane.columnIndex="7" GridPane.rowIndex="2" />
-                                <rowConstraints>
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                </rowConstraints>
+                                <CheckBox fx:id="arCheck" text="Lớp phủ chống phản quang (AR)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <CheckBox fx:id="blueLightCheck" text="Lọc ánh sáng xanh (Blue Light Filter)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <CheckBox fx:id="uvCheck" text="Chống tia UV (UV Protection)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <CheckBox fx:id="photochromicCheck" text="Đổi màu (Photochromic)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <rowConstraints>
+                           <RowConstraints />
+                           <RowConstraints />
+                        </rowConstraints>
                             </GridPane>
-                            <Separator />
-                            <HBox alignment="CENTER_LEFT" spacing="20">
-                                <Label text="PD (Khoảng cách đồng tử):" />
-                                <TextField fx:id="pdField" prefWidth="100" promptText="## mm" />
-                            </HBox>
-                            <Separator />
-                            <Label text="Ghi chú thêm cho đơn kính:">
-                                <font><Font name="System Bold" size="12.0" /></font>
-                            </Label>
-                            <TextArea fx:id="prescriptionNotesArea" prefHeight="80" promptText="VD: Mài mỏng chiết suất cao, ưu tiên tròng nhẹ..." wrapText="true" />
 
-                            <Separator />
-                            <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                <children>
-                                    <Label text="Loại tròng kính (Lens Type):">
-                                        <font><Font name="System Bold" size="12.0" /></font>
-                                    </Label>
-                                    <ComboBox fx:id="lensTypeCombo" prefWidth="200.0" promptText="Chọn loại tròng kính" />
-                                </children>
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <Label styleClass="form-label" text="Chất liệu đề nghị:" />
+                                <ComboBox fx:id="materialCombo" prefWidth="300.0" promptText="Chọn chất liệu/chiết suất" styleClass="combo-rounded" />
                             </HBox>
+                        </VBox>
+                    </VBox>
+                </TitledPane>
 
-                            <VBox spacing="10">
-                                <Label text="Tư vấn Tròng kính (Lens Recommendations):">
-                                    <font><Font name="System Bold" size="12.0" /></font>
-                                </Label>
-                                <GridPane hgap="20" vgap="5">
-                                    <columnConstraints>
-                                        <ColumnConstraints />
-                                        <ColumnConstraints />
-                                    </columnConstraints>
-                                    <CheckBox fx:id="arCheck" text="Lớp phủ chống phản quang (AR)" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                                    <CheckBox fx:id="blueLightCheck" text="Lọc ánh sáng xanh (Blue Light Filter)" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                                    <CheckBox fx:id="uvCheck" text="Chống tia UV (UV Protection)" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                                    <CheckBox fx:id="photochromicCheck" text="Đổi màu (Photochromic)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <rowConstraints>
-                                        <RowConstraints />
-                                        <RowConstraints />
-                                    </rowConstraints>
-                                </GridPane>
-                                <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding-top: 10;">
-                                    <children>
-                                        <Label text="Chất liệu đề nghị:">
-                                            <font><Font name="System Bold" size="12.0" /></font>
-                                        </Label>
-                                        <ComboBox fx:id="materialCombo" prefWidth="250.0" promptText="Chọn chất liệu/chiết suất" />
-                                    </children>
-                                </HBox>
-                            </VBox>
-                        </VBox>
-                    </content>
+                <!-- Diagnosis & Plan -->
+                <TitledPane expanded="true" styleClass="titled-pane" text="📋 CHẨN ĐOÁN &amp; KẾ HOẠCH">
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets bottom="15" left="15" right="15" top="15" />
+                        </padding>
+
+                        <Label styleClass="form-label" text="Chẩn đoán (Assessment / Diagnosis):" />
+                        <TextArea fx:id="assessmentArea" prefRowCount="4" promptText="VD: Cận thị, Lão thị, Đục thủy tinh thể mắt phải..." styleClass="text-area" wrapText="true" />
+
+                        <Label styleClass="form-label" text="Kế hoạch điều trị (Plan):" />
+                        <TextArea fx:id="planArea" prefRowCount="4" promptText="VD: Kê đơn kính mới, hẹn tái khám 1 năm, theo dõi nhãn áp..." styleClass="text-area" wrapText="true" />
+                    </VBox>
                 </TitledPane>
-                <TitledPane collapsible="false" text="Chẩn đoán &amp; Kế hoạch">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" />
-                            </padding>
-                            <Label text="Chẩn đoán (Assessment / Diagnosis):" />
-                            <TextArea fx:id="assessmentArea" prefHeight="100" promptText="VD: Cận thị, Lão thị, Đục thủy tinh thể mắt phải..." wrapText="true" />
-                            <Label text="Kế hoạch điều trị (Plan):" />
-                            <TextArea fx:id="planArea" prefHeight="100" promptText="VD: Kê đơn kính mới, hẹn tái khám 1 năm, theo dõi nhãn áp..." wrapText="true" />
-                        </VBox>
-                    </content>
-                </TitledPane>
-                <HBox alignment="CENTER_RIGHT" spacing="15.0">
-                    <children>
-                        <Button onAction="#handleCancel" prefWidth="100" text="Hủy" />
-                        <Button onAction="#handleSavePrescription" prefWidth="150" text="Lưu Đơn Khám" />
-                        <Button prefWidth="180" text="Lưu &amp; In Đơn Kính" />
-                    </children>
-                </HBox>
-            </children>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- BOTTOM: Action Buttons -->
+    <bottom>
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_RIGHT" spacing="12" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
+                </padding>
+                <Button onAction="#handleCancel" prefWidth="100" styleClass="btn-secondary" text="❌ Hủy" />
+                <Button onAction="#handleSavePrescription" prefHeight="43.0" prefWidth="163.0" styleClass="btn-success" text="💾 Lưu Đơn Khám" />
+                <Button prefWidth="180" styleClass="btn-print" text="🖨 Lưu &amp; In Đơn Kính" />
+            </HBox>
         </VBox>
-    </content>
-</ScrollPane>
+    </bottom>
+</BorderPane>

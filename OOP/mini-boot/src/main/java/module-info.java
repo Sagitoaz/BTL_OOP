@@ -1,10 +1,10 @@
 module mini.boot {
     requires com.fasterxml.jackson.databind;
-    requires com.google.gson;
+    requires transitive com.google.gson;
     requires com.auth0.jwt;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires bcrypt;
-    requires java.sql;
+    requires transitive java.sql;
 
     // PostgreSQL, MS SQL Server không phải là proper Java modules
     // Chúng sẽ được load qua classpath tự động (automatic modules)
@@ -27,7 +27,12 @@ module mini.boot {
     opens org.miniboot.app.domain.models to com.google.gson, com.fasterxml.jackson.databind;
     opens org.miniboot.app.domain.models.Inventory to com.google.gson, com.fasterxml.jackson.databind;
     opens org.miniboot.app.domain.models.Payment to com.google.gson, com.fasterxml.jackson.databind;
-    opens org.miniboot.app.controllers.payment to com.fasterxml.jackson.databind, com.google.gson; // Thêm dòng này để mở cho cả Gson và Jackson
+    opens org.miniboot.app.controllers.payment to com.fasterxml.jackson.databind, com.google.gson;
+
+    // <-- TÔI ĐÃ THÊM DÒNG NÀY ĐỂ SỬA LỖI
+    opens org.miniboot.app.controllers.Inventory to com.fasterxml.jackson.databind, com.google.gson;
+
     exports org.miniboot.app.domain.models.CustomerAndPrescription;
+
     opens org.miniboot.app.domain.models.CustomerAndPrescription to com.fasterxml.jackson.databind, com.google.gson;
 }

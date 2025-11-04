@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 import org.example.oop.Utils.ApiClient;
 import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.HttpException;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
@@ -18,7 +20,8 @@ import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 /**
  * 🌐 CUSTOMER RECORD SERVICE - NGÀY 8 CUSTOMER API INTEGRATION
  *
- * Service layer làm cầu nối giữa Frontend và Backend API cho Customer operations
+ * Service layer làm cầu nối giữa Frontend và Backend API cho Customer
+ * operations
  * Theo pattern của ApiClient với:
  * - Singleton pattern
  * - ApiResponse wrapper cho type safety
@@ -28,7 +31,6 @@ import org.miniboot.app.util.CustomerAndPrescriptionConfig;
  * - JSON serialization/deserialization
  */
 public class CustomerRecordService {
-
 
     private final ApiClient apiClient;
     private final Gson gson;
@@ -48,73 +50,102 @@ public class CustomerRecordService {
         return instance;
     }
 
-
     // ================================
     // SYNCHRONOUS METHODS (ĐỒNG BỘ)
     // ================================
 
     /**
      * GET /customers - Lấy tất cả customers (Sync)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public ApiResponse<List<Customer>> getAllCustomers() {
         ApiResponse<String> response = apiClient.get(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
 
         if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải danh sách khách hàng")) {
+                return ApiResponse.error("Empty or invalid response");
+            }
+
             try {
-                List<Customer
-                        > customers = gson.fromJson(response.getData(),
-                    new TypeToken<List<Customer>>(){}.getType());
+                List<Customer> customers = gson.fromJson(response.getData(),
+                        new TypeToken<List<Customer>>() {
+                        }.getType());
                 return ApiResponse.success(customers, response.getStatusCode());
             } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse customers list");
                 return ApiResponse.error("JSON parse error: " + e.getMessage());
             }
         } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải danh sách khách hàng");
             return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
      * GET /customers?searchKey=... - Tìm kiếm customers (Sync)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
-    public ApiResponse<List<Customer>> searchCustomers(String searchKey, Customer.Gender
-                                                               gender,
-                                                     LocalDate dateFrom, LocalDate dateTo) {
+    public ApiResponse<List<Customer>> searchCustomers(String searchKey, Customer.Gender gender,
+            LocalDate dateFrom, LocalDate dateTo) {
         String endpoint = buildSearchEndpoint(searchKey, gender, dateFrom, dateTo);
         ApiResponse<String> response = apiClient.get(endpoint);
 
         if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tìm kiếm khách hàng")) {
+                return ApiResponse.error("Empty or invalid response");
+            }
+
             try {
                 List<Customer> customers = gson.fromJson(response.getData(),
-                    new TypeToken<List<Customer>>(){}.getType());
+                        new TypeToken<List<Customer>>() {
+                        }.getType());
                 return ApiResponse.success(customers, response.getStatusCode());
             } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse search customers");
                 return ApiResponse.error("JSON parse error: " + e.getMessage());
             }
         } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tìm kiếm khách hàng");
             return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
      * POST /customers - Tạo customer mới (Sync)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public ApiResponse<Customer> createCustomer(Customer customer) {
         try {
             String jsonBody = gson.toJson(customer);
-            ApiResponse<String> response = apiClient.post(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT, jsonBody);
+            ApiResponse<String> response = apiClient.post(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT,
+                    jsonBody);
 
             if (response.isSuccess()) {
-                Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
-                return ApiResponse.success(createdCustomer, response.getStatusCode());
+                if (!ErrorHandler.validateResponse(response.getData(), "Tạo khách hàng mới")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
+
+                try {
+                    Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
+                    return ApiResponse.success(createdCustomer, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse created customer");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
             } else {
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tạo khách hàng mới");
                 return ApiResponse.error(response.getErrorMessage());
             }
         } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize customer");
             return ApiResponse.error("JSON serialization error: " + e.getMessage());
         }
     }
 
-    // update theo id
+    /**
+     * PUT /customers - Cập nhật customer theo id (Sync)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
+     */
     public ApiResponse<Customer> updateCustomer(Customer customer) {
         if (customer.getId() <= 0) {
             return ApiResponse.error("Customer ID is required for update");
@@ -126,18 +157,30 @@ public class CustomerRecordService {
             ApiResponse<String> response = apiClient.put(endpoint, jsonBody);
 
             if (response.isSuccess()) {
-                Customer updatedCustomer = gson.fromJson(response.getData(), Customer.class);
-                return ApiResponse.success(updatedCustomer, response.getStatusCode());
+                if (!ErrorHandler.validateResponse(response.getData(), "Cập nhật khách hàng")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
+
+                try {
+                    Customer updatedCustomer = gson.fromJson(response.getData(), Customer.class);
+                    return ApiResponse.success(updatedCustomer, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse updated customer");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
             } else {
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể cập nhật khách hàng");
                 return ApiResponse.error(response.getErrorMessage());
             }
         } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize customer");
             return ApiResponse.error("JSON serialization error: " + e.getMessage());
         }
     }
 
     /**
      * DELETE /customers/{id} - Xóa customer (Sync)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public ApiResponse<Boolean> deleteCustomer(int customerId) {
         String endpoint = CustomerAndPrescriptionConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
@@ -146,6 +189,7 @@ public class CustomerRecordService {
         if (response.isSuccess()) {
             return ApiResponse.success(true, response.getStatusCode());
         } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể xóa khách hàng");
             return ApiResponse.error(response.getErrorMessage());
         }
     }
@@ -156,137 +200,159 @@ public class CustomerRecordService {
 
     /**
      * ASYNC - GET /customers - Lấy tất cả customers (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void getAllCustomersAsync(Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
         apiClient.getAsync(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT,
-            response -> {
-                if (response.isSuccess()) {
-                    try {
-                        String responseData = response.getData();
-                        List<Customer> customers;
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<Customer> customers;
 
-                        // Kiểm tra response data trước khi parse
-                        if (responseData == null || responseData.trim().isEmpty() || "null".equals(responseData.trim())) {
-                            // Nếu response là null hoặc empty, trả về empty list
-                            customers = new ArrayList<>();
-                        } else {
-                            customers = gson.fromJson(responseData, new TypeToken<List<Customer>>(){}.getType());
-                            // Double check nếu gson trả về null
-                            if (customers == null) {
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
                                 customers = new ArrayList<>();
+                            } else {
+                                customers = gson.fromJson(responseData, new TypeToken<List<Customer>>() {
+                                }.getType());
+                                if (customers == null) {
+                                    customers = new ArrayList<>();
+                                }
                             }
-                        }
 
-                        System.out.println("📋 Loaded " + customers.size() + " customers");
-                        onSuccess.accept(customers);
-                    } catch (Exception e) {
-                        System.err.println("❌ JSON parse error in getAllCustomers: " + e.getMessage());
-                        onError.accept("JSON parse error: " + e.getMessage());
+                            onSuccess.accept(customers);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse customers list (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                "Không thể tải danh sách khách hàng");
+                        onError.accept(response.getErrorMessage());
                     }
-                } else {
-                    onError.accept(response.getErrorMessage());
-                }
-            },
-            onError
-        );
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tải danh sách khách hàng (async)");
+                    onError.accept(error);
+                });
     }
 
     /**
      * ASYNC - Tìm kiếm customers theo criteria (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void searchCustomersAsync(String searchKey, Customer.Gender gender,
-                                   LocalDate dateFrom, LocalDate dateTo,
-                                   Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
+            LocalDate dateFrom, LocalDate dateTo,
+            Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
         String endpoint = buildSearchEndpoint(searchKey, gender, dateFrom, dateTo);
 
         apiClient.getAsync(endpoint,
-            response -> {
-                if (response.isSuccess()) {
-                    try {
-                        String responseData = response.getData();
-                        List<Customer> customers;
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<Customer> customers;
 
-                        // Kiểm tra response data trước khi parse
-                        if (responseData == null || responseData.trim().isEmpty() || "null".equals(responseData.trim())) {
-                            // Nếu response là null hoặc empty, trả về empty list
-                            customers = new ArrayList<>();
-                        } else {
-                            customers = gson.fromJson(responseData, new TypeToken<List<Customer>>(){}.getType());
-                            // Double check nếu gson trả về null
-                            if (customers == null) {
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
                                 customers = new ArrayList<>();
+                            } else {
+                                customers = gson.fromJson(responseData, new TypeToken<List<Customer>>() {
+                                }.getType());
+                                if (customers == null) {
+                                    customers = new ArrayList<>();
+                                }
                             }
-                        }
 
-                        System.out.println("🔍 Search found " + customers.size() + " customers");
-                        onSuccess.accept(customers);
-                    } catch (Exception e) {
-                        System.err.println("❌ JSON parse error in search: " + e.getMessage());
-                        onError.accept("JSON parse error: " + e.getMessage());
+                            onSuccess.accept(customers);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse search customers (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tìm kiếm khách hàng");
+                        onError.accept(response.getErrorMessage());
                     }
-                } else {
-                    onError.accept(response.getErrorMessage());
-                }
-            },
-            onError
-        );
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tìm kiếm khách hàng (async)");
+                    onError.accept(error);
+                });
     }
 
     /**
      * ASYNC - Tìm customer theo ID (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void findByIdAsync(int id, Consumer<Optional<Customer>> onSuccess, Consumer<String> onError) {
         String endpoint = CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT + "?id=" + id;
 
         apiClient.getAsync(endpoint,
-            response -> {
-                if (response.isSuccess()) {
-                    try {
-                        List<Customer> customers = gson.fromJson(response.getData(),
-                            new TypeToken<List<Customer>>(){}.getType());
-                        Optional<Customer> result = customers.isEmpty() ?
-                            Optional.empty() : Optional.of(customers.get(0));
-                        onSuccess.accept(result);
-                    } catch (Exception e) {
-                        onError.accept("JSON parse error: " + e.getMessage());
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            List<Customer> customers = gson.fromJson(response.getData(),
+                                    new TypeToken<List<Customer>>() {
+                                    }.getType());
+                            Optional<Customer> result = customers.isEmpty() ? Optional.empty()
+                                    : Optional.of(customers.get(0));
+                            onSuccess.accept(result);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse customer by ID (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        if (response.getStatusCode() != 404) {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể tải thông tin khách hàng");
+                        }
+                        onError.accept(response.getErrorMessage());
                     }
-                } else {
-                    onError.accept(response.getErrorMessage());
-                }
-            },
-            onError
-        );
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tải khách hàng theo ID (async)");
+                    onError.accept(error);
+                });
     }
 
     /**
      * ASYNC - Tạo customer mới (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void createCustomerAsync(Customer customer, Consumer<Customer> onSuccess, Consumer<String> onError) {
         try {
             String jsonBody = gson.toJson(customer);
 
             apiClient.postAsync(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT, jsonBody,
-                response -> {
-                    if (response.isSuccess()) {
-                        try {
-                            Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
-                            onSuccess.accept(createdCustomer);
-                        } catch (Exception e) {
-                            onError.accept("JSON parse error: " + e.getMessage());
+                    response -> {
+                        if (response.isSuccess()) {
+                            try {
+                                Customer createdCustomer = gson.fromJson(response.getData(), Customer.class);
+                                onSuccess.accept(createdCustomer);
+                            } catch (Exception e) {
+                                ErrorHandler.handleJsonParseError(e, "Parse created customer (async)");
+                                onError.accept("JSON parse error: " + e.getMessage());
+                            }
+                        } else {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể tạo khách hàng mới");
+                            onError.accept(response.getErrorMessage());
                         }
-                    } else {
-                        onError.accept(response.getErrorMessage());
-                    }
-                },
-                onError
-            );
+                    },
+                    error -> {
+                        ErrorHandler.handleConnectionError(new Exception(error), "Tạo khách hàng (async)");
+                        onError.accept(error);
+                    });
         } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize customer (async)");
             Platform.runLater(() -> onError.accept("JSON serialization error: " + e.getMessage()));
         }
     }
 
     /**
      * ASYNC - Cập nhật customer (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void updateCustomerAsync(Customer customer, Consumer<Customer> onSuccess, Consumer<String> onError) {
         if (customer.getId() <= 0) {
@@ -300,41 +366,51 @@ public class CustomerRecordService {
                     + "?id=" + customer.getId();
 
             apiClient.putAsync(endpoint, jsonBody,
-                response -> {
-                    if (response.isSuccess()) {
-                        try {
-                            Customer updatedCustomer = gson.fromJson(response.getData(), Customer.class);
-                            onSuccess.accept(updatedCustomer);
-                        } catch (Exception e) {
-                            onError.accept("JSON parse error: " + e.getMessage());
+                    response -> {
+                        if (response.isSuccess()) {
+                            try {
+                                Customer updatedCustomer = gson.fromJson(response.getData(), Customer.class);
+                                onSuccess.accept(updatedCustomer);
+                            } catch (Exception e) {
+                                ErrorHandler.handleJsonParseError(e, "Parse updated customer (async)");
+                                onError.accept("JSON parse error: " + e.getMessage());
+                            }
+                        } else {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể cập nhật khách hàng");
+                            onError.accept(response.getErrorMessage());
                         }
-                    } else {
-                        onError.accept(response.getErrorMessage());
-                    }
-                },
-                onError
-            );
+                    },
+                    error -> {
+                        ErrorHandler.handleConnectionError(new Exception(error), "Cập nhật khách hàng (async)");
+                        onError.accept(error);
+                    });
         } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize customer (async)");
             Platform.runLater(() -> onError.accept("JSON serialization error: " + e.getMessage()));
         }
     }
 
     /**
      * ASYNC - Xóa customer (Async)
+     * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void deleteCustomerAsync(int customerId, Consumer<Boolean> onSuccess, Consumer<String> onError) {
         String endpoint = CustomerAndPrescriptionConfig.DELETE_CUSTOMER_BY_ID_ENDPOINT + "?id=" + customerId;
 
         apiClient.deleteAsync(endpoint,
-            response -> {
-                if (response.isSuccess()) {
-                    onSuccess.accept(true);
-                } else {
-                    onError.accept(response.getErrorMessage());
-                }
-            },
-            onError
-        );
+                response -> {
+                    if (response.isSuccess()) {
+                        onSuccess.accept(true);
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể xóa khách hàng");
+                        onError.accept(response.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Xóa khách hàng (async)");
+                    onError.accept(error);
+                });
     }
     // ================================
     // UTILITY METHODS (PHƯƠNG THỨC HỖ TRỢ)
@@ -345,15 +421,15 @@ public class CustomerRecordService {
      */
     public void checkServerConnection(Consumer<Boolean> onResult) {
         apiClient.getAsync("/health", // hoặc endpoint khác để test
-            response -> onResult.accept(response.isSuccess()),
-            error -> onResult.accept(false)
-        );
+                response -> onResult.accept(response.isSuccess()),
+                error -> onResult.accept(false));
     }
+
     /**
      * Xây dựng endpoint tìm kiếm với query parameters
      */
     private String buildSearchEndpoint(String searchKey, Customer.Gender gender,
-                                     LocalDate dateFrom, LocalDate dateTo) {
+            LocalDate dateFrom, LocalDate dateTo) {
         StringBuilder endpoint = new StringBuilder(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
         boolean hasParams = false;
 

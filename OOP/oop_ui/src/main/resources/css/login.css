@@ -1,0 +1,347 @@
+/* ========================================
+   LOGIN & AUTHENTICATION STYLES - MODERN EYE CLINIC
+   Thiết kế: Hiện đại với gradient xanh dương
+   Phong cách: Trẻ trung, thân thiện & đáng tin cậy
+   ======================================== */
+
+/* ========== LOGIN CONTAINER - GRADIENT BACKGROUND ========== */
+.login-container {
+    -fx-background-color: linear-gradient(to bottom, #E0F2FE 0%, #BAE6FD 50%, #7DD3FC 100%);
+    -fx-alignment: center;
+    -fx-padding: 40px;
+}
+
+.login-box {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 20px;
+    -fx-padding: 45px 40px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 25, 0, 0, 8);
+    -fx-max-width: 480px;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+}
+
+/* ========== LOGO & BRANDING - EYE CLINIC ========== */
+.logo-container {
+    -fx-alignment: center;
+    -fx-spacing: 14px;
+    -fx-padding: 0 0 32px 0;
+}
+
+.app-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-fill: #0EA5E9;
+    -fx-alignment: center;
+    -fx-letter-spacing: -0.5px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 4, 0, 0, 2);
+}
+
+.app-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #64748B;
+    -fx-alignment: center;
+    -fx-font-weight: 500;
+}
+
+/* ========== FORM TITLE - MODERN ========== */
+.form-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-fill: #0369A1;
+    -fx-padding: 0 0 8px 0;
+    -fx-letter-spacing: -0.5px;
+}
+
+.form-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748B;
+    -fx-padding: 0 0 28px 0;
+    -fx-font-weight: 500;
+}
+
+/* ========== LOGIN FORM ========== */
+.login-form {
+    -fx-spacing: 20px;
+}
+
+.form-group {
+    -fx-spacing: 8px;
+}
+
+.form-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #334155;
+}
+
+/* ========== INPUT FIELDS - MODERN ROUNDED ========== */
+.login-input {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #CBD5E0;
+    -fx-border-radius: 12px;
+    -fx-border-width: 2px;
+    -fx-padding: 14px 18px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1E293B;
+    -fx-pref-height: 48px;
+}
+
+.login-input:focused {
+    -fx-background-color: #F8FBFF;
+    -fx-border-color: #0EA5E9;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 8, 0, 0, 2);
+}
+
+.login-input:hover {
+    -fx-border-color: #38BDF8;
+    -fx-background-color: #FAFBFC;
+}
+
+/* Password field styling */
+.password-field {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #CBD5E0;
+    -fx-border-radius: 12px;
+    -fx-border-width: 2px;
+    -fx-padding: 14px 18px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1E293B;
+    -fx-pref-height: 48px;
+}
+
+.password-field:focused {
+    -fx-background-color: #F8FBFF;
+    -fx-border-color: #0EA5E9;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 8, 0, 0, 2);
+}
+
+/* ========== LOGIN BUTTON - GRADIENT ========== */
+.login-button {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 12px;
+    -fx-padding: 15px 32px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-pref-height: 52px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 15, 0, 0, 5);
+}
+
+.login-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0284C7 0%, #075985 100%);
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.6), 20, 0, 0, 8);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.login-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== REMEMBER ME & FORGOT PASSWORD ========== */
+.remember-forgot-container {
+    -fx-spacing: 10px;
+    -fx-padding: 8px 0;
+}
+
+.remember-me-checkbox {
+    -fx-text-fill: #475569;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.remember-me-checkbox .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.remember-me-checkbox:selected .box {
+    -fx-background-color: #0EA5E9;
+    -fx-border-color: #0EA5E9;
+}
+
+.remember-me-checkbox:selected .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+.forgot-password-link {
+    -fx-text-fill: #0EA5E9;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-underline: false;
+}
+
+.forgot-password-link:hover {
+    -fx-text-fill: #0284C7;
+    -fx-underline: true;
+}
+
+/* ========== DIVIDER ========== */
+.login-divider {
+    -fx-padding: 20px 0;
+}
+
+.divider-line {
+    -fx-background-color: #CBD5E0;
+    -fx-pref-height: 1px;
+}
+
+.divider-text {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 0 12px;
+}
+
+/* ========== REGISTER LINK ========== */
+.register-container {
+    -fx-alignment: center;
+    -fx-padding: 16px 0 0 0;
+    -fx-spacing: 6px;
+}
+
+.register-text {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.register-link {
+    -fx-text-fill: #0EA5E9;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-underline: false;
+}
+
+.register-link:hover {
+    -fx-text-fill: #0284C7;
+    -fx-underline: true;
+}
+
+/* ========== ERROR MESSAGE ========== */
+.error-message {
+    -fx-text-fill: #EF4444;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 12px;
+    -fx-background-color: #FEE2E2;
+    -fx-background-radius: 8px;
+    -fx-border-color: #FCA5A5;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+/* ========== SUCCESS MESSAGE ========== */
+.success-message {
+    -fx-text-fill: #10B981;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 12px;
+    -fx-background-color: #D1FAE5;
+    -fx-background-radius: 8px;
+    -fx-border-color: #6EE7B7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+/* ========== SOCIAL LOGIN BUTTONS ========== */
+.social-login-button {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #475569;
+    -fx-background-radius: 12px;
+    -fx-padding: 12px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 6, 0, 0, 2);
+}
+
+.social-login-button:hover {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #0EA5E9;
+    -fx-text-fill: #0EA5E9;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 10, 0, 0, 4);
+}
+
+/* ========== FOOTER ========== */
+.login-footer {
+    -fx-alignment: center;
+    -fx-padding: 24px 0 0 0;
+}
+
+.footer-text {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+    -fx-alignment: center;
+}
+
+/* ========== FOCUS INDICATOR - SUBTLE ========== */
+.login-input:focused, .remember-checkbox:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ========== PASSWORD TOGGLE BUTTON ========== */
+.password-toggle-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+    -fx-text-fill: #64748B;
+}
+
+.password-toggle-btn:hover {
+    -fx-background-color: rgba(14, 165, 233, 0.1);
+    -fx-text-fill: #0EA5E9;
+}
+
+.password-toggle-btn:pressed {
+    -fx-background-color: rgba(14, 165, 233, 0.2);
+}
+
+.password-toggle-btn:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-background-color: rgba(14, 165, 233, 0.1);
+}
+
+/* ========== REMOVE FOCUS INDICATORS FOR ALL ELEMENTS ========== */
+.login-container * {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.login-container .button:focused,
+.login-container .text-field:focused,
+.login-container .password-field:focused,
+.login-container .hyperlink:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ========== ENSURE ALL BUTTONS ARE ROUNDED ========== */
+.login-container .button,
+.login-button,
+.password-toggle-btn,
+.social-login-button {
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+}

@@ -1,0 +1,594 @@
+/* ========================================
+   FINANCIAL REPORT STYLES - MODERN EYE CLINIC
+   Thiết kế: Hiện đại với gradient xanh dương
+   Phong cách: Clean, Professional & Modern
+   ======================================== */
+
+/* ========== HEADER STYLING ========== */
+.financial-header {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0369A1 100%);
+    -fx-padding: 24px 28px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 15, 0, 0, 4);
+    -fx-background-radius: 12px 12px 0 0;
+}
+
+.financial-header .page-title {
+    -fx-text-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 2, 0, 0, 1);
+}
+
+.financial-header .form-label {
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+}
+
+/* ========== BUTTONS - MODERN ROUNDED ========== */
+.btn-search {
+    -fx-background-color: white;
+    -fx-text-fill: #0EA5E9;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 11px 26px;
+    -fx-background-radius: 25px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 10, 0, 0, 3);
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.btn-search:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-text-fill: #0284C7;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 12, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-search:focused {
+    -fx-border-color: transparent;
+    -fx-background-color: white;
+}
+
+.export-button {
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 11px 24px;
+    -fx-background-radius: 25px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.export-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 14, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.export-button:focused {
+    -fx-border-color: transparent;
+    -fx-background-color: #10B981;
+}
+
+.btn-print {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 11px 24px;
+    -fx-background-radius: 25px;
+    -fx-cursor: hand;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
+}
+
+.btn-print:hover {
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-print:focused {
+    -fx-border-color: #F43F5E;
+    -fx-background-color: #FFFFFF;
+}
+
+/* ========== TAB PANE ========== */
+.financial-tabs {
+    -fx-background-color: transparent;
+}
+
+.financial-tabs .tab-header-area {
+    -fx-padding: 0 24px;
+    -fx-background-color: white;
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.financial-tabs .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 12px 20px;
+    -fx-border-width: 0 0 2px 0;
+    -fx-border-color: transparent;
+}
+
+.financial-tabs .tab:selected {
+    -fx-border-color: #0EA5E9;
+}
+
+.financial-tabs .tab .tab-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748B;
+}
+
+.financial-tabs .tab:selected .tab-label {
+    -fx-text-fill: #0EA5E9;
+}
+
+.financial-tabs .tab:hover {
+    -fx-background-color: #F0F9FF;
+}
+
+/* ========== REPORT CONTAINER ========== */
+.report-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 28px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.12), 15, 0, 0, 5);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+/* ========== STATS SUMMARY ========== */
+.stats-summary {
+    -fx-spacing: 20px;
+    -fx-padding: 20px;
+    -fx-background-color: #F0F9FF;
+    -fx-background-radius: 12px;
+}
+
+.stat-box {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.08), 10, 0, 0, 3);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.stat-box:hover {
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 15, 0, 0, 5);
+    -fx-translate-y: -2px;
+}
+
+.stat-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748B;
+}
+
+.stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0EA5E9;
+}
+
+/* ========== CHART CONTAINER ========== */
+.chart-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 4);
+}
+
+.chart-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+    -fx-padding: 0 0 16px 0;
+}
+
+/* ========== TABLE STYLING - Enhanced with Gradient ========== */
+.financial-table {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 12, 0, 0, 3);
+}
+
+.financial-table .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+    -fx-background-radius: 8px 8px 0 0;
+}
+
+.financial-table .column-header {
+    -fx-background-color: transparent;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-padding: 16px 14px;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 0 1px 0 0;
+}
+
+.financial-table .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+}
+
+.financial-table .filler {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+}
+
+.financial-table .corner {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+}
+
+.financial-table .table-row-cell {
+    -fx-background-color: white;
+    -fx-padding: 2px 0;
+    -fx-border-color: #E8EDF5;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.financial-table .table-row-cell:odd {
+    -fx-background-color: #F0F4FF;
+}
+
+.financial-table .table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.financial-table .table-row-cell:hover {
+    -fx-background-color: #D9E8FF;
+    -fx-cursor: hand;
+}
+
+.financial-table .table-row-cell:selected {
+    -fx-background-color: #B3D9FF;
+    -fx-text-fill: #003D7A;
+}
+
+.financial-table .table-cell {
+    -fx-padding: 14px 16px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-border-color: transparent;
+}
+
+.financial-table .table-cell:selected {
+    -fx-text-fill: #003D7A;
+    -fx-font-weight: 600;
+}
+
+/* Styling riêng cho từng cột số liệu - Nổi bật hơn */
+.financial-table .table-cell.number-cell {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+}
+
+.financial-table .table-cell.revenue-cell {
+    -fx-text-fill: #0066CC;
+    -fx-font-weight: 700;
+    -fx-font-size: 14px;
+}
+
+.financial-table .table-cell.positive-value {
+    -fx-text-fill: #00A86B;
+    -fx-font-weight: 700;
+}
+
+.financial-table .table-cell.negative-value {
+    -fx-text-fill: #DC3545;
+    -fx-font-weight: 700;
+}
+
+.financial-table .table-cell.sku-cell {
+    -fx-background-color: #E6F2FF;
+    -fx-text-fill: #0066CC;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 16px;
+    -fx-background-radius: 6px;
+}
+
+/* ========== SCROLLBAR - Modern Blue ========== */
+.financial-table .scroll-bar:vertical {
+    -fx-background-color: #F8FAFC;
+    -fx-background-radius: 8px;
+}
+
+.financial-table .scroll-bar:vertical .thumb {
+    -fx-background-color: #0EA5E9;
+    -fx-background-radius: 6px;
+    -fx-background-insets: 2px;
+}
+
+.financial-table .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #0284C7;
+}
+
+/* ========== EMPTY TABLE PLACEHOLDER ========== */
+.financial-table .placeholder .label {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+}
+
+/* ========== SUMMARY ROW - SPECIAL STYLING ========== */
+.financial-table .table-row-cell.summary-row {
+    -fx-background-color: #E6F2FF;
+    -fx-font-weight: 700;
+    -fx-border-width: 2px 0 0 0;
+    -fx-border-color: #0EA5E9;
+}
+
+.financial-table .table-row-cell.summary-row .table-cell {
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+    -fx-font-size: 14px;
+}
+
+/* ========== DATE RANGE PICKER ========== */
+.date-range-container {
+    -fx-spacing: 12px;
+    -fx-padding: 16px 20px;
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 10, 0, 0, 3);
+}
+
+/* ========== EXPORT OPTIONS ========== */
+.export-options {
+    -fx-spacing: 12px;
+    -fx-padding: 20px;
+    -fx-background-color: #F8FBFF;
+    -fx-background-radius: 12px;
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.export-format-button {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-padding: 12px 20px;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.export-format-button:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-border-color: #0EA5E9;
+    -fx-text-fill: #0369A1;
+}
+
+.export-format-button:selected {
+    -fx-background-color: #0EA5E9;
+    -fx-text-fill: white;
+    -fx-border-color: #0EA5E9;
+}
+
+/* ========== FILTER PANEL ========== */
+.filter-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 20px;
+    -fx-spacing: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 4);
+    -fx-border-color: #E0F2FE;
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+}
+
+.filter-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0369A1;
+}
+
+/* ========== LOADING OVERLAY ========== */
+.loading-overlay {
+    -fx-background-color: rgba(240, 249, 255, 0.95);
+    -fx-alignment: center;
+}
+
+.loading-message {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #0369A1;
+}
+
+/* ========== CHART STYLING ========== */
+.chart {
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: #FAFBFC;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.default-color0.chart-series-line { -fx-stroke: #0066CC; -fx-stroke-width: 3px; }
+.default-color1.chart-series-line { -fx-stroke: #00A86B; -fx-stroke-width: 3px; }
+.default-color2.chart-series-line { -fx-stroke: #FF6B35; -fx-stroke-width: 3px; }
+
+.default-color0.chart-line-symbol { -fx-background-color: #0066CC, white; }
+.default-color1.chart-line-symbol { -fx-background-color: #00A86B, white; }
+.default-color2.chart-line-symbol { -fx-background-color: #FF6B35, white; }
+
+.default-color0.chart-bar { -fx-bar-fill: #0066CC; }
+.default-color1.chart-bar { -fx-bar-fill: #00A86B; }
+.default-color2.chart-bar { -fx-bar-fill: #FF6B35; }
+
+.default-color0.chart-pie { -fx-pie-color: #0066CC; }
+.default-color1.chart-pie { -fx-pie-color: #00A86B; }
+.default-color2.chart-pie { -fx-pie-color: #FF6B35; }
+.default-color3.chart-pie { -fx-pie-color: #17A2B8; }
+
+/* ========== SCROLLPANE ========== */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #F5F7FA;
+}
+
+/* ========== DATE PICKER IN HEADER - Soft & Rounded ========== */
+.financial-header .date-picker {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.financial-header .date-picker .text-field {
+    -fx-background-color: white;
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-text-fill: #2C3E50;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-padding: 8px 40px 8px 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 6, 0, 0, 2);
+}
+
+.financial-header .date-picker .text-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 8, 0, 0, 2);
+}
+
+.financial-header .date-picker .arrow-button {
+    -fx-background-color: #0066CC;
+    -fx-background-radius: 0 18px 18px 0;
+    -fx-padding: 0px 14px;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.financial-header .date-picker .arrow-button:hover {
+    -fx-background-color: #0052A3;
+}
+
+.financial-header .date-picker .arrow-button .arrow {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-min-width: 16px;
+    -fx-min-height: 16px;
+    -fx-max-width: 16px;
+    -fx-max-height: 16px;
+    -fx-shape: "M 2 0 L 2 2 L 0 2 L 0 16 L 16 16 L 16 2 L 14 2 L 14 0 L 12 0 L 12 2 L 4 2 L 4 0 Z M 2 4 L 14 4 L 14 14 L 2 14 Z M 4 6 L 4 8 L 6 8 L 6 6 Z M 7 6 L 7 8 L 9 8 L 9 6 Z M 10 6 L 10 8 L 12 8 L 12 6 Z M 4 9 L 4 11 L 6 11 L 6 9 Z M 7 9 L 7 11 L 9 11 L 9 9 Z M 10 9 L 10 11 L 12 11 L 12 9 Z";
+}
+
+.financial-header .date-picker:hover .text-field {
+    -fx-background-color: #F8FBFF;
+    -fx-border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* DatePicker Popup Styling */
+.date-picker-popup {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 16, 0, 0, 4);
+    -fx-padding: 10px;
+}
+
+.date-picker-popup .month-year-pane {
+    -fx-background-color: #0066CC;
+    -fx-background-radius: 8px 8px 0 0;
+    -fx-padding: 12px;
+}
+
+.date-picker-popup .spinner .button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 15px;
+}
+
+.date-picker-popup .spinner .button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.date-picker-popup .spinner .button .left-arrow,
+.date-picker-popup .spinner .button .right-arrow {
+    -fx-background-color: white;
+}
+
+.date-picker-popup .spinner .label {
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+}
+
+.date-picker-popup .week-number-cell {
+    -fx-background-color: #F5F7FA;
+    -fx-text-fill: #7B8794;
+    -fx-font-weight: 600;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #2C3E50;
+    -fx-font-weight: 500;
+    -fx-padding: 8px;
+}
+
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: #E6F2FF;
+    -fx-cursor: hand;
+}
+
+.date-picker-popup .selected {
+    -fx-background-color: #0066CC;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+}
+
+.date-picker-popup .today {
+    -fx-background-color: #FFE4E9;
+    -fx-text-fill: #0066CC;
+    -fx-font-weight: 700;
+}
+
+.date-picker-popup .previous-month,
+.date-picker-popup .next-month {
+    -fx-text-fill: #B8C5D0;
+}
+
+.date-picker-popup .day-name-cell {
+    -fx-text-fill: #0066CC;
+    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+}

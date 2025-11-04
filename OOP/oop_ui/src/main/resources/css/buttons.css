@@ -1,0 +1,316 @@
+/* ========================================
+   BUTTONS STYLES - MODERN EYE CLINIC DESIGN
+   Thiết kế: Gradient hiện đại, trẻ trung với màu xanh dương
+   Phong cách: Clean, Professional & Vibrant
+   ======================================== */
+
+/* ========== PRIMARY ACTION BUTTONS - OCEAN BLUE GRADIENT ========== */
+.btn-add {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9 0%, #0284C7 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.4), 12, 0, 0, 4);
+}
+
+.btn-add:hover {
+    -fx-background-color: linear-gradient(to bottom, #0284C7 0%, #0369A1 100%);
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.6), 16, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== SUCCESS BUTTONS - GREEN (Duyệt, Đồng ý, Lưu, Xác nhận) ========== */
+.btn-save,
+.btn-approve,
+.btn-accept,
+.btn-confirm,
+.btn-submit,
+.btn-success {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #10B981;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #10B981;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.25), 10, 0, 0, 3);
+}
+
+.btn-save:hover,
+.btn-approve:hover,
+.btn-accept:hover,
+.btn-confirm:hover,
+.btn-submit:hover,
+.btn-success:hover {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #059669;
+    -fx-text-fill: #059669;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== DANGER BUTTONS - RED (Xóa, Hủy, Từ chối) ========== */
+.btn-danger,
+.btn-delete,
+.btn-cancel,
+.btn-reject,
+.btn-remove,
+.btn-decline {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
+}
+
+.btn-danger:hover,
+.btn-delete:hover,
+.btn-cancel:hover,
+.btn-reject:hover,
+.btn-remove:hover,
+.btn-decline:hover {
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== WARNING BUTTONS - ORANGE (Chỉnh sửa, Cảnh báo) ========== */
+.btn-edit {
+    -fx-background-color: linear-gradient(to bottom, #F59E0B 0%, #D97706 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.4), 12, 0, 0, 4);
+}
+
+.btn-edit:hover {
+    -fx-background-color: linear-gradient(to bottom, #D97706 0%, #B45309 100%);
+    -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.6), 16, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== SECONDARY BUTTONS - GRAY (Trung lập, Quay lại) ========== */
+.btn-secondary,
+.btn-back,
+.btn-close {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #64748B;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(203, 213, 224, 0.3), 8, 0, 0, 2);
+}
+
+.btn-secondary:hover,
+.btn-back:hover,
+.btn-close:hover {
+    -fx-border-color: #0EA5E9;
+    -fx-text-fill: #0EA5E9;
+    -fx-background-color: #F0F9FF;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 12, 0, 0, 4);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* ========== INFO BUTTONS - CYAN (Tìm kiếm, Xem, Thông tin) ========== */
+.btn-search {
+    -fx-background-color: linear-gradient(to bottom, #06B6D4 0%, #0891B2 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 25px;
+    -fx-padding: 11px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(6, 182, 212, 0.4), 10, 0, 0, 3);
+}
+
+.btn-search:hover {
+    -fx-background-color: linear-gradient(to bottom, #0891B2 0%, #0E7490 100%);
+    -fx-effect: dropshadow(gaussian, rgba(6, 182, 212, 0.6), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-reset {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #64748B;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 11px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.btn-reset:hover {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #94A3B8;
+    -fx-text-fill: #475569;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+/* ========== ICON BUTTONS - COMPACT & MODERN ========== */
+.btn-icon {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 20px;
+    -fx-padding: 10px;
+    -fx-cursor: hand;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 0, 2);
+}
+
+.btn-icon:hover {
+    -fx-background-color: #F0F9FF;
+    -fx-border-color: #0EA5E9;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 12, 0, 0, 4);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+/* ========== NAVIGATION BUTTONS ========== */
+.btn-forward, .btn-reload {
+    -fx-background-color: linear-gradient(to bottom, #F8FAFC 0%, #F1F5F9 100%);
+    -fx-text-fill: #475569;
+    -fx-background-radius: 22px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 22px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 6, 0, 0, 2);
+}
+
+.btn-back:hover, .btn-forward:hover, .btn-reload:hover {
+    -fx-background-color: linear-gradient(to bottom, #E0F2FE 0%, #BAE6FD 100%);
+    -fx-border-color: #0EA5E9;
+    -fx-text-fill: #0369A1;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 10, 0, 0, 3);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== SPECIAL BUTTONS ========== */
+.btn-print {
+    -fx-background-color: linear-gradient(to bottom, #8B5CF6 0%, #7C3AED 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 25px;
+    -fx-padding: 11px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 10, 0, 0, 4);
+}
+
+.btn-print:hover {
+    -fx-background-color: linear-gradient(to bottom, #7C3AED 0%, #6D28D9 100%);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 14, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.export-button {
+    -fx-background-color: linear-gradient(to bottom, #10B981 0%, #059669 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-background-radius: 25px;
+    -fx-padding: 11px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);
+}
+
+.export-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #059669 0%, #047857 100%);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 14, 0, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== BUTTON STATES ========== */
+.button:disabled,
+.btn-add:disabled,
+.btn-edit:disabled,
+.btn-delete:disabled,
+.btn-save:disabled,
+.btn-approve:disabled,
+.btn-accept:disabled,
+.btn-confirm:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+.button:pressed,
+.btn-add:pressed,
+.btn-edit:pressed,
+.btn-delete:pressed,
+.btn-save:pressed,
+.btn-cancel:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== BUTTON GROUPS ========== */
+.button-group {
+    -fx-spacing: 12px;
+    -fx-alignment: center-left;
+}
+
+.button-group .button {
+    -fx-min-width: 100px;
+}
+
+/* ========== REMOVE FOCUS COLOR FOR ALL BUTTONS ========== */
+.button:focused,
+.btn-add:focused,
+.btn-edit:focused,
+.btn-delete:focused,
+.btn-save:focused,
+.btn-cancel:focused,
+.btn-search:focused,
+.btn-approve:focused,
+.btn-accept:focused,
+.btn-confirm:focused,
+.btn-reject:focused,
+.btn-remove:focused,
+.btn-decline:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}

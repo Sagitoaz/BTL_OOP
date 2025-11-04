@@ -1,5 +1,7 @@
 package org.example.oop.Control.PaymentControl;
 
+// Import BaseController
+
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -10,7 +12,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.example.oop.Control.BaseController;
 import org.example.oop.Service.*;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Inventory.Enum.MoveType;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
@@ -23,12 +27,16 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller quản lý giao diện Hóa đơn. (Đã cập nhật)
+ * Controller quản lý giao diện Hóa đơn.
+ * (Đã cập nhật để kế thừa BaseController và sử dụng executeAsync)
  */
-public class InvoiceController implements Initializable {
+// Bước 1: Kế thừa từ BaseController
+public class InvoiceController extends BaseController implements Initializable {
 
     // --- Dữ liệu và Repository ---
     private final ObservableList<PaymentItem> invoiceItems = FXCollections.observableArrayList();
@@ -37,13 +45,16 @@ public class InvoiceController implements Initializable {
     private HttpPaymentItemService itemService;
     private ApiStockMovementService stockMovementService;
     private HttpPaymentStatusLogService paymentStatusLogService;
+    private CustomerRecordService customerService;
 
+    private List<Product> allProducts = new ArrayList<>();  // Lưu tất cả sản phẩm
 
-    // Biến tạm để lưu sản phẩm đang chọn
+    // Biến tạm để lưu dữ liệu đang chọn
     private Product currentSelectedProduct;
-    // private Customer currentSelectedCustomer; // Tạm thời chưa dùng
+    private Customer currentSelectedCustomer;
 
     // --- Các thành phần UI (@FXML) ---
+    // (Tất cả các @FXML giữ nguyên)
     @FXML
     private TextField txtInvoiceCode;
     @FXML
@@ -105,7 +116,6 @@ public class InvoiceController implements Initializable {
     @FXML
     private TextField txtGrandTotal;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         productService = new ApiProductService();
@@ -113,16 +123,45 @@ public class InvoiceController implements Initializable {
         itemService = new HttpPaymentItemService();
         stockMovementService = new ApiStockMovementService();
         paymentStatusLogService = new HttpPaymentStatusLogService();
+        customerService = CustomerRecordService.getInstance();
 
         setupTableColumns();
         setupEventListeners();
         setupButtonActions();
         handleNewInvoice();
+
+        // Tải sản phẩm bất đồng bộ (đã refactor)
+        loadAllProductsAsync();
     }
 
     /**
-     * Cấu hình các cột của TableView để hiển thị dữ liệu từ PaymentItem.
+     * HÀM REFACTOR: Dùng executeAsync từ BaseController
      */
+    private void loadAllProductsAsync() {
+        btnFindProduct.setDisable(true); // Vô hiệu hóa nút trong khi tải
+
+        executeAsync(
+                () -> {
+                    try {
+                        return productService.getAllProducts();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, // Tác vụ nền
+                (loadedProducts) -> {
+                    // Thành công (chạy trên UI thread)
+                    allProducts = loadedProducts;
+                    System.out.println("Loaded all products (async): " + allProducts.size());
+                    btnFindProduct.setDisable(false); // Kích hoạt lại nút
+                },
+                (error) -> {
+                    // Thất bại (chạy trên UI thread)
+                    // Sử dụng showAlert từ BaseController
+                    showAlert(Alert.AlertType.ERROR, "Lỗi tải sản phẩm", "Không thể tải danh sách sản phẩm: " + error.getMessage());
+                }
+        );
+    }
+
     private void setupTableColumns() {
         colName.setCellValueFactory(new PropertyValueFactory<>("description"));
         colQuantity.setCellValueFactory(new PropertyValueFactory<>("qty"));
@@ -131,75 +170,95 @@ public class InvoiceController implements Initializable {
         tableItems.setItems(invoiceItems);
     }
 
-    /**
-     * Thiết lập các listener để tự động cập nhật giao diện khi dữ liệu thay đổi.
-     */
     private void setupEventListeners() {
         invoiceItems.addListener((ListChangeListener<PaymentItem>) c -> updateTotals());
         txtDiscountAmount.textProperty().addListener((obs, oldVal, newVal) -> updateTotals());
     }
 
-    /**
-     * Gán các phương thức xử lý sự kiện cho từng nút.
-     */
     private void setupButtonActions() {
         btnNewInvoice.setOnAction(event -> handleNewInvoice());
         btnAddItem.setOnAction(event -> handleAddItem());
         btnRemoveRow.setOnAction(event -> handleRemoveRow());
         btnSaveInvoice.setOnAction(event -> handleSaveInvoice());
         btnPayInvoice.setOnAction(event -> handlePayInvoice());
-
-        // --- GÁN HÀNH ĐỘNG CHO NÚT MỚI ---
         btnFindCustomer.setOnAction(event -> handleFindCustomer());
         btnFindProduct.setOnAction(event -> handleFindProduct());
     }
 
     @FXML
     private void handleNewInvoice() {
+        // (Giữ nguyên logic)
         invoiceItems.clear();
-
-        // ========================================================
-        // TỰ ĐỘNG TẠO MÃ HÓA ĐƠN
-        // ========================================================
-        String timestampCode = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        String timestampCode = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd-HHmmss"));
         txtInvoiceCode.setText("HD-" + timestampCode);
-        // ========================================================
-
         txtCashier.clear();
-
-        // Xóa thông tin khách hàng
-        txtCustomerName.clear();
+        clearCustomerFields();
         txtCustomerPhone.clear();
-        txtCustomerAge.clear();
-        txtCustomerGender.clear();
-        txtCustomerAddress.clear();
-
-        // Xóa thông tin sản phẩm
         txtSkuSearch.clear();
         txtProductName.clear();
         txtProductType.clear();
         txtProductPrice.clear();
-
         txtInvoiceNote.clear();
         txtDiscountAmount.setText("0");
         txtQuantity.setText("1");
         dpInvoiceDate.setValue(LocalDate.now());
-
-        // Reset biến tạm
         currentSelectedProduct = null;
-        // currentSelectedCustomer = null;
+        currentSelectedCustomer = null;
     }
 
     /**
-     * HÀM MỚI: Xử lý tìm kiếm khách hàng (Tạm thời chưa làm)
+     * HÀM REFACTOR: Dùng runOnUIThread từ BaseController (thay vì Platform.runLater)
      */
     @FXML
     private void handleFindCustomer() {
-        showAlert(Alert.AlertType.INFORMATION, "Chưa phát triển", "Chức năng tìm khách hàng sẽ được thêm sau.");
+        String phoneNumber = txtCustomerPhone.getText();
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Vui lòng nhập Số điện thoại để tìm.");
+            return;
+        }
+
+        btnFindCustomer.setDisable(true);
+
+        customerService.searchCustomersAsync(phoneNumber, null, null, null,
+                (customers) -> {
+                    // Dùng runOnUIThread từ BaseController
+                    runOnUIThread(() -> {
+                        if (customers == null || customers.isEmpty()) {
+                            showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không có khách hàng nào với SĐT này.");
+                            this.currentSelectedCustomer = null;
+                            clearCustomerFields();
+                        } else {
+                            Customer foundCustomer = customers.get(0);
+                            this.currentSelectedCustomer = foundCustomer;
+                            txtCustomerName.setText(foundCustomer.getFullName());
+                            txtCustomerAge.setText(String.valueOf(foundCustomer.getAge()));
+                            txtCustomerGender.setText(foundCustomer.getGender() != null ? foundCustomer.getGender().name() : "N/A");
+                            txtCustomerAddress.setText(foundCustomer.getAddress());
+                        }
+                        btnFindCustomer.setDisable(false);
+                    });
+                },
+                (errorMsg) -> {
+                    // Dùng runOnUIThread từ BaseController
+                    runOnUIThread(() -> {
+                        showAlert(Alert.AlertType.ERROR, "Lỗi API", "Lỗi khi tìm khách hàng: " + errorMsg);
+                        this.currentSelectedCustomer = null;
+                        clearCustomerFields();
+                        btnFindCustomer.setDisable(false);
+                    });
+                }
+        );
+    }
+
+    private void clearCustomerFields() {
+        txtCustomerName.clear();
+        txtCustomerAge.clear();
+        txtCustomerGender.clear();
+        txtCustomerAddress.clear();
     }
 
     /**
-     * HÀM MỚI: Xử lý tìm kiếm sản phẩm
+     * HÀM REFACTOR: Dùng executeAsync để tìm kiếm sản phẩm trong danh sách (đã tải)
      */
     @FXML
     private void handleFindProduct() {
@@ -209,38 +268,51 @@ public class InvoiceController implements Initializable {
             return;
         }
 
-        try {
-            Product product = productService.getProductBySku(sku);
-            if (product != null) {
-                currentSelectedProduct = product; // Lưu sản phẩm lại
-                txtProductName.setText(product.getName());
-                txtProductType.setText(product.getCategory());
-                txtProductPrice.setText(String.valueOf(product.getPriceCost()));
-            } else {
-                showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không tìm thấy sản phẩm với SKU này.");
-                currentSelectedProduct = null;
-                txtProductName.clear();
-                txtProductType.clear();
-                txtProductPrice.clear();
-            }
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi Nhập Liệu", "SKU phải là một con số (ID sản phẩm).");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tìm sản phẩm: " + e.getMessage());
-            e.printStackTrace();
-        }
+        btnFindProduct.setDisable(true);
+
+        executeAsync(
+                () -> findProductBySku(sku), // Tác vụ nền
+                (product) -> {
+                    // Thành công (chạy trên UI thread)
+                    if (product != null) {
+                        currentSelectedProduct = product;
+                        txtProductName.setText(product.getName());
+                        txtProductType.setText(product.getCategory());
+                        txtProductPrice.setText(String.valueOf(product.getPriceCost()));
+                    } else {
+                        showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không tìm thấy sản phẩm với SKU này.");
+                        currentSelectedProduct = null;
+                        txtProductName.clear();
+                        txtProductType.clear();
+                        txtProductPrice.clear();
+                    }
+                    btnFindProduct.setDisable(false);
+                },
+                (error) -> {
+                    // Thất bại (chạy trên UI thread)
+                    showAlert(Alert.AlertType.ERROR, "Lỗi tìm sản phẩm", "Có lỗi xảy ra khi tìm kiếm sản phẩm.");
+                    btnFindProduct.setDisable(false);
+                }
+        );
     }
 
-    /**
-     * HÀM ĐÃ CẬP NHẬT: Chỉ thêm sản phẩm đã tìm
-     */
+    // Hàm tìm sản phẩm (giữ nguyên)
+    private Product findProductBySku(String sku) {
+        for (Product product : allProducts) {
+            if (product.getSku() != null && product.getSku().equals(sku)) {
+                return product;
+            }
+        }
+        return null;
+    }
+
     @FXML
     private void handleAddItem() {
+        // (Giữ nguyên logic)
         if (currentSelectedProduct == null) {
             showAlert(Alert.AlertType.ERROR, "Lỗi Nhập Liệu", "Bạn cần nhấn 'Tìm SP' trước khi thêm.");
             return;
         }
-
         int quantity;
         try {
             quantity = Integer.parseInt(txtQuantity.getText());
@@ -256,7 +328,6 @@ public class InvoiceController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Lỗi Nhập Liệu", "Số lượng không hợp lệ.");
             return;
         }
-
         PaymentItem newItem = new PaymentItem(null,
                 currentSelectedProduct.getId(),
                 0, // paymentId
@@ -264,10 +335,7 @@ public class InvoiceController implements Initializable {
                 quantity,
                 currentSelectedProduct.getPriceCost(),
                 quantity * currentSelectedProduct.getPriceCost());
-
         invoiceItems.add(newItem);
-
-        // Xóa các trường thông tin sản phẩm
         txtSkuSearch.clear();
         txtProductName.clear();
         txtProductType.clear();
@@ -279,6 +347,7 @@ public class InvoiceController implements Initializable {
 
     @FXML
     private void handleRemoveRow() {
+        // (Giữ nguyên logic)
         PaymentItem selectedItem = tableItems.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
             invoiceItems.remove(selectedItem);
@@ -288,131 +357,180 @@ public class InvoiceController implements Initializable {
     }
 
     /**
-     * HÀM MỚI (INTERNAL): Lưu hóa đơn, items, stock, và status UNPAID
+     * HÀM MỚI (HELPER): Chứa logic blocking để lưu hóa đơn.
+     * Hàm này sẽ được gọi bởi executeAsync trong một luồng nền.
      */
-    private Payment saveInvoiceInternal() {
-        if (txtInvoiceCode.getText().isEmpty() || invoiceItems.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Thiếu Thông Tin", "Mã hóa đơn và ít nhất một sản phẩm là bắt buộc.");
-            return null;
+    private Payment saveInvoiceLogic() throws Exception {
+        // Đọc dữ liệu từ UI (an toàn vì đang ở luồng UI KHI GỌI,
+        // nhưng chúng ta tạo bản sao để truyền vào luồng nền)
+        final List<PaymentItem> itemsToSave = new ArrayList<>(invoiceItems);
+        final Payment paymentToSave = createPaymentFromUI();
+        final int cashierId = safeParseInt(txtCashier.getText());
+
+        // --- Logic này chạy trong LUỒNG NỀN ---
+
+        // 1. Lưu Payment
+        Payment savedPayment = paymentService.create(paymentToSave);
+        if (savedPayment == null) {
+            throw new Exception("Không thể tạo hóa đơn. Service trả về null.");
+        }
+        int savedPaymentId = savedPayment.getId();
+
+        // 2. Gán PaymentId và Batch Save Items
+        for (PaymentItem item : itemsToSave) {
+            item.setPaymentId(savedPaymentId);
+        }
+        List<PaymentItem> savedItems = itemService.saveAllPaymentItems(itemsToSave);
+        if (savedItems == null || savedItems.isEmpty() || savedItems.size() != itemsToSave.size()) {
+            // (Tùy chọn: Xóa payment đã tạo nếu bước này lỗi)
+            throw new Exception("Lỗi Lưu Chi Tiết: Không thể lưu (batch save) các chi tiết hóa đơn.");
         }
 
-        Payment paymentToSave = createPaymentFromUI();
-        int cashierId = 0;
-        try {
-            cashierId = Integer.parseInt(txtCashier.getText());
-        } catch (NumberFormatException ignored) {
+        // 3. Cập nhật Kho (Stock Movements)
+        for (PaymentItem item : savedItems) {
+            StockMovement movement = new StockMovement();
+            movement.setProductId(item.getProductId());
+            movement.setQty(-item.getQty());
+            movement.setMoveType(MoveType.SALE);
+            movement.setRefTable("payments");
+            movement.setRefId(savedPaymentId);
+            movement.setMovedBy(cashierId);
+            movement.setMovedAt(LocalDateTime.now());
+            movement.setNote("Bán hàng tự động từ HĐ: " + savedPayment.getCode());
+            stockMovementService.createStockMovement(movement);
         }
 
-        try {
-            // 2. Lưu Payment
-            Payment savedPayment = paymentService.create(paymentToSave);
-            if (savedPayment == null) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn", "Không thể tạo hóa đơn. Service trả về null.");
-                return null;
-            }
-            int savedPaymentId = savedPayment.getId();
+        // 4. TẠO STATUS LOG = UNPAID
+        PaymentStatusLog unpaidLog = new PaymentStatusLog();
+        unpaidLog.setPaymentId(savedPaymentId);
+        unpaidLog.setStatus(PaymentStatus.valueOf("UNPAID"));
+        paymentStatusLogService.updatePaymentStatus(unpaidLog);
 
-            // 3. Lưu PaymentItems
-            for (PaymentItem item : invoiceItems) {
-                item.setPaymentId(savedPaymentId);
-                itemService.createPaymentItem(item);
-            }
-
-            // 4. TẠO STOCK MOVEMENT (TRỪ KHO)
-            for (PaymentItem item : invoiceItems) {
-                StockMovement movement = new StockMovement();
-                movement.setProductId(item.getProductId());
-                movement.setQty(item.getQty());
-                movement.setMoveType(MoveType.SALE);
-                movement.setRefTable("payments");
-                movement.setRefId(savedPaymentId);
-                movement.setMovedBy(cashierId);
-                movement.setMovedAt(LocalDateTime.now());
-                movement.setNote("Bán hàng tự động từ HĐ: " + savedPayment.getCode());
-                stockMovementService.createStockMovement(movement);
-            }
-
-            // 5. TẠO STATUS LOG = UNPAID
-            PaymentStatusLog unpaidLog = new PaymentStatusLog();
-            unpaidLog.setPaymentId(savedPaymentId);
-            unpaidLog.setStatus(PaymentStatus.valueOf("UNPAID"));
-            paymentStatusLogService.updatePaymentStatus(unpaidLog);
-
-            return savedPayment; // Trả về payment đã lưu thành công
-
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn/Kho/Status", e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
+        return savedPayment; // Trả về payment đã lưu thành công
     }
 
-
     /**
-     * HÀM ĐÃ CẬP NHẬT: Chỉ lưu hóa đơn với trạng thái UNPAID
+     * HÀM REFACTOR: Dùng executeAsync và hàm helper saveInvoiceLogic
      */
     @FXML
     private void handleSaveInvoice() {
-        Payment savedPayment = saveInvoiceInternal();
-
-        if (savedPayment != null) {
-            showAlert(Alert.AlertType.INFORMATION, "Thành Công", "Đã lưu hóa đơn " + savedPayment.getCode() + " (Trạng thái: UNPAID).");
-            handleNewInvoice();
+        // Kiểm tra dữ liệu cơ bản trên luồng UI
+        if (txtInvoiceCode.getText().isEmpty() || invoiceItems.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu Thông Tin", "Mã hóa đơn và ít nhất một sản phẩm là bắt buộc.");
+            return;
         }
+
+        // Vô hiệu hóa các nút
+        btnSaveInvoice.setDisable(true);
+        btnPayInvoice.setDisable(true);
+
+        executeAsync(
+                () -> {
+                    try {
+                        return saveInvoiceLogic();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, // Tác vụ nền
+                (savedPayment) -> {
+                    // Thành công (chạy trên UI thread)
+                    showAlert(Alert.AlertType.INFORMATION, "Thành Công", "Đã lưu hóa đơn " + savedPayment.getCode() + " (Trạng thái: UNPAID).");
+                    handleNewInvoice();
+                    btnSaveInvoice.setDisable(false);
+                    btnPayInvoice.setDisable(false);
+                },
+                (error) -> {
+                    // Thất bại (chạy trên UI thread)
+                    showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn", error.getMessage());
+                    error.printStackTrace();
+                    btnSaveInvoice.setDisable(false);
+                    btnPayInvoice.setDisable(false);
+                }
+        );
     }
 
     /**
-     * HÀM ĐÃ CẬP NHẬT: Lưu hóa đơn VÀ thêm status PENDING
+     * HÀM REFACTOR: Dùng executeAsync lồng nhau để xử lý chuỗi tác vụ
+     * (Lưu HĐ -> Thành công -> Cập nhật PENDING -> Thành công -> Mở cửa sổ)
      */
     @FXML
     private void handlePayInvoice() {
-        // 1. Thực hiện toàn bộ quy trình lưu (bao gồm cả status UNPAID)
-        Payment savedPayment = saveInvoiceInternal();
-
-        // 2. Nếu lưu thành công, "thêm nữa" status PENDING và mở cửa sổ mới
-        if (savedPayment != null) {
-            try {
-                // Thêm trạng thái PENDING
-                PaymentStatusLog pendingLog = new PaymentStatusLog();
-                pendingLog.setPaymentId(savedPayment.getId());
-                pendingLog.setStatus(PaymentStatus.PENDING);
-                paymentStatusLogService.updatePaymentStatus(pendingLog);
-
-                // ========================================================
-                // Mở cửa sổ thanh toán mới
-                // ========================================================
-
-                // 1. Tải FXML
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Payment.fxml"));
-                Scene scene = new Scene(fxmlLoader.load());
-
-                // 2. Lấy controller của cửa sổ MỚI
-                PaymentController paymentController = fxmlLoader.getController();
-
-                // 3. Truyền ID của hóa đơn vừa tạo sang
-                // <-- Gửi ID (dạng String) chứ không gửi Code
-                paymentController.initData(String.valueOf(savedPayment.getId()));
-
-                // 4. Tạo và hiển thị cửa sổ (Stage) mới
-                Stage paymentStage = new Stage();
-                paymentStage.setTitle("Thanh toán Hóa đơn: " + savedPayment.getCode());
-                paymentStage.setScene(scene);
-                paymentStage.centerOnScreen();
-                paymentStage.show();
-
-                // 5. Đóng cửa sổ TẠO HÓA ĐƠN (cửa sổ hiện tại)
-                // <-- Lấy Stage hiện tại từ một FXML node bất kỳ, ví dụ btnPayInvoice
-                Stage currentStage = (Stage) btnPayInvoice.getScene().getWindow();
-                currentStage.close();
-
-            } catch (Exception e) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán", "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + e.getMessage());
-                e.printStackTrace();
-            }
+        // 1. Kiểm tra dữ liệu trên luồng UI
+        if (txtInvoiceCode.getText().isEmpty() || invoiceItems.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu Thông Tin", "Mã hóa đơn và ít nhất một sản phẩm là bắt buộc.");
+            return;
         }
+
+        btnSaveInvoice.setDisable(true);
+        btnPayInvoice.setDisable(true);
+
+        // 2. Tác vụ 1: Lưu Hóa Đơn
+        executeAsync(
+                () -> {
+                    try {
+                        return saveInvoiceLogic();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, // Tác vụ nền (Step 1)
+                (savedPayment) -> {
+                    // 3. Thành công Tác vụ 1 (chạy trên UI thread)
+                    // Bắt đầu Tác vụ 2: Cập nhật trạng thái PENDING
+                    executeAsync(
+                            () -> {
+                                // Tác vụ nền (Step 2)
+                                PaymentStatusLog pendingLog = new PaymentStatusLog();
+                                pendingLog.setPaymentId(savedPayment.getId());
+                                pendingLog.setStatus(PaymentStatus.PENDING);
+                                paymentStatusLogService.updatePaymentStatus(pendingLog);
+                                return null; // Không cần trả về gì
+                            },
+                            (nothing) -> {
+                                // 4. Thành công Tác vụ 2 (chạy trên UI thread)
+                                // Mở cửa sổ thanh toán
+                                try {
+                                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Payment.fxml"));
+                                    Scene scene = new Scene(fxmlLoader.load());
+                                    PaymentController paymentController = fxmlLoader.getController();
+                                    paymentController.initData(String.valueOf(savedPayment.getId()));
+
+                                    Stage paymentStage = new Stage();
+                                    paymentStage.setTitle("Thanh toán Hóa đơn: " + savedPayment.getCode());
+                                    paymentStage.setScene(scene);
+                                    paymentStage.centerOnScreen();
+                                    paymentStage.show();
+
+                                    Stage currentStage = (Stage) btnPayInvoice.getScene().getWindow();
+                                    currentStage.close();
+
+                                } catch (Exception ex) {
+                                    showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán", "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + ex.getMessage());
+                                    ex.printStackTrace();
+                                    // Kích hoạt lại nút nếu mở cửa sổ lỗi
+                                    btnSaveInvoice.setDisable(false);
+                                    btnPayInvoice.setDisable(false);
+                                }
+                            },
+                            (pendingError) -> {
+                                // 5. Thất bại Tác vụ 2 (chạy trên UI thread)
+                                showAlert(Alert.AlertType.ERROR, "Lỗi Cập Nhật Trạng Thái", "Đã lưu hóa đơn nhưng không thể cập nhật trạng thái PENDING: " + pendingError.getMessage());
+                                btnSaveInvoice.setDisable(false);
+                                btnPayInvoice.setDisable(false);
+                            }
+                    );
+                },
+                (saveError) -> {
+                    // 6. Thất bại Tác vụ 1 (chạy trên UI thread)
+                    showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn", saveError.getMessage());
+                    saveError.printStackTrace();
+                    btnSaveInvoice.setDisable(false);
+                    btnPayInvoice.setDisable(false);
+                }
+        );
     }
 
     private void updateTotals() {
+        // (Giữ nguyên logic)
         int subtotal = invoiceItems.stream().mapToInt(PaymentItem::getTotalLine).sum();
         int discount = 0;
         try {
@@ -421,7 +539,6 @@ public class InvoiceController implements Initializable {
 
         int tax = 0;
         int grandTotal = subtotal - discount + tax;
-        System.out.println("debug");
         txtSubtotal.setText(String.valueOf(subtotal));
         txtTaxAmount.setText(String.valueOf(tax));
         txtGrandTotal.setText(String.valueOf(grandTotal));
@@ -435,18 +552,23 @@ public class InvoiceController implements Initializable {
             cashierId = Integer.parseInt(txtCashier.getText());
         } catch (NumberFormatException ignored) {
         }
+        int customerId = (currentSelectedCustomer != null) ? currentSelectedCustomer.getId() : 0;
 
-        return new Payment(0, txtInvoiceCode.getText(), 0 /* customerId */, cashierId, issuedAt,
-                Integer.parseInt(txtSubtotal.getText()), Integer.parseInt(txtDiscountAmount.getText()),
-                Integer.parseInt(txtTaxAmount.getText()), 0, Integer.parseInt(txtGrandTotal.getText()),
+        int subtotal = safeParseInt(txtSubtotal.getText());
+        int discount = safeParseInt(txtDiscountAmount.getText());
+        int tax = safeParseInt(txtTaxAmount.getText());
+        int grandTotal = safeParseInt(txtGrandTotal.getText());
+
+        return new Payment(0, txtInvoiceCode.getText(), customerId, cashierId, issuedAt,
+                subtotal, discount, tax, 0, grandTotal,
                 null, 0, txtInvoiceNote.getText(), LocalDateTime.now());
     }
 
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+    private int safeParseInt(String text) {
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

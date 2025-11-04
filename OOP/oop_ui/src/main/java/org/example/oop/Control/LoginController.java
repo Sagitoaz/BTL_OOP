@@ -12,6 +12,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -44,7 +49,7 @@ public class LoginController {
     private Button loginButton;
 
     @FXML
-    private Button signUpbutton;
+    private Hyperlink signUpbutton;
 
     // Trạng thái hiển thị mật khẩu
     private boolean isPasswordVisible = false;
@@ -93,28 +98,14 @@ public class LoginController {
 
     @FXML
     void ForgotPasswordHyperLinkOnClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ResetPassword.fxml"));
-            Parent root = loader.load();
-            Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            state.setScene(new Scene(root));
-            state.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load forgot password view", e);
-        }
+        SceneManager.switchScene(SceneConfig.RESET_PASSWORD_FXML, SceneConfig.RESET_PASSWORD_FXML);
     }
 
     @FXML
     void GoToSignUpButtonOnClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Signup.fxml"));
-            Parent root = loader.load();
-            Stage state = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            state.setScene(new Scene(root));
-            state.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to load signup view", e);
-        }
+
+        SceneManager.switchScene(SceneConfig.SIGNUP_FXML, SceneConfig.SIGNUP_FXML);
+
     }
 
     private String validateInput(String user, String pass) {
@@ -146,22 +137,35 @@ public class LoginController {
             String sessionId = sessionOpt.get();
             // Save sessionId to session storage for later use
             SessionStorage.setCurrentSessionId(sessionId);
-
+            System.out.println("Login successful" + SessionStorage.getCurrentUsername() + " " + SessionStorage.getCurrentUserRole());
             // Clear error message
             invalidLoginMessage.setText("");
-
             // Redirect to dashboard
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/hello-view.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Failed to load dashboard view", e);
-                invalidLoginMessage.setText("Error loading dashboard");
+            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN"))
+                SceneManager.switchScene(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
+            {
+                try{
+                    Customer customer = CustomerRecordService.getInstance().searchCustomers(
+                            String.valueOf(SessionStorage.getCurrentUserId()),
+                            null,
+                            null,
+                            null
+                    ).getData().get(0);
+                    String[] key = {"role", "accountData"};
+                    Object[] data = {UserRole.CUSTOMER, customer};
+                    SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                } catch (Exception e) {
+                    invalidLoginMessage.setVisible(true);
+                    invalidLoginMessage.setText("Data loading error. Please try again later.");
+                }
             }
+            else{
+                SceneManager.switchScene(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            }
+
         } else {
+            invalidLoginMessage.setVisible(true);
             invalidLoginMessage.setText("Invalid username or password");
         }
     }

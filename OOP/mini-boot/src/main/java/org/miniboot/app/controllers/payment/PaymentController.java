@@ -3,6 +3,7 @@ package org.miniboot.app.controllers.payment;
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
+import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
 import org.miniboot.app.domain.repo.Payment.PaymentRepository;
 import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
 import org.miniboot.app.http.HttpRequest;
@@ -32,6 +33,7 @@ public class PaymentController {
         router.post("/payments", pc.createPayment());
         router.put("/payments", pc.updatePayment());
         // có thể thêm route status vào controller riêng (ở dưới mình làm controller riêng)
+        router.get("/payments/with-status", pc.getPaymentsWithStatus());
     }
 
     /**
@@ -144,6 +146,33 @@ public class PaymentController {
                 e.printStackTrace();
                 return HttpResponse.of(400, "text/plain; charset=utf-8",
                         AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            }
+        };
+    }
+
+    /**
+     * GET /payments/with-status
+     * Lấy tất cả các payment, kèm theo trạng thái hiện tại của chúng.
+     * Sử dụng DTO 'PaymentWithStatus'.
+     */
+    public Function<HttpRequest, HttpResponse> getPaymentsWithStatus() {
+        return (HttpRequest req) -> {
+            try {
+                // Giả định rằng paymentRepository của bạn
+                // đã có phương thức getAllPaymentsWithStatus()
+                // trả về List<PaymentWithStatus> như chúng ta đã làm.
+
+                // 1. Gọi phương thức repository
+                List<PaymentWithStatus> result = paymentRepository.getAllPaymentsWithStatus();
+
+                // 2. Trả về danh sách dưới dạng JSON
+                return Json.ok(result);
+
+            } catch (Exception e) {
+                // 3. Xử lý lỗi nếu có
+                e.printStackTrace();
+                return HttpResponse.of(500, "text/plain; charset=utf-8",
+                        "Server error".getBytes(StandardCharsets.UTF_8));
             }
         };
     }

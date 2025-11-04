@@ -13,6 +13,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.example.oop.Model.MailService;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -223,16 +225,7 @@ public class ForgotPasswordController {
     }
 
     private void backToLogin(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/Login.fxml"));
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error loading login screen", e);
-            setErrorMessage("Lỗi khi quay về trang đăng nhập");
-        }
+        SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.LOGIN_FXML);
     }
 
     private boolean isValidEmail(String email) {

@@ -9,158 +9,143 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.DoctorScheduleController">
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.DoctorScheduleController">
+   <!-- TOP: Header -->
    <top>
-      <HBox prefHeight="100.0" prefWidth="200.0" spacing="12.0" BorderPane.alignment="CENTER">
-         <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-         </padding>
-         <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="8.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <ImageView fitHeight="72.0" fitWidth="72.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../../Image/AnonimousAvt.jpg" />
-                     </image>
-                  </ImageView>
-                  <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="250.0" spacing="4.0">
-                     <children>
-                        <Label text="Chọn bác sĩ:" style="-fx-font-weight: bold;" />
-                        <ComboBox fx:id="cboDoctorSelect" prefWidth="220.0" promptText="-- Chọn bác sĩ --" />
-                     </children>
-                  </VBox>
-               </children>
-               <padding>
-                  <Insets left="15.0" />
-               </padding>
-            </HBox>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="8.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <DatePicker fx:id="datePicker" />
-                  <ToggleButton mnemonicParsing="false" text="Ngày" fx:id="dayViewBtn" onAction="#onDayView" />
-                  <ToggleButton mnemonicParsing="false" text="Tuần" fx:id="weekViewBtn" onAction="#onWeekView" />
-                  <Button mnemonicParsing="false" text="Hôm nay" fx:id="todayBtn" onAction="#onToday" />
-               </children>
-            </HBox>
-            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="8.0" HBox.hgrow="ALWAYS">
-               <children>
-                  <TextField prefWidth="240.0" fx:id="searchField" />
-                  <Button mnemonicParsing="false" text="Thêm lịch" fx:id="addScheduleBtn" onAction="#onAddSchedule" />
-               </children>
-               <padding>
-                  <Insets right="15.0" />
-               </padding>
-            </HBox>
-         </children>
-      </HBox>
+      <VBox>
+         <!-- Navigation Bar -->
+         <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
+            <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
+            <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
+            <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+         </HBox>
+         <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="financial-header">
+            <padding>
+               <Insets bottom="18.0" left="28.0" right="28.0" top="18.0" />
+            </padding>
+            <Label styleClass="page-title" text="📅 LỊCH LÀM VIỆC BÁC SĨ" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label styleClass="form-label" text="Bác sĩ:" />
+            <ComboBox fx:id="cboDoctorSelect" prefWidth="240.0" promptText="-- Chọn bác sĩ --" styleClass="combo-rounded" />
+            <Button fx:id="btnRefresh" mnemonicParsing="false" onAction="#onRefresh" prefWidth="120.0" styleClass="btn-secondary" text="🔄 Làm mới" />
+         </HBox>
+         <Separator />
+
+         <!-- View Controls -->
+         <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-padding: 12 28 12 28; -fx-background-color: #f8f9fa;">
+            <Label styleClass="form-label" text="Ngày:" />
+            <DatePicker fx:id="datePicker" prefWidth="160.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+            <ToggleButton fx:id="dayViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📅 Ngày" />
+            <ToggleButton fx:id="weekViewBtn" prefWidth="100.0" styleClass="btn-secondary" text="📆 Tuần" />
+            <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" styleClass="btn-search" text="Hôm nay" />
+            <Region HBox.hgrow="ALWAYS" />
+            <TextField fx:id="searchField" prefWidth="200.0" promptText="🔍 Tìm kiếm..." />
+            <Button fx:id="addScheduleBtn" mnemonicParsing="false" onAction="#onAddSchedule" styleClass="btn-primary" text="➕ Thêm ca" />
+         </HBox>
+         <Separator />
+      </VBox>
    </top>
+
+   <!-- CENTER: Main Content -->
    <center>
-      <SplitPane dividerPositions="0.23" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <items>
-            <VBox minHeight="260.0" prefHeight="200.0" prefWidth="300.0" spacing="12.0">
+      <HBox spacing="0.0" BorderPane.alignment="CENTER">
+
+         <!-- LEFT: Time Labels with ScrollPane -->
+         <ScrollPane fx:id="timeLabelsScrollPane" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: #f8f9fa;" vbarPolicy="NEVER">
+            <VBox spacing="0.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 1 0 0;">
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets top="0.0" />
                </padding>
-               <children>
-                  <TitledPane text="Giờ làm việc">
-                     <content>
-                        <VBox prefHeight="158.0" prefWidth="269.0" spacing="8.0">
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                           <children>
-                              <Label text="Ngày làm việc" />
-                              <FlowPane columnHalignment="CENTER" hgap="8.0" prefHeight="54.0" prefWidth="248.0" vgap="8.0">
-                                 <children>
-                                    <CheckBox mnemonicParsing="false" text="Thứ 2" fx:id="mondayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 3" fx:id="tuesdayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 4" fx:id="wednesdayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 5" fx:id="thursdayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 6" fx:id="fridayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Thứ 7" fx:id="saturdayChk" />
-                                    <CheckBox mnemonicParsing="false" text="Chủ nhật" fx:id="sundayChk" />
-                                 </children>
-                              </FlowPane>
-                              <Separator prefWidth="200.0" />
-                              <Label text="Thiết lập ca" />
-                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="8.0">
-                                 <children>
-                                    <CheckBox mnemonicParsing="false" text="Sáng" fx:id="morningShiftChk" />
-                                    <CheckBox mnemonicParsing="false" text="Chiều" fx:id="afternoonShiftChk" />
-                                    <CheckBox mnemonicParsing="false" text="Tối" fx:id="eveningShiftChk" />
-                                 </children>
-                              </HBox>
-                              <Button mnemonicParsing="false" text="Áp dụng" fx:id="applyShiftBtn" onAction="#onApplyShift" />
-                           </children>
-                        </VBox>
-                     </content>
-                  </TitledPane>
-                  <TitledPane text="Bộ lọc">
-                     <content>
-                        <VBox prefHeight="94.0" prefWidth="269.0" spacing="8.0">
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                           <children>
-                              <CheckBox fx:id="emptyChk" mnemonicParsing="false" text="Trống" />
-                              <CheckBox fx:id="bookedChk" mnemonicParsing="false" text="Đã đặt" />
-                              <CheckBox fx:id="inProgressChk" mnemonicParsing="false" text="Đang khám" />
-                              <CheckBox fx:id="completedChk" mnemonicParsing="false" text="Hoàn thành" />
-                              <CheckBox fx:id="cancelledChk" mnemonicParsing="false" text="Đã hủy" />
-                           </children>
-                        </VBox>
-                     </content>
-                  </TitledPane>
-                  <TitledPane expanded="false" text="Xung đột">
-                     <content>
-                        <ListView prefHeight="290.0" prefWidth="269.0" fx:id="conflictList" />
-                     </content>
-                  </TitledPane>
-               </children>
+               <VBox fx:id="timeLabelsBox" alignment="TOP_RIGHT" prefWidth="80.0" spacing="0.0">
+                  <padding>
+                     <Insets right="8.0" />
+                  </padding>
+               </VBox>
             </VBox>
-            <HBox prefHeight="100.0" prefWidth="980.0" spacing="8.0">
-               <children>
-                  <ScrollPane hbarPolicy="NEVER" vbarPolicy="NEVER" prefHeight="600.0" prefWidth="88.0" fitToWidth="true">
-                     <content>
-                        <VBox fx:id="timeLabelsBox" alignment="TOP_RIGHT" prefHeight="540.0" prefWidth="80.0" spacing="0.0">
-                           <!-- Time labels: 8:00-17:00 = 9 hours = 540px -->
-                        </VBox>
-                     </content>
-                  </ScrollPane>
-                  <ScrollPane fitToWidth="true" prefHeight="600.0" prefWidth="900.0" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" fx:id="scheduleScrollPane">
-                    <content>
-                      <AnchorPane minHeight="540.0" minWidth="0.0" prefHeight="540.0" prefWidth="880.0" fx:id="schedulePane" />
-                    </content>
-                  </ScrollPane>
-               </children>
-            </HBox>
-         </items>
-      </SplitPane>
-   </center>
-   <bottom>
-      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="1280.0" spacing="8.0" BorderPane.alignment="TOP_LEFT">
-         <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-         </padding>
-         <children>
-            <Button mnemonicParsing="false" text="Lưu lịch" fx:id="saveBtn" onAction="#onSave" />
-            <Button mnemonicParsing="false" text="Xuất PDF" fx:id="exportPdfBtn" onAction="#onExportPdf" />
-            <Button mnemonicParsing="false" text="Hoàn tác" fx:id="undoBtn" onAction="#onUndo" />
-            <Button mnemonicParsing="false" text="Làm lại" fx:id="redoBtn" onAction="#onRedo" />
-         </children>
+         </ScrollPane>
+
+         <!-- CENTER: Schedule Display -->
+         <ScrollPane fx:id="scheduleScrollPane" fitToHeight="true" fitToWidth="true" styleClass="scroll-pane" HBox.hgrow="ALWAYS">
+            <AnchorPane fx:id="schedulePane" style="-fx-background-color: white;" />
+         </ScrollPane>
+
+         <!-- RIGHT: Filters & Controls -->
+         <ScrollPane fitToHeight="true" styleClass="scroll-pane" HBox.hgrow="NEVER">
+            <VBox prefWidth="280.0" spacing="16.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 0 0 0 1;">
+               <padding>
+                  <Insets bottom="100.0" left="20.0" right="20.0" top="20.0" />
+               </padding>
+
+               <!-- Working Days -->
+               <VBox spacing="8.0">
+                  <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Ngày làm việc" />
+                  <CheckBox fx:id="mondayChk" text="Thứ Hai" />
+                  <CheckBox fx:id="tuesdayChk" text="Thứ Ba" />
+                  <CheckBox fx:id="wednesdayChk" text="Thứ Tư" />
+                  <CheckBox fx:id="thursdayChk" text="Thứ Năm" />
+                  <CheckBox fx:id="fridayChk" text="Thứ Sáu" />
+                  <CheckBox fx:id="saturdayChk" text="Thứ Bảy" />
+                  <CheckBox fx:id="sundayChk" text="Chủ Nhật" />
+               </VBox>
+
+               <Separator />
+
+               <!-- Shifts -->
+               <VBox spacing="8.0">
+                  <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Ca làm việc" />
+                  <CheckBox fx:id="morningShiftChk" text="Ca sáng (8:00-12:00)" />
+                  <CheckBox fx:id="afternoonShiftChk" text="Ca chiều (13:00-17:00)" />
+                  <CheckBox fx:id="eveningShiftChk" text="Ca tối (17:00-20:00)" />
+                  <Button fx:id="applyShiftBtn" mnemonicParsing="false" onAction="#onApplyShift" styleClass="btn-primary" text="Áp dụng" />
+               </VBox>
+
+               <Separator />
+
+               <!-- Filters -->
+               <VBox spacing="8.0">
+                  <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Lọc theo trạng thái" />
+                  <CheckBox fx:id="emptyChk" selected="true" text="Trống" />
+                  <CheckBox fx:id="bookedChk" selected="true" text="Đã đặt" />
+                  <CheckBox fx:id="inProgressChk" selected="true" text="Đang khám" />
+                  <CheckBox fx:id="completedChk" selected="true" text="Hoàn thành" />
+                  <CheckBox fx:id="cancelledChk" text="Đã hủy" />
+               </VBox>
+
+               <Separator />
+
+               <!-- Conflicts -->
+               <VBox spacing="8.0">
+                  <Label style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Xung đột lịch" />
+                  <ListView fx:id="conflictList" maxHeight="400.0" minHeight="250.0" prefHeight="300.0" />
+               </VBox>
+            </VBox>
+         </ScrollPane>
       </HBox>
+   </center>
+
+   <!-- BOTTOM: Action Buttons -->
+   <bottom>
+      <VBox>
+         <Separator />
+         <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="financial-header">
+            <padding>
+               <Insets bottom="14.0" left="28.0" right="28.0" top="14.0" />
+            </padding>
+            <Button fx:id="undoBtn" mnemonicParsing="false" onAction="#onUndo" styleClass="btn-secondary" text="↶ Hoàn tác" />
+            <Button fx:id="redoBtn" mnemonicParsing="false" onAction="#onRedo" styleClass="btn-secondary" text="↷ Làm lại" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#onSave" prefHeight="16.0" prefWidth="150.0" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);" text="💾 LƯU" />
+            <Button fx:id="exportPdfBtn" mnemonicParsing="false" onAction="#onExportPdf" prefHeight="20.0" prefWidth="150.0" style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);" text="📄 XUẤT PDF" />
+         </HBox>
+      </VBox>
    </bottom>
 </BorderPane>

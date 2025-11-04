@@ -1,8 +1,11 @@
-package org.example.oop.Services;
+package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.ApiConfig;
 import org.example.oop.Utils.GsonProvider;
+import org.example.oop.Utils.HttpException;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.models.TimeSlot;
 
@@ -19,7 +22,7 @@ public class HttpDoctorService {
     private final Gson gson;
 
     public HttpDoctorService() {
-        this("http://localhost:8080");
+        this(ApiConfig.getBaseUrl());
     }
 
     public HttpDoctorService(String baseUrl) {
@@ -30,11 +33,12 @@ public class HttpDoctorService {
 
     /**
      * GET /doctors - Lấy tất cả doctors
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
      */
     public List<Doctor> getAllDoctors() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/doctors"))
+                    .uri(URI.create(baseUrl + ApiConfig.doctorsEndpoint()))
                     .GET()
                     .header("Accept", "application/json")
                     .build();
@@ -43,22 +47,32 @@ public class HttpDoctorService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<Doctor>>(){}.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải danh sách bác sĩ")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(), new TypeToken<List<Doctor>>() {
+                    }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse doctors list");
+                    return List.of();
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tải danh sách bác sĩ");
                 return List.of();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải danh sách bác sĩ");
             return List.of();
         }
     }
+
     /**
      * GET /doctors/available-slots?doctorId={id}&date={date}
      * Lấy danh sách slot trống trong ngày
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
      */
     public List<TimeSlot> getAvailableSlots(int doctorId, String date) {
         try {
@@ -75,19 +89,27 @@ public class HttpDoctorService {
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(),
-                        new TypeToken<List<TimeSlot>>(){}.getType());
+                if (!ErrorHandler.validateResponse(response.body(), "Tải danh sách slot trống")) {
+                    return List.of();
+                }
+
+                try {
+                    return gson.fromJson(response.body(), new TypeToken<List<TimeSlot>>() {
+                    }.getType());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse available slots");
+                    return List.of();
+                }
             } else if (response.statusCode() == 400) {
-                System.err.println("❌ Bad request: Missing doctorId or date");
+                ErrorHandler.showUserFriendlyError(400, "Thiếu thông tin doctorId hoặc date");
                 return List.of();
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
+                ErrorHandler.showUserFriendlyError(response.statusCode(), "Không thể tải danh sách slot trống");
                 return List.of();
             }
 
         } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            ErrorHandler.handleConnectionError(e, "Tải danh sách slot trống");
             return List.of();
         }
     }

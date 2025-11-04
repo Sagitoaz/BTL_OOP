@@ -2,6 +2,9 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.ApiConfig;
+import org.example.oop.Utils.HttpException;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
 import org.miniboot.app.util.GsonProvider;
 
@@ -16,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ApiStockMovementService {
-    private static final String BASE_URL = "http://localhost:8080";
+    private static final String BASE_URL = ApiConfig.getBaseUrl();
     private static final Gson gson = GsonProvider.getGson();
 
     // tăng time out tránh mạng yếu
@@ -24,19 +27,16 @@ public class ApiStockMovementService {
     private static final int READ_TIMEOUT = 60000; // 60 seconds
     private static final int MAX_RETRIES = 3; // Retry 3 lần nếu timeout
 
-    // ✅ FIX: Đổi tên method và URL
+    /**
+     * GET /stock_movements - Lấy tất cả stock movements với retry mechanism
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public List<StockMovement> getAllStockMovements() throws Exception {
-        String url = BASE_URL + "/stock_movements";
-        System.out.println("🔄 Fetching all stock movements from API...");
-        System.out.println("🌐 URL: " + url);
-
-        // ✅ Retry mechanism cho mạng yếu
+        String url = BASE_URL + ApiConfig.stockMovementsEndpoint();
         Exception lastException = null;
+
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                System.out.println("📡 Attempt " + attempt + "/" + MAX_RETRIES + "...");
-
-                // ✅ FIX URL: /stock_movements (đúng chính tả)
                 HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL()
                         .openConnection();
                 conn.setRequestMethod("GET");
@@ -48,67 +48,49 @@ public class ApiStockMovementService {
                 String responseBody = readResponse(conn);
 
                 if (responseCode >= 200 && responseCode < 300) {
-                    // ✅ DEBUG: In ra JSON response
-                    System.out.println("📦 Response Code: " + responseCode);
-                    System.out.println("📦 Response Length: " + responseBody.length() + " bytes");
-                    System.out.println("📦 JSON Response (first 500 chars): " +
-                            (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
-                                    : responseBody));
-
-                    // ✅ Kiểm tra xem có phải products không
-                    if (responseBody.contains("\"sku\":")) {
-                        System.err.println(
-                                "⚠️ WARNING: Response contains 'sku' field - this looks like PRODUCTS, not STOCK_MOVEMENTS!");
-                        System.err.println("⚠️ URL was: " + url);
+                    if (!ErrorHandler.validateResponse(responseBody, "Tải danh sách stock movements")) {
+                        return List.of();
                     }
 
-                    Type listType = new TypeToken<List<StockMovement>>() {
-                    }.getType();
-                    List<StockMovement> movements = gson.fromJson(responseBody, listType);
-
-                    System.out.println("✅ Loaded " + movements.size() + " stock movements");
-
-                    // ✅ DEBUG: In ra movement đầu tiên
-                    if (!movements.isEmpty()) {
-                        StockMovement first = movements.get(0);
-                        System.out.println("📦 First movement: ID=" + first.getId() +
-                                ", ProductID=" + first.getProductId() +
-                                ", Qty=" + first.getQty() +
-                                ", Type=" + first.getMoveType());
+                    try {
+                        Type listType = new TypeToken<List<StockMovement>>() {
+                        }.getType();
+                        List<StockMovement> movements = gson.fromJson(responseBody, listType);
+                        return movements;
+                    } catch (Exception e) {
+                        ErrorHandler.handleJsonParseError(e, "Parse stock movements list");
+                        return List.of();
                     }
-
-                    return movements;
                 } else {
+                    ErrorHandler.showUserFriendlyError(responseCode, "Không thể tải danh sách stock movements");
                     throw new Exception("Server error: " + responseCode + " - " + responseBody);
                 }
             } catch (java.net.SocketTimeoutException e) {
                 lastException = e;
-                System.err.println("⏱️ Timeout on attempt " + attempt + ": " + e.getMessage());
                 if (attempt < MAX_RETRIES) {
-                    System.out.println("🔄 Retrying in 2 seconds...");
                     try {
-                        Thread.sleep(2000); // Wait 2s trước khi retry
+                        Thread.sleep(2000);
                     } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt(); // Restore interrupted status
-                        System.err.println("Thread was interrupted: " + ie.getMessage());
+                        Thread.currentThread().interrupt();
                     }
                 }
             } catch (Exception e) {
-                // Lỗi khác không retry
                 throw e;
             }
         }
 
-        // Nếu retry hết vẫn fail
+        ErrorHandler.handleConnectionError(lastException,
+                "Tải danh sách stock movements sau " + MAX_RETRIES + " lần thử");
         throw new Exception("Failed after " + MAX_RETRIES + " attempts. Last error: " +
                 (lastException != null ? lastException.getMessage() : "Unknown error"));
     }
 
-    // ✅ FIX URL
+    /**
+     * GET /stock_movements?id={id} - Lấy stock movement theo ID
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public StockMovement getStockMovementById(int id) throws Exception {
-        System.out.println("🔄 Fetching stock movement ID: " + id);
-
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements?id=" + id).toURL()
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.stockMovementsEndpoint() + "?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -119,21 +101,31 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode == 200) {
-            StockMovement stockMovement = gson.fromJson(responseBody, StockMovement.class);
-            System.out.println("✅ Found stock movement: " + stockMovement.getId());
-            return stockMovement;
+            if (!ErrorHandler.validateResponse(responseBody, "Tải stock movement")) {
+                return null;
+            }
+
+            try {
+                StockMovement stockMovement = gson.fromJson(responseBody, StockMovement.class);
+                return stockMovement;
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse stock movement by ID");
+                return null;
+            }
         } else if (responseCode == 404) {
-            throw new Exception("Stock movement not found");
+            return null;
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể tải stock movement");
             throw new Exception("Server error: " + responseCode);
         }
     }
 
-    // ✅ FIX: Đổi tên method và URL
+    /**
+     * POST /stock_movements - Tạo stock movement mới
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public StockMovement createStockMovement(StockMovement stockMovement) throws Exception {
-        System.out.println("🔄 Creating stock movement for product ID: " + stockMovement.getProductId());
-
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.stockMovementsEndpoint()).toURL()
                 .openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
@@ -143,7 +135,6 @@ public class ApiStockMovementService {
         conn.setDoOutput(true);
 
         String jsonBody = gson.toJson(stockMovement);
-        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
 
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
@@ -154,20 +145,33 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            StockMovement created = gson.fromJson(responseBody, StockMovement.class);
-            System.out.println("✅ Stock movement created with ID: " + created.getId());
-            return created;
+            if (!ErrorHandler.validateResponse(responseBody, "Tạo stock movement")) {
+                return null;
+            }
+
+            try {
+                StockMovement created = gson.fromJson(responseBody, StockMovement.class);
+                return created;
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse created stock movement");
+                return null;
+            }
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể tạo stock movement");
             throw new Exception("Failed to create stock movement: " + responseBody);
         }
     }
 
+    /**
+     * PUT /stock_movements - Cập nhật stock movement
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public StockMovement updateStockMovement(StockMovement stockMovement) throws Exception {
-        System.out.println("🔄 Updating stock movement ID: " + stockMovement.getId());
         if (stockMovement.getId() <= 0) {
             throw new Exception("Stock movement ID is missing or invalid: " + stockMovement.getId());
         }
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements").toURL()
+
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.stockMovementsEndpoint()).toURL()
                 .openConnection();
         conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
@@ -175,8 +179,8 @@ public class ApiStockMovementService {
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
+
         String jsonBody = gson.toJson(stockMovement);
-        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
 
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
@@ -187,20 +191,29 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            StockMovement updated = gson.fromJson(responseBody, StockMovement.class);
-            System.out.println("✅ Stock movement updated: " + updated.getId());
-            return updated;
+            if (!ErrorHandler.validateResponse(responseBody, "Cập nhật stock movement")) {
+                return null;
+            }
+
+            try {
+                StockMovement updated = gson.fromJson(responseBody, StockMovement.class);
+                return updated;
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse updated stock movement");
+                return null;
+            }
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể cập nhật stock movement");
             throw new Exception("Failed to update stock movement: " + responseBody);
         }
     }
 
-    // ✅ FIX: Đổi tên method và URL
+    /**
+     * DELETE /stock_movements?id={id} - Xóa stock movement
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public boolean deleteStockMovement(int id) throws Exception {
-        System.out.println("🔄 Deleting stock movement ID: " + id);
-
-        // ✅ FIX URL: /stock_movements (có 's')
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements?id=" + id).toURL()
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.stockMovementsEndpoint() + "?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("DELETE");
         conn.setConnectTimeout(CONNECT_TIMEOUT);
@@ -210,20 +223,22 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            System.out.println("✅ Stock movement deleted: " + responseBody);
             return true;
         } else if (responseCode == 404) {
-            throw new Exception("Stock movement not found");
+            return false;
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể xóa stock movement");
             throw new Exception("Failed to delete stock movement: " + responseBody);
         }
     }
 
+    /**
+     * GET /stock_movements/filter - Lọc stock movements theo các tiêu chí
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public List<StockMovement> filterStockMovements(
             Integer productId, String moveType, String fromDate, String toDate) throws Exception {
-        System.out.println("🔄 Filtering stock movements...");
-
-        StringBuilder url = new StringBuilder(BASE_URL + "/stock_movements/filter?");
+        StringBuilder url = new StringBuilder(BASE_URL + ApiConfig.stockMovementsFilterEndpoint() + "?");
 
         if (productId != null)
             url.append("product_id=").append(productId).append("&");
@@ -234,9 +249,7 @@ public class ApiStockMovementService {
         if (toDate != null && !toDate.isEmpty())
             url.append("to=").append(toDate);
 
-        // Remove trailing & if exists
         String finalUrl = url.toString().replaceAll("&$", "");
-        System.out.println("📡 Filter URL: " + finalUrl);
 
         HttpURLConnection conn = (HttpURLConnection) URI.create(finalUrl).toURL().openConnection();
         conn.setRequestMethod("GET");
@@ -248,21 +261,31 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            Type listType = new TypeToken<List<StockMovement>>() {
-            }.getType();
-            List<StockMovement> movements = gson.fromJson(responseBody, listType);
-            System.out.println("✅ Filtered " + movements.size() + " movements");
-            return movements;
+            if (!ErrorHandler.validateResponse(responseBody, "Lọc stock movements")) {
+                return List.of();
+            }
+
+            try {
+                Type listType = new TypeToken<List<StockMovement>>() {
+                }.getType();
+                List<StockMovement> movements = gson.fromJson(responseBody, listType);
+                return movements;
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse filtered stock movements");
+                return List.of();
+            }
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể lọc stock movements");
             throw new Exception("Filter failed: " + responseBody);
         }
     }
 
-    // ➕ THÊM: Lấy thống kê movements
+    /**
+     * GET /stock_movements/stats - Lấy thống kê movements
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public StockMovementStats getStats() throws Exception {
-        System.out.println("🔄 Getting stock movement statistics...");
-
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements/stats").toURL()
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.stockMovementsStatsEndpoint()).toURL()
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -273,31 +296,44 @@ public class ApiStockMovementService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            Type mapType = new TypeToken<Map<String, Integer>>() {
-            }.getType();
-            Map<String, Integer> statsMap = gson.fromJson(responseBody, mapType);
+            if (!ErrorHandler.validateResponse(responseBody, "Tải thống kê movements")) {
+                return new StockMovementStats(0, 0, 0);
+            }
 
-            int total = statsMap.getOrDefault("total", 0);
-            int in = statsMap.getOrDefault("in", 0);
-            int out = statsMap.getOrDefault("out", 0);
+            try {
+                Type mapType = new TypeToken<Map<String, Integer>>() {
+                }.getType();
+                Map<String, Integer> statsMap = gson.fromJson(responseBody, mapType);
 
-            StockMovementStats stats = new StockMovementStats(total, in, out);
-            System.out.println("✅ Stats: " + stats);
-            return stats;
+                int total = statsMap.getOrDefault("total", 0);
+                int in = statsMap.getOrDefault("in", 0);
+                int out = statsMap.getOrDefault("out", 0);
+
+                StockMovementStats stats = new StockMovementStats(total, in, out);
+                return stats;
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse stock movement stats");
+                return new StockMovementStats(0, 0, 0);
+            }
         } else {
+            ErrorHandler.showUserFriendlyError(responseCode, "Không thể tải thống kê movements");
             throw new Exception("Stats failed: " + responseBody);
         }
     }
 
-    // ➕ THÊM: Lấy movements theo product ID
+    /**
+     * Lấy movements theo product ID (helper method)
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public List<StockMovement> getMovementsByProductId(int productId) throws Exception {
-        System.out.println("🔄 Getting movements for product ID: " + productId);
         return filterStockMovements(productId, null, null, null);
     }
 
-    // ➕ THÊM: Lấy movements theo move type
+    /**
+     * Lấy movements theo move type (helper method)
+     * ✅ Updated với ErrorHandler framework (Ngày 3)
+     */
     public List<StockMovement> getMovementsByType(String moveType) throws Exception {
-        System.out.println("🔄 Getting movements by type: " + moveType);
         return filterStockMovements(null, moveType, null, null);
     }
 

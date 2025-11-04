@@ -13,88 +13,100 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx"
-            fx:controller="org.example.oop.Control.PaymentControl.PaymentController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.PaymentController">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
+        <VBox>
+            <!-- Navigation Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+            </HBox>
+            
+            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="financial-header">
             <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
             </padding>
-            <children>
-                <Label style="-fx-font-size:18px; -fx-font-weight:bold;" text="THANH TOÁN HÓA ĐƠN"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnReset" mnemonicParsing="false" text="Làm mới"/>
-            </children>
+            <Label styleClass="page-title" text="THANH TOÁN HÓA ĐƠN" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnReset" mnemonicParsing="false" prefWidth="130.0" styleClass="btn-secondary" text="Làm mới" textAlignment="CENTER" />
         </HBox>
+        </VBox>
     </top>
 
     <center>
-        <GridPane hgap="12" vgap="10">
+        <VBox spacing="30.0" BorderPane.alignment="CENTER">
             <padding>
-                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
             </padding>
+            <GridPane hgap="20.0" vgap="20.0">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="140.0" prefWidth="140.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="220.0" prefWidth="280.0" />
+                    <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="140.0" prefWidth="140.0" />
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="220.0" prefWidth="280.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="50.0" />
+                    <RowConstraints minHeight="50.0" />
+                    <RowConstraints minHeight="50.0" />
+                    <RowConstraints minHeight="50.0" />
+                    <RowConstraints minHeight="15.0" />
+                    <RowConstraints minHeight="120.0" />
+                </rowConstraints>
 
-            <columnConstraints>
-                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
-                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="10.0"/>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0"/>
-            </columnConstraints>
+                <!-- Row 1: Invoice ID -->
+                <Label styleClass="form-label" text="Mã hóa đơn:" />
+                <HBox spacing="12.0" GridPane.columnIndex="1" GridPane.columnSpan="3">
+                    <TextField fx:id="txtInvoiceId" prefWidth="320.0" promptText="Nhập mã hóa đơn (VD: HD001)" styleClass="text-field" HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnLoadInvoice" mnemonicParsing="false" prefWidth="140.0" styleClass="btn-search" text="Tải hóa đơn" />
+                </HBox>
 
-            <children>
-                <Label text="Mã hóa đơn:"/>
-                <TextField fx:id="txtInvoiceId" maxWidth="1.7976931348623157E308" promptText="HD..."
-                           GridPane.columnIndex="1"/>
-                <Button fx:id="btnLoadInvoice" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Tải"
-                        GridPane.columnIndex="2"/>
-                <Label text="Tổng cộng:" GridPane.rowIndex="1"/>
-                <TextField fx:id="txtTotal" editable="false" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1"
-                           GridPane.rowIndex="1"/>
+                <!-- Row 2: Total & Method -->
+                <Label styleClass="form-label" text="Tổng cộng:" GridPane.rowIndex="1" />
+                <TextField fx:id="txtTotal" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Phương thức:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="cbMethod" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
-                          GridPane.rowIndex="1"/>
+                <Label styleClass="form-label" text="Phương thức:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <ComboBox fx:id="cbMethod" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                <Label text="Còn phải thu:" GridPane.rowIndex="2"/>
-                <TextField fx:id="txtAmountDue" editable="false" maxWidth="1.7976931348623157E308"
-                           GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                <!-- Row 3: Amount Due & Amount Paid -->
+                <Label styleClass="form-label" text="Còn phải thu:" GridPane.rowIndex="2" />
+                <TextField fx:id="txtAmountDue" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Khách đưa:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <TextField fx:id="txtAmountPaid" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
-                           GridPane.rowIndex="2"/>
+                <Label styleClass="form-label" text="Khách đưa:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                <TextField fx:id="txtAmountPaid" promptText="Nhập số tiền khách đưa" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-                <Label text="Tiền thừa:" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
-                <TextField fx:id="txtChange" editable="false" maxWidth="1.7976931348623157E308" GridPane.columnIndex="3"
-                           GridPane.rowIndex="3"/>
+                <!-- Row 4: Change -->
+                <Label styleClass="form-label" text="Tiền thừa:" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                <TextField fx:id="txtChange" editable="false" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
-                <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="4"/>
+                <!-- Separator -->
+                <Separator GridPane.columnSpan="4" GridPane.rowIndex="4" />
 
-                <Label text="Ghi chú:" GridPane.rowIndex="5"/>
-                <TextArea fx:id="txtNote" prefRowCount="3" GridPane.columnIndex="1" GridPane.columnSpan="3"
-                          GridPane.rowIndex="5"/>
-            </children>
-            <rowConstraints>
-                <RowConstraints/>
-                <RowConstraints/>
-                <RowConstraints/>
-                <RowConstraints/>
-                <RowConstraints/>
-                <RowConstraints/>
-            </rowConstraints>
-        </GridPane>
+                <!-- Note -->
+                <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="5" GridPane.valignment="TOP">
+                    <padding>
+                        <Insets top="10.0" />
+                    </padding>
+                </Label>
+                <TextArea fx:id="txtNote" prefRowCount="4" promptText="Nhập ghi chú thêm (tùy chọn)" styleClass="text-area" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="5" />
+            </GridPane>
+        </VBox>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER_RIGHT" spacing="10.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
-            </padding>
-            <children>
-                <Button fx:id="btnConfirm" defaultButton="true" mnemonicParsing="false" text="Xác nhận thanh toán"/>
-                <Button fx:id="btnConfirmAndPrint" mnemonicParsing="false" text="Thanh toán &amp; In phiếu"/>
-            </children>
-        </HBox>
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_RIGHT" spacing="16.0" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="24.0" left="30.0" right="30.0" top="20.0" />
+                </padding>
+                <Button fx:id="btnConfirm" defaultButton="true" mnemonicParsing="false" prefHeight="46.0" prefWidth="220.0" styleClass="btn-success" text="💾 Xác nhận thanh toán" />
+                <Button fx:id="btnConfirmAndPrint" mnemonicParsing="false" prefHeight="46.0" prefWidth="200.0" styleClass="btn-print" text="🖨️ Thanh toán &amp; In" />
+            </HBox>
+        </VBox>
     </bottom>
 </BorderPane>
