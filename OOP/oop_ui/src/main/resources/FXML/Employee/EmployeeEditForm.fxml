@@ -40,7 +40,7 @@
                 <!-- Bên trái: Thông tin nhập liệu -->
                 <VBox prefHeight="697.0" prefWidth="680.0" HBox.hgrow="ALWAYS">
                     <children>
-                        <ScrollPane fitToWidth="true" prefHeight="613.0" prefWidth="696.0" style="-fx-background-color: transparent; -fx-background: transparent;">
+                        <ScrollPane fitToWidth="true" prefHeight="697.0" prefWidth="696.0" style="-fx-background-color: transparent; -fx-background: transparent;">
                             <VBox prefHeight="925.0" prefWidth="402.0" spacing="20" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
                                 <VBox.margin>
                                     <Insets bottom="20" left="30" right="30" top="20" />

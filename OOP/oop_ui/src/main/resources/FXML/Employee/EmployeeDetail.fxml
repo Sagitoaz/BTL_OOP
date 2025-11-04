@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -53,7 +52,6 @@
                     <!-- Quick Actions -->
                     <VBox alignment="CENTER_RIGHT" spacing="10">
                         <Button fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" prefHeight="48.0" prefWidth="163.0" styleClass="btn-primary" text="✏️ Chỉnh sửa" />
-                        <Button fx:id="closeButton" mnemonicParsing="false" onAction="#handleClose" prefHeight="51.0" prefWidth="145.0" styleClass="btn-secondary" text="✖ Đóng" />
                     </VBox>
                 </HBox>
             </VBox>
