@@ -123,9 +123,9 @@
 
                   <!-- Action Buttons - Larger -->
                   <HBox alignment="CENTER_RIGHT" spacing="16.0">
-                     <Button fx:id="btnCheck" mnemonicParsing="false" onAction="#onCheckSchedule" prefHeight="48.0" prefWidth="170.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔍 Kiểm tra lịch" />
+                     <Button fx:id="btnCheck" mnemonicParsing="false" onAction="#onCheckSchedule" prefHeight="48.0" prefWidth="187.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔍 Kiểm tra lịch" />
                      <Button fx:id="btnBook" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#onBookAppointment" prefHeight="48.0" prefWidth="170.0" style="-fx-font-size: 14px;" styleClass="btn-success" text="📅 Đặt lịch" />
-                     <Button fx:id="btnClear" mnemonicParsing="false" onAction="#onClearForm" prefHeight="48.0" prefWidth="140.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔄 Làm mới" />
+                     <Button fx:id="btnClear" mnemonicParsing="false" onAction="#onClearForm" prefHeight="48.0" prefWidth="157.0" style="-fx-font-size: 14px;" styleClass="btn-secondary" text="🔄 Làm mới" />
                   </HBox>
                </VBox>
             </Tab>
@@ -141,7 +141,7 @@
                      <Label styleClass="form-label" text="Chọn ngày xem lịch:" />
                      <DatePicker fx:id="dpQuickJump" prefWidth="200.0" />
                      <Region HBox.hgrow="ALWAYS" />
-                     <Button fx:id="btnOpenCalendar" mnemonicParsing="false" onAction="#onOpenCalendar" prefWidth="140.0" styleClass="btn-secondary" text="📅 Mở lịch đầy đủ" />
+                     <Button fx:id="btnOpenCalendar" mnemonicParsing="false" onAction="#onOpenCalendar" prefHeight="49.0" prefWidth="201.0" styleClass="btn-secondary" text="📅 Mở lịch đầy đủ" />
                   </HBox>
 
                   <Separator />

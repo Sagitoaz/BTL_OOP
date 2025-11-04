@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
 
 <VBox prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/global-styles.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.CalendarController">
 
@@ -24,7 +25,7 @@
          </padding>
          <Label styleClass="page-title" text="LỊCH TUẦN" />
          <Region HBox.hgrow="ALWAYS" />
-         <Label fx:id="weekRangeLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Tuần: 20/10/2025 - 26/10/2025" />
+         <Label fx:id="weekRangeLabel" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" text="Tuần: 20/10/2025 - 26/10/2025" />
       </HBox>
       <Separator />
    </VBox>
@@ -131,17 +132,19 @@
 
             <!-- Calendar Grid with Appointments -->
             <VBox HBox.hgrow="ALWAYS">
-               <GridPane fx:id="calendarGrid" style="-fx-background-color: white; -fx-border-color: #e0e0e0;">
-                  <columnConstraints>
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                     <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
-                  </columnConstraints>
-               </GridPane>
+               <AnchorPane fx:id="appointmentPane">
+                  <GridPane fx:id="calendarGrid" style="-fx-background-color: white; -fx-border-color: #e0e0e0;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2857" />
+                     </columnConstraints>
+                  </GridPane>
+               </AnchorPane>
             </VBox>
          </HBox>
       </VBox>
