@@ -23,13 +23,6 @@
 
     <!-- TOP: Header -->
     <top>
-        <VBox>
-            <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
-                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
-                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
-            </HBox>
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
             <padding>
                 <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
@@ -37,7 +30,6 @@
             <Label styleClass="page-title" text="HỒ SƠ KHÁM &amp; KÊ ĐƠN" />
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
-        </VBox>
     </top>
 
     <!-- CENTER: Form -->
@@ -61,14 +53,17 @@
                             <ColumnConstraints hgrow="ALWAYS" />
                         </columnConstraints>
 
-                        <Label styleClass="form-label" text="Bệnh nhân:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="patientNameField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label styleClass="form-label" text="ID Buổi khám:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="appointmentIdField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                        <TextField fx:id="doctorNameField" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        <Label styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                        <Label styleClass="form-label" text="Ngày khám:" GridPane.rowIndex="1" />
-                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="form-label" text="Bệnh nhân:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="patientNameField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <TextField fx:id="doctorNameField" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
                      <RowConstraints />
@@ -77,7 +72,7 @@
                 </TitledPane>
 
                 <!-- Chief Complaint -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="LÝ DO KHÁM &amp; TIỀN SỬ">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="LÝ DO KHÁM &amp; TIỀN SỬ">
                     <VBox spacing="10">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -88,7 +83,7 @@
                 </TitledPane>
 
                 <!-- Objective Measurements -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📊 THÔNG SỐ ĐO ĐẠC">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="📊 THÔNG SỐ ĐO ĐẠC">
                     <VBox spacing="12">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -99,7 +94,7 @@
                 </TitledPane>
 
                 <!-- Prescription -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="👓 ĐƠN KÍNH THUỐC">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="👓 ĐƠN KÍNH THUỐC">
                     <VBox spacing="15.0">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -196,7 +191,7 @@
                 </TitledPane>
 
                 <!-- Diagnosis & Plan -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📋 CHẨN ĐOÁN &amp; KẾ HOẠCH">
+                <TitledPane expanded="true" styleClass="titled-pane, patient-info" text="📋 CHẨN ĐOÁN &amp; KẾ HOẠCH">
                     <VBox spacing="12">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />

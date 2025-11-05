@@ -41,7 +41,7 @@ public class ApiConfig {
                case PRODUCTION:
                     return PROD_BASE_URL;
                case TESTING:
-                    return "http://localhost:8081"; // Test server
+                    return "http://localhost:8080"; // Test server
                case DEVELOPMENT:
                default:
                     return DEV_BASE_URL;

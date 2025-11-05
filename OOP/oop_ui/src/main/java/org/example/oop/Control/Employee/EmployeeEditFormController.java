@@ -2,6 +2,7 @@ package org.example.oop.Control.Employee;
 
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.event.ActionEvent;
@@ -52,6 +53,15 @@ public class EmployeeEditFormController extends BaseController {
 
     @FXML
     public void initialize() {
+        if(SceneManager.getSceneData("employeeEdit") == null) {
+            System.err.println("Không tìm thấy dữ liệu nhân viên để chỉnh sửa");
+            return;
+        }
+        else{
+            Employee emp = (Employee) SceneManager.getSceneData("employeeEdit");
+            setEmployeeForEdit(emp);
+            SceneManager.removeSceneData("employeeEdit");
+        }
         var imageUrl = getClass().getResource("/Image/bac_si_toan_beo.jpg");
         if (imageUrl != null) {
             leftImageView.setImage(new Image(imageUrl.toExternalForm()));
@@ -174,6 +184,8 @@ public class EmployeeEditFormController extends BaseController {
                 showSuccess("Cập nhật nhân viên thành công!");
                 Stage stage = (Stage) saveButton.getScene().getWindow();
                 stage.close();
+                SceneManager.removeSceneData("employeeDetailData");
+                SceneManager.setSceneData("employeeDetailData", employeeToEdit);
             } else {
                 showError("Cập nhật nhân viên thất bại");
             }

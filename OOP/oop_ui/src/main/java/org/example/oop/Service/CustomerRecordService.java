@@ -158,6 +158,7 @@ public class CustomerRecordService {
      * ASYNC - GET /customers - Lấy tất cả customers (Async)
      */
     public void getAllCustomersAsync(Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
+        System.out.println("API GETTING " +CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
         apiClient.getAsync(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT,
             response -> {
                 if (response.isSuccess()) {

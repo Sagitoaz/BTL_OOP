@@ -163,6 +163,7 @@ public class EmployeeManagementController extends BaseController implements Init
         employeeTableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 Employee selectedEmployee = employeeTableView.getSelectionModel().getSelectedItem();
+
                 if (selectedEmployee != null) {
                     openEmployeeDetailView(selectedEmployee);
                 }

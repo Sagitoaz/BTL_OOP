@@ -382,7 +382,7 @@ public class CustomerHubController implements Initializable {
     private void onAddCustomerButton(){
 
             SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
+
 
 
             if(SceneManager.getSceneData("newCustomer")!= null){
@@ -412,6 +412,7 @@ public class CustomerHubController implements Initializable {
             if(SceneManager.getSceneData("updatedCustomer")!= null){
                 int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
                 Customer updatedPatient = (Customer) SceneManager.getSceneData("updatedCustomer");
+                setCurrentCustomer(updatedPatient);
                 customerRecordsList.set(selectedIndex, updatedPatient);
                 setCurrentListCustomer();
                 SceneManager.removeSceneData("updatedCustomer");

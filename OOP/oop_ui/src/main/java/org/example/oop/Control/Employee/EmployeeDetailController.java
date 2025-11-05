@@ -12,6 +12,7 @@ import java.util.Set;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Employee;
@@ -222,40 +223,20 @@ public class EmployeeDetailController extends BaseController {
     public void handleEdit(ActionEvent event) {
         if (employee == null)
             return;
-        try {
-            var res = getClass().getResource("/FXML/Employee/EmployeeEditForm.fxml");
-            if (res == null) {
-                showError("Không tìm thấy form chỉnh sửa: /FXML/Employee/EmployeeEditForm.fxml");
-                return;
-            }
-            FXMLLoader loader = new FXMLLoader(res);
-            Parent root = loader.load();
-            Object controller = loader.getController();
-            if (controller instanceof EmployeeEditFormController) {
-                ((EmployeeEditFormController) controller).setEmployeeForEdit(employee);
-            }
 
-            Stage stage = new Stage();
-            stage.setTitle("Chỉnh sửa nhân viên — "
-                    + (employee.getUsername() == null ? "#" + employee.getId() : employee.getUsername()));
-            stage.setScene(new Scene(root));
-            if (closeButton != null && closeButton.getScene() != null && closeButton.getScene().getWindow() != null) {
-                stage.initOwner(closeButton.getScene().getWindow());
-                stage.initModality(Modality.WINDOW_MODAL);
-            }
-            stage.showAndWait();
-            try {
-                Employee refreshed = service.getEmployeeById(employee.getId());
-                if (refreshed != null)
-                    setEmployeeDetails(refreshed);
-            } catch (Exception ex) {
-                System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
-            }
 
-        } catch (IOException e) {
-            System.err.println("Lỗi mở form chỉnh sửa: " + e.getMessage());
-            showError("Lỗi mở form chỉnh sửa: " + e.getMessage());
-        }
+        SceneManager.setSceneData("employeeEdit", employee);
+        SceneManager.openModalWindow(SceneConfig.EMPLOYEE_EDIT_FORM_FXML, SceneConfig.Titles.EMPLOYEE_EDIT_FORM, () -> {
+                try {
+                    Employee refreshed = SceneManager.getSceneData("employeeDetailData");
+                    if (refreshed != null)
+                        SceneManager.removeSceneData("employeeDetailData");
+                        setEmployeeDetails(refreshed);
+                } catch (Exception ex) {
+                    System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
+                }
+        });
+
     }
 
     @FXML
