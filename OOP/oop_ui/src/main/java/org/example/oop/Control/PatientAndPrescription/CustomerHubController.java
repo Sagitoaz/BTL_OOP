@@ -423,24 +423,7 @@ public class CustomerHubController implements Initializable {
 
     @FXML
     private void onAddNewPrescription(ActionEvent event) {
-        try {
-            // Kiểm tra xem có đang trỏ đến bệnh nhân nào không
-            if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
-                showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi tạo đơn thuốc");
-                return;
-            }
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Đơn khám bệnh nhân");
-            stage.setScene(new Scene(loader.load()));
-            PrescriptionEditorController prescriptionEditorController = loader.getController();
-            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()), null);
-            stage.centerOnScreen();
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Error opening Prescription Editor: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ đơn thuốc: " + e.getMessage());
-        }
+
     }
 
     @FXML

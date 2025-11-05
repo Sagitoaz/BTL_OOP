@@ -84,7 +84,7 @@ public class PrescriptionService {
     }
     public ApiResponse<Prescription> createPrescription(Prescription prescription) {
         String jsonBody = gson.toJson(prescription);
-        ApiResponse<String> response = apiClient.post(CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT, jsonBody);
+        ApiResponse<String> response = apiClient.post(CustomerAndPrescriptionConfig.POST_PRESCRIPTION_ENDPOINT, jsonBody);
         if(response.isSuccess()){
             try{
                 Prescription createdPrescription = gson.fromJson(response.getData(), Prescription.class);
@@ -100,7 +100,7 @@ public class PrescriptionService {
     }
     public ApiResponse<Prescription> updatePrescription(Prescription prescription) {
         String jsonBody = gson.toJson(prescription);
-        ApiResponse<String> response = apiClient.put(CustomerAndPrescriptionConfig.PUT_CUSTOMER_BY_ID_ENDPOINT, jsonBody);
+        ApiResponse<String> response = apiClient.put(CustomerAndPrescriptionConfig.PUT_PRESCRIPTION_ENDPOINT, jsonBody);
         if(response.isSuccess()){
             try{
                 Prescription updatedPrescription = gson.fromJson(response.getData(), Prescription.class);
@@ -206,7 +206,7 @@ public class PrescriptionService {
         }, onError);
     }
     public void createPrescriptionAsync(Consumer<Prescription> onSuccess, Consumer<String> onError, Prescription prescription) {
-        String endpoint = CustomerAndPrescriptionConfig.POST_CUSTOMER_ENDPOINT;
+        String endpoint = CustomerAndPrescriptionConfig.POST_PRESCRIPTION_ENDPOINT;
         String jsonBody = gson.toJson(prescription);
         apiClient.postAsync(endpoint, jsonBody, response ->{
             if(response.isSuccess()){
@@ -228,7 +228,7 @@ public class PrescriptionService {
 
     }
     public void updatePrescriptionAsync(Consumer<Prescription> onSuccess, Consumer<String> onError, Prescription prescription, int id) {
-        String endpoint = CustomerAndPrescriptionConfig.PUT_CUSTOMER_BY_ID_ENDPOINT + "?id=" +id;
+        String endpoint = CustomerAndPrescriptionConfig.PUT_PRESCRIPTION_ENDPOINT + "?id=" +id;
         String jsonBody = gson.toJson(prescription);
         apiClient.putAsync(endpoint, jsonBody, response->{
             if(response.isSuccess()){

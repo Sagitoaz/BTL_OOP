@@ -42,6 +42,7 @@
                 </padding>
                 <Label styleClass="page-title" text="QUẢN LÝ LỊCH HẸN" />
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="createPrescriptionBtn" mnemonicParsing="false" onAction="#onCreatePrescription" prefHeight="44.0" prefWidth="190.0" styleClass="btn-primary" text="📋 Tạo đơn khám" textAlignment="CENTER" />
                 <Button fx:id="createBtn" mnemonicParsing="false" onAction="#onCreate" prefHeight="44.0" prefWidth="170.0" styleClass="btn-success" text="Tạo hẹn" textAlignment="CENTER" />
             </HBox>
 

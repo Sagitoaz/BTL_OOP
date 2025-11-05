@@ -1082,6 +1082,34 @@ public class AppointmentManagementController implements Initializable {
         
         new Thread(task).start();
     }
+    @FXML
+    private void onCreatePrescription(){
+        if (selectedAppointment == null) {
+            showAlert("Vui lòng chọn lịch hẹn trước khi tạo đơn khám");
+            return;
+        }
+        if(patientField.getText().contains("Đang tải") || patientField.getText() == null){
+            showAlert("Vui lòng đợi tải thông tin bệnh nhân hoàn tất");
+            return;
+        }
+        if(doctorCombo.getValue() == null){
+            showAlert("Vui lòng chọn bác sĩ cho lịch hẹn");
+            return;
+        }
+        SceneManager.setSceneData("appointment", selectedAppointment);
+        SceneManager.setSceneData("nameCustomer", patientField.getText());
+        SceneManager.setSceneData("doctor", doctorCombo.getValue());
+
+        SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
+            // Callback sau khi đóng Prescription Editor
+            SceneManager.removeSceneData("appointment");
+            SceneManager.removeSceneData("nameCustomer");
+            SceneManager.removeSceneData("doctor");
+            System.out.println("✅ Prescription Editor closed");
+        });
+
+
+    }
 
     // Helper methods
     private void showAlert(String message) {

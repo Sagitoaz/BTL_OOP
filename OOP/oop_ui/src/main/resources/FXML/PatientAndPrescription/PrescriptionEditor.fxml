@@ -57,13 +57,13 @@
                         <TextField fx:id="appointmentIdField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                         <Label styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                        <DatePicker fx:id="examDatePicker" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="examDatePicker" editable="false" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                         <Label styleClass="form-label" text="Bệnh nhân:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <TextField fx:id="patientNameField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                         <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="doctorNameField" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <TextField fx:id="doctorNameField" editable="false" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
                      <RowConstraints />
@@ -216,9 +216,9 @@
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
-                <Button onAction="#handleCancel" prefWidth="100" styleClass="btn-secondary" text="❌ Hủy" />
-                <Button onAction="#handleSavePrescription" prefHeight="43.0" prefWidth="163.0" styleClass="btn-success" text="💾 Lưu Đơn Khám" />
-                <Button prefWidth="180" styleClass="btn-print" text="🖨 Lưu &amp; In Đơn Kính" />
+                <Button onAction="#handleCancel" prefHeight="49.0" prefWidth="134.0" styleClass="btn-secondary" text="❌ Hủy" />
+                <Button onAction="#handleSavePrescription" prefHeight="49.0" prefWidth="198.0" styleClass="btn-success" text="💾 Lưu Đơn Khám" />
+                <Button prefHeight="44.0" prefWidth="192.0" styleClass="btn-print" text="🖨 Lưu &amp; In Đơn Kính" />
             </HBox>
         </VBox>
     </bottom>

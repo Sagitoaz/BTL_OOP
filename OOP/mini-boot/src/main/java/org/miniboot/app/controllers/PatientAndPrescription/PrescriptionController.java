@@ -30,12 +30,17 @@ public class PrescriptionController
 
     public Function<HttpRequest, HttpResponse> createPrescription() {
         return (HttpRequest req) -> {
+
             try {
+                System.out.println("🔍 Handling POST /prescriptions request");
                 Gson gson = GsonProvider.getGson();
                 String jsonBody = new String(req.body, StandardCharsets.UTF_8);
                 Prescription newPrescription = gson.fromJson(jsonBody, Prescription.class);
 
                 System.out.println("🔄 Attempting to create prescription: " + newPrescription.getId());
+                System.out.println("📅 Date fields - created_at: " + newPrescription.getCreated_at() +
+                                 ", updated_at: " + newPrescription.getUpdated_at() +
+                                 ", signedAt: " + newPrescription.getSignedAt());
 
                 Prescription savedPrescription = prescriptionRepository.save(newPrescription);
                 if (savedPrescription != null && savedPrescription.getId() > 0) {
