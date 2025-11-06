@@ -408,7 +408,7 @@ public class AppointmentBookingController implements Initializable {
             System.out.println("🗓️ Opening Calendar view...");
             SceneManager.setSceneData("selectedDoctor", selectedDoctor);
             SceneManager.setSceneData("selectedDate", selectedDate);
-            SceneManager.openModalWindow(SceneConfig.CALENDAR_FXML, SceneConfig.Titles.CALENDAR, null);
+            SceneManager.switchScene(SceneConfig.CALENDAR_FXML, SceneConfig.Titles.CALENDAR);
 
         } catch (Exception e) {
             System.err.println("❌ Error opening calendar: " + e.getMessage());

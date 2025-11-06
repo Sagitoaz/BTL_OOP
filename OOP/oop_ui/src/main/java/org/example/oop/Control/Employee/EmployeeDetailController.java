@@ -29,6 +29,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.miniboot.app.domain.models.UserRole;
 
 public class EmployeeDetailController extends BaseController {
 
@@ -105,6 +106,10 @@ public class EmployeeDetailController extends BaseController {
         }
         if(SceneManager.getSceneData("employeeDetailData") != null){
             Employee emp = (Employee)SceneManager.getSceneData("employeeDetailData");
+            setEmployeeDetails(emp);
+        }
+        else if(SceneManager.getSceneData("role") == UserRole.EMPLOYEE){
+            Employee emp = (Employee)SceneManager.getSceneData("accountData");
             setEmployeeDetails(emp);
         }
     }

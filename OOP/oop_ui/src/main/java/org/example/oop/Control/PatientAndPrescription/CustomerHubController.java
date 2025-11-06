@@ -26,6 +26,7 @@ import org.example.oop.Service.PrescriptionService;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -99,6 +100,8 @@ public class CustomerHubController implements Initializable {
     private Button forwardButton;
     @FXML
     private Button reloadButton;
+    @FXML
+    private Button editCustomerButton;
 
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
@@ -106,6 +109,9 @@ public class CustomerHubController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN){
+            editCustomerButton.setDisable(true);
+        }
         if(SceneManager.getSceneData("isModal") != null){
             backButton.setDisable(true);
             forwardButton.setDisable(true);

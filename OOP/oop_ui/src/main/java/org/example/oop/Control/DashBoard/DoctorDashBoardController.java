@@ -21,4 +21,16 @@ public class DoctorDashBoardController {
     private void openSchedule(){
         SceneManager.switchScene(SceneConfig.CALENDAR_FXML,SceneConfig.Titles.CALENDAR);
     }
+    @FXML
+    private void openProfile(){
+        SceneManager.switchScene(SceneConfig.EMPLOYEE_DETAIL_FXML,SceneConfig.Titles.EMPLOYEE_DETAIL);
+    }
+    @FXML
+    private void onOpenCustomerHub(){
+        SceneManager.switchScene(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB);
+    }
+    @FXML
+    private void onOpenAppointmentManagement() {
+        SceneManager.switchScene(SceneConfig.APPOINTMENT_MANAGEMENT_FXML, SceneConfig.Titles.APPOINTMENT_MANAGEMENT);
+    }
 }

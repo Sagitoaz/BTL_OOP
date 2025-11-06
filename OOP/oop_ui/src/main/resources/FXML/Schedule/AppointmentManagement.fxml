@@ -124,6 +124,11 @@
                             </VBox>
                         </placeholder>
                     </TableView>
+
+                    <!-- Summary Label -->
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 0 0 0;">
+                        <Label fx:id="lblSummary" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0369A1;" text="Tổng: 0 lịch hẹn" />
+                    </HBox>
                 </VBox>
 
                 <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE">

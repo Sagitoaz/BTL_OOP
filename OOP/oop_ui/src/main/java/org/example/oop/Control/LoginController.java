@@ -13,9 +13,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.stage.Stage;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpEmployeeService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.models.UserRole;
 
 import java.io.IOException;
@@ -116,7 +118,7 @@ public class LoginController {
     }
 
     @FXML
-    void LoginButtonOnClick(ActionEvent event) {
+    void LoginButtonOnClick(ActionEvent event) throws Exception {
         String username = usernameTextField.getText().trim();
         // Lấy password từ field đang hiển thị
         String password = isPasswordVisible ?
@@ -141,8 +143,12 @@ public class LoginController {
             // Clear error message
             invalidLoginMessage.setText("");
             // Redirect to dashboard
-            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN"))
-                SceneManager.switchScene(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN")){
+                String[] key = {"role", "accountData"};
+                Object[] data = {UserRole.ADMIN, null};
+                SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+
+            }
             else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
             {
                 try{
@@ -161,7 +167,14 @@ public class LoginController {
                 }
             }
             else{
-                SceneManager.switchScene(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD);
+                HttpEmployeeService employeeService = new HttpEmployeeService();
+                Employee employee = employeeService.getEmployeeById(
+                        SessionStorage.getCurrentUserId()
+                );
+                String[] key = {"role", "accountData"};
+                Object[] data = {UserRole.EMPLOYEE,employee };
+                SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                System.out.println("Login as employee: " + employee.getFirstname() + " " + employee.getLastname());
             }
 
         } else {

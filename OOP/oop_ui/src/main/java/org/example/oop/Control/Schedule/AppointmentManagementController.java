@@ -123,6 +123,9 @@ public class AppointmentManagementController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN){
+            createBtn.setDisable(true);
+        }
         System.out.println("AppointmentManagementController initialized");
 
         // Khởi tạo services

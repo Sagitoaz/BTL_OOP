@@ -3,6 +3,7 @@ package org.example.oop.Control.DashBoard;
 import javafx.fxml.FXML;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.UserRole;
 
 public class AdminDashBoardController {
 
@@ -21,6 +22,7 @@ public class AdminDashBoardController {
 
     @FXML
     private void handleOpenCustomerHub(){
+
         SceneManager.switchScene(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB);
     }
     @FXML

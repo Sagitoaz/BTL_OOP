@@ -2,8 +2,6 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -53,17 +51,9 @@
                     </HBox>
 
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label styleClass="dashboard-title" text="Trang Làm Việc Bác Sĩ" />
+                        <Label prefHeight="32.0" prefWidth="283.0" styleClass="dashboard-title" text="Trang Làm Việc Bác Sĩ" />
                         <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-font-weight: 500;" text="Quản lý công việc hàng ngày và chăm sóc bệnh nhân" />
                     </VBox>
-
-                    <MenuButton styleClass="user-menu-button" text="Dr. Smith">
-                        <items>
-                            <MenuItem text="Thông tin cá nhân" />
-                            <MenuItem text="Cài đặt" />
-                            <MenuItem text="Đăng xuất" />
-                        </items>
-                    </MenuButton>
                 </HBox>
 
                 <!-- Content Body -->
@@ -98,10 +88,10 @@
                                 </VBox>
                                 
                                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 15, 0, 0, 5); -fx-border-color: #D1FAE5; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label style="-fx-font-size: 48px;" text="🩺" />
-                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="Khám bệnh" />
-                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Bắt đầu khám và ghi chép bệnh án" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="▶️ Bắt đầu khám" />
+                                    <Label style="-fx-font-size: 48px;" text="👤" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981;" text="Thông tin cá nhân" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xem và cập nhật thông tin cá nhân của bạn" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#openProfile" styleClass="btn-search" text="👁 Xem thông tin" />
                                 </VBox>
                                 
                                 <!-- Row 2 -->
@@ -109,14 +99,14 @@
                                     <Label style="-fx-font-size: 48px;" text="👥" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #F59E0B;" text="Hồ sơ bệnh nhân" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Xem và cập nhật thông tin bệnh nhân" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="👁 Xem hồ sơ" />
+                                    <Button maxWidth="Infinity" onAction="#onOpenCustomerHub" styleClass="btn-search" text="👁 Xem hồ sơ" />
                                 </VBox>
                                 
                                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16px; -fx-padding: 28px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.15), 15, 0, 0, 5); -fx-border-color: #EDE9FE; -fx-border-width: 2px; -fx-border-radius: 16px;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label style="-fx-font-size: 48px;" text="💊" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6;" text="Kê đơn thuốc" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true;" text="Tạo và quản lý đơn thuốc cho bệnh nhân" wrapText="true" />
-                                    <Button maxWidth="Infinity" styleClass="btn-search" text="📝 Kê đơn" />
+                                    <Button maxWidth="Infinity" onAction="#onOpenAppointmentManagement" styleClass="btn-search" text="📝 Kê đơn" />
                                 </VBox>
                             </GridPane>
                         </VBox>
