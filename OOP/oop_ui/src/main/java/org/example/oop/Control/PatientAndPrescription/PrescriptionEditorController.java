@@ -1,18 +1,22 @@
 package org.example.oop.Control.PatientAndPrescription;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import javafx.stage.Stage;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Service.PrescriptionService;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
+import org.miniboot.app.domain.models.Doctor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class PrescriptionEditorController implements Initializable {
 
@@ -88,12 +92,14 @@ public class PrescriptionEditorController implements Initializable {
 
     private Prescription currentPrescription;
     private PrescriptionService prescriptionService;
+    private HttpDoctorService doctorService;
 
     private boolean isEditMode = false;
     @Override
     public void initialize(java.net.URL url, java.util.ResourceBundle resourceBundle) {
         prescriptionService = new PrescriptionService();
         currentPrescription = new Prescription();
+        doctorService = new HttpDoctorService();
         baseOdCombo.getItems().addAll(Prescription.Base.UP, Prescription.Base.DOWN, Prescription.Base.IN,
                 Prescription.Base.OUT, Prescription.Base.NONE);
         baseOsCombo.getItems().addAll(Prescription.Base.UP, Prescription.Base.DOWN, Prescription.Base.IN,
@@ -102,12 +108,14 @@ public class PrescriptionEditorController implements Initializable {
         materialCombo.getItems().addAll(Prescription.Material.values());
         if(SceneManager.getSceneData("prescription") != null){
             Prescription prescription = (Prescription) SceneManager.getSceneData("prescription");
+            System.out.println("Loaded prescription for editing: ID #" + prescription.getId());
             currentPrescription = prescription;
             loadPrescriptionData(prescription);
 
         }
         if(SceneManager.getSceneData("appointment") != null){
             Appointment appointment = (Appointment) SceneManager.getSceneData("appointment");
+            currentPrescription.setSignedBy(appointment.getDoctorId());
             appointmentIdField.setText(String.valueOf(appointment.getId()));
             currentPrescription.setAppointmentId(appointment.getId());
             currentPrescription.setCustomerId(appointment.getCustomerId());
@@ -132,6 +140,28 @@ public class PrescriptionEditorController implements Initializable {
             doctorNameField.setText(nameDoctor);
         }
         else{
+            Task<List<Doctor>> task = new Task<>() {
+                @Override
+                protected List<Doctor> call() throws Exception {
+                    return doctorService.getAllDoctors();
+                }
+            };
+
+            task.setOnSucceeded(e -> {
+                List<Doctor> doctors = task.getValue();
+                for(Doctor doc : doctors){
+                    if(doc.getId() == currentPrescription.getSignedBy()){
+                        doctorNameField.setText(doc.getFullName());
+                        break;
+                    }
+                }
+            });
+            task.setOnFailed(e -> {
+                System.err.println("❌ Failed to load doctors: " + task.getException().getMessage());
+                showAlert("Lỗi", "Không thể tải thông tin bác sĩ:\n" + task.getException().getMessage());
+            });
+            new Thread(task).start();
+
 
         }
 

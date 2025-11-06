@@ -83,8 +83,6 @@ public final class SceneManager {
                 return;
             }
             primaryStage.setScene(loadFxmlScene(previous.getFxmlPath()));
-
-
             primaryStage.setTitle(previous.getTitle());
             primaryStage.show();
 
@@ -111,16 +109,21 @@ public final class SceneManager {
     public static void openModalWindow(String fxmlPath, String title, Runnable event) {
         runOnFxThread(()->{
 
-            Stage stage = new Stage();
-            Scene scene = loadFxmlScene(fxmlPath);
+            FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
+            Parent root = null;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Scene scene =  new Scene(root);
+            scene.getProperties().put("fxmlLoader", loader);
             if(scene == null){
                 System.err.println("Failed to load scene for: " + fxmlPath);
                 return;
             }
-            FXMLLoader loader = (FXMLLoader)scene.getProperties().get("fxmlLoader");
             SceneManager.setSceneData("fxmlLoader", loader);
-
-
+            Stage stage = new Stage();
             stage.setScene(scene);
             stage.setTitle(title);
             stage.setResizable(false);
@@ -203,6 +206,7 @@ public final class SceneManager {
         if(fxmlPath == null || fxmlPath.isEmpty()) {
             return null;
         }
+
         Parent cachedRoot = cachedScenes.get(fxmlPath);
         if(cachedRoot != null) {
             return cachedRoot.getScene();

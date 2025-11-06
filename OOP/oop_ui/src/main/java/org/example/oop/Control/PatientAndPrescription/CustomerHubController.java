@@ -93,12 +93,24 @@ public class CustomerHubController implements Initializable {
     @FXML
     private TextArea notesArea;
 
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button forwardButton;
+    @FXML
+    private Button reloadButton;
+
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
     private boolean isInitializing = true; // ✅ Flag để tránh load prescription khi khởi tạo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if(SceneManager.getSceneData("isModal") != null){
+            backButton.setDisable(true);
+            forwardButton.setDisable(true);
+            SceneManager.removeSceneData("isModal");
+        }
         cachedPrescriptions = new HashMap<>();
         prescriptionService = new PrescriptionService();
         customerRecordsList = FXCollections.observableArrayList();
@@ -137,6 +149,9 @@ public class CustomerHubController implements Initializable {
 
                 Prescription selectedPrescription = examHistoryTable.getSelectionModel().getSelectedItem();
                 if(selectedPrescription != null){
+
+                    SceneManager.removeSceneData("prescription");
+                    SceneManager.removeSceneData("nameCustomer");
                     SceneManager.setSceneData("prescription", selectedPrescription);
                     SceneManager.setSceneData("nameCustomer", customerNameLabel.getText());
                     SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
@@ -151,6 +166,7 @@ public class CustomerHubController implements Initializable {
                                 prescriptionRecordsList.set(index, updatedPrescription);
                             }
                             SceneManager.removeSceneData("updatedPrescription");
+
                         }
                     });
                 }

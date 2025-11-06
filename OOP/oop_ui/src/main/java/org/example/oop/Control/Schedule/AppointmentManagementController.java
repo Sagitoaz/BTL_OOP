@@ -364,8 +364,6 @@ public class AppointmentManagementController implements Initializable {
     private void onChoosePatient(ActionEvent event) {
         try {
             System.out.println("🔍 Opening CustomerHub in selection mode...");
-            
-
 
             Runnable runnable = () -> {
                 System.out.println("✅ CustomerHub closed");
@@ -393,13 +391,16 @@ public class AppointmentManagementController implements Initializable {
                     finally {
                         // Clear temporary data
                         SceneManager.removeSceneData("fxmlLoader");
+                        SceneManager.removeSceneData("isModal");
                     }
                 } else {
                     SceneManager.removeSceneData("fxmlLoader");
                     showManualCustomerIdDialog();
                 }
             };
+            SceneManager.setSceneData("isModal", true);
             SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
+
 
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
