@@ -97,7 +97,7 @@
                         </HBox>
       
                         <!-- Login button -->
-                        <Button fx:id="loginButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#LoginButtonOnClick" prefHeight="52.0" styleClass="login-button" text="Đăng nhập" />
+                        <Button fx:id="loginButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#LoginButtonOnClick" prefHeight="52.0" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 20px 24px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 15, 0, 0, 4);" styleClass="login-button" text="Đăng nhập" />
                      </children>
                   </VBox>
       

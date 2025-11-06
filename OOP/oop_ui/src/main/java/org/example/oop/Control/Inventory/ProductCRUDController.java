@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
 import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
@@ -424,6 +425,10 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private void onClear() {
           clearForm();
+     }
+     @FXML
+     private void onAddInventory(){
+            SceneManager.openModalWindow(SceneConfig.ADD_INVENTORY_VIEW_FXML, SceneConfig.Titles.ADD_INVENTORY, null);
      }
 
      @FXML

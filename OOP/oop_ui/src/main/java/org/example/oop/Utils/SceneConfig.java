@@ -11,6 +11,7 @@ public final class SceneConfig {
    // public static final String EMPLOYEE_DASHBOARD_FXML = "/FXML/Dashboard/EmployeeDashboard.fxml";
     public static final String CUSTOMER_DASHBOARD_FXML = "/FXML/Dashboard/CustomerDashboard.fxml";
     public static final String DOCTOR_DASHBOARD_FXML = "/FXML/Dashboard/DoctorDashboard.fxml";
+    public static final String NURSE_DASHBOARD_FXML = "/FXML/Dashboard/NurseDashboard.fxml";
 
     // ========== AUTHENTICATION SCENES ==========
     public static final String LOGIN_FXML = "/FXML/Login.fxml";

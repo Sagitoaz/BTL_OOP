@@ -173,7 +173,12 @@ public class LoginController {
                 );
                 String[] key = {"role", "accountData"};
                 Object[] data = {UserRole.EMPLOYEE,employee };
-                SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                if(employee.getRole().equalsIgnoreCase("doctor")){
+                    SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                }
+                else{
+                    SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                }
                 System.out.println("Login as employee: " + employee.getFirstname() + " " + employee.getLastname());
             }
 

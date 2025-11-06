@@ -20,32 +20,32 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.StockMovementController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.StockMovementController">
 
     <!-- TOP: Header & Filters -->
     <top>
         <VBox>
             <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
-                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
-                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <!-- Header -->
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 20px 24px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 15, 0, 0, 4);" styleClass="financial-header">
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
-                <Label styleClass="page-title" text="QUẢN LÝ XUẤT NHẬP KHO" />
+                <Label style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 2, 0, 0, 1);" styleClass="page-title" text="📦 QUẢN LÝ XUẤT NHẬP KHO" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="statsLabel" styleClass="form-label" text="Tổng: 0 | Nhập: 0 | Xuất: 0" />
+                <Label fx:id="statsLabel" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600;" styleClass="form-label" text="Tổng: 0 | Nhập: 0 | Xuất: 0" />
             </HBox>
 
             <Separator />
 
             <!-- Filters Row -->
-            <HBox alignment="CENTER_LEFT" spacing="12.0">
+            <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 12px 24px; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);">
                 <padding>
                     <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
                 </padding>
@@ -56,18 +56,18 @@
                 <ComboBox fx:id="filterMoveTypeBox" prefWidth="150" promptText="Tất cả loại" styleClass="combo-rounded" />
 
                 <Label styleClass="form-label" text="Từ:" />
-                <DatePicker fx:id="filterDateFrom" prefHeight="45.0" prefWidth="150.0" promptText="Ngày bắt đầu" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+                <DatePicker fx:id="filterDateFrom" prefHeight="46.0" prefWidth="164.0" promptText="Ngày bắt đầu" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
                 <Label text="→" />
                 <Label styleClass="form-label" text="Đến:" />
                 <Label styleClass="form-label" text="Đến:" />
-                <DatePicker fx:id="filterDateTo" prefHeight="45.0" prefWidth="149.0" promptText="Ngày kết thúc" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+                <DatePicker fx:id="filterDateTo" prefHeight="46.0" prefWidth="161.0" promptText="Ngày kết thúc" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Button fx:id="filterButton" onAction="#onFilterButton" styleClass="btn-search" text="Lọc" />
+                <Button fx:id="filterButton" onAction="#onFilterButton" text="Lọc" />
                 <Button fx:id="resetFilterButton" onAction="#onResetFilterButton" styleClass="btn-secondary" text="Xóa lọc" />
             </HBox>
         </VBox>
@@ -83,7 +83,7 @@
                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                 </padding>
 
-                <TitledPane expanded="true" styleClass="titled-pane" text="📝 THÔNG TIN XUẤT NHẬP">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="📝 THÔNG TIN XUẤT NHẬP">
                     <ScrollPane fitToWidth="true" styleClass="scroll-pane">
                         <VBox spacing="15">
                             <padding>
@@ -144,7 +144,7 @@
 
                                 <DatePicker fx:id="movedatDatePicker1" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                                 <Label styleClass="form-label" text="Ngày thực hiện:" GridPane.rowIndex="9" />
-                                <DatePicker fx:id="movedatDatePicker1" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                                <DatePicker fx:id="movedatDatePicker2" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 
                                 <!-- Note -->
                                 <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="10" />
@@ -185,7 +185,7 @@
                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                 </padding>
 
-                <TitledPane expanded="true" styleClass="titled-pane" text="📋 LỊCH SỬ XUẤT NHẬP">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="📋 LỊCH SỬ XUẤT NHẬP">
                     <VBox spacing="12.0">
                         <padding>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -199,19 +199,19 @@
 
                         <TableView fx:id="movementTable" styleClass="financial-table" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
-                                <TableColumn fx:id="productIdColumn" prefWidth="80" text="Mã SP" />
-                                <TableColumn fx:id="productNameColumn" prefWidth="150" text="Tên sản phẩm" />
-                                <TableColumn fx:id="qtyColumn" prefWidth="60" text="SL" />
-                                <TableColumn fx:id="moveTypeColumn" prefWidth="100" text="Loại" />
-                                <TableColumn fx:id="refTableColumn" prefWidth="100" text="Bảng TC" />
-                                <TableColumn fx:id="refIdColumn" prefWidth="70" text="ID TC" />
-                                <TableColumn fx:id="batchNoColumn" prefWidth="100" text="Batch No" />
-                                <TableColumn fx:id="expiryDateColumn" prefWidth="100" text="Hạn dùng" />
-                                <TableColumn fx:id="serialNoColumn" prefWidth="120" text="Serial No" />
-                                <TableColumn fx:id="movedAtColumn" prefWidth="140" text="Thời gian" />
-                                <TableColumn fx:id="movedByColumn" prefWidth="100" text="Người thực hiện" />
-                                <TableColumn fx:id="noteColumn" prefWidth="100" text="Ghi chú" />
+                                <TableColumn fx:id="idColumn" prefWidth="40" text="ID" />
+                                <TableColumn fx:id="productIdColumn" prefWidth="60" text="Mã SP" />
+                                <TableColumn fx:id="productNameColumn" prefWidth="120" text="Tên sản phẩm" />
+                                <TableColumn fx:id="qtyColumn" prefWidth="50" text="SL" />
+                                <TableColumn fx:id="moveTypeColumn" prefWidth="70" text="Loại" />
+                                <TableColumn fx:id="refTableColumn" prefWidth="80" text="Bảng TC" />
+                                <TableColumn fx:id="refIdColumn" prefWidth="60" text="ID TC" />
+                                <TableColumn fx:id="batchNoColumn" prefWidth="80" text="Batch No" />
+                                <TableColumn fx:id="expiryDateColumn" prefWidth="85" text="Hạn dùng" />
+                                <TableColumn fx:id="serialNoColumn" prefWidth="90" text="Serial No" />
+                                <TableColumn fx:id="movedAtColumn" prefWidth="120" text="Thời gian" />
+                                <TableColumn fx:id="movedByColumn" prefWidth="90" text="Người TH" />
+                                <TableColumn fx:id="noteColumn" prefWidth="90" text="Ghi chú" />
                             </columns>
 
                             <placeholder>
@@ -235,7 +235,7 @@
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="hbox-header">
                 <padding>
                     <Insets bottom="12" left="24" right="24" top="12" />
                 </padding>

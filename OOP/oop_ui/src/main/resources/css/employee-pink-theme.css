@@ -307,8 +307,7 @@
 .combo-rounded,
 .btn-success,
 .btn-secondary,
-.btn-primary,
-.btn-danger {
+.btn-primary {
     -fx-transition: all 0.3s ease;
 }
 

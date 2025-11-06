@@ -84,6 +84,11 @@
 .btn-success, .export-button {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #10B981;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
     -fx-border-color: #10B981;
     -fx-border-width: 2px;
     -fx-border-radius: 25px;
@@ -95,6 +100,32 @@
     -fx-border-color: #059669;
     -fx-text-fill: #059669;
     -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Danger button - Fresh Red */
+.btn-danger, .btn-delete, .btn-cancel, .btn-reject, .btn-remove, .btn-decline {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
+}
+
+.btn-danger:hover, .btn-delete:hover, .btn-cancel:hover, .btn-reject:hover, .btn-remove:hover, .btn-decline:hover {
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Warning button - Vibrant Orange */
@@ -113,6 +144,11 @@
 .btn-secondary {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #64748B;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
     -fx-border-color: #CBD5E0;
     -fx-border-width: 2px;
     -fx-border-radius: 25px;
@@ -124,6 +160,8 @@
     -fx-text-fill: #0EA5E9;
     -fx-background-color: #F0F9FF;
     -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.3), 12, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Info button - Sky Blue */
@@ -615,27 +653,42 @@
 }
 
 .titled-pane {
-    -fx-background-color: white;
-    -fx-background-radius: 12px;
-    -fx-border-color: #E0F2FE;
-    -fx-border-width: 1px;
-    -fx-border-radius: 12px;
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 15, 0, 0, 3) !important;
 }
 
 .titled-pane > .title {
-    -fx-background-color: #F8FBFF;
-    -fx-background-radius: 12px 12px 0 0;
-    -fx-padding: 12px 16px;
+    -fx-background-color: linear-gradient(to right, #0EA5E9, #38BDF8) !important;
+    -fx-background-radius: 10px 10px 0 0 !important;
+    -fx-padding: 10px 16px !important;
+}
+
+.titled-pane > .title .text {
+    -fx-fill: white !important;
+    -fx-font-size: 13px !important;
+    -fx-font-weight: 600 !important;
 }
 
 .titled-pane > .title:hover {
-    -fx-background-color: #E0F2FE;
+    -fx-background-color: linear-gradient(to right, #0284C7, #0EA5E9) !important;
+}
+
+.titled-pane > .title .arrow-button {
+    -fx-background-color: transparent !important;
+}
+
+.titled-pane > .title .arrow-button .arrow {
+    -fx-background-color: white !important;
 }
 
 .titled-pane > .content {
-    -fx-background-color: white;
-    -fx-background-radius: 0 0 12px 12px;
-    -fx-padding: 16px;
+    -fx-background-color: white !important;
+    -fx-background-radius: 0 0 10px 10px !important;
+    -fx-padding: 16px !important;
 }
 
 /* ========== MODERN PURPLE-PINK TITLED PANE (For Patient Info) ========== */
@@ -827,4 +880,368 @@
 *:focused {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
+}
+
+/* ========== HBOX SECTIONS - MODERN DESIGN ========== */
+/* HBox Header - Gradient xanh đẹp */
+.hbox-header {
+    -fx-background-color: linear-gradient(to right, #0EA5E9, #38BDF8) !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 24px !important;
+    -fx-spacing: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 15, 0, 0, 4) !important;
+}
+
+.hbox-header .label {
+    -fx-text-fill: white !important;
+    -fx-font-weight: 600 !important;
+}
+
+.hbox-header .page-title {
+    -fx-text-fill: white !important;
+    -fx-font-size: 20px !important;
+    -fx-font-weight: 700 !important;
+}
+
+/* HBox Section - Phần tử section với border xanh */
+.hbox-section {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 20px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 3) !important;
+}
+
+.hbox-section:hover {
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 15, 0, 0, 4) !important;
+}
+
+/* HBox Filter Bar - Thanh filter nhẹ nhàng */
+.hbox-filter {
+    -fx-background-color: #F0F9FF !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 20px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.hbox-filter .label {
+    -fx-text-fill: #0369A1 !important;
+    -fx-font-weight: 600 !important;
+    -fx-font-size: 13px !important;
+}
+
+/* HBox Action Bar - Thanh button actions */
+.hbox-actions {
+    -fx-background-color: linear-gradient(to right, #F8FBFF, #F0F9FF) !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 20px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #E0F2FE !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 10px !important;
+}
+
+/* HBox Stats - Hiển thị thống kê */
+.hbox-stats {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 24px !important;
+    -fx-spacing: 20px !important;
+    -fx-border-color: #38BDF8 !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 12, 0, 0, 3) !important;
+}
+
+.hbox-stats .label {
+    -fx-text-fill: #0284C7 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* HBox Info - Thông tin nổi bật */
+.hbox-info {
+    -fx-background-color: #E0F2FE !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 18px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #38BDF8 !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.hbox-info .label {
+    -fx-text-fill: #0369A1 !important;
+    -fx-font-weight: 500 !important;
+}
+
+/* HBox Card - Card nhỏ đẹp */
+.hbox-card {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 20px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #E0F2FE !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.08), 10, 0, 0, 2) !important;
+}
+
+.hbox-card:hover {
+    -fx-background-color: #FAFCFF !important;
+    -fx-border-color: #38BDF8 !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 15, 0, 0, 4) !important;
+    -fx-translate-y: -2px !important;
+}
+
+/* HBox Compact - Compact style nhỏ gọn */
+.hbox-compact {
+    -fx-background-color: white !important;
+    -fx-background-radius: 8px !important;
+    -fx-padding: 8px 12px !important;
+    -fx-spacing: 8px !important;
+    -fx-border-color: #CBD5E0 !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 8px !important;
+}
+
+.hbox-compact:hover {
+    -fx-border-color: #0EA5E9 !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 8, 0, 0, 2) !important;
+}
+
+/* HBox Success - Màu xanh lá */
+.hbox-success {
+    -fx-background-color: #ECFDF5 !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 18px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #10B981 !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.hbox-success .label {
+    -fx-text-fill: #059669 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* HBox Warning - Màu cam */
+.hbox-warning {
+    -fx-background-color: #FFFBEB !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 18px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #F59E0B !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.hbox-warning .label {
+    -fx-text-fill: #D97706 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* HBox Danger - Màu đỏ */
+.hbox-danger {
+    -fx-background-color: #FFF1F2 !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 12px 18px !important;
+    -fx-spacing: 10px !important;
+    -fx-border-color: #F43F5E !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.hbox-danger .label {
+    -fx-text-fill: #E11D48 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* ========== VBOX SECTIONS - MODERN DESIGN ========== */
+/* VBox Container - Container chính */
+.vbox-container {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 20px !important;
+    -fx-spacing: 16px !important;
+    -fx-border-color: #E0F2FE !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.08), 10, 0, 0, 2) !important;
+}
+
+/* VBox Section - Phần section */
+.vbox-section {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 20px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 3) !important;
+}
+
+/* VBox Card - Card đẹp */
+.vbox-card {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 20px !important;
+    -fx-spacing: 14px !important;
+    -fx-border-color: #E0F2FE !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.1), 12, 0, 0, 3) !important;
+}
+
+.vbox-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.2), 16, 0, 0, 5) !important;
+    -fx-translate-y: -2px !important;
+}
+
+/* VBox Header - Header gradient xanh */
+.vbox-header {
+    -fx-background-color: linear-gradient(to bottom, #0EA5E9, #38BDF8) !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 16px 24px !important;
+    -fx-spacing: 10px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.25), 15, 0, 0, 4) !important;
+}
+
+.vbox-header .label {
+    -fx-text-fill: white !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* VBox Light - Nền xanh nhạt */
+.vbox-light {
+    -fx-background-color: #F0F9FF !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 16px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 10px !important;
+}
+
+/* VBox Compact - Gọn gàng */
+.vbox-compact {
+    -fx-background-color: white !important;
+    -fx-background-radius: 8px !important;
+    -fx-padding: 12px !important;
+    -fx-spacing: 8px !important;
+    -fx-border-color: #CBD5E0 !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 8px !important;
+}
+
+/* VBox Form - For forms */
+.vbox-form {
+    -fx-background-color: white !important;
+    -fx-background-radius: 12px !important;
+    -fx-padding: 24px !important;
+    -fx-spacing: 18px !important;
+    -fx-border-color: #BAE6FD !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.12), 15, 0, 0, 4) !important;
+}
+
+/* VBox Success - Màu xanh lá */
+.vbox-success {
+    -fx-background-color: #ECFDF5 !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 16px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #10B981 !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.vbox-success .label {
+    -fx-text-fill: #059669 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* VBox Warning - Màu cam */
+.vbox-warning {
+    -fx-background-color: #FFFBEB !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 16px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #F59E0B !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.vbox-warning .label {
+    -fx-text-fill: #D97706 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* VBox Danger - Màu đỏ */
+.vbox-danger {
+    -fx-background-color: #FFF1F2 !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 16px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #F43F5E !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.vbox-danger .label {
+    -fx-text-fill: #E11D48 !important;
+    -fx-font-weight: 600 !important;
+}
+
+/* VBox Info - Màu xanh nhạt */
+.vbox-info {
+    -fx-background-color: #E0F2FE !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 16px !important;
+    -fx-spacing: 12px !important;
+    -fx-border-color: #38BDF8 !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 10px !important;
+}
+
+.vbox-info .label {
+    -fx-text-fill: #0369A1 !important;
+    -fx-font-weight: 500 !important;
+}
+
+/* ========== REGION STYLES ========== */
+/* Region Divider - Đường phân cách */
+.region-divider {
+    -fx-min-width: 1px !important;
+    -fx-max-width: 1px !important;
+    -fx-background-color: #E0F2FE !important;
+}
+
+/* Region Spacer - Khoảng trống */
+.region-spacer {
+    -fx-min-width: 16px !important;
+    -fx-pref-width: 16px !important;
+}
+
+.region-spacer-large {
+    -fx-min-width: 24px !important;
+    -fx-pref-width: 24px !important;
+}
+
+.region-spacer-small {
+    -fx-min-width: 8px !important;
+    -fx-pref-width: 8px !important;
+}
+
+/* Region Flexible - Flexible space */
+.region-flex {
+    -fx-min-width: 0 !important;
 }
