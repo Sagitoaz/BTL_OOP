@@ -5,9 +5,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import javafx.stage.Stage;
+import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.PrescriptionService;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 
 import java.time.LocalDate;
@@ -63,8 +65,6 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private TextField pdField;
     @FXML
-    private DatePicker expiryDatePicker;
-    @FXML
     private TextArea prescriptionNotesArea;
     @FXML
     private ComboBox<Prescription.Lens_Type> lensTypeCombo;
@@ -100,6 +100,12 @@ public class PrescriptionEditorController implements Initializable {
                 Prescription.Base.OUT, Prescription.Base.NONE);
         lensTypeCombo.getItems().addAll(Prescription.Lens_Type.values());
         materialCombo.getItems().addAll(Prescription.Material.values());
+        if(SceneManager.getSceneData("prescription") != null){
+            Prescription prescription = (Prescription) SceneManager.getSceneData("prescription");
+            currentPrescription = prescription;
+            loadPrescriptionData(prescription);
+
+        }
         if(SceneManager.getSceneData("appointment") != null){
             Appointment appointment = (Appointment) SceneManager.getSceneData("appointment");
             appointmentIdField.setText(String.valueOf(appointment.getId()));
@@ -112,6 +118,11 @@ public class PrescriptionEditorController implements Initializable {
             examDatePicker.setValue(appointment.getStartTime().toLocalDate());
 
         }
+        else{
+
+            appointmentIdField.setText(String.valueOf(currentPrescription.getAppointmentId()));
+        }
+
         if(SceneManager.getSceneData("nameCustomer") != null){
             String nameCustomer = (String) SceneManager.getSceneData("nameCustomer");
             patientNameField.setText(nameCustomer);
@@ -120,11 +131,10 @@ public class PrescriptionEditorController implements Initializable {
             String nameDoctor = (String) SceneManager.getSceneData("doctor");
             doctorNameField.setText(nameDoctor);
         }
-        if(SceneManager.getSceneData("prescription") != null){
-            Prescription prescription = (Prescription) SceneManager.getSceneData("prescription");
-            loadPrescriptionData(prescription);
+        else{
 
         }
+
 
     }
 //    public void initData(Appointment appointment) {
@@ -182,11 +192,6 @@ public class PrescriptionEditorController implements Initializable {
         // Thông tin khám
         assessmentArea.setText(prescription.getDiagnosis() != null ? prescription.getDiagnosis() : "");
         planArea.setText(prescription.getPlan() != null ? prescription.getPlan() : "");
-
-        // Ngày hết hạn (nếu có field này)
-        if (prescription.getSignedAt() != null) {
-            expiryDatePicker.setValue(prescription.getSignedAt());
-        }
     }
     @FXML
     private void handleCancel() {
@@ -265,6 +270,9 @@ public class PrescriptionEditorController implements Initializable {
                 var response = prescriptionService.updatePrescription(currentPrescription);
 
                 if (response.isSuccess()) {
+                    Prescription updatedPrescription = response.getData();
+                    SceneManager.removeSceneData("updatedPrescription");
+                    SceneManager.setSceneData("updatedPrescription", updatedPrescription);
                     System.out.println("✅ Prescription updated successfully");
                     showAlert("Thành công", "Đã cập nhật đơn khám thành công!");
 

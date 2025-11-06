@@ -113,13 +113,14 @@ public final class SceneManager {
 
             Stage stage = new Stage();
             Scene scene = loadFxmlScene(fxmlPath);
-            FXMLLoader loader = (FXMLLoader)scene.getProperties().get("fxmlLoader");
-            SceneManager.setSceneData("fxmlLoader", loader);
-
             if(scene == null){
                 System.err.println("Failed to load scene for: " + fxmlPath);
                 return;
             }
+            FXMLLoader loader = (FXMLLoader)scene.getProperties().get("fxmlLoader");
+            SceneManager.setSceneData("fxmlLoader", loader);
+
+
             stage.setScene(scene);
             stage.setTitle(title);
             stage.setResizable(false);

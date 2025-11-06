@@ -54,16 +54,16 @@
                         </columnConstraints>
 
                         <Label styleClass="form-label" text="ID Buổi khám:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="appointmentIdField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TextField fx:id="appointmentIdField" editable="false" promptText="Đang tải..." styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                         <Label styleClass="form-label" text="Ngày khám:" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                        <DatePicker fx:id="examDatePicker" editable="false" maxWidth="Infinity" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="examDatePicker" editable="false" maxWidth="Infinity" promptText="Đang tải..." style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
                         <Label styleClass="form-label" text="Bệnh nhân:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="patientNameField" editable="false" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="patientNameField" editable="false" promptText="Đang tải...." styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                         <Label styleClass="form-label" text="Bác sĩ:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <TextField fx:id="doctorNameField" editable="false" styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                        <TextField fx:id="doctorNameField" editable="false" promptText="Đang tải..." styleClass="text-field" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <rowConstraints>
                      <RowConstraints />
                      <RowConstraints />

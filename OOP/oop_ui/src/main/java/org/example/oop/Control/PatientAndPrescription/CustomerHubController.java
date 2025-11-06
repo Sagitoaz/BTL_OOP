@@ -132,6 +132,30 @@ public class CustomerHubController implements Initializable {
                 }
             }
         });
+        examHistoryTable.setOnMouseClicked(event -> {
+            if(event.getClickCount() == 2){
+
+                Prescription selectedPrescription = examHistoryTable.getSelectionModel().getSelectedItem();
+                if(selectedPrescription != null){
+                    SceneManager.setSceneData("prescription", selectedPrescription);
+                    SceneManager.setSceneData("nameCustomer", customerNameLabel.getText());
+                    SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
+                        // Reload prescriptions after closing editor
+                        SceneManager.removeSceneData("prescription");
+                        SceneManager.removeSceneData("nameCustomer");
+                        if(SceneManager.getSceneData("updatedPrescription") != null){
+                            Prescription updatedPrescription = (Prescription) SceneManager.getSceneData("updatedPrescription");
+                            // Cập nhật lại trong bảng
+                            int index = prescriptionRecordsList.indexOf(selectedPrescription);
+                            if(index >=0 ){
+                                prescriptionRecordsList.set(index, updatedPrescription);
+                            }
+                            SceneManager.removeSceneData("updatedPrescription");
+                        }
+                    });
+                }
+            }
+        });
     }
     @FXML
     private void handleBackButton(){
@@ -421,15 +445,7 @@ public class CustomerHubController implements Initializable {
     }
 
 
-    @FXML
-    private void onAddNewPrescription(ActionEvent event) {
 
-    }
-
-    @FXML
-    private void handleEditPrescription(){
-
-    }
     public static void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
