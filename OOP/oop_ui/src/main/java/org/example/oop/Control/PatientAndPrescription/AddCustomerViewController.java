@@ -100,6 +100,7 @@ public class AddCustomerViewController implements Initializable
         String phone = phoneField.getText();
         LocalDate dob = dobPicker.getValue();
         Customer.Gender gender = genderComboBox.getValue();
+        System.out.println(gender.name());
         String address = addressField.getText();
         String email = emailField.getText();
         String notes = notesArea.getText();

@@ -149,6 +149,7 @@ public class SignUpController {
     @FXML
     void signUpButtonOnClick(ActionEvent event) {
         // Implement signup logic here
+
         // For now, just show a message
         errorMessage.setText("Signup functionality not implemented yet.");
         errorMessage.setVisible(true);

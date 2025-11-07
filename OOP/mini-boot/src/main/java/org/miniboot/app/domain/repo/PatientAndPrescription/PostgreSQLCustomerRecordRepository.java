@@ -57,7 +57,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             pstmt.setString(5, customer.getPhone());
             pstmt.setString(6, customer.getEmail());
             pstmt.setDate(7, Date.valueOf(customer.getDob()));
-            pstmt.setString(8, customer.getGender().toString());
+            pstmt.setString(8, customer.getGender().name());
             pstmt.setString(9, customer.getAddress());
             pstmt.setString(10, customer.getNote());
             pstmt.setTimestamp(11, Timestamp.valueOf(customer.getCreatedAt()));
