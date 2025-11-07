@@ -58,6 +58,7 @@ public class ReceiptController implements Initializable {
 
     private void initializeTable() {
         if(SceneManager.getSceneData("receiptData") != null){
+            System.out.println("Loading receipt data into receipt view...");
             Receipt receipt = SceneManager.getSceneData("receiptData");
             displayReceipt(receipt);
         }
@@ -109,7 +110,11 @@ public class ReceiptController implements Initializable {
         lblReceiptNo.setText(receipt.getPayment().getCode());
         lblDate.setText(payment.getIssuedAt().toString());
         lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
+
         lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
+
+
+        System.out.println("Receipt has " + receipt.getItems().size() + " items.");
 
         // Hiển thị danh sách items
         tableReceiptItems.getItems().setAll(receipt.getItems());

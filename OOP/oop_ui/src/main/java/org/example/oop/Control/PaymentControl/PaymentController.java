@@ -340,7 +340,7 @@ public class PaymentController extends BaseController implements Initializable {
             String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
 
             Receipt receipt = new Receipt(currentPayment, currentItems);
-            SceneManager.setSceneData("receiptNumber", receipt);
+            SceneManager.setSceneData("receiptData", receipt);
             SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
     }
 }

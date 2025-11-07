@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -41,7 +42,7 @@ public class SignUpController {
     private TextField dobTextField;
 
     @FXML
-    private ComboBox<String> genderComboBox;
+    private ComboBox<Customer.Gender> genderComboBox;
 
     @FXML
     private TextField addressTextField;
@@ -100,7 +101,7 @@ public class SignUpController {
         });
 
         // Initialize gender combo box
-        genderComboBox.getItems().addAll("Nam", "Nữ", "Khác");
+        genderComboBox.getItems().addAll(Customer.Gender.values());
     }
 
     @FXML
