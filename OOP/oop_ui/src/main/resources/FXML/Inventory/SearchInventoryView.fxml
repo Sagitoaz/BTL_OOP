@@ -21,7 +21,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
 
     <!-- TOP: Header & Filters -->
     <top>
@@ -67,16 +67,19 @@
     <center>
         <TableView fx:id="inventoryTable" styleClass="financial-table" BorderPane.alignment="CENTER">
             <columns>
-                <TableColumn fx:id="idColumn" prefWidth="40" sortable="true" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="120" sortable="true" text="Tên sản phẩm" />
-                <TableColumn fx:id="skuColumn" prefWidth="80" sortable="true" text="SKU" />
-                <TableColumn fx:id="categoryColumn" prefWidth="85" sortable="true" text="Danh mục" />
-                <TableColumn fx:id="statusColumn" prefWidth="75" sortable="true" text="Trạng thái" />
-                <TableColumn fx:id="quantityColumn" prefWidth="70" sortable="true" text="Số lượng" />
-                <TableColumn fx:id="unitColumn" prefWidth="60" sortable="true" text="Đơn vị" />
-                <TableColumn fx:id="priceColumn" prefWidth="90" sortable="true" text="Đơn giá" />
-                <TableColumn fx:id="lastUpdatedColumn" prefWidth="150" sortable="true" text="Cập nhật lần cuối" />
+                <TableColumn fx:id="idColumn" minWidth="50" prefWidth="60" sortable="true" text="ID" />
+                <TableColumn fx:id="nameColumn" minWidth="150" prefWidth="200" sortable="true" text="Tên sản phẩm" />
+                <TableColumn fx:id="skuColumn" minWidth="60.0" prefWidth="66.4000244140625" sortable="true" text="SKU" />
+                <TableColumn fx:id="categoryColumn" minWidth="93.60000610351562" prefWidth="114.39996337890625" sortable="true" text="Danh mục" />
+                <TableColumn fx:id="statusColumn" minWidth="80.79998779296875" prefWidth="104.00003051757812" sortable="true" text="Trạng thái" />
+                <TableColumn fx:id="quantityColumn" minWidth="80" prefWidth="100.800048828125" sortable="true" text="Số lượng" />
+                <TableColumn fx:id="unitColumn" minWidth="80" prefWidth="90" sortable="true" text="Đơn vị" />
+                <TableColumn fx:id="priceColumn" minWidth="100" prefWidth="120" sortable="true" text="Đơn giá" />
             </columns>
+
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
 
             <placeholder>
                 <VBox alignment="CENTER" prefHeight="554.0" prefWidth="770.0" spacing="10">

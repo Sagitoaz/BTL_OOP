@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/global-styles.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/global-styles.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.InvoiceController">
     <top>
         <VBox>
             <!-- Navigation Bar -->
@@ -102,13 +102,9 @@
                                                 <!-- SĐT với button tìm kiếm -->
                                                 <VBox spacing="6">
                                                     <Label styleClass="form-label" text="Số điện thoại:" />
-                                                    <HBox spacing="8.0">
-                                                        <children>
-                                                            <TextField fx:id="txtCustomerPhone" prefHeight="46.0" prefWidth="123.0" promptText="Nhập SĐT..." styleClass="text-field" HBox.hgrow="ALWAYS" />
-                                                            <Button fx:id="btnFindCustomer" mnemonicParsing="false" prefHeight="40.0" prefWidth="72.0" styleClass="btn-search" text="🔍" />
-                                                        </children>
-                                                    </HBox>
+                                                    <TextField fx:id="txtCustomerPhone" prefHeight="46.0" promptText="Nhập SĐT..." styleClass="text-field" />
                                                 </VBox>
+                                                <Button fx:id="btnFindCustomer" maxWidth="Infinity" mnemonicParsing="false" prefHeight="46.0" text="🔍 Tìm Khách Hàng" />
                                                 <!-- Họ tên -->
                                                 <VBox spacing="6">
                                                     <Label styleClass="form-label" text="Họ và tên:" />
@@ -143,16 +139,12 @@
                                                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                                             </padding>
                                             <children>
-                                                <!-- SKU với button tìm kiếm -->
+                                                <!-- SKU -->
                                                 <VBox spacing="6">
                                                     <Label styleClass="form-label" text="Mã sản phẩm (SKU):" />
-                                                    <HBox spacing="8.0">
-                                                        <children>
-                                                            <TextField fx:id="txtSkuSearch" prefWidth="120.0" promptText="Nhập SKU..." styleClass="text-field" HBox.hgrow="ALWAYS" />
-                                                            <Button fx:id="btnFindProduct" mnemonicParsing="false" prefWidth="70.0" styleClass="btn-search" text="🔍" />
-                                                        </children>
-                                                    </HBox>
+                                                    <TextField fx:id="txtSkuSearch" promptText="Nhập SKU..." styleClass="text-field" />
                                                 </VBox>
+                                                <Button fx:id="btnFindProduct" maxWidth="Infinity" mnemonicParsing="false" prefHeight="46.0" styleClass="btn-search" text="🔍 Tìm Sản Phẩm" />
                                                 <!-- Tên sản phẩm -->
                                                 <VBox spacing="6">
                                                     <Label styleClass="form-label" text="Tên sản phẩm:" />
@@ -169,17 +161,12 @@
                                                         <TextField fx:id="txtProductPrice" editable="false" styleClass="text-field" />
                                                     </VBox>
                                                 </HBox>
-                                                <!-- Số lượng và button thêm -->
+                                                <!-- Số lượng -->
                                                 <VBox spacing="6">
                                                     <Label styleClass="form-label" text="Số lượng:" />
-                                                    <HBox alignment="CENTER_LEFT" spacing="8">
-                                                        <TextField fx:id="txtQuantity" prefWidth="80.0" styleClass="text-field" text="1" />
-                                                        <Button fx:id="btnAddItem" alignment="CENTER" mnemonicParsing="false" onAction="#handleAddItem" prefHeight="38.0" prefWidth="140.0" styleClass="btn-success" text="➕Thêm">
-                                             <font>
-                                                <Font size="10.0" />
-                                             </font></Button>
-                                                    </HBox>
+                                                    <TextField fx:id="txtQuantity" styleClass="text-field" text="1" />
                                                 </VBox>
+                                                <Button fx:id="btnAddItem" alignment="CENTER" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleAddItem" prefHeight="46.0" styleClass="btn-success" text="➕ Thêm Vào Hóa Đơn" />
                                             </children>
                                         </VBox>
                                     </content>
