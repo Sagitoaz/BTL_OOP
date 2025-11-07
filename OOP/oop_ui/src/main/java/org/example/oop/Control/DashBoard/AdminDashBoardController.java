@@ -48,5 +48,13 @@ public class AdminDashBoardController {
     private  void handleOpenDoctorSchedule(){
         SceneManager.switchScene(SceneConfig.DOCTOR_SCHEDULE_FXML, SceneConfig.Titles.DOCTOR_SCHEDULE);
     }
+    @FXML
+    private void handleOpenWarehouse(){
+        SceneManager.switchScene(SceneConfig.SEARCH_INVENTORY_VIEW_FXML, SceneConfig.Titles.SEARCH_INVENTORY);
+    }
+    @FXML
+    private void handleOpenStockMovement(){
+        SceneManager.switchScene(SceneConfig.STOCK_MOVEMENT_VIEW_FXML, SceneConfig.Titles.STOCK_MOVEMENT);
+    }
 
 }

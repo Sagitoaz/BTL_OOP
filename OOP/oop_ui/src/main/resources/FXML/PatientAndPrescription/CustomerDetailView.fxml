@@ -14,15 +14,15 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f7fa;" stylesheets="@../../css/employee-pink-theme.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerDetailController">
+<BorderPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f7fa;" styleClass="employee-pink" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css,@../../css/employee-pink-theme.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerDetailController">
 
     <!-- ========== HEADER ========== -->
     <top>
         <VBox>
             <!-- Navigation Bar -->
             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
-                <Button onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
-                <Button onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+                <Button onAction="#handleBackButton" styleClass="nav-button" text="◀ Quay lại" />
+                <Button onAction="#handleReloadButton" styleClass="nav-button" text="⟳ Tải lại" />
             </HBox>
 
             <!-- Customer Header -->

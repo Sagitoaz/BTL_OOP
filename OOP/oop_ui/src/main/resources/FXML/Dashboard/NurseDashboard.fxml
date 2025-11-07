@@ -104,7 +104,7 @@
 
                                 <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F5F3FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.2), 20, 0, 0, 8); -fx-border-color: #DDD6FE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 10, 0, 0, 3);" text="📦" />
-                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6; -fx-padding: 5px 0;" text="Quản lý kho hàng" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6; -fx-padding: 5px 0;" text="Quản lý sản phẩm" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Quản lý vật tư y tế và thuốc men" wrapText="true" />
                                     <Button maxWidth="Infinity" onAction="#openInventory" style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="📋 Quản lý kho" />
                                 </VBox>

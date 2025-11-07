@@ -315,6 +315,59 @@
    NAVIGATION BUTTONS - PINK THEME
    ======================================== */
 
+/* ========== OVERRIDE NAVIGATION BUTTONS WITH PINK GRADIENT ========== */
+.employee-pink .nav-button {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-background-radius: 25px !important;
+    -fx-border-radius: 25px !important;
+    -fx-padding: 10px 22px !important;
+    -fx-font-size: 14px !important;
+    -fx-font-weight: 600 !important;
+    -fx-cursor: hand !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0 !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3) !important;
+}
+
+.employee-pink .nav-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #EC4899 0%, #DB2777 100%) !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.5), 14, 0, 0, 5) !important;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.employee-pink .nav-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #DB2777 0%, #BE185D 100%) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== SPECIFIC NAVIGATION BUTTON VARIANTS ========== */
+.employee-pink .nav-back-button {
+    -fx-background-color: linear-gradient(to bottom, #FBB6CE 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-back-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
+.employee-pink .nav-forward-button {
+    -fx-background-color: linear-gradient(to bottom, #FBB6CE 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-forward-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
+.employee-pink .nav-reload-button {
+    -fx-background-color: linear-gradient(to bottom, #F9A8D4 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-reload-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
 /* ========== OVERRIDE NAVIGATION BUTTONS TO BE EQUAL SIZE ========== */
 .btn-back,
 .btn-forward,
@@ -352,11 +405,11 @@
 }
 
 /* ========== NAVIGATION CONTAINER ========== */
-.navigation-bar {
+.employee-pink .navigation-bar {
     -fx-spacing: 10px;
     -fx-padding: 12px 20px;
     -fx-alignment: center-left;
     -fx-background-color: #ffffff;
-    -fx-border-color: #e5e7eb;
-    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #fce7f3;
+    -fx-border-width: 0 0 2 0;
 }

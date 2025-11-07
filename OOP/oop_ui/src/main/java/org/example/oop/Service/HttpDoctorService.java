@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
 import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.models.TimeSlot;
@@ -26,7 +27,7 @@ public class HttpDoctorService {
     private final Gson gson;
 
     public HttpDoctorService() {
-        this("https://btl-oop-i9pi.onrender.com/");
+        this(ApiConfig.getBaseUrl());
     }
 
     public HttpDoctorService(String baseUrl) {

@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
 import org.miniboot.app.util.GsonProvider;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ApiStockMovementService {
-    private static final String BASE_URL = System.getProperty("API_STOCK_BASE_URL", "http://localhost:8080");
+    private static final String BASE_URL = System.getProperty("API_STOCK_BASE_URL",  ApiConfig.getBaseUrl());
     private static final Gson gson = GsonProvider.getGson();
 
     // tăng time out tránh mạng yếu

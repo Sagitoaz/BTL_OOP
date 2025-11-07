@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.util.GsonProvider;
 
@@ -34,7 +35,7 @@ public class HttpAppointmentService {
      * Constructor mặc định - kết nối localhost:8080
      */
     public HttpAppointmentService() {
-        this("https://btl-oop-i9pi.onrender.com/");
+        this( ApiConfig.getBaseUrl());
     }
 
     /**

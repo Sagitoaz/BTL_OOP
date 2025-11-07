@@ -27,9 +27,9 @@
         <VBox>
             <!-- Navigation Bar -->
             <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
-                <Button fx:id="backButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
-                <Button fx:id="forwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
-                <Button fx:id="reloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+                <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <!-- Header -->
@@ -169,7 +169,7 @@
                             <!-- Action Buttons -->
                             <HBox alignment="CENTER" spacing="12">
                                 <Button fx:id="saveButton" defaultButton="true" onAction="#onSaveButton" prefWidth="150" styleClass="btn-success" text="💾 Lưu" />
-                                <Button fx:id="clearButton" onAction="#onClearButton" prefWidth="100" styleClass="btn-secondary" text="🔄 Làm mới" />
+                                <Button fx:id="clearButton" onAction="#onClearButton" prefWidth="150.0" text="🔄 Làm mới" />
                             </HBox>
 
                             <!-- Status Label -->

@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.util.GsonProvider;
 
@@ -15,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ApiProductService {
-    private static final String BASE_URL = "http://localhost:8080/";
+    private static final String BASE_URL = ApiConfig.getBaseUrl();
     private static final Gson gson = GsonProvider.getGson();
     private static final int CONNECT_TIMEOUT = 30000; // 30 seconds
     private static final int READ_TIMEOUT = 60000; // 60 seconds

@@ -46,7 +46,7 @@
                      <Tooltip text="Xóa sản phẩm đã chọn" />
                   </tooltip>
                    </Button>
-                    <Button fx:id="addNewButton" onAction="#onAddInventory" styleClass="export-button" text="➕ Thêm mới" />
+                    <Button fx:id="addNewButton" onAction="#onAddInventory" styleClass="btn-success" text="➕ Thêm mới" />
                 </children>
             </HBox>
 

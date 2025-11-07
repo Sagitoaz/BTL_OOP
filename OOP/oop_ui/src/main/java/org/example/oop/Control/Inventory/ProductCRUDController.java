@@ -13,6 +13,7 @@ import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
 import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -108,6 +109,9 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
      @Override
      public void initialize(URL url, ResourceBundle rb) {
+         if(SceneManager.getSceneData("role") != UserRole.ADMIN){
+             addNewButton.setDisable(true);
+         }
           setupTable();
           setupFilters();
           setupFormBoxes();

@@ -20,8 +20,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.ListView?>
 <BorderPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/employee-pink-theme.css,@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PatientAndPrescription.CustomerHubController">
 
@@ -44,7 +42,7 @@
                 <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
             </padding>
 
-            <TitledPane expanded="true" styleClass="titled-pane, blue-gradient" text="👥 BỆNH NHÂN">
+            <TitledPane expanded="true" styleClass="titled-pane blue-gradient" text="👥 BỆNH NHÂN">
                 <VBox spacing="12">
                     <padding>
                         <Insets bottom="12" left="12" right="12" top="12" />
@@ -70,8 +68,8 @@
                     </VBox>
 
                     <HBox spacing="8">
-                        <Button fx:id="applyFilterButton" onAction="#applyFilters" prefWidth="100" styleClass="btn-filter" text="Lọc" />
-                        <Button fx:id="resetFilterButton" onAction="#resetFilters" prefWidth="100" styleClass="btn-reset" text="Hủy" />
+                        <Button fx:id="applyFilterButton" onAction="#applyFilters" prefWidth="100" styleClass="btn-success" text="Lọc" />
+                        <Button fx:id="resetFilterButton" onAction="#resetFilters" prefWidth="100" styleClass="btn-delete" text="Hủy" />
                     </HBox>
 
                     <Separator />
@@ -94,7 +92,7 @@
 
                         <Label fx:id="customerNameLabel" styleClass="page-title" text="[CHỌN BỆNH NHÂN]" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" styleClass="export-button" text="✏ Chỉnh sửa" />
+                        <Button fx:id="editCustomerButton" onAction="#handleEditCustomer" styleClass="btn-success" text="✏ Chỉnh sửa" />
                     </HBox>
 
                     <Separator />

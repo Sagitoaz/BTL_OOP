@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
 import org.miniboot.app.util.GsonProvider;
 
@@ -20,7 +21,7 @@ public class HttpPaymentItemService {
     private final Gson gson;
 
     public HttpPaymentItemService() {
-        this("http://localhost:8080/");
+        this(ApiConfig.getBaseUrl());
     }
 
     public HttpPaymentItemService(String baseUrl) {
