@@ -106,7 +106,7 @@ public class ReceiptController implements Initializable {
         Payment payment = receipt.getPayment();
 
         // Hiển thị thông tin chung
-        lblReceiptNo.setText(receipt.getReceiptNumber());
+        lblReceiptNo.setText(receipt.getPayment().getCode());
         lblDate.setText(payment.getIssuedAt().toString());
         lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
         lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
