@@ -17,6 +17,8 @@ import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Service.HttpPaymentStatusLogService;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.*;
 
 import java.io.IOException;
@@ -58,6 +60,18 @@ public class PaymentController extends BaseController implements Initializable {
     private HttpPaymentService paymentService;
     private HttpPaymentStatusLogService statusLogService;
     private HttpPaymentItemService itemService;
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,6 +84,11 @@ public class PaymentController extends BaseController implements Initializable {
         setupEventHandlers();
         setupListeners();
         handleReset();
+        if(SceneManager.getSceneData("savedPaymentId") != null){
+            String paymentId = (String)SceneManager.getSceneData("savedPaymentId");
+            initData(paymentId);
+            SceneManager.removeSceneData("paymentId");
+        }
     }
 
     // ========================================================
@@ -317,24 +336,11 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void printReceipt() {
-        try {
-            Receipt receipt = new Receipt(currentPayment, currentItems);
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PaymentFXML/Receipt.fxml"));
-            Scene scene = new Scene(loader.load());
+            String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
 
-            ReceiptController controller = loader.getController();
-            controller.displayReceipt(receipt);
-
-            Stage stage = new Stage();
-            stage.setTitle("In biên lai - " + currentPayment.getCode());
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 4. SỬ DỤNG phương thức kế thừa
-            showError("Không thể tạo biên lai: " + e.getMessage());
-        }
+            Receipt receipt = new Receipt(receiptNumber, currentPayment, currentItems);
+            SceneManager.setSceneData("receiptNumber", receipt);
+            SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
     }
 }

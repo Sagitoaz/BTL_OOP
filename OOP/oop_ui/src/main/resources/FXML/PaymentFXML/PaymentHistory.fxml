@@ -14,18 +14,18 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.PaymentHistoryController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.PaymentControl.PaymentHistoryController">
 
     <top>
         <VBox>
             <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="hbox-compact">
                 <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
                 <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
                 <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="hbox-header">
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
@@ -35,7 +35,7 @@
 
             <Separator />
 
-            <HBox alignment="CENTER_LEFT" spacing="12.0">
+            <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="hbox-filter">
                 <padding>
                     <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
                 </padding>
@@ -53,13 +53,13 @@
                 <Label styleClass="form-label" text="Đến:" />
                 <DatePicker fx:id="dpTo" prefHeight="45.0" prefWidth="145.0" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
-                <Button fx:id="btnFilter" mnemonicParsing="false" styleClass="btn-search" text="🔍 Lọc" />
+                <Button fx:id="btnFilter" mnemonicParsing="false" text="🔍 Lọc" />
             </HBox>
         </VBox>
     </top>
 
     <center>
-        <TableView fx:id="tablePayments" styleClass="financial-table">
+        <TableView fx:id="tablePayments">
             <padding>
                 <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>

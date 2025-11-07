@@ -11,6 +11,7 @@ public final class SceneConfig {
    // public static final String EMPLOYEE_DASHBOARD_FXML = "/FXML/Dashboard/EmployeeDashboard.fxml";
     public static final String CUSTOMER_DASHBOARD_FXML = "/FXML/Dashboard/CustomerDashboard.fxml";
     public static final String DOCTOR_DASHBOARD_FXML = "/FXML/Dashboard/DoctorDashboard.fxml";
+    public static final String NURSE_DASHBOARD_FXML = "/FXML/Dashboard/NurseDashboard.fxml";
 
     // ========== AUTHENTICATION SCENES ==========
     public static final String LOGIN_FXML = "/FXML/Login.fxml";
@@ -42,6 +43,12 @@ public final class SceneConfig {
     public static final String APPOINTMENT_MANAGEMENT_FXML = "/FXML/Schedule/AppointmentManagement.fxml";
     public static final String CALENDAR_FXML = "/FXML/Schedule/Calendar.fxml";
     public static final String DOCTOR_SCHEDULE_FXML = "/FXML/Schedule/DoctorSchedule.fxml";
+
+    // ========== EMPLOYEE SCENES ==========
+    public static final String EMPLOYEE_MANAGEMENT_FXML = "/FXML/Employee/EmployeeManagement.fxml";
+    public static final String EMPLOYEE_FORM_FXML = "/FXML/Employee/EmployeeForm.fxml";
+    public static final String EMPLOYEE_EDIT_FORM_FXML = "/FXML/Employee/EmployeeEditForm.fxml";
+    public static final String EMPLOYEE_DETAIL_FXML = "/FXML/Employee/EmployeeDetail.fxml";
 
     // ========== SCENE TITLES ==========
     public static final class Titles {
@@ -79,5 +86,11 @@ public final class SceneConfig {
         public static final String APPOINTMENT_MANAGEMENT = "Quản lý lịch hẹn - Eye Clinic";
         public static final String CALENDAR = "Lịch làm việc - Eye Clinic";
         public static final String DOCTOR_SCHEDULE = "Lịch bác sĩ - Eye Clinic";
+
+        // Employee
+        public static final String EMPLOYEE_MANAGEMENT = "Quản lý nhân viên - Eye Clinic";
+        public static final String EMPLOYEE_FORM = "Thêm nhân viên - Eye Clinic";
+        public static final String EMPLOYEE_EDIT_FORM = "Chỉnh sửa nhân viên - Eye Clinic";
+        public static final String EMPLOYEE_DETAIL = "Chi tiết nhân viên - Eye Clinic";
     }
 }

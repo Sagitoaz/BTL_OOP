@@ -115,6 +115,10 @@ public class CustomerDetailController {
         SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
     }
+    @FXML
+    private void handleChangePassword(){
+        SceneManager.openModalWindow(SceneConfig.CHANGE_PASSWORD_FXML, SceneConfig.Titles.CHANGE_PASSWORD, null);
+    }
 
 
 

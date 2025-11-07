@@ -9,8 +9,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
 import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
+import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -106,6 +109,9 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
      @Override
      public void initialize(URL url, ResourceBundle rb) {
+         if(SceneManager.getSceneData("role") != UserRole.ADMIN){
+             addNewButton.setDisable(true);
+         }
           setupTable();
           setupFilters();
           setupFormBoxes();
@@ -201,6 +207,18 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      private void setupLoadingIndicator() {
           // loadingIndicator removed from FXML - no action needed
      }
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
      // ==================== ASYNC DATA LOADING ====================
 
      /**
@@ -411,6 +429,10 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private void onClear() {
           clearForm();
+     }
+     @FXML
+     private void onAddInventory(){
+            SceneManager.openModalWindow(SceneConfig.ADD_INVENTORY_VIEW_FXML, SceneConfig.Titles.ADD_INVENTORY, null);
      }
 
      @FXML

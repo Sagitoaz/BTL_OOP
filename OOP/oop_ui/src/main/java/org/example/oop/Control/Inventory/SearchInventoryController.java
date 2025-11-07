@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.ApiProductService;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product;
 
 import javafx.collections.FXCollections;
@@ -109,6 +110,18 @@ public class SearchInventoryController extends BaseController implements Initial
      private final ApiProductService productService = new ApiProductService();
      private final ObservableList<Product> masterData = FXCollections.observableArrayList();
      private FilteredList<Product> filteredData;
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
      @Override
      public void initialize(URL url, ResourceBundle rb) {

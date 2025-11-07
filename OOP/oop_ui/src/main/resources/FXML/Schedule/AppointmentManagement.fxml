@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentManagementController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentManagementController">
 
     <top>
         <VBox>
@@ -36,12 +36,15 @@
                 <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
                 <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
-            <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="financial-header">
+
+            <!-- Header with gradient -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 20px 24px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 15, 0, 0, 4);" styleClass="financial-header">
                 <padding>
                     <Insets bottom="18.0" left="28.0" right="28.0" top="18.0" />
                 </padding>
                 <Label styleClass="page-title" text="QUẢN LÝ LỊCH HẸN" />
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="createPrescriptionBtn" mnemonicParsing="false" onAction="#onCreatePrescription" prefHeight="49.0" prefWidth="206.0" styleClass="btn-success" text="📋 Tạo đơn khám" textAlignment="CENTER" />
                 <Button fx:id="createBtn" mnemonicParsing="false" onAction="#onCreate" prefHeight="44.0" prefWidth="170.0" styleClass="btn-success" text="Tạo hẹn" textAlignment="CENTER" />
             </HBox>
 
@@ -68,14 +71,14 @@
                     <padding>
                         <Insets top="8.0" />
                     </padding>
-                    <Button fx:id="applyFilterBtn" mnemonicParsing="false" onAction="#onApplyFilter" prefWidth="100.0" styleClass="btn-search" text="🔍 Lọc" />
-                    <Button fx:id="resetFilterBtn" mnemonicParsing="false" onAction="#onResetFilter" prefWidth="100.0" styleClass="btn-secondary" text="Xóa lọc" />
+                    <Button fx:id="applyFilterBtn" mnemonicParsing="false" onAction="#onApplyFilter" prefWidth="119.0" styleClass="btn-secondary" text="🔍 Lọc" />
+                    <Button fx:id="resetFilterBtn" mnemonicParsing="false" onAction="#onResetFilter" prefHeight="49.0" prefWidth="135.0" styleClass="btn-secondary" text="Xóa lọc" />
 
                     <Region prefWidth="20.0" />
 
                     <Button fx:id="confirmBtn" mnemonicParsing="false" onAction="#onConfirm" prefHeight="49.0" prefWidth="136.0" styleClass="btn-success" text="✓ Duyệt" />
-                    <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#onCancel" prefWidth="120.0" styleClass="btn-danger" text="✗ Hủy" />
-                    <MenuButton fx:id="moreActionsBtn" mnemonicParsing="false" prefHeight="54.0" prefWidth="156.0" styleClass="btn-secondary" text="⋯ Thao tác">
+                    <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#onCancel" prefWidth="120.0" styleClass="btn-delete" text="✗ Hủy" />
+                    <MenuButton fx:id="moreActionsBtn" mnemonicParsing="false" prefHeight="58.0" prefWidth="180.0" styleClass="btn-secondary" text="⋯ Thao tác">
                         <items>
                             <MenuItem mnemonicParsing="false" text="Chuyển bác sĩ..." />
                             <MenuItem mnemonicParsing="false" text="Gửi SMS..." />
@@ -123,6 +126,11 @@
                             </VBox>
                         </placeholder>
                     </TableView>
+
+                    <!-- Summary Label -->
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10 0 0 0;">
+                        <Label fx:id="lblSummary" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0369A1;" text="Tổng: 0 lịch hẹn" />
+                    </HBox>
                 </VBox>
 
                 <TabPane styleClass="financial-tabs" tabClosingPolicy="UNAVAILABLE">
@@ -154,25 +162,29 @@
                                         <Label styleClass="form-label" text="Bệnh nhân:" GridPane.rowIndex="4" />
                                         <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                             <TextField fx:id="patientField" editable="false" styleClass="text-field" HBox.hgrow="ALWAYS" />
-                                            <Button fx:id="choosePatientBtn" onAction="#onChoosePatient" styleClass="btn-search" text="Chọn..." />
                                         </HBox>
 
-                                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.rowIndex="5" />
-                                        <ComboBox fx:id="doctorCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                        <Label styleClass="form-label" text="Bác sĩ:" GridPane.rowIndex="6" />
+                                        <ComboBox fx:id="doctorCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
-                                        <Label styleClass="form-label" text="Dịch vụ:" GridPane.rowIndex="6" />
-                                        <ComboBox fx:id="serviceCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                        <Label styleClass="form-label" text="Dịch vụ:" GridPane.rowIndex="7" />
+                                        <ComboBox fx:id="serviceCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-                                        <Label styleClass="form-label" text="Phòng:" GridPane.rowIndex="7" />
-                                        <ComboBox fx:id="roomCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                        <Label styleClass="form-label" text="Phòng:" GridPane.rowIndex="8" />
+                                        <ComboBox fx:id="roomCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="8" />
 
-                                        <Label styleClass="form-label" text="Trạng thái:" GridPane.rowIndex="8" />
-                                        <ComboBox fx:id="statusCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                        <Label styleClass="form-label" text="Trạng thái:" GridPane.rowIndex="9" />
+                                        <ComboBox fx:id="statusCombo" maxWidth="Infinity" styleClass="combo-rounded" GridPane.columnIndex="1" GridPane.rowIndex="9" />
 
-                                        <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="9" GridPane.valignment="TOP">
+                                        <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="10" GridPane.valignment="TOP">
                                             <padding><Insets top="8.0" /></padding>
                                         </Label>
-                                        <TextArea fx:id="noteArea" prefRowCount="3" styleClass="text-area" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                                        <TextArea fx:id="noteArea" prefRowCount="3" styleClass="text-area" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                                         <Button fx:id="choosePatientBtn" onAction="#onChoosePatient" prefHeight="40.0" prefWidth="123.0" styleClass="btn-apply" text="Chọn..." GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                 <GridPane.margin>
+                                    <Insets />
+                                 </GridPane.margin>
+                              </Button>
                            <rowConstraints>
                               <RowConstraints />
                               <RowConstraints />
@@ -184,6 +196,7 @@
                               <RowConstraints />
                               <RowConstraints />
                               <RowConstraints />
+                                 <RowConstraints />
                            </rowConstraints>
                                     </GridPane>
 
@@ -206,8 +219,8 @@
                                 <Label styleClass="form-label" text="Diễn tiến:" />
                                 <ListView fx:id="timelineList" VBox.vgrow="ALWAYS" />
                                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
-                                    <Button fx:id="sendSmsBtn" onAction="#onSendSms" prefWidth="140.0" styleClass="btn-secondary" text="SMS nhắc hẹn" />
-                                    <Button fx:id="sendEmailBtn" onAction="#onSendEmail" prefWidth="130.0" styleClass="btn-secondary" text="Gửi Email" />
+                                    <Button fx:id="sendSmsBtn" onAction="#onSendSms" prefHeight="49.0" prefWidth="187.0" styleClass="btn-secondary" text="SMS nhắc hẹn" />
+                                    <Button fx:id="sendEmailBtn" onAction="#onSendEmail" prefHeight="49.0" prefWidth="162.0" styleClass="btn-secondary" text="Gửi Email" />
                                 </HBox>
                             </VBox>
                         </Tab>
@@ -219,7 +232,7 @@
                                 </padding>
                                 <TextArea fx:id="extraNoteArea" styleClass="text-area" VBox.vgrow="ALWAYS" />
                                 <HBox alignment="CENTER_RIGHT">
-                                    <Button fx:id="saveNoteBtn" onAction="#onSaveNote" prefWidth="140.0" styleClass="btn-success" text="💾 Lưu ghi chú" />
+                                    <Button fx:id="saveNoteBtn" onAction="#onSaveNote" prefHeight="49.0" prefWidth="182.0" styleClass="btn-success" text="💾 Lưu ghi chú" />
                                 </HBox>
                             </VBox>
                         </Tab>
@@ -232,18 +245,6 @@
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="financial-header">
-                <padding>
-                    <Insets bottom="14.0" left="28.0" right="28.0" top="14.0" />
-                </padding>
-                <Label fx:id="lblSummary" styleClass="form-label" text="Tổng: 0 hẹn | Hiển thị: 0" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="firstPageBtn" onAction="#onFirstPage" prefWidth="45.0" styleClass="btn-secondary" text="⟪" />
-                <Button fx:id="prevPageBtn" onAction="#onPrevPage" prefWidth="45.0" styleClass="btn-secondary" text="‹" />
-                <Label fx:id="lblPage" styleClass="form-label" text="Trang 1/1" />
-                <Button fx:id="nextPageBtn" onAction="#onNextPage" prefWidth="45.0" styleClass="btn-secondary" text="›" />
-                <Button fx:id="lastPageBtn" onAction="#onLastPage" prefWidth="45.0" styleClass="btn-secondary" text="⟫" />
-            </HBox>
         </VBox>
     </bottom>
 </BorderPane>

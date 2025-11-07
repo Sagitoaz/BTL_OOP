@@ -1,15 +1,16 @@
 package org.miniboot.app.util;
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.miniboot.app.AppConfig;
-import org.miniboot.app.http.HttpResponse;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.miniboot.app.AppConfig;
+import org.miniboot.app.http.HttpResponse;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class Json {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -30,6 +31,12 @@ public class Json {
     // parse JSON từ byte[]
     public static <T> T fromBytes(byte[] body, Class<T> clazz) throws IOException {
         return MAPPER.readValue(body, clazz);
+    }
+
+    public static <T> List<T> fromBytesToList(byte[] body, Class<T> clazz) throws IOException {
+        // Sử dụng TypeReference để đọc thành List<T>
+        return MAPPER.readValue(body, new TypeReference<List<T>>() {
+        });
     }
 
     public static <T> T fromString(String body, Class<T> clazz) throws IOException {

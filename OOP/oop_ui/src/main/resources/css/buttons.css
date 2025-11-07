@@ -114,6 +114,54 @@
     -fx-scale-y: 1.05;
 }
 
+/* ========== MINT GREEN BUTTON - For Change Password ========== */
+.btn-warning {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #10B981;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #10B981;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.25), 10, 0, 0, 3);
+}
+
+.btn-warning:hover {
+    -fx-background-color: #D1FAE5;
+    -fx-border-color: #059669;
+    -fx-text-fill: #059669;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== PRIMARY BUTTONS - PINK GRADIENT (For Customer Detail Actions) ========== */
+.btn-primary {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F472B6;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.25), 10, 0, 0, 3);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #FCE7F3;
+    -fx-border-color: #EC4899;
+    -fx-text-fill: #EC4899;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
 /* ========== SECONDARY BUTTONS - GRAY (Trung lập, Quay lại) ========== */
 .btn-secondary,
 .btn-back,
@@ -162,25 +210,54 @@
     -fx-scale-y: 1.05;
 }
 
-.btn-reset {
+/* ========== FILTER BUTTON - GREEN (Lọc, Áp dụng) ========== */
+.btn-filter,
+.btn-apply {
     -fx-background-color: #FFFFFF;
-    -fx-text-fill: #64748B;
-    -fx-border-color: #E2E8F0;
-    -fx-border-width: 2px;
-    -fx-border-radius: 25px;
+    -fx-text-fill: #10B981;
     -fx-background-radius: 25px;
-    -fx-padding: 11px 24px;
+    -fx-padding: 12px 28px;
     -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-cursor: hand;
+    -fx-border-color: #10B981;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.25), 10, 0, 0, 3);
+}
+
+.btn-filter:hover,
+.btn-apply:hover {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #10B981;
+    -fx-text-fill: #10B981;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* ========== RESET BUTTON - RED (Hủy lọc) ========== */
+.btn-reset {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
 }
 
 .btn-reset:hover {
-    -fx-background-color: #F8FAFC;
-    -fx-border-color: #94A3B8;
-    -fx-text-fill: #475569;
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #F43F5E;
+    -fx-text-fill: #F43F5E;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* ========== ICON BUTTONS - COMPACT & MODERN ========== */

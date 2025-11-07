@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.*;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
@@ -85,6 +86,7 @@ public class AppointmentBookingController implements Initializable {
 
         if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
             tabCustomerSelection.setDisable(true);
+            btnNewPatient.setDisable(true);
         }
         System.out.println("AppointmentBookingController initialized");
 
@@ -175,30 +177,18 @@ public class AppointmentBookingController implements Initializable {
     @FXML
     private void onNewPatient(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/PatientAndPrescription/CustomerHub.fxml")
-            );
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Quản lý bệnh nhân");
-            stage.setScene(new Scene(root, 1000, 700));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            
-            // Callback khi đóng dialog - reload patient table
-            stage.setOnHidden(e -> {
+            Runnable runnable = ()->{
                 System.out.println("✅ CustomerHub closed, reloading patient list...");
-                
                 // Reload toàn bộ danh sách bệnh nhân (clear search)
                 searchPatientsAsync("");
-                
                 // Clear search field để hiển thị tất cả
                 txtPatientKeyword.clear();
-                
                 System.out.println("✅ Patient list reloaded");
-            });
+            };
+            SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
             
-            stage.showAndWait();
+
+
 
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
@@ -416,37 +406,9 @@ public class AppointmentBookingController implements Initializable {
     private void onOpenCalendar(ActionEvent event) {
         try {
             System.out.println("🗓️ Opening Calendar view...");
-            
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/FXML/Schedule/Calendar.fxml")
-            );
-            Parent root = loader.load();
-            
-            // Get CalendarController
-            CalendarController calendarController = loader.getController();
-            
-            // Pre-select current doctor & date nếu có
-            if (selectedDoctor != null && selectedDate != null) {
-                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName() + 
-                                 ", date: " + selectedDate);
-                
-                // Pass data to calendar
-                calendarController.selectDoctorAndDate(selectedDoctor, selectedDate);
-            } else if (selectedDoctor != null) {
-                // Chỉ có doctor, date = today
-                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName());
-                calendarController.selectDoctorAndDate(selectedDoctor, LocalDate.now());
-            } else if (selectedDate != null) {
-                // Chỉ có date, không có doctor
-                System.out.println("✅ Jumping to date: " + selectedDate);
-                calendarController.selectDoctorAndDate(null, selectedDate);
-            }
-            
-            // Replace scene
-            Scene scene = btnOpenCalendar.getScene();
-            scene.setRoot(root);
-            
-            System.out.println("✅ Navigated to Calendar view");
+            SceneManager.setSceneData("selectedDoctor", selectedDoctor);
+            SceneManager.setSceneData("selectedDate", selectedDate);
+            SceneManager.switchScene(SceneConfig.CALENDAR_FXML, SceneConfig.Titles.CALENDAR);
 
         } catch (Exception e) {
             System.err.println("❌ Error opening calendar: " + e.getMessage());

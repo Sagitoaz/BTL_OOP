@@ -17,7 +17,8 @@ import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.models.AppointmentType;
 
 /**
- * PostgreSQLAppointmentRepository: Implementation của AppointmentRepository sử dụng PostgreSQL
+ * PostgreSQLAppointmentRepository: Implementation của AppointmentRepository sử
+ * dụng PostgreSQL
  *
  * Repository này kết nối đến database Supabase và thực hiện các thao tác CRUD
  * với bảng Appointments
@@ -37,12 +38,12 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
     public List<Appointment> findAll() {
         List<Appointment> appointments = new ArrayList<>();
         String sql = "SELECT id, customer_id, doctor_id, appointment_type, notes, " +
-                     "start_time, end_time, status, created_at, updated_at " +
-                     "FROM Appointments ORDER BY start_time DESC";
+                "start_time, end_time, status, created_at, updated_at " +
+                "FROM Appointments ORDER BY start_time DESC";
 
         try (Connection conn = dbConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Appointment appointment = mapResultSetToAppointment(rs);
@@ -65,19 +66,18 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
     @Override
     public Optional<Appointment> findById(Integer id) {
         String sql = "SELECT id, customer_id, doctor_id, appointment_type, notes, " +
-                     "start_time, end_time, status, created_at, updated_at " +
-                     "FROM Appointments WHERE id = ?";
+                "start_time, end_time, status, created_at, updated_at " +
+                "FROM Appointments WHERE id = ?";
 
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    Appointment appointment = mapResultSetToAppointment(rs);
-                    return Optional.of(appointment);
-                }
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                Appointment appointment = mapResultSetToAppointment(rs);
+                return Optional.of(appointment);
             }
 
         } catch (SQLException e) {
@@ -115,17 +115,18 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
     private Appointment insert(Appointment appointment) {
         // Cast sang ENUM type cho PostgreSQL
         String sql = "INSERT INTO Appointments (customer_id, doctor_id, appointment_type, " +
-                     "notes, start_time, end_time, status, created_at, updated_at) " +
-                     "VALUES (?, ?, ?::appointment_type, ?, ?, ?, ?::appointment_status, ?, ?)";
+                "notes, start_time, end_time, status, created_at, updated_at) " +
+                "VALUES (?, ?, ?::appointment_type, ?, ?, ?, ?::appointment_status, ?, ?)";
 
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             LocalDateTime now = LocalDateTime.now();
 
             pstmt.setInt(1, appointment.getCustomerId());
             pstmt.setInt(2, appointment.getDoctorId());
-            pstmt.setString(3, appointment.getAppointmentType() != null ? appointment.getAppointmentType().getValue() : "visit");
+            pstmt.setString(3,
+                    appointment.getAppointmentType() != null ? appointment.getAppointmentType().getValue() : "visit");
             pstmt.setString(4, appointment.getNotes());
             pstmt.setTimestamp(5, Timestamp.valueOf(appointment.getStartTime()));
             pstmt.setTimestamp(6, Timestamp.valueOf(appointment.getEndTime()));
@@ -165,11 +166,11 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
     private Appointment update(Appointment appointment) {
         // Cast sang ENUM type cho PostgreSQL
         String sql = "UPDATE Appointments SET customer_id = ?, doctor_id = ?, " +
-                     "appointment_type = ?::appointment_type, notes = ?, start_time = ?, end_time = ?, " +
-                     "status = ?::appointment_status, updated_at = ? WHERE id = ?";
+                "appointment_type = ?::appointment_type, notes = ?, start_time = ?, end_time = ?, " +
+                "status = ?::appointment_status, updated_at = ? WHERE id = ?";
 
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             LocalDateTime now = LocalDateTime.now();
 
@@ -215,29 +216,29 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
         // Query lấy tất cả appointments trong ngày
         // start_time >= '2024-10-14 00:00:00' AND start_time < '2024-10-15 00:00:00'
         String sql = "SELECT id, customer_id, doctor_id, appointment_type, notes, " +
-                     "start_time, end_time, status, created_at, updated_at " +
-                     "FROM Appointments " +
-                     "WHERE doctor_id = ? " +
-                     "AND start_time >= ?::date " +
-                     "AND start_time < (?::date + interval '1 day') " +
-                     "ORDER BY start_time";
+                "start_time, end_time, status, created_at, updated_at " +
+                "FROM Appointments " +
+                "WHERE doctor_id = ? " +
+                "AND start_time >= ?::date " +
+                "AND start_time < (?::date + interval '1 day') " +
+                "ORDER BY start_time";
 
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, doctorId);
             pstmt.setString(2, date);
             pstmt.setString(3, date);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Appointment appointment = mapResultSetToAppointment(rs);
-                    appointments.add(appointment);
-                }
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Appointment appointment = mapResultSetToAppointment(rs);
+                appointments.add(appointment);
             }
 
             System.out.println("✅ Found " + appointments.size() +
-                             " appointments for doctor " + doctorId + " on " + date);
+                    " appointments for doctor " + doctorId + " on " + date);
 
         } catch (SQLException e) {
             System.err.println("❌ Error finding appointments by doctor and date: " + e.getMessage());
@@ -262,71 +263,57 @@ public class PostgreSQLAppointmentRepository implements AppointmentRepository {
 
         List<Appointment> appointments = new ArrayList<>();
 
-        // 1. Build SQL động với WHERE 1=1 (luôn đúng, để append AND dễ dàng)
         StringBuilder sql = new StringBuilder(
                 "SELECT id, customer_id, doctor_id, appointment_type, notes, " +
                         "start_time, end_time, status, created_at, updated_at " +
-                        "FROM Appointments WHERE 1=1"
-        );
+                        "FROM Appointments WHERE 1=1");
 
-        // 2. List để lưu params (theo thứ tự)
         List<Object> params = new ArrayList<>();
 
-        // 3. Append WHERE conditions nếu param != null
         if (doctorId != null) {
             sql.append(" AND doctor_id = ?");
             params.add(doctorId);
         }
-
         if (customerId != null) {
             sql.append(" AND customer_id = ?");
             params.add(customerId);
         }
-
         if (status != null && !status.isEmpty()) {
             sql.append(" AND status = ?");
             params.add(status);
         }
-
         if (fromDate != null && !fromDate.isEmpty()) {
             sql.append(" AND DATE(start_time) >= CAST(? AS DATE)");
             params.add(fromDate);
         }
-
         if (toDate != null && !toDate.isEmpty()) {
             sql.append(" AND DATE(start_time) <= CAST(? AS DATE)");
             params.add(toDate);
         }
-
         if (searchKeyword != null && !searchKeyword.isEmpty()) {
             sql.append(" AND notes ILIKE ?");
-            params.add("%" + searchKeyword + "%"); // ILIKE = case-insensitive LIKE
+            params.add("%" + searchKeyword + "%");
         }
 
-        // 4. Sort theo start_time giảm dần (mới nhất lên đầu)
         sql.append(" ORDER BY start_time DESC");
 
-        // 5. Execute query
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+                PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 
-            // Set parameters theo thứ tự
             for (int i = 0; i < params.size(); i++) {
-                Object param = params.get(i);
-                if (param instanceof Integer) {
-                    pstmt.setInt(i + 1, (Integer) param);
-                } else if (param instanceof String) {
-                    pstmt.setString(i + 1, (String) param);
-                }
+                Object p = params.get(i);
+                if (p instanceof Integer)
+                    pstmt.setInt(i + 1, (Integer) p);
+                else if (p instanceof String)
+                    pstmt.setString(i + 1, (String) p);
             }
 
             System.out.println("🔍 Executing SQL: " + sql);
             System.out.println("📌 Parameters: " + params);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
+            try (ResultSet rs = pstmt.executeQuery()) { // 👈 ĐÃ BỌC
                 while (rs.next()) {
-                    Appointment appointment = mapResultSetToAppointment(rs);
-                    appointments.add(appointment);
+                    appointments.add(mapResultSetToAppointment(rs));
                 }
             }
 

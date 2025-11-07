@@ -5,7 +5,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
@@ -22,49 +21,45 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container"
-            stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css,@../../css/navigation.css"
-            xmlns="http://javafx.com/javafx/24.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Inventory.SearchInventoryController">
 
     <!-- TOP: Header & Filters -->
     <top>
         <VBox>
             <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8" styleClass="navigation-bar" style="-fx-padding: 12px 20px;">
-                <Button styleClass="nav-button nav-back-button" text="◀ Quay lại" fx:id="backButton" />
-                <Button styleClass="nav-button nav-forward-button" text="Tiến ▶" fx:id="forwardButton" />
-                <Button styleClass="nav-button nav-reload-button" text="⟳ Tải lại" fx:id="reloadButton" />
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
             </HBox>
             
             <!-- Header -->
-            <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="financial-header">
+            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 20px 24px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 15, 0, 0, 4);" styleClass="financial-header">
                 <padding>
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
-                <Label styleClass="page-title" text="TÌM KIẾM VÀ LƯỢC XEM KHO" />
+                <Label style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 2, 0, 0, 1);" styleClass="page-title" text="🔍 TÌM KIẾM VÀ LƯỢC XEM KHO" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="countLabel" styleClass="form-label" text="0 sản phẩm" />
+                <Label fx:id="countLabel" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 600;" styleClass="form-label" text="0 sản phẩm" />
             </HBox>
 
             <Separator />
 
             <!-- Filters Row -->
-            <HBox alignment="CENTER_LEFT" spacing="12.0">
+            <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 12px 24px; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);">
                 <padding>
                     <Insets bottom="12.0" left="24.0" right="24.0" top="12.0" />
                 </padding>
-                <TextField fx:id="searchTextField" prefWidth="220.0" promptText="Tìm kiếm..." styleClass="text-field" />
+                <TextField fx:id="searchTextField" prefHeight="46.0" prefWidth="173.0" promptText="Tìm kiếm..." styleClass="text-field" />
                 <ComboBox fx:id="categoryBox" prefWidth="150.0" promptText="Danh mục" styleClass="combo-rounded" />
                 <ComboBox fx:id="statusBox" prefWidth="150.0" promptText="Trạng thái" styleClass="combo-rounded" />
-                <DatePicker fx:id="lastUpdatedPicker" prefWidth="170.0" promptText="Cập nhật lần cuối" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
+                <DatePicker fx:id="lastUpdatedPicker" prefHeight="46.0" prefWidth="198.0" promptText="Cập nhật lần cuối" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <Button fx:id="searchButton" onAction="#OnClickSearchButton" styleClass="btn-search" text="🔍 Tìm kiếm" />
-                <Button fx:id="resetButton" onAction="#OnClickResetButton" styleClass="btn-secondary" text="🔄 Làm mới" />
-                <Button fx:id="exportButton" onAction="#OnClickExportButton" styleClass="export-button" text="📊 Export" />
+                <Button fx:id="searchButton" onAction="#OnClickSearchButton" prefHeight="40.0" prefWidth="141.0" text="🔍 Tìm kiếm" />
+                <Button fx:id="resetButton" onAction="#OnClickResetButton" prefHeight="49.0" prefWidth="166.0" styleClass="btn-secondary" text="🔄 Làm mới" />
+                <Button fx:id="exportButton" onAction="#OnClickExportButton" prefHeight="49.0" prefWidth="149.0" styleClass="export-button" text="📊 Export" />
             </HBox>
         </VBox>
     </top>
@@ -72,19 +67,22 @@
     <center>
         <TableView fx:id="inventoryTable" styleClass="financial-table" BorderPane.alignment="CENTER">
             <columns>
-                <TableColumn fx:id="idColumn" prefWidth="55" sortable="true" text="ID" />
-                <TableColumn fx:id="nameColumn" prefWidth="151" sortable="true" text="Tên sản phẩm" />
-                <TableColumn fx:id="skuColumn" prefWidth="117" sortable="true" text="SKU" />
-                <TableColumn fx:id="categoryColumn" prefWidth="102" sortable="true" text="Danh mục" />
-                <TableColumn fx:id="statusColumn" prefWidth="98" sortable="true" text="Trạng thái" />
-                <TableColumn fx:id="quantityColumn" prefWidth="101" sortable="true" text="Số lượng" />
-                <TableColumn fx:id="unitColumn" prefWidth="74" sortable="true" text="Đơn vị" />
-                <TableColumn fx:id="priceColumn" prefWidth="115" sortable="true" text="Đơn giá" />
-                <TableColumn fx:id="lastUpdatedColumn" prefWidth="259" sortable="true" text="Cập nhật lần cuối" />
+                <TableColumn fx:id="idColumn" minWidth="50" prefWidth="60" sortable="true" text="ID" />
+                <TableColumn fx:id="nameColumn" minWidth="150" prefWidth="200" sortable="true" text="Tên sản phẩm" />
+                <TableColumn fx:id="skuColumn" minWidth="60.0" prefWidth="66.4000244140625" sortable="true" text="SKU" />
+                <TableColumn fx:id="categoryColumn" minWidth="93.60000610351562" prefWidth="114.39996337890625" sortable="true" text="Danh mục" />
+                <TableColumn fx:id="statusColumn" minWidth="80.79998779296875" prefWidth="104.00003051757812" sortable="true" text="Trạng thái" />
+                <TableColumn fx:id="quantityColumn" minWidth="80" prefWidth="100.800048828125" sortable="true" text="Số lượng" />
+                <TableColumn fx:id="unitColumn" minWidth="80" prefWidth="90" sortable="true" text="Đơn vị" />
+                <TableColumn fx:id="priceColumn" minWidth="100" prefWidth="120" sortable="true" text="Đơn giá" />
             </columns>
 
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+
             <placeholder>
-                <VBox alignment="CENTER" spacing="10">
+                <VBox alignment="CENTER" prefHeight="554.0" prefWidth="770.0" spacing="10">
                     <padding>
                         <Insets bottom="40" left="40" right="40" top="40" />
                     </padding>
@@ -96,14 +94,14 @@
     </center>
 
     <right>
-        <ScrollPane fitToWidth="true" prefWidth="380.0" styleClass="scroll-pane">
+        <ScrollPane fitToWidth="true" prefWidth="400.0" styleClass="scroll-pane">
             <VBox spacing="16.0" BorderPane.alignment="CENTER">
                 <padding>
                     <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
                 </padding>
 
                 <!-- BASIC INFORMATION -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📝 CHI TIẾT SẢN PHẨM">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="📝 CHI TIẾT SẢN PHẨM">
                     <VBox spacing="10.0">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -124,12 +122,17 @@
 
                             <Label styleClass="form-label" text="Trạng thái:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                             <Label fx:id="quickStatus" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                     </rowConstraints>
                         </GridPane>
                     </VBox>
                 </TitledPane>
 
                 <!-- PRICING INFORMATION -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="💰 THÔNG TIN GIÁ">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="💰 THÔNG TIN GIÁ">
                     <GridPane hgap="10.0" vgap="8.0">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -144,11 +147,15 @@
 
                         <Label styleClass="form-label" text="Giá vốn:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <Label fx:id="quickCostPrice" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
                     </GridPane>
                 </TitledPane>
 
                 <!-- STOCK INFORMATION -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📦 THÔNG TIN TỒN KHO">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="📦 THÔNG TIN TỒN KHO">
                     <GridPane hgap="10.0" vgap="8.0">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -163,11 +170,15 @@
 
                         <Label styleClass="form-label" text="Đơn vị:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <Label fx:id="quickUnit" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
                     </GridPane>
                 </TitledPane>
 
                 <!-- ADDITIONAL DETAILS -->
-                <TitledPane expanded="false" styleClass="titled-pane" text="THÔNG TIN BỔ SUNG">
+                <TitledPane expanded="false" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="THÔNG TIN BỔ SUNG">
                     <GridPane hgap="10.0" vgap="8.0">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -188,11 +199,17 @@
 
                         <Label styleClass="form-label" text="Ngày tạo:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <Label fx:id="quickCreatedAt" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
                     </GridPane>
                 </TitledPane>
 
                 <!-- IMAGE -->
-                <TitledPane expanded="false" styleClass="titled-pane" text="HÌNH ẢNH">
+                <TitledPane expanded="false" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="HÌNH ẢNH">
                     <VBox alignment="CENTER">
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -202,7 +219,7 @@
                 </TitledPane>
 
                 <!-- NOTES -->
-                <TitledPane expanded="true" styleClass="titled-pane" text="📝 GHI CHÚ">
+                <TitledPane expanded="true" style="-fx-background-color: white; -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 12px;" text="📝 GHI CHÚ">
                     <VBox>
                         <padding>
                             <Insets bottom="15" left="15" right="15" top="15" />
@@ -217,14 +234,6 @@
     <bottom>
         <VBox>
             <Separator />
-            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="financial-header">
-                <padding>
-                    <Insets bottom="12" left="24" right="24" top="12" />
-                </padding>
-                <Label fx:id="messageLabel" styleClass="form-label" text="Sẵn sàng" />
-                <Region HBox.hgrow="ALWAYS" />
-                <ProgressIndicator fx:id="loadingIndicator" prefHeight="18.0" prefWidth="18.0" visible="false" />
-            </HBox>
         </VBox>
     </bottom>
 

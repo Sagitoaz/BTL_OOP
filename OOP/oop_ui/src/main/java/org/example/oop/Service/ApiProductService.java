@@ -2,9 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Utils.ErrorHandler;
 import org.example.oop.Utils.ApiConfig;
-import org.example.oop.Utils.HttpException;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.util.GsonProvider;
 
@@ -24,64 +22,74 @@ public class ApiProductService {
     private static final int READ_TIMEOUT = 60000; // 60 seconds
     private static final int MAX_RETRIES = 3; // Retry 3 lần nếu timeout
 
-    /**
-     * GET /products - Lấy tất cả products với retry mechanism
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public List<Product> getAllProducts() throws Exception {
-        Exception lastException = null;
+        System.out.println("🔄 Fetching all products from API...");
 
+        // ✅ Retry mechanism cho mạng yếu
+        Exception lastException = null;
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsEndpoint()).toURL()
+                System.out.println("📡 Attempt " + attempt + "/" + MAX_RETRIES + "...");
+
+                HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL()
                         .openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
-                conn.setConnectTimeout(CONNECT_TIMEOUT);
-                conn.setReadTimeout(READ_TIMEOUT);
+                conn.setConnectTimeout(CONNECT_TIMEOUT); // 30 seconds
+                conn.setReadTimeout(READ_TIMEOUT); // 60 seconds
 
                 int responseCode = conn.getResponseCode();
                 String responseBody = readResponse(conn);
 
                 if (responseCode >= 200 && responseCode < 300) {
-                    if (!ErrorHandler.validateResponse(responseBody, "Tải danh sách sản phẩm")) {
-                        return List.of();
+                    System.out.println("📦 JSON Response (first 500 chars): " +
+                            (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
+                                    : responseBody));
+
+                    Type listType = new TypeToken<List<Product>>() {
+                    }.getType();
+                    List<Product> products = gson.fromJson(responseBody, listType);
+
+                    // ✅ DEBUG: In ra sample product
+                    if (!products.isEmpty()) {
+                        Product sample = products.get(0);
+                        System.out.println("📦 Sample Product:");
+                        System.out.println("   - ID: " + sample.getId());
+                        System.out.println("   - Name: " + sample.getName());
+                        System.out.println("   - QtyOnHand: " + sample.getQtyOnHand());
+                        System.out.println("   - PriceRetail: " + sample.getPriceRetail());
+                        System.out.println("   - PriceCost: " + sample.getPriceCost());
+                        System.out.println("   - Category: " + sample.getCategory());
+                        System.out.println("   - IsActive: " + sample.isActive());
                     }
 
-                    try {
-                        Type listType = new TypeToken<List<Product>>() {
-                        }.getType();
-                        List<Product> products = gson.fromJson(responseBody, listType);
-                        return products;
-                    } catch (Exception e) {
-                        ErrorHandler.handleJsonParseError(e, "Parse products list");
-                        return List.of();
-                    }
+                    System.out.println("✅ Loaded " + products.size() + " products");
+                    return products;
                 } else {
-                    ErrorHandler.showUserFriendlyError(responseCode, "Không thể tải danh sách sản phẩm");
                     throw new Exception("Server error: " + responseCode + " - " + responseBody);
                 }
             } catch (java.net.SocketTimeoutException e) {
                 lastException = e;
+                System.err.println("⏱️ Timeout on attempt " + attempt + ": " + e.getMessage());
                 if (attempt < MAX_RETRIES) {
-                    Thread.sleep(2000);
+                    System.out.println("🔄 Retrying in 2 seconds...");
+                    Thread.sleep(2000); // Wait 2s trước khi retry
                 }
             } catch (Exception e) {
+                // Lỗi khác không retry
                 throw e;
             }
         }
 
-        ErrorHandler.handleConnectionError(lastException, "Tải danh sách sản phẩm sau " + MAX_RETRIES + " lần thử");
+        // Nếu retry hết vẫn fail
         throw new Exception("Failed after " + MAX_RETRIES + " attempts. Last error: " +
                 (lastException != null ? lastException.getMessage() : "Unknown error"));
     }
 
-    /**
-     * GET /products?id={id} - Lấy product theo ID
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public Product getProductById(int id) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsEndpoint() + "?id=" + id).toURL()
+        System.out.println("🔄 Fetching product ID: " + id);
+
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -93,32 +101,21 @@ public class ApiProductService {
 
         switch (responseCode) {
             case 200: {
-                if (!ErrorHandler.validateResponse(responseBody, "Tải thông tin sản phẩm")) {
-                    return null;
-                }
-
-                try {
-                    Product product = gson.fromJson(responseBody, Product.class);
-                    return product;
-                } catch (Exception e) {
-                    ErrorHandler.handleJsonParseError(e, "Parse product by ID");
-                    return null;
-                }
+                Product product = gson.fromJson(responseBody, Product.class);
+                System.out.println("✅ Found product: " + product.getName());
+                return product;
             }
             case 404:
-                return null;
+                throw new Exception("Product not found");
             default:
-                ErrorHandler.showUserFriendlyError(responseCode, "Không thể tải thông tin sản phẩm");
                 throw new Exception("Server error: " + responseCode);
         }
     }
 
-    /**
-     * GET /products/search?sku={sku} - Tìm product theo SKU
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public Product getProductBySku(String sku) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsSearchEndpoint() + "?sku=" + sku).toURL()
+        System.out.println("🔄 Fetching product SKU: " + sku);
+
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products/search?sku=" + sku).toURL()
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
@@ -129,31 +126,19 @@ public class ApiProductService {
         String responseBody = readResponse(conn);
 
         if (responseCode == 200) {
-            if (!ErrorHandler.validateResponse(responseBody, "Tìm sản phẩm theo SKU")) {
-                return null;
-            }
-
-            try {
-                Product product = gson.fromJson(responseBody, Product.class);
-                return product;
-            } catch (Exception e) {
-                ErrorHandler.handleJsonParseError(e, "Parse product by SKU");
-                return null;
-            }
+            Product product = gson.fromJson(responseBody, Product.class);
+            System.out.println("✅ Found product: " + product.getName());
+            return product;
         } else if (responseCode == 404) {
-            return null;
+            throw new Exception("Product not found");
         } else {
-            ErrorHandler.showUserFriendlyError(responseCode, "Không thể tìm sản phẩm theo SKU");
             throw new Exception("Server error: " + responseCode);
         }
     }
 
-    /**
-     * POST /products - Tạo product mới
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public Product createProduct(Product product) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsEndpoint()).toURL().openConnection();
+        System.out.println("🔄 Creating product: " + product.getName());
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL().openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
@@ -161,7 +146,9 @@ public class ApiProductService {
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
 
+        // Serialize product to JSON
         String jsonBody = gson.toJson(product);
+        System.out.println("📤 Sending JSON: " + jsonBody);
 
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
@@ -171,37 +158,47 @@ public class ApiProductService {
         int responseCode = conn.getResponseCode();
         String responseBody = readResponse(conn);
 
+        System.out.println("📥 Response Code: " + responseCode);
+        System.out.println("📥 Response Body: " + responseBody);
+
         if (responseCode >= 200 && responseCode < 300) {
-            if (!ErrorHandler.validateResponse(responseBody, "Tạo sản phẩm mới")) {
+            // Check if response body is empty
+            if (responseBody == null || responseBody.trim().isEmpty()) {
+                System.out.println("⚠️ Warning: Server returned empty response body");
                 return null;
             }
 
-            try {
-                Product created = gson.fromJson(responseBody, Product.class);
-                return created;
-            } catch (Exception e) {
-                ErrorHandler.handleJsonParseError(e, "Parse created product");
+            Product created = gson.fromJson(responseBody, Product.class);
+
+            if (created == null) {
+                System.out.println("⚠️ Warning: Failed to parse JSON response");
                 return null;
             }
+
+            System.out.println("✅ Product created with ID: " + created.getId());
+            return created;
         } else if (responseCode >= 500) {
-            ErrorHandler.showUserFriendlyError(responseCode, "Lỗi server khi tạo sản phẩm");
-            throw new Exception("Lỗi server (" + responseCode + "): " + responseBody);
+            // ✅ Server error (500, 503, etc.)
+            throw new Exception("Lỗi server (" + responseCode + "): " + responseBody +
+                    "\n\nVui lòng kiểm tra:\n" +
+                    "- Server backend có đang chạy?\n" +
+                    "- Database connection có ổn định?\n" +
+                    "- Xem logs của server để biết chi tiết");
         } else {
-            ErrorHandler.showUserFriendlyError(responseCode, "Không thể tạo sản phẩm");
+            // Client error (400, 404, etc.)
             throw new Exception("Lỗi tạo sản phẩm (" + responseCode + "): " + responseBody);
         }
     }
 
-    /**
-     * PUT /products - Cập nhật product
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public Product updateProduct(Product product) throws Exception {
+        System.out.println("🔄 Updating product ID: " + product.getId());
+
+        // 🔍 DEBUG: Check product data before sending
         if (product.getId() <= 0) {
             throw new Exception("Product ID is missing or invalid: " + product.getId());
         }
 
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsEndpoint()).toURL().openConnection();
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products").toURL().openConnection();
         conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
@@ -209,7 +206,9 @@ public class ApiProductService {
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
 
+        // Write request body
         String jsonBody = gson.toJson(product);
+        System.out.println("📤 Sending JSON: " + jsonBody.substring(0, Math.min(200, jsonBody.length())) + "...");
 
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
@@ -220,29 +219,18 @@ public class ApiProductService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
-            if (!ErrorHandler.validateResponse(responseBody, "Cập nhật sản phẩm")) {
-                return null;
-            }
-
-            try {
-                Product updated = gson.fromJson(responseBody, Product.class);
-                return updated;
-            } catch (Exception e) {
-                ErrorHandler.handleJsonParseError(e, "Parse updated product");
-                return null;
-            }
+            Product updated = gson.fromJson(responseBody, Product.class);
+            System.out.println("✅ Product updated: " + updated.getName());
+            return updated;
         } else {
-            ErrorHandler.showUserFriendlyError(responseCode, "Không thể cập nhật sản phẩm");
             throw new Exception("Failed to update product: " + responseBody);
         }
     }
 
-    /**
-     * DELETE /products?id={id} - Xóa product
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public boolean deleteProduct(int id) throws Exception {
-        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + ApiConfig.productsEndpoint() + "?id=" + id).toURL()
+        System.out.println("🔄 Deleting product ID: " + id);
+
+        HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("DELETE");
         conn.setConnectTimeout(CONNECT_TIMEOUT);
@@ -252,20 +240,18 @@ public class ApiProductService {
         String responseBody = readResponse(conn);
 
         if (responseCode >= 200 && responseCode < 300) {
+            System.out.println("✅ Product deleted: " + responseBody);
             return true;
         } else if (responseCode == 404) {
-            return false;
+            throw new Exception("Product not found");
         } else {
-            ErrorHandler.showUserFriendlyError(responseCode, "Không thể xóa sản phẩm");
             throw new Exception("Failed to delete product: " + responseBody);
         }
     }
 
-    /**
-     * Tìm kiếm products theo keyword (local filter)
-     * ✅ Updated với ErrorHandler framework (Ngày 3)
-     */
     public List<Product> searchProducts(String keyword) throws Exception {
+        System.out.println("🔄 Searching products with keyword: " + keyword);
+
         List<Product> allProducts = getAllProducts();
 
         String kw = keyword == null ? "" : keyword.toLowerCase();

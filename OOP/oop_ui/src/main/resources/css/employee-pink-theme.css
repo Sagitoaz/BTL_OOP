@@ -1,0 +1,415 @@
+/* ========================================
+   EMPLOYEE FORMS - PINK THEME
+   Custom CSS for Employee forms with pink accent
+   ======================================== */
+
+/* ========== TEXT FIELDS - PINK FOCUS ========== */
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: #dce4ec;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2c3e50;
+    -fx-prompt-text-fill: #95a5a6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.text-field:focused {
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 8, 0, 0, 2);
+    -fx-background-color: #FFFBFE;
+}
+
+.text-field:hover {
+    -fx-border-color: #FBB6CE;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.15), 5, 0, 0, 2);
+}
+
+/* ========== PASSWORD FIELDS - PINK FOCUS ========== */
+.password-field {
+    -fx-background-color: white;
+    -fx-border-color: #dce4ec;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 12px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #2c3e50;
+    -fx-prompt-text-fill: #95a5a6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.password-field:focused {
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 8, 0, 0, 2);
+    -fx-background-color: #FFFBFE;
+}
+
+.password-field:hover {
+    -fx-border-color: #FBB6CE;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.15), 5, 0, 0, 2);
+}
+
+/* ========== COMBOBOX - PINK THEME ========== */
+.combo-rounded {
+    -fx-background-color: white;
+    -fx-border-color: #dce4ec;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.combo-rounded:focused {
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 8, 0, 0, 2);
+    -fx-background-color: #FFFBFE;
+}
+
+.combo-rounded:hover {
+    -fx-border-color: #FBB6CE;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.15), 5, 0, 0, 2);
+}
+
+/* Fix prompt text color cho ComboBox */
+.combo-rounded > .list-cell {
+    -fx-text-fill: #2c3e50;
+}
+
+.combo-rounded > .list-cell:empty {
+    -fx-text-fill: #95a5a6;
+}
+
+/* Dropdown list styling */
+.combo-rounded .list-view {
+    -fx-background-color: white;
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3);
+}
+
+.combo-rounded .list-view .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 8px 12px;
+}
+
+.combo-rounded .list-view .list-cell:hover {
+    -fx-background-color: #FFFBFE;
+    -fx-text-fill: #F472B6;
+}
+
+.combo-rounded .list-view .list-cell:selected {
+    -fx-background-color: #FBB6CE;
+    -fx-text-fill: white;
+}
+
+/* Arrow button trong ComboBox */
+.combo-rounded .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 8px 0 0;
+}
+
+.combo-rounded .arrow {
+    -fx-background-color: #F472B6;
+}
+
+.combo-rounded:focused .arrow {
+    -fx-background-color: #EC4899;
+}
+
+/* ========== CHECKBOX - PINK THEME ========== */
+.check-box {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 13px;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #dce4ec;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-border-width: 2px;
+}
+
+.check-box:hover .box {
+    -fx-border-color: #FBB6CE;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #F472B6;
+    -fx-border-color: #F472B6;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+/* ========== BUTTONS - SUCCESS (Green) ========== */
+.btn-success {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #10B981;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #10B981;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.25), 10, 0, 0, 3);
+}
+
+.btn-success:hover {
+    -fx-background-color: #F0FDF4;
+    -fx-border-color: #059669;
+    -fx-text-fill: #059669;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-success:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== BUTTONS - SECONDARY (Gray) ========== */
+.btn-secondary {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #64748B;
+    -fx-border-color: #CBD5E0;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 13px 36px;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(203, 213, 224, 0.3), 8, 0, 0, 2);
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #FFFBFE;
+    -fx-border-color: #F472B6;
+    -fx-text-fill: #F472B6;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.4), 12, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-secondary:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== BUTTONS - PRIMARY (Pink) ========== */
+.btn-primary {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F472B6;
+    -fx-border-color: #F472B6;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.25), 10, 0, 0, 3);
+}
+
+.btn-primary:hover {
+    -fx-background-color: #FFFBFE;
+    -fx-border-color: #EC4899;
+    -fx-text-fill: #EC4899;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-primary:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== BUTTONS - DANGER (Red) ========== */
+.btn-danger {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #F43F5E;
+    -fx-background-radius: 25px;
+    -fx-padding: 12px 28px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-border-color: #F43F5E;
+    -fx-border-width: 2px;
+    -fx-border-radius: 25px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.25), 10, 0, 0, 3);
+}
+
+.btn-danger:hover {
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #E11D48;
+    -fx-text-fill: #E11D48;
+    -fx-effect: dropshadow(gaussian, rgba(244, 63, 94, 0.45), 14, 0, 0, 5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-danger:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== FORM LABELS ========== */
+.form-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* ========== SCROLLPANE ========== */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #FBB6CE;
+    -fx-background-radius: 5px;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #F472B6;
+}
+
+.scroll-pane .scroll-bar:vertical .track {
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 5px;
+}
+
+/* ========== ANIMATIONS ========== */
+.text-field,
+.password-field,
+.combo-rounded,
+.btn-success,
+.btn-secondary,
+.btn-primary {
+    -fx-transition: all 0.3s ease;
+}
+
+/* ========================================
+   NAVIGATION BUTTONS - PINK THEME
+   ======================================== */
+
+/* ========== OVERRIDE NAVIGATION BUTTONS WITH PINK GRADIENT ========== */
+.employee-pink .nav-button {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-background-radius: 25px !important;
+    -fx-border-radius: 25px !important;
+    -fx-padding: 10px 22px !important;
+    -fx-font-size: 14px !important;
+    -fx-font-weight: 600 !important;
+    -fx-cursor: hand !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0 !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3) !important;
+}
+
+.employee-pink .nav-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #EC4899 0%, #DB2777 100%) !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.5), 14, 0, 0, 5) !important;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.employee-pink .nav-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #DB2777 0%, #BE185D 100%) !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== SPECIFIC NAVIGATION BUTTON VARIANTS ========== */
+.employee-pink .nav-back-button {
+    -fx-background-color: linear-gradient(to bottom, #FBB6CE 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-back-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
+.employee-pink .nav-forward-button {
+    -fx-background-color: linear-gradient(to bottom, #FBB6CE 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-forward-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
+.employee-pink .nav-reload-button {
+    -fx-background-color: linear-gradient(to bottom, #F9A8D4 0%, #F472B6 100%) !important;
+}
+
+.employee-pink .nav-reload-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+}
+
+/* ========== OVERRIDE NAVIGATION BUTTONS TO BE EQUAL SIZE ========== */
+.btn-back,
+.btn-forward,
+.btn-reload {
+    -fx-background-color: linear-gradient(to bottom, #F472B6 0%, #EC4899 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-background-radius: 22px !important;
+    -fx-padding: 10px 22px !important;
+    -fx-font-size: 14px !important;
+    -fx-font-weight: 600 !important;
+    -fx-cursor: hand !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0 !important;
+    -fx-border-radius: 22px !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.3), 10, 0, 0, 3) !important;
+}
+
+.btn-back:hover,
+.btn-forward:hover,
+.btn-reload:hover {
+    -fx-background-color: linear-gradient(to bottom, #EC4899 0%, #DB2777 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 114, 182, 0.5), 14, 0, 0, 5) !important;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-back:pressed,
+.btn-forward:pressed,
+.btn-reload:pressed {
+    -fx-background-color: linear-gradient(to bottom, #DB2777 0%, #BE185D 100%) !important;
+    -fx-text-fill: white !important;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ========== NAVIGATION CONTAINER ========== */
+.employee-pink .navigation-bar {
+    -fx-spacing: 10px;
+    -fx-padding: 12px 20px;
+    -fx-alignment: center-left;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #fce7f3;
+    -fx-border-width: 0 0 2 0;
+}

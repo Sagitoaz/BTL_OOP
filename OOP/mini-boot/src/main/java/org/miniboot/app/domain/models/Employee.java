@@ -14,25 +14,26 @@ public class Employee implements User {
     private String firstname;
     private String lastname;
     private String avatar;
-    private String employeeRole; // "doctor" hoặc "nurse"
+    private String role; // "doctor" hoặc "nurse"
     private String licenseNo;
     private String email;
     private String phone;
     private boolean active;
     private LocalDateTime createdAt;
 
-    public Employee() {}
+    public Employee() {
+    }
 
     public Employee(int id, String username, String password, String firstname, String lastname,
-                    String avatar, String employeeRole, String licenseNo, String email, String phone,
-                    boolean active, LocalDateTime createdAt) {
+            String avatar, String role, String licenseNo, String email, String phone,
+            boolean active, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.firstname = firstname;
         this.lastname = lastname;
         this.avatar = avatar;
-        this.employeeRole = employeeRole;
+        this.role = role;
         this.licenseNo = licenseNo;
         this.email = email;
         this.phone = phone;
@@ -143,12 +144,12 @@ public class Employee implements User {
         this.avatar = avatar;
     }
 
-    public String getEmployeeRole() {
-        return employeeRole;
+    public String getRole() {
+        return role;
     }
 
-    public void setEmployeeRole(String employeeRole) {
-        this.employeeRole = employeeRole;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getLicenseNo() {
@@ -174,7 +175,7 @@ public class Employee implements User {
                 ", username='" + username + '\'' +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
-                ", employeeRole='" + employeeRole + '\'' +
+                ", role='" + role + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", active=" + active +

@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import javafx.scene.control.*;
 import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
@@ -25,12 +26,13 @@ import org.example.oop.Service.PrescriptionService;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import org.miniboot.app.domain.models.UserRole;
 
 import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController implements Initializable {
 
-    private List<Customer> allCustomers;
+    private List<Customer> allCustomers = new ArrayList<>(); // ✅ Khởi tạo để tránh NullPointerException
     @FXML
     private ListView<Customer> customerListView;
 
@@ -92,11 +94,29 @@ public class CustomerHubController implements Initializable {
     @FXML
     private TextArea notesArea;
 
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button forwardButton;
+    @FXML
+    private Button reloadButton;
+    @FXML
+    private Button editCustomerButton;
+
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
+    private boolean isInitializing = true; // ✅ Flag để tránh load prescription khi khởi tạo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        if((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN){
+            editCustomerButton.setDisable(true);
+        }
+        if(SceneManager.getSceneData("isModal") != null){
+            backButton.setDisable(true);
+            forwardButton.setDisable(true);
+            SceneManager.removeSceneData("isModal");
+        }
         cachedPrescriptions = new HashMap<>();
         prescriptionService = new PrescriptionService();
         customerRecordsList = FXCollections.observableArrayList();
@@ -105,12 +125,17 @@ public class CustomerHubController implements Initializable {
         // Setup TableView columns for Prescription
         setupPrescriptionTable();
 
-        loadCustomerData();
-        // Setup listener cho selection
+        // Setup listener cho selection - NHƯNG chỉ active sau khi load xong
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
-            loadPrescriptionsForCustomer(newValue);
+            // ✅ Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
+            if (!isInitializing) {
+                loadPrescriptionsForCustomer(newValue);
+            }
         });
+
+        loadCustomerData();
+
         // Setup gender filter với promptText
         genderFilter.getItems().addAll(Customer.Gender.values());
         genderFilter.setPromptText("Lọc theo giới tính");
@@ -122,6 +147,34 @@ public class CustomerHubController implements Initializable {
                     setText(genderFilter.getPromptText());
                 } else {
                     setText(item.toString());
+                }
+            }
+        });
+        examHistoryTable.setOnMouseClicked(event -> {
+            if(event.getClickCount() == 2){
+
+                Prescription selectedPrescription = examHistoryTable.getSelectionModel().getSelectedItem();
+                if(selectedPrescription != null){
+
+                    SceneManager.removeSceneData("prescription");
+                    SceneManager.removeSceneData("nameCustomer");
+                    SceneManager.setSceneData("prescription", selectedPrescription);
+                    SceneManager.setSceneData("nameCustomer", customerNameLabel.getText());
+                    SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
+                        // Reload prescriptions after closing editor
+                        SceneManager.removeSceneData("prescription");
+                        SceneManager.removeSceneData("nameCustomer");
+                        if(SceneManager.getSceneData("updatedPrescription") != null){
+                            Prescription updatedPrescription = (Prescription) SceneManager.getSceneData("updatedPrescription");
+                            // Cập nhật lại trong bảng
+                            int index = prescriptionRecordsList.indexOf(selectedPrescription);
+                            if(index >=0 ){
+                                prescriptionRecordsList.set(index, updatedPrescription);
+                            }
+                            SceneManager.removeSceneData("updatedPrescription");
+
+                        }
+                    });
                 }
             }
         });
@@ -193,11 +246,16 @@ public class CustomerHubController implements Initializable {
                 allCustomers = customers;
                 customerRecordsList.addAll(customers);
                 setCurrentListCustomer();
-                System.out.println("✅ Loaded " + customers.size() + " customers");
+
+                // ✅ Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
+                isInitializing = false;
+
+                System.out.println("✅ Loaded " + customers.size() + " customers - Ready for user interaction");
             },
             error -> {
                 // ERROR callback - handle error gracefully
                 System.err.println("❌ Error loading customers: " + error);
+                isInitializing = false; // ✅ Vẫn set false ngay cả khi lỗi
                 // Có thể show alert nếu cần
                 showErrorAlert("Lỗi tải dữ liệu", error);
             }
@@ -368,81 +426,48 @@ public class CustomerHubController implements Initializable {
     }
     @FXML
     private void onAddCustomerButton(){
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Thêm Bệnh Nhân Mới");
-            stage.setScene(new Scene(loader.load()));
-            stage.centerOnScreen();
-            stage.showAndWait();
-            AddCustomerViewController controller = loader.getController();
-            Customer newCustomer = controller.getCurCustomer();
-            customerRecordsList.add(newCustomer);
-            setCurrentListCustomer();
 
-        } catch (IOException e) {
-            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
-        }
+            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
+
+
+
+            if(SceneManager.getSceneData("newCustomer")!= null){
+                Customer newCustomer = (Customer) SceneManager.getSceneData("newCustomer");
+                customerRecordsList.add(newCustomer);
+                setCurrentListCustomer();
+                SceneManager.removeSceneData("newCustomer");
+
+            }
+
     }
 
     @FXML
     private void handleEditCustomer(ActionEvent event) {
-        try {
+
             if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
                 showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi Chỉnh sửa bệnh nhân");
                 return;
             }
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/AddCustomerView.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Chỉnh sửa Bệnh Nhân ");
-            stage.setScene(new Scene(loader.load()));
-            AddCustomerViewController controller = loader.getController();
+            Customer selectedCustomer = customerListView.getSelectionModel().getSelectedItem();
+            SceneManager.removeSceneData("selectedCustomer");
+             SceneManager.setSceneData("selectedCustomer", selectedCustomer);
+            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
-            controller.initData(customerListView.getSelectionModel().getSelectedItem());
-            stage.centerOnScreen();
-            stage.showAndWait();
-            Customer updatedPatient = controller.getCurCustomer();
-            if(updatedPatient != null){
+
+
+            if(SceneManager.getSceneData("updatedCustomer")!= null){
                 int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
+                Customer updatedPatient = (Customer) SceneManager.getSceneData("updatedCustomer");
+                setCurrentCustomer(updatedPatient);
                 customerRecordsList.set(selectedIndex, updatedPatient);
                 setCurrentListCustomer();
+                SceneManager.removeSceneData("updatedCustomer");
             }
 
-
-        } catch (IOException e) {
-            System.err.println("Error opening Add Customer dialog: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ thêm bệnh nhân: " + e.getMessage());
-        }
     }
 
 
-    @FXML
-    private void onAddNewPrescription(ActionEvent event) {
-        try {
-            // Kiểm tra xem có đang trỏ đến bệnh nhân nào không
-            if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
-                showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi tạo đơn thuốc");
-                return;
-            }
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/PatientAndPrescription/PrescriptionEditor.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Đơn khám bệnh nhân");
-            stage.setScene(new Scene(loader.load()));
-            PrescriptionEditorController prescriptionEditorController = loader.getController();
-            prescriptionEditorController.initData(customerNameLabel.getText(), Integer.parseInt(customerIdValueLabel.getText()), null);
-            stage.centerOnScreen();
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Error opening Prescription Editor: " + e.getMessage());
-            showErrorAlert("Lỗi", "Không thể mở cửa sổ đơn thuốc: " + e.getMessage());
-        }
-    }
 
-    @FXML
-    private void handleEditPrescription(){
-
-    }
     public static void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

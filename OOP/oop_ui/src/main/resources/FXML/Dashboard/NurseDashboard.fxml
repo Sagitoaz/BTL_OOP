@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css, @../../css/global-styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.DashBoard.NurseDashBoardController">
+    <BorderPane prefHeight="800.0" prefWidth="1200.0">
+        <!-- Sidebar -->
+        <left>
+            <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #0369A1, #0284C7, #0EA5E9); -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.3), 15, 0, 5, 0);" styleClass="sidebar">
+                <children>
+                    <VBox alignment="CENTER" spacing="8" style="-fx-padding: 30px 20px; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 0 0 20px 20px; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 0 0 2px 0;" styleClass="sidebar-header">
+                        <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true" />
+                        <Text styleClass="app-title-sidebar" text="Eye Clinic" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 12px;" text="Hệ thống quản lý phòng khám" />
+                    </VBox>
+                    <VBox style="-fx-padding: 20px 15px;" styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px; -fx-font-weight: 700; -fx-padding: 10px 15px 15px 15px; -fx-letter-spacing: 1.5px;" styleClass="menu-title" text="MENU CHÍNH" />
+                        <VBox fx:id="menuContainer" spacing="8">
+                            <!-- Menu items will be dynamically added here -->
+                        </VBox>
+                    </VBox>
+                    <VBox alignment="BOTTOM_CENTER" style="-fx-padding: 20px; -fx-background-color: rgba(255,255,255,0.1); -fx-spacing: 8px;" styleClass="sidebar-footer">
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.8);" text="© 2025 Eye Clinic System" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;" text="Version 1.0.0" />
+                    </VBox>
+                </children>
+            </VBox>
+        </left>
+
+        <!-- Main Content -->
+        <center>
+            <VBox style="-fx-background-color: #F0F9FF;" styleClass="main-content">
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7, #0369A1); -fx-padding: 20px 30px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 15, 0, 0, 5);" styleClass="dashboard-header">
+                    <!-- Navigation Buttons -->
+                    <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 12px; -fx-padding: 8px 12px; -fx-effect: innershadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" styleClass="navigation-bar">
+                        <Button fx:id="backButton" onAction="#handleBackButton" styleClass="btn-back" text="◀ Quay lại" />
+                        <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="btn-forward" text="Tiến ▶" />
+                        <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="btn-reload" text="⟳ Tải lại" />
+                    </HBox>
+
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label prefHeight="32.0" prefWidth="283.0" styleClass="dashboard-title" text="Trang Làm Việc Y Tá" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-font-weight: 500;" text="Hỗ trợ chăm sóc và quản lý bệnh nhân hiệu quả" />
+                    </VBox>
+                </HBox>
+
+                <!-- Content Body -->
+                <ScrollPane fitToWidth="true" style="-fx-background: #F0F9FF; -fx-background-color: #F0F9FF;" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+                    <VBox spacing="30" style="-fx-padding: 30px; -fx-background-color: #F0F9FF;" styleClass="dashboard-container">
+                        <!-- Welcome Section -->
+                        <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%); -fx-background-radius: 20px; -fx-padding: 35px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 25, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 20px;" styleClass="welcome-section">
+                            <Label style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="Chào mừng Y Tá! 👩‍⚕️" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 16px; -fx-font-weight: 500;" text="Chúc bạn một ngày làm việc năng động và ý nghĩa" />
+                            <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0; -fx-font-weight: 500;" text="📅 Hôm nay: Thứ Năm, 07 tháng 11 năm 2025" />
+                        </VBox>
+
+                        <!-- Main Functions Grid -->
+                        <VBox spacing="20" style="-fx-background-color: transparent;">
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" styleClass="section-header" text="💼 CHỨC NĂNG CHÍNH" />
+                            <GridPane hgap="20" styleClass="function-grid" vgap="20">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="50" />
+                                    <ColumnConstraints percentWidth="50" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints />
+                                    <RowConstraints />
+                                </rowConstraints>
+
+                                <!-- Row 1 -->
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FCE7F3); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(236,72,153,0.2), 20, 0, 0, 8); -fx-border-color: #FBCFE8; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(236,72,153,0.3), 10, 0, 0, 3);" text="👥" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #EC4899; -fx-padding: 5px 0;" text="Hồ sơ bệnh nhân" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và quản lý thông tin hồ sơ bệnh nhân" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#openCustomerHub" style="-fx-background-color: #EC4899; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(236,72,153,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="👁 Xem hồ sơ" />
+                                </VBox>
+
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #ECFDF5); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.2), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 10, 0, 0, 3);" text="💰" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981; -fx-padding: 5px 0;" text="Thanh toán" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Quản lý thanh toán và hóa đơn bệnh nhân" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#openPayment" style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.4), 10, 0, 0, 4);" styleClass="btn-add" text="💳 Thanh toán" />
+                                </VBox>
+
+                                <!-- Row 2 -->
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #DBEAFE); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.2), 20, 0, 0, 8); -fx-border-color: #BFDBFE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 10, 0, 0, 3);" text="👤" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #3B82F6; -fx-padding: 5px 0;" text="Thông tin cá nhân" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và cập nhật thông tin cá nhân của bạn" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#openProfile" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="👁 Xem thông tin" />
+                                </VBox>
+
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F5F3FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.2), 20, 0, 0, 8); -fx-border-color: #DDD6FE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 10, 0, 0, 3);" text="📦" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6; -fx-padding: 5px 0;" text="Quản lý sản phẩm" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Quản lý vật tư y tế và thuốc men" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#openInventory" style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="📋 Quản lý kho" />
+                                </VBox>
+                            </GridPane>
+                        </VBox>
+
+                        <!-- Today's Summary -->
+                        <VBox spacing="20" style="-fx-background-color: transparent;">
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" styleClass="section-header" text="📊 THỐNG KÊ HÔM NAY" />
+                            <HBox spacing="20" styleClass="quick-stats">
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #FCE7F3 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(236,72,153,0.25), 20, 0, 0, 8); -fx-border-color: #FBCFE8; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="BỆNH NHÂN TIẾP NHẬN" />
+                                    <Label fx:id="totalPatientsLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #EC4899; -fx-effect: dropshadow(gaussian, rgba(236,72,153,0.3), 8, 0, 0, 2);" text="28" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="bệnh nhân" />
+                                </VBox>
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #D1FAE5 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.25), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="THANH TOÁN HOÀN TẤT" />
+                                    <Label fx:id="completedPaymentsLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #10B981; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 8, 0, 0, 2);" text="15" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="giao dịch" />
+                                </VBox>
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #EDE9FE 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.25), 20, 0, 0, 8); -fx-border-color: #DDD6FE; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card" HBox.hgrow="ALWAYS">
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="VẬT TƯ SỬ DỤNG" />
+                                    <Label fx:id="suppliesUsedLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 8, 0, 0, 2);" text="42" />
+                                    <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="món hàng" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </center>
+    </BorderPane>
+</AnchorPane>

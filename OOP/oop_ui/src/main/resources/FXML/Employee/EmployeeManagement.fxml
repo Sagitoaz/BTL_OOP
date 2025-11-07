@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Employee.EmployeeManagementController">
+
+    <!-- ========== NAVIGATION BAR ========== -->
+    <top>
+        <VBox spacing="0">
+            <!-- Navigation Buttons -->
+            <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 12px 20px;" styleClass="navigation-bar">
+                <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
+                <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
+                <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+            </HBox>
+
+            <!-- Header Section with Modern Gradient -->
+            <HBox alignment="CENTER_LEFT" spacing="16.0" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 20px 24px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 15, 0, 0, 4);" styleClass="financial-header">
+                <padding>
+                    <Insets bottom="20" left="25" right="25" top="20" />
+                </padding>
+
+                <!-- Title Section -->
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label style="-fx-font-size: 32px;" text="👥" />
+                    <VBox spacing="2">
+                        <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);" text="Quản Lý Nhân Viên" />
+                        <Label fx:id="subtitleLabel" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.9);" text="Quản lý thông tin bác sĩ và nhân viên phòng khám" />
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- Quick Stats -->
+                    <HBox alignment="CENTER" prefHeight="69.0" prefWidth="775.0" spacing="20">
+                        <VBox alignment="CENTER" spacing="3" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 10; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);">
+                            <Label fx:id="doctorCountLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0EA5E9;" text="0" />
+                            <Label style="-fx-font-size: 11px; -fx-text-fill: #0284C7; -fx-font-weight: 600;" text="Bác sĩ" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="3" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 10; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);">
+                            <Label fx:id="nurseCountLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #10B981;" text="0" />
+                            <Label style="-fx-font-size: 11px; -fx-text-fill: #059669; -fx-font-weight: 600;" text="Nhân viên" />
+                        </VBox>
+
+                        <VBox alignment="CENTER" spacing="3" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 10; -fx-padding: 12 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);">
+                            <Label fx:id="activeCountLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #F59E0B;" text="0" />
+                            <Label style="-fx-font-size: 11px; -fx-text-fill: #D97706; -fx-font-weight: 600;" text="Đang hoạt động" />
+                        </VBox>
+                    </HBox>
+                </HBox>
+            </HBox>
+
+            <Separator />
+
+            <!-- Search & Filter Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 16px 24px; -fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);">
+
+                <!-- Search Field -->
+                <HBox alignment="CENTER_LEFT" maxWidth="400" spacing="8" style="-fx-background-color: #F0F9FF; -fx-background-radius: 10; -fx-padding: 10 14; -fx-border-color: #BAE6FD; -fx-border-width: 1; -fx-border-radius: 10;" HBox.hgrow="ALWAYS">
+                    <Label style="-fx-font-size: 16px;" text="🔍" />
+                    <TextField fx:id="searchField" promptText="Tìm kiếm theo tên, email, username, số điện thoại..." style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+                </HBox>
+
+                <Separator orientation="VERTICAL" prefHeight="35" />
+
+                <!-- Role Filter -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #0284C7; -fx-font-weight: bold;" text="Vai trò:" />
+                    <ComboBox fx:id="roleFilterComboBox" prefWidth="140" styleClass="combo-rounded">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Tất cả" />
+                                <String fx:value="doctor" />
+                                <String fx:value="nurse" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+
+                <!-- Status Filter -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label style="-fx-font-size: 13px; -fx-text-fill: #0284C7; -fx-font-weight: bold;" text="Trạng thái:" />
+                    <ComboBox fx:id="statusFilterComboBox" prefWidth="140" styleClass="combo-rounded">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Tất cả" />
+                                <String fx:value="Hoạt động" />
+                                <String fx:value="Không hoạt động" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Action Buttons -->
+                <Button fx:id="refreshButton" onAction="#handleRefresh" styleClass="btn-secondary" text="🔄 Làm mới" />
+                <Button fx:id="addButton" onAction="#handleAdd" styleClass="btn-success" text="➕ Thêm Nhân Viên" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ========== CENTER: Table View ========== -->
+    <center>
+        <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.1), 12, 0, 0, 3);">
+            <VBox.margin><Insets bottom="20" left="25" right="25" top="20" /></VBox.margin>
+            <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+
+            <TableView fx:id="employeeTableView" onMouseClicked="#onTableRowClick" styleClass="financial-table" VBox.vgrow="ALWAYS">
+
+                <columns>
+                    <!-- ID Column -->
+                    <TableColumn fx:id="idColumn" prefWidth="60" style="-fx-alignment: CENTER;" text="ID" />
+
+                    <!-- Username Column -->
+                    <TableColumn fx:id="usernameColumn" prefWidth="130" style="-fx-alignment: CENTER-LEFT;" text="Tên đăng nhập" />
+
+                    <!-- Full Name Column -->
+                    <TableColumn fx:id="fullNameColumn" prefWidth="152.79998779296875" style="-fx-alignment: CENTER-LEFT;" text="Họ và Tên" />
+
+                    <!-- Role Column -->
+                    <TableColumn fx:id="roleColumn" prefWidth="116.0" style="-fx-alignment: CENTER;" text="Vai trò" />
+
+                    <!-- License No Column (for doctors) -->
+                    <TableColumn fx:id="licenseColumn" prefWidth="146.4000244140625" style="-fx-alignment: CENTER;" text="Số giấy phép" />
+
+                    <!-- Email Column -->
+                    <TableColumn fx:id="emailColumn" prefWidth="211.99993896484375" style="-fx-alignment: CENTER-LEFT;" text="Email" />
+
+                    <!-- Phone Column -->
+                    <TableColumn fx:id="phoneColumn" prefWidth="190.4000244140625" style="-fx-alignment: CENTER;" text="Số điện thoại" />
+
+                    <!-- Active Status Column -->
+                    <TableColumn fx:id="activeColumn" prefWidth="150.40020751953125" style="-fx-alignment: CENTER;" text="Trạng thái" />
+                </columns>
+
+                <!-- Placeholder khi table rỗng -->
+                <placeholder>
+                    <VBox alignment="CENTER" spacing="15" style="-fx-padding: 50;">
+                        <Label style="-fx-font-size: 48px;" text="📋" />
+                        <Label style="-fx-font-size: 16px; -fx-text-fill: #64748B; -fx-font-weight: bold;" text="Chưa có dữ liệu nhân viên" />
+                        <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8;" text="Nhấn nút 'Thêm Nhân Viên' để bắt đầu" />
+                    </VBox>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- ========== BOTTOM: Status Bar ========== -->
+    <bottom>
+        <VBox>
+            <Separator />
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: linear-gradient(to right, #0EA5E9, #0284C7); -fx-padding: 14px 25px;">
+                <Label style="-fx-font-size: 14px;" text="📊" />
+                <Label fx:id="totalCountLabel" style="-fx-font-size: 13px; -fx-text-fill: white; -fx-font-weight: bold;" text="Tổng: 0 nhân viên" />
+
+                <Separator orientation="VERTICAL" prefHeight="20" />
+
+                <Label fx:id="filterInfoLabel" style="-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.9);" text="" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox alignment="CENTER" spacing="12">
+                    <Label style="-fx-font-size: 12px; -fx-text-fill: #10B981;" text="●" />
+                    <Label fx:id="statusLabel" style="-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;" text="Sẵn sàng" />
+                    <Button fx:id="deleteButton" onAction="#handleDelete" styleClass="btn-danger" text="🗑 Xóa" />
+                </HBox>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

@@ -13,12 +13,26 @@ module org.example.oop {
     requires javafx.base;
     requires java.net.http;
     requires jdk.compiler;
+    requires bcrypt;
 
 
 
-    //opens org.example.oop.View to javafx.fxml;
+    // các requires khác bạn đã dùng...
+    // requires org.controlsfx.controls; v.v.
 
-    //exports org.example.oop.View;
+    // Nếu FXML có controller ở đây:
+    opens org.example.oop.Control.Employee to javafx.fxml;
+
+    exports org.example.oop.Control.Employee;
+    // Nếu còn các controller khác:
+    // opens org.example.oop.Control to javafx.fxml;
+
+    // Nếu bạn dùng JSON / reflection cho models trong UI, cũng nên mở:
+    // opens org.miniboot.app.domain.models to javafx.base,
+    // com.fasterxml.jackson.databind;
+
+    // export gói public API (nếu cần):
+    exports org.example.oop; // nơi có Main
 
     opens org.example.oop.Control to javafx.fxml;
 
@@ -34,15 +48,14 @@ module org.example.oop {
 
     opens org.example.oop to javafx.fxml;
 
-    exports org.example.oop;
     exports org.example.oop.Model;
 
     opens org.example.oop.Model to javafx.fxml;
 
-    //exports org.example.oop.Data.models;
-    //exports org.example.oop.Data.storage;
+    // exports org.example.oop.Data.models;
+    // exports org.example.oop.Data.storage;
 
-    //opens org.example.oop.Data.models to javafx.fxml;
+    // opens org.example.oop.Data.models to javafx.fxml;
 
     // ✅ API Services cho Inventory (package: org.example.oop.Service)
     exports org.example.oop.Service;
@@ -67,8 +80,4 @@ module org.example.oop {
 
     opens org.example.oop.Control.PaymentControl to javafx.fxml;
 
-//    exports org.example.oop.Model.PaymentModel;
-//    opens org.example.oop.Model.PaymentModel to javafx.fxml;
-//    exports org.example.oop.Control.PaymentControl;
-//    opens org.example.oop.Control.PaymentControl to javafx.fxml;
 }

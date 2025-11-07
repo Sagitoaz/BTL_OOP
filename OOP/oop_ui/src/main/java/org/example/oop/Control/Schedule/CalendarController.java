@@ -14,9 +14,8 @@ import java.util.ResourceBundle;
 
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
-import org.miniboot.app.domain.models.Appointment;
-import org.miniboot.app.domain.models.AppointmentStatus;
-import org.miniboot.app.domain.models.Doctor;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.*;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -69,38 +68,88 @@ public class CalendarController implements Initializable {
     @FXML private VBox timeLabelColumn;
     @FXML private AnchorPane appointmentPane;
     @FXML private ComboBox<String> doctorComboBox;
+    @FXML private ComboBox<String> roleComboBox; // Chọn role (Doctor/Nurse)
+    @FXML private ComboBox<String> employeeComboBox; // Chọn nhân viên
     @FXML private DatePicker weekDatePicker;
     @FXML private Button prevWeekBtn;
     @FXML private Button nextWeekBtn;
     @FXML private Button todayBtn;
     @FXML private Label weekRangeLabel;
     
+    // Navigation buttons
+    @FXML private Button backButton;
+    @FXML private Button forwardButton;
+    @FXML private Button reloadButton;
+
     // INITIALIZATION
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("✅ CalendarController initialized");
-        
         // 1. Khởi tạo services
         appointmentService = new HttpAppointmentService();
         doctorService = new HttpDoctorService();
-        
+
         // 2. Khởi tạo data
         doctorList = new ArrayList<>();
         appointmentList = new ArrayList<>();
-        
+
         // 3. Set tuần hiện tại (Thứ 2 của tuần này)
         currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        
+
         // 4. Setup UI
         setupTimeLabels();
         setupGridLines();
-        
+
         // 5. Setup listeners
         setupListeners();
-        
+        if(SceneManager.getSceneData("role") == UserRole.EMPLOYEE){
+            System.out.println("✅ CalendarController initialized for EMPLOYEE role");
+            Employee emp = SceneManager.getSceneData("accountData");
+
+            if(emp.getRole().equalsIgnoreCase("doctor")){
+                selectedDoctor = new Doctor(emp.getId(), emp.getFirstname(), emp.getLastname(), emp.getLicenseNo());
+                System.out.println("✅ Pre-selecting doctor (EMPLOYEE): " + selectedDoctor.getFullName());
+                doctorComboBox.getItems().clear();
+                doctorComboBox.setValue(selectedDoctor.getFullName());
+                selectDoctorAndDate(selectedDoctor, LocalDate.now());
+            }
+        }
         // 6. Load data
-        loadDoctors();
+        if(doctorComboBox.getItems().isEmpty()){
+            loadDoctors();
+        }
+
+
+
+        if(SceneManager.getSceneData("selectedDoctor") != null || SceneManager.getSceneData("selectedDate") != null){
+            selectedDoctor = SceneManager.getSceneData("selectedDoctor");
+            LocalDate selectedDate = SceneManager.getSceneData("selectedDate");
+            if (selectedDoctor != null && selectedDate != null) {
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName() +
+                        ", date: " + selectedDate);
+
+                // Pass data to calendar
+                selectDoctorAndDate(selectedDoctor, selectedDate);
+            } else if (selectedDoctor != null) {
+                // Chỉ có doctor, date = today
+                System.out.println("✅ Pre-selecting doctor: " + selectedDoctor.getFullName());
+                selectDoctorAndDate(selectedDoctor, LocalDate.now());
+            } else if (selectedDate != null) {
+                // Chỉ có date, không có doctor
+                System.out.println("✅ Jumping to date: " + selectedDate);
+                selectDoctorAndDate(null, selectedDate);
+            }
+            SceneManager.removeSceneData("selectedDoctor");
+            SceneManager.removeSceneData("selectedDate");
+        }
+
+        System.out.println("✅ CalendarController initialized");
+
+
+
+
+
+
     }
     
     private void setupListeners() {
@@ -212,7 +261,7 @@ public class CalendarController implements Initializable {
         if (selectedDoctor == null) return;
         
         LocalDate weekEnd = currentWeekStart.plusDays(6);
-        
+        System.out.println(selectedDoctor.getId() + " - Loading appointments for week " + currentWeekStart + " to " + weekEnd);
         Task<List<Appointment>> task = new Task<>() {
             @Override
             protected List<Appointment> call() {
@@ -452,5 +501,22 @@ public class CalendarController implements Initializable {
             alert.setContentText(message);
             alert.showAndWait();
         });
+    }
+
+    // NAVIGATION HANDLERS
+
+    @FXML
+    private void handleBackButton() {
+        SceneManager.goBack();
+    }
+
+    @FXML
+    private void handleForwardButton() {
+        SceneManager.goForward();
+    }
+
+    @FXML
+    private void handleReloadButton() {
+        SceneManager.reloadCurrentScene();
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.oop.Control.BaseController;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
 import org.example.oop.Service.ApiProductService;
@@ -131,6 +132,19 @@ public class StockMovementController extends BaseController {
      private boolean isEditMode = false;
      private StockMovement editingMovement = null;
      private Integer selectedProductId = null;
+
+    @FXML
+    private void handleBackButton(){
+        SceneManager.goBack();
+    }
+    @FXML
+    private void handleForwardButton(){
+        SceneManager.goForward();
+    }
+    @FXML
+    private void handleReloadButton(){
+        SceneManager.reloadCurrentScene();
+    }
 
      // ====================================================================
      // INITIALIZATION
@@ -924,9 +938,9 @@ public class StockMovementController extends BaseController {
           if (modeLabel != null)
                modeLabel.setText("➕ ADD MODE");
           if (saveButton != null)
-               saveButton.setText("Save Movement");
+               saveButton.setText("Lưu");
           if (clearButton != null)
-               clearButton.setText("Clear");
+               clearButton.setText("Làm mới");
 
           clearForm();
      }

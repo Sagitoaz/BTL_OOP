@@ -36,28 +36,6 @@
     -fx-padding: 0 0 12px 0;
 }
 
-/* ========== SECONDARY BUTTON ========== */
-.btn-secondary {
-    -fx-background-color: #F1F5F9;
-    -fx-text-fill: #475569;
-    -fx-font-weight: 600;
-    -fx-background-radius: 25px;
-    -fx-padding: 11px 24px;
-    -fx-font-size: 14px;
-    -fx-cursor: hand;
-    -fx-border-color: #CBD5E0;
-    -fx-border-width: 2px;
-    -fx-border-radius: 25px;
-}
-
-.btn-secondary:hover {
-    -fx-background-color: #E0F2FE;
-    -fx-border-color: #0EA5E9;
-    -fx-text-fill: #0369A1;
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
-}
-
 /* ========== CUSTOMER DETAIL VIEW SPECIFIC ========== */
 .customer-detail-container {
     -fx-background-color: #F0F9FF;

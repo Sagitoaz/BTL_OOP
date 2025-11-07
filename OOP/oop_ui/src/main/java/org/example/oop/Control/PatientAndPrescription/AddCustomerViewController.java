@@ -42,8 +42,13 @@ public class AddCustomerViewController implements Initializable
         genderComboBox.getItems().addAll(Customer.Gender.values());
         curCustomer = null;
         UserRole role = (UserRole) SceneManager.getSceneData("role");
-        if( role.name().equalsIgnoreCase("CUSTOMER")){
+        if( role == UserRole.CUSTOMER){
             curCustomer = (Customer) SceneManager.getSceneData("accountData");
+        }
+        else{
+            if(SceneManager.getSceneData("selectedCustomer") != null){
+                curCustomer = (Customer) SceneManager.getSceneData("selectedCustomer");
+            }
         }
         if(curCustomer != null){
             initData(curCustomer);
@@ -113,10 +118,14 @@ public class AddCustomerViewController implements Initializable
         curCustomer.setNote(notes);
         if(isCreateMode){
             CustomerRecordService.getInstance().createCustomer(curCustomer);
+            SceneManager.setSceneData("newCustomer", curCustomer);
         } else {
             CustomerRecordService.getInstance().updateCustomer(curCustomer);
             if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
                 SceneManager.setSceneData("accountData", curCustomer);
+            }
+            else{
+                SceneManager.setSceneData("updatedCustomer", curCustomer);
             }
         }
         Stage stage = (Stage) nameField.getScene().getWindow();

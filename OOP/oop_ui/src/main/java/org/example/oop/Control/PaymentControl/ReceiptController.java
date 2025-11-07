@@ -9,6 +9,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.oop.Model.Receipt;
+import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
 
@@ -56,6 +57,11 @@ public class ReceiptController implements Initializable {
     }
 
     private void initializeTable() {
+        if(SceneManager.getSceneData("receiptData") != null){
+            Receipt receipt = SceneManager.getSceneData("receiptData");
+            displayReceipt(receipt);
+        }
+
         // Thiết lập cột số thứ tự
         colIndex.setCellValueFactory(
                 data -> new SimpleIntegerProperty(tableReceiptItems.getItems().indexOf(data.getValue()) + 1)
@@ -91,6 +97,7 @@ public class ReceiptController implements Initializable {
                 }
             }
         });
+
     }
 
     public void displayReceipt(Receipt receipt) {
@@ -99,10 +106,10 @@ public class ReceiptController implements Initializable {
         Payment payment = receipt.getPayment();
 
         // Hiển thị thông tin chung
-        lblReceiptNo.setText(receipt.getPayment().getCode());
+        lblReceiptNo.setText(receipt.getReceiptNumber());
         lblDate.setText(payment.getIssuedAt().toString());
         lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
-        lblCustomer.setText(payment.getCustomerId() == 0 ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
+        lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
 
         // Hiển thị danh sách items
         tableReceiptItems.getItems().setAll(receipt.getItems());
@@ -114,8 +121,7 @@ public class ReceiptController implements Initializable {
         // Tính tiền thừa
         Integer change = payment.getAmountPaid() - payment.getGrandTotal();
         lblChange.setText(String.format("%,d", change));
-
-        
+        SceneManager.removeSceneData("receiptData");
     }
 
     private String formatDateTime(LocalDateTime dateTime) {
