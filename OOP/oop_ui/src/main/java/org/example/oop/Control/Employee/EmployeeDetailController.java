@@ -80,6 +80,12 @@ public class EmployeeDetailController extends BaseController {
     @FXML
     private Button deleteButton;
     @FXML
+    private Button backButton;
+    @FXML
+    private Button forwardButton;
+    @FXML
+    private Button reloadButton;
+    @FXML
     private void handleBackButton(){
         SceneManager.goBack();
     }
@@ -103,6 +109,17 @@ public class EmployeeDetailController extends BaseController {
         if (licenseBox != null) {
             licenseBox.setVisible(false);
             licenseBox.setManaged(false);
+        }
+        if(SceneManager.getSceneData("isModal") != null && (Boolean)SceneManager.getSceneData("isModal")){
+            if(backButton != null) {
+                backButton.setVisible(false);
+                backButton.setManaged(false);
+            }
+            if(forwardButton != null) {
+                forwardButton.setVisible(false);
+
+                forwardButton.setManaged(false);
+            }
         }
         if(SceneManager.getSceneData("employeeDetailData") != null){
             Employee emp = (Employee)SceneManager.getSceneData("employeeDetailData");

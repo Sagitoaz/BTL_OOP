@@ -118,7 +118,11 @@ public class EmployeeManagementController extends BaseController implements Init
 
         SceneManager.removeSceneData("employeeDetailData");
         SceneManager.setSceneData("employeeDetailData", employee);
-        SceneManager.switchScene(SceneConfig.EMPLOYEE_DETAIL_FXML, SceneConfig.Titles.EMPLOYEE_DETAIL);
+        SceneManager.setSceneData("isModal", true);
+        SceneManager.openModalWindow(SceneConfig.EMPLOYEE_DETAIL_FXML, SceneConfig.Titles.EMPLOYEE_DETAIL, ()->{
+            SceneManager.removeFromCache("employeeDetailDat");
+            SceneManager.removeSceneData("isModal");
+        });
 
     }
 
