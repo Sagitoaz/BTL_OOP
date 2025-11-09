@@ -157,6 +157,8 @@ public class AuthServiceWrapper {
     public static boolean register(String username, String email, String password, String fullName,
                                    String phone, String address, String dob, String gender) {
         try {
+            LOGGER.info("🔄 Starting registration for username: " + username);
+
             // Kiểm tra username đã tồn tại
             Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
             Optional<?> existingUser = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
@@ -166,8 +168,11 @@ public class AuthServiceWrapper {
                 return false;
             }
 
+            LOGGER.info("✓ Username available: " + username);
+
             // Hash password
             String hashedPassword = hashPasswordWithSalt(password);
+            LOGGER.info("✓ Password hashed successfully");
 
             // Tách fullName thành firstname và lastname (theo cấu trúc tiếng Việt: HỌ - TÊN)
             // Ví dụ: "Nguyễn Văn A" → lastname="Nguyễn", firstname="Văn A"
@@ -175,13 +180,19 @@ public class AuthServiceWrapper {
             String lastname = names.length > 0 ? names[0] : "";       // Họ (từ đầu tiên)
             String firstname = names.length > 1 ? names[1] : "";      // Tên (phần còn lại)
 
+            LOGGER.info("✓ Name parsed - firstname: " + firstname + ", lastname: " + lastname);
+
             // Gender đã được chuyển đổi sang tiếng Anh IN HOA (MALE, FEMALE, OTHER) từ Controller
             // Không cần chuyển đổi nữa, truyền trực tiếp vào database
+            LOGGER.info("📋 Registration data - username: " + username + ", email: " + email +
+                       ", phone: " + phone + ", dob: " + dob + ", gender: " + gender);
 
             // Lưu vào database với đầy đủ thông tin
             Method saveCustomerMethod = userDAOInstance.getClass().getMethod(
                 "saveCustomer", String.class, String.class, String.class, String.class,
                 String.class, String.class, String.class, String.class, String.class);
+
+            LOGGER.info("🔄 Invoking saveCustomer method...");
 
             boolean success = (boolean) saveCustomerMethod.invoke(
                 userDAOInstance, username, hashedPassword, firstname, lastname,
@@ -189,12 +200,15 @@ public class AuthServiceWrapper {
 
             if (success) {
                 LOGGER.info("✓ Registration successful: " + username + " with gender: " + gender);
+            } else {
+                LOGGER.warning("✗ Registration failed: saveCustomer returned false for " + username);
             }
 
             return success;
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Registration failed", e);
+            LOGGER.log(Level.SEVERE, "✗ Registration failed with exception for username: " + username, e);
+            e.printStackTrace(); // In ra console để debug
             return false;
         }
     }

@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="850.0" prefWidth="650.0" styleClass="login-container" stylesheets="@../css/main.css,@../css/forms.css,@../css/buttons.css,@../css/layouts.css,@../css/login.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.SignUpController">
@@ -43,7 +44,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Tên đăng nhập *" />
-                                                <TextField fx:id="usernameTextField" prefHeight="44.0" promptText="Nhập tên đăng nhập" styleClass="signup-field" />
+                                                <TextField fx:id="usernameTextField" prefHeight="48.0" promptText="Nhập tên đăng nhập" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
@@ -51,12 +52,21 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Mật khẩu *" />
-                                                <StackPane prefHeight="44.0" styleClass="password-container">
+                                                <StackPane prefHeight="50.0" styleClass="password-container">
                                                     <children>
-                                                        <PasswordField fx:id="passwordTextField" prefHeight="44.0" promptText="Ít nhất 8 ký tự, bao gồm chữ hoa, số, ký tự đặc biệt" styleClass="signup-field" />
+                                                        <!-- PasswordField (mặc định hiển thị) -->
+                                                        <PasswordField fx:id="passwordTextField" prefHeight="50.0" promptText="Ít nhất 8 ký tự, bao gồm chữ hoa, số, ký tự đặc biệt" styleClass="login-input" />
+
+                                                        <!-- TextField (ẩn, hiện khi bấm nút mắt) -->
+                                                        <TextField fx:id="visiblePasswordTextField" managed="false" prefHeight="50.0" promptText="Ít nhất 8 ký tự, bao gồm chữ hoa, số, ký tự đặc biệt" styleClass="login-input" visible="false" />
+
+                                                        <!-- Nút toggle password visibility (icon mắt) -->
                                                         <HBox alignment="CENTER_RIGHT" pickOnBounds="false" StackPane.alignment="CENTER_RIGHT">
                                                             <children>
-                                                                <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" prefHeight="40.0" prefWidth="40.0" styleClass="password-toggle-btn" text="👁">
+                                                                <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" prefHeight="40.0" prefWidth="70.0" styleClass="password-toggle-btn" text="👁">
+                                                                    <font>
+                                                                        <Font size="18.0" />
+                                                                    </font>
                                                                     <HBox.margin>
                                                                         <Insets right="8.0" />
                                                                     </HBox.margin>
@@ -65,7 +75,6 @@
                                                         </HBox>
                                                     </children>
                                                 </StackPane>
-                                                <TextField fx:id="visiblePasswordTextField" managed="false" visible="false" />
                                             </children>
                                         </VBox>
 
@@ -73,12 +82,21 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Xác nhận mật khẩu *" />
-                                                <StackPane prefHeight="44.0" styleClass="password-container">
+                                                <StackPane prefHeight="50.0" styleClass="password-container">
                                                     <children>
-                                                        <PasswordField fx:id="confirmPasswordTextField" prefHeight="44.0" promptText="Nhập lại mật khẩu" styleClass="signup-field" />
+                                                        <!-- PasswordField (mặc định hiển thị) -->
+                                                        <PasswordField fx:id="confirmPasswordTextField" prefHeight="50.0" promptText="Nhập lại mật khẩu" styleClass="login-input" />
+
+                                                        <!-- TextField (ẩn, hiện khi bấm nút mắt) -->
+                                                        <TextField fx:id="visibleConfirmPasswordTextField" managed="false" prefHeight="50.0" promptText="Nhập lại mật khẩu" styleClass="login-input" visible="false" />
+
+                                                        <!-- Nút toggle password visibility (icon mắt) -->
                                                         <HBox alignment="CENTER_RIGHT" pickOnBounds="false" StackPane.alignment="CENTER_RIGHT">
                                                             <children>
-                                                                <Button fx:id="toggleConfirmPasswordButton" onAction="#toggleConfirmPasswordVisibility" prefHeight="40.0" prefWidth="40.0" styleClass="password-toggle-btn" text="👁">
+                                                                <Button fx:id="toggleConfirmPasswordButton" onAction="#toggleConfirmPasswordVisibility" prefHeight="40.0" prefWidth="70.0" styleClass="password-toggle-btn" text="👁">
+                                                                    <font>
+                                                                        <Font size="18.0" />
+                                                                    </font>
                                                                     <HBox.margin>
                                                                         <Insets right="8.0" />
                                                                     </HBox.margin>
@@ -87,7 +105,6 @@
                                                         </HBox>
                                                     </children>
                                                 </StackPane>
-                                                <TextField fx:id="visibleConfirmPasswordTextField" managed="false" visible="false" />
                                             </children>
                                         </VBox>
 
@@ -95,7 +112,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Họ và tên *" />
-                                                <TextField fx:id="fullNameTextField" prefHeight="44.0" promptText="Nguyễn Văn A" styleClass="signup-field" />
+                                                <TextField fx:id="fullNameTextField" prefHeight="48.0" promptText="Nguyễn Văn A" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
@@ -103,7 +120,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Email *" />
-                                                <TextField fx:id="emailTextField" prefHeight="44.0" promptText="example@gmail.com" styleClass="signup-field" />
+                                                <TextField fx:id="emailTextField" prefHeight="48.0" promptText="example@gmail.com" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
@@ -111,7 +128,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Số điện thoại *" />
-                                                <TextField fx:id="phoneTextField" prefHeight="44.0" promptText="0912345678" styleClass="signup-field" />
+                                                <TextField fx:id="phoneTextField" prefHeight="48.0" promptText="0912345678" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
@@ -119,7 +136,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Ngày sinh *" />
-                                                <TextField fx:id="dobTextField" prefHeight="44.0" promptText="dd/MM/yyyy (vd: 15/05/1990)" styleClass="signup-field" />
+                                                <TextField fx:id="dobTextField" prefHeight="48.0" promptText="dd/MM/yyyy (vd: 15/05/1990)" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
@@ -127,7 +144,7 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Giới tính *" />
-                                                <ComboBox fx:id="genderComboBox" maxWidth="Infinity" prefHeight="44.0" promptText="Chọn giới tính" styleClass="form-select" />
+                                                <ComboBox fx:id="genderComboBox" maxWidth="Infinity" prefHeight="48.0" promptText="Chọn giới tính" styleClass="form-select" />
                                             </children>
                                         </VBox>
 
@@ -135,15 +152,15 @@
                                         <VBox spacing="8.0" styleClass="form-group">
                                             <children>
                                                 <Label styleClass="form-label" text="Địa chỉ *" />
-                                                <TextField fx:id="addressTextField" prefHeight="44.0" promptText="123 Đường ABC, Quận 1, TP.HCM" styleClass="signup-field" />
+                                                <TextField fx:id="addressTextField" prefHeight="48.0" promptText="123 Đường ABC, Quận 1, TP.HCM" styleClass="login-input" />
                                             </children>
                                         </VBox>
 
                                         <!-- Error message -->
-                                        <Label fx:id="errorMessage" managed="false" maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
+                                        <Label fx:id="errorMessage" maxWidth="Infinity" styleClass="error-message" visible="false" wrapText="true" />
 
                                         <!-- Sign Up button -->
-                                        <Button fx:id="signUpButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#signUpButtonOnClick" prefHeight="52.0" styleClass="form-button-primary" text="Đăng ký" />
+                                        <Button fx:id="signUpButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#signUpButtonOnClick" prefHeight="52.0" styleClass="login-button" text="Đăng ký" />
                                     </children>
                                 </VBox>
 
@@ -158,7 +175,7 @@
                                 <VBox alignment="CENTER" spacing="12.0" styleClass="signup-section">
                                     <children>
                                         <Label styleClass="signup-text" text="Đã có tài khoản?" />
-                                        <Button fx:id="backToLoginButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#backToLoginButtonOnClick" prefHeight="45.0" styleClass="form-button-secondary" text="Quay lại đăng nhập" />
+                                        <Button fx:id="backToLoginButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#backToLoginButtonOnClick" prefHeight="48.0" styleClass="form-button-secondary" text="Quay lại đăng nhập" />
                                     </children>
                                 </VBox>
                             </children>
