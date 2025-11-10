@@ -1,7 +1,5 @@
 package org.example.oop.Control;
 
-import org.example.oop.Service.HttpEmployeeService;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -39,7 +37,6 @@ public class ChangePasswordController extends BaseController {
      private Button btnCancel;
      @FXML
      private Button btnSave;
-     private final HttpEmployeeService employeeService = new HttpEmployeeService();
 
      @FXML
      private void initialize() {
@@ -212,49 +209,51 @@ public class ChangePasswordController extends BaseController {
           String account = tfAccount.getText().trim();
           String currentPassword = tfCurrent.getText();
           String newPassword = pfNew.getText();
-
           btnSave.setDisable(true);
           btnCancel.setDisable(true);
-
           executeAsync(
-               () -> {
-                    try {
-                         return employeeService.changePassword(account, currentPassword, newPassword);
-                    } catch (Exception e) {
-                         throw new RuntimeException(e.getMessage(), e);
-                    }
-               },
-               success -> {
-                    btnSave.setDisable(false);
-                    btnCancel.setDisable(false);
-                    if (Boolean.TRUE.equals(success)) {
-                         showSuccess("Đổi mật khẩu thành công!");
+                    () -> {
+                         System.out.println("🔄 Changing password for: " + account);
+
+                         boolean success = AuthServiceWrapper.changePasswordByUsername(
+                                   account, currentPassword, newPassword);
+
+                         if (success) {
+                              System.out.println("✅ Password changed successfully for: " + account);
+                              return true;
+                         } else {
+                              System.err.println("❌ Password change failed for: " + account);
+                              throw new RuntimeException("Đổi mật khẩu thất bại");
+                         }
+                    },
+                    success -> {
+                         btnSave.setDisable(false);
+                         btnCancel.setDisable(false);
+                         showSuccess("✅ Đổi mật khẩu thành công!\n\nTài khoản của bạn đã được cập nhật.");
                          clearForm();
                          new Thread(() -> {
                               try {
                                    Thread.sleep(1500);
                                    runOnUIThread(this::closeWindow);
                               } catch (InterruptedException e) {
-                                   e.printStackTrace();
+                                   Thread.currentThread().interrupt();
                               }
                          }).start();
-                    }
-               },
-               error -> {
-                    btnSave.setDisable(false);
-                    btnCancel.setDisable(false);
-                    String message = error.getMessage();
-                    if (message != null && message.contains("không đúng")) {
-                         showErrorLabel("Mật khẩu hiện tại không đúng");
-                         tfCurrent.requestFocus();
-                    } else if (message != null && message.contains("không tìm thấy")) {
-                         showErrorLabel("Không tìm thấy tài khoản");
-                         tfAccount.requestFocus();
-                    } else {
-                         showError("Lỗi: " + (message != null ? message : "Không rõ nguyên nhân"));
-                    }
-               }
-          );
+                    },
+                    error -> {
+                         btnSave.setDisable(false);
+                         btnCancel.setDisable(false);
+                         String message = error.getMessage();
+                         if (message != null && message.contains("không đúng")) {
+                              showErrorLabel("Mật khẩu hiện tại không đúng");
+                              tfCurrent.requestFocus();
+                         } else if (message != null && message.contains("không tìm thấy")) {
+                              showErrorLabel("Không tìm thấy tài khoản trong hệ thống");
+                              tfAccount.requestFocus();
+                         } else {
+                              showError("Lỗi: " + (message != null ? message : "Không rõ nguyên nhân"));
+                         }
+                    });
      }
 
      private void clearForm() {

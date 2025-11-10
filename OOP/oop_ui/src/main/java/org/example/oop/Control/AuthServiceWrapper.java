@@ -96,7 +96,7 @@ public class AuthServiceWrapper {
     public static Optional<Object> getCurrentSession(String sessionId) {
         try {
             if (SessionStorage.getCurrentSessionId() != null &&
-                SessionStorage.getCurrentSessionId().equals(sessionId)) {
+                    SessionStorage.getCurrentSessionId().equals(sessionId)) {
                 return Optional.of(sessionId);
             }
         } catch (Exception e) {
@@ -144,10 +144,10 @@ public class AuthServiceWrapper {
         } catch (Exception e) {
             // Fallback password strength check
             return password != null && password.length() >= 8
-                && password.matches(".*[A-Z].*")
-                && password.matches(".*[a-z].*")
-                && password.matches(".*\\d.*")
-                && password.matches(".*[!@#$%^&*()].*");
+                    && password.matches(".*[A-Z].*")
+                    && password.matches(".*[a-z].*")
+                    && password.matches(".*\\d.*")
+                    && password.matches(".*[!@#$%^&*()].*");
         }
     }
 
@@ -155,7 +155,7 @@ public class AuthServiceWrapper {
      * Đăng ký user mới - chỉ lưu vào database với đầy đủ thông tin
      */
     public static boolean register(String username, String email, String password, String fullName,
-                                   String phone, String address, String dob, String gender) {
+            String phone, String address, String dob, String gender) {
         try {
             // Kiểm tra username đã tồn tại
             Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
@@ -169,23 +169,25 @@ public class AuthServiceWrapper {
             // Hash password
             String hashedPassword = hashPasswordWithSalt(password);
 
-            // Tách fullName thành firstname và lastname (theo cấu trúc tiếng Việt: HỌ - TÊN)
+            // Tách fullName thành firstname và lastname (theo cấu trúc tiếng Việt: HỌ -
+            // TÊN)
             // Ví dụ: "Nguyễn Văn A" → lastname="Nguyễn", firstname="Văn A"
             String[] names = fullName.trim().split("\\s+", 2);
-            String lastname = names.length > 0 ? names[0] : "";       // Họ (từ đầu tiên)
-            String firstname = names.length > 1 ? names[1] : "";      // Tên (phần còn lại)
+            String lastname = names.length > 0 ? names[0] : ""; // Họ (từ đầu tiên)
+            String firstname = names.length > 1 ? names[1] : ""; // Tên (phần còn lại)
 
-            // Gender đã được chuyển đổi sang tiếng Anh IN HOA (MALE, FEMALE, OTHER) từ Controller
+            // Gender đã được chuyển đổi sang tiếng Anh IN HOA (MALE, FEMALE, OTHER) từ
+            // Controller
             // Không cần chuyển đổi nữa, truyền trực tiếp vào database
 
             // Lưu vào database với đầy đủ thông tin
             Method saveCustomerMethod = userDAOInstance.getClass().getMethod(
-                "saveCustomer", String.class, String.class, String.class, String.class,
-                String.class, String.class, String.class, String.class, String.class);
+                    "saveCustomer", String.class, String.class, String.class, String.class,
+                    String.class, String.class, String.class, String.class, String.class);
 
             boolean success = (boolean) saveCustomerMethod.invoke(
-                userDAOInstance, username, hashedPassword, firstname, lastname,
-                phone, email, address, dob, gender);
+                    userDAOInstance, username, hashedPassword, firstname, lastname,
+                    phone, email, address, dob, gender);
 
             if (success) {
                 LOGGER.info("✓ Registration successful: " + username + " with gender: " + gender);
@@ -200,7 +202,8 @@ public class AuthServiceWrapper {
     }
 
     /**
-     * Yêu cầu reset mật khẩu - tạo token đơn giản (không lưu DB vì bảng không tồn tại)
+     * Yêu cầu reset mật khẩu - tạo token đơn giản (không lưu DB vì bảng không tồn
+     * tại)
      */
     public static String requestPasswordReset(String email) {
         try {
@@ -254,9 +257,9 @@ public class AuthServiceWrapper {
 
             // Cập nhật password trong database
             Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
-                "updatePassword", int.class, String.class, String.class);
+                    "updatePassword", int.class, String.class, String.class);
             boolean success = (boolean) updatePasswordMethod.invoke(
-                userDAOInstance, userId, userType, hashedPassword);
+                    userDAOInstance, userId, userType, hashedPassword);
 
             if (success) {
                 // Xóa token sau khi sử dụng
@@ -305,9 +308,9 @@ public class AuthServiceWrapper {
             String hashedPassword = hashPasswordWithSalt(newPassword);
 
             Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
-                "updatePassword", int.class, String.class, String.class);
+                    "updatePassword", int.class, String.class, String.class);
             boolean success = (boolean) updatePasswordMethod.invoke(
-                userDAOInstance, userId, role, hashedPassword);
+                    userDAOInstance, userId, role, hashedPassword);
 
             if (success) {
                 LOGGER.info("✓ Password changed successfully for: " + username);
@@ -318,6 +321,71 @@ public class AuthServiceWrapper {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Change password failed", e);
             return false;
+        }
+    }
+
+    /**
+     * Đổi mật khẩu theo username (không cần đăng nhập trước)
+     * Tự động tìm trong cả Employee và Customer
+     * 
+     * @param username        Tên đăng nhập
+     * @param currentPassword Mật khẩu hiện tại
+     * @param newPassword     Mật khẩu mới
+     * @return true nếu thành công
+     */
+    public static boolean changePasswordByUsername(String username, String currentPassword, String newPassword) {
+        try {
+            // Bước 1: Tìm user theo username (tự động tìm trong cả 2 bảng)
+            Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
+            Optional<?> userOpt = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
+
+            if (!userOpt.isPresent()) {
+                LOGGER.warning("✗ User not found: " + username);
+                throw new RuntimeException("Không tìm thấy tài khoản");
+            }
+
+            Object userRecord = userOpt.get();
+
+            // Bước 2: Lấy thông tin user
+            int userId = (int) userRecord.getClass().getField("id").get(userRecord);
+            String role = (String) userRecord.getClass().getField("role").get(userRecord);
+            String storedPassword = (String) userRecord.getClass().getField("password").get(userRecord);
+            boolean active = (boolean) userRecord.getClass().getField("active").get(userRecord);
+
+            if (!active) {
+                LOGGER.warning("✗ Account inactive: " + username);
+                throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
+            }
+
+            // Bước 3: Verify mật khẩu hiện tại
+            if (!verifyPassword(currentPassword, storedPassword)) {
+                LOGGER.warning("✗ Current password incorrect for: " + username);
+                throw new RuntimeException("Mật khẩu hiện tại không đúng");
+            }
+
+            // Bước 4: Hash mật khẩu mới
+            String hashedPassword = hashPasswordWithSalt(newPassword);
+
+            // Bước 5: Update password trong database
+            Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
+                    "updatePassword", int.class, String.class, String.class);
+            boolean success = (boolean) updatePasswordMethod.invoke(
+                    userDAOInstance, userId, role, hashedPassword);
+
+            if (success) {
+                LOGGER.info("✓ Password changed successfully for: " + username + " [" + role + "]");
+                return true;
+            } else {
+                LOGGER.warning("✗ Password update failed in database for: " + username);
+                throw new RuntimeException("Cập nhật mật khẩu thất bại");
+            }
+
+        } catch (RuntimeException e) {
+            // Re-throw các exception đã được format
+            throw e;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Change password by username failed", e);
+            throw new RuntimeException("Lỗi hệ thống khi đổi mật khẩu: " + e.getMessage());
         }
     }
 }
