@@ -325,53 +325,56 @@ public class AuthServiceWrapper {
     }
 
     /**
-     * Đổi mật khẩu theo username (không cần đăng nhập trước)
+     * Đổi mật khẩu theo username (YÊU CẦU PHẢI ĐĂNG NHẬP)
      * Tự động tìm trong cả Employee và Customer
      * 
-     * @param username        Tên đăng nhập
+     * ⚠️ BẢO MẬT: Chỉ cho phép đổi mật khẩu của chính user đang đăng nhập
+     * 
+     * @param username        Tên đăng nhập (PHẢI TRÙNG với user đang đăng nhập)
      * @param currentPassword Mật khẩu hiện tại
      * @param newPassword     Mật khẩu mới
      * @return true nếu thành công
      */
     public static boolean changePasswordByUsername(String username, String currentPassword, String newPassword) {
         try {
-            // Bước 1: Tìm user theo username (tự động tìm trong cả 2 bảng)
+            // 🔒 BƯỚC 0: KIỂM TRA BẢO MẬT - User phải đang đăng nhập
+            String loggedInUsername = SessionStorage.getCurrentUsername();
+
+            if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+                LOGGER.warning("✗ Security violation: No user logged in");
+                throw new RuntimeException("Bạn cần đăng nhập để đổi mật khẩu");
+            }
+            if (!username.equals(loggedInUsername)) {
+                LOGGER.warning("✗ Security violation: User '" + loggedInUsername +
+                        "' attempted to change password for '" + username + "'");
+                throw new RuntimeException("Bạn chỉ có thể đổi mật khẩu của chính mình!\n\n" +
+                        "Tài khoản đang đăng nhập: " + loggedInUsername + "\n" +
+                        "Tài khoản bạn đang cố đổi: " + username);
+            }
             Method findByUsernameMethod = userDAOInstance.getClass().getMethod("findByUsername", String.class);
             Optional<?> userOpt = (Optional<?>) findByUsernameMethod.invoke(userDAOInstance, username);
-
             if (!userOpt.isPresent()) {
                 LOGGER.warning("✗ User not found: " + username);
                 throw new RuntimeException("Không tìm thấy tài khoản");
             }
-
             Object userRecord = userOpt.get();
-
-            // Bước 2: Lấy thông tin user
             int userId = (int) userRecord.getClass().getField("id").get(userRecord);
             String role = (String) userRecord.getClass().getField("role").get(userRecord);
             String storedPassword = (String) userRecord.getClass().getField("password").get(userRecord);
             boolean active = (boolean) userRecord.getClass().getField("active").get(userRecord);
-
             if (!active) {
                 LOGGER.warning("✗ Account inactive: " + username);
                 throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
             }
-
-            // Bước 3: Verify mật khẩu hiện tại
             if (!verifyPassword(currentPassword, storedPassword)) {
                 LOGGER.warning("✗ Current password incorrect for: " + username);
                 throw new RuntimeException("Mật khẩu hiện tại không đúng");
             }
-
-            // Bước 4: Hash mật khẩu mới
             String hashedPassword = hashPasswordWithSalt(newPassword);
-
-            // Bước 5: Update password trong database
             Method updatePasswordMethod = userDAOInstance.getClass().getMethod(
                     "updatePassword", int.class, String.class, String.class);
             boolean success = (boolean) updatePasswordMethod.invoke(
                     userDAOInstance, userId, role, hashedPassword);
-
             if (success) {
                 LOGGER.info("✓ Password changed successfully for: " + username + " [" + role + "]");
                 return true;
@@ -379,9 +382,7 @@ public class AuthServiceWrapper {
                 LOGGER.warning("✗ Password update failed in database for: " + username);
                 throw new RuntimeException("Cập nhật mật khẩu thất bại");
             }
-
         } catch (RuntimeException e) {
-            // Re-throw các exception đã được format
             throw e;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Change password by username failed", e);

@@ -40,24 +40,22 @@ public class ChangePasswordController extends BaseController {
 
      @FXML
      private void initialize() {
-          // 1️⃣ Setup ẩn/hiện password khi tick checkbox
+          String loggedInUsername = SessionStorage.getCurrentUsername();
+          if (loggedInUsername != null && tfAccount != null) {
+               tfAccount.setText(loggedInUsername);
+               tfAccount.setEditable(false);
+               tfAccount.setStyle("-fx-opacity: 0.7;");
+          }
           setupPasswordToggle();
-
-          // 2️⃣ Setup kiểm tra độ mạnh mật khẩu real-time
           setupPasswordStrengthChecker();
-
-          // 3️⃣ Ẩn label error ban đầu
           if (lblError != null) {
                lblError.setVisible(false);
                lblError.setManaged(false);
           }
-
-          // 4️⃣ Ẩn TextField (chỉ hiện PasswordField ban đầu)
           tfNew.setVisible(false);
           tfNew.setManaged(false);
           tfConfirm.setVisible(false);
           tfConfirm.setManaged(false);
-          // 5️⃣ Đồng bộ nội dung giữa PasswordField và TextField
           bindpasswordFields();
      }
 
