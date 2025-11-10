@@ -3,19 +3,13 @@ package org.example.oop.Control;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.example.oop.Utils.LoadingManager;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.StackPane;
 
-import org.example.oop.Utils.LoadingManager;
-
-/**
- * Base Controller với Task utilities để xử lý background operations
- * Tất cả controllers khác extends từ class này để có các method tiện ích
- * 
- * ✅ Updated Ngày 5 (28/10): Integrated LoadingManager support
- */
 public abstract class BaseController {
 
      /**
