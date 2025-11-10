@@ -1,7 +1,7 @@
 package org.miniboot.app.controllers.PatientAndPrescription;
 
 import com.google.gson.Gson;
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import org.miniboot.app.domain.repo.PatientAndPrescription.PrescriptionRepository;
 import org.miniboot.app.http.HttpRequest;
@@ -63,7 +63,7 @@ public class PrescriptionController
                 System.err.println("❌ General error creating prescription: " + e.getMessage());
                 e.printStackTrace();
                 return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
 
         };
@@ -148,7 +148,7 @@ public class PrescriptionController
               System.err.println("❌ General error updating prescription: " + e.getMessage());
               e.printStackTrace();
               return HttpResponse.of(400, "text/plain; charset=utf-8",
-                      AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                      HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
           }
         };
     }

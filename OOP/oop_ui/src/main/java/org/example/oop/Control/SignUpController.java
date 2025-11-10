@@ -1,9 +1,11 @@
 package org.example.oop.Control;
 
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
@@ -58,8 +60,15 @@ public class SignUpController {
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
 
+    // Timer để tự động ẩn thông báo lỗi sau 5 giây
+    private PauseTransition errorMessageTimer;
+
     @FXML
     public void initialize() {
+        // Khởi tạo timer cho thông báo lỗi (5 giây)
+        errorMessageTimer = new PauseTransition(Duration.seconds(5));
+        errorMessageTimer.setOnFinished(event -> hideErrorMessage());
+
         // Đồng bộ nội dung giữa PasswordField và TextField cho password
         passwordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!isPasswordVisible) {
@@ -88,6 +97,49 @@ public class SignUpController {
 
         // Initialize gender combo box
         genderComboBox.getItems().addAll(Customer.Gender.values());
+
+        // Thêm listener để ẩn thông báo lỗi khi người dùng click vào bất kỳ trường nào
+        setupFieldListeners();
+    }
+
+    /**
+     * Thiết lập listeners cho tất cả các trường để ẩn thông báo lỗi khi người dùng click vào
+     */
+    private void setupFieldListeners() {
+        // Ẩn thông báo lỗi khi click vào bất kỳ trường nhập liệu nào
+        usernameTextField.setOnMouseClicked(event -> hideErrorMessage());
+        passwordTextField.setOnMouseClicked(event -> hideErrorMessage());
+        visiblePasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
+        confirmPasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
+        visibleConfirmPasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
+        fullNameTextField.setOnMouseClicked(event -> hideErrorMessage());
+        emailTextField.setOnMouseClicked(event -> hideErrorMessage());
+        phoneTextField.setOnMouseClicked(event -> hideErrorMessage());
+        dobTextField.setOnMouseClicked(event -> hideErrorMessage());
+        addressTextField.setOnMouseClicked(event -> hideErrorMessage());
+        genderComboBox.setOnMouseClicked(event -> hideErrorMessage());
+
+        // Cũng ẩn khi người dùng bắt đầu gõ
+        usernameTextField.setOnKeyPressed(event -> hideErrorMessage());
+        passwordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        visiblePasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        confirmPasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        visibleConfirmPasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        fullNameTextField.setOnKeyPressed(event -> hideErrorMessage());
+        emailTextField.setOnKeyPressed(event -> hideErrorMessage());
+        phoneTextField.setOnKeyPressed(event -> hideErrorMessage());
+        dobTextField.setOnKeyPressed(event -> hideErrorMessage());
+        addressTextField.setOnKeyPressed(event -> hideErrorMessage());
+    }
+
+    /**
+     * Ẩn thông báo lỗi và dừng timer
+     */
+    private void hideErrorMessage() {
+        errorMessage.setVisible(false);
+        if (errorMessageTimer != null) {
+            errorMessageTimer.stop();
+        }
     }
 
     @FXML
@@ -136,6 +188,12 @@ public class SignUpController {
         errorMessage.setText(message);
         errorMessage.setTextFill(Color.RED);
         errorMessage.setVisible(true);
+
+        // Khởi động lại timer 5 giây mỗi khi có thông báo lỗi mới
+        if (errorMessageTimer != null) {
+            errorMessageTimer.stop();
+            errorMessageTimer.playFromStart();
+        }
     }
 
     /**
@@ -234,8 +292,7 @@ public class SignUpController {
     @FXML
     void signUpButtonOnClick(ActionEvent event) {
         // Reset error message trước
-        errorMessage.setVisible(false);
-
+        hideErrorMessage();
 
         String username = usernameTextField.getText().trim();
         // Lấy password từ field đang hiển thị

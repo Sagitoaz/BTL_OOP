@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.repo.AppointmentRepository;
@@ -50,9 +50,9 @@ public class AppointmentController {
             } catch (Exception e) {
                 System.err.println("❌ Error creating appointment: " + e.getMessage());
                 e.printStackTrace();
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                        HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }
@@ -67,9 +67,9 @@ public class AppointmentController {
                 return appointmentRepository.findById(idOpt.get())
                         .map(Json::ok)
                         .orElse(HttpResponse.of(
-                                404,
-                                "text/plain; charset=utf-8",
-                                AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
+                                HttpConstants.STATUS_NOT_FOUND,
+                                HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                                HttpConstants.REASON_NOT_FOUND.getBytes(StandardCharsets.UTF_8)
                         ));
             }
 
@@ -120,13 +120,15 @@ public class AppointmentController {
                 Appointment appointment = Json.fromBytes(req.body, Appointment.class);
 
                 if (appointment.getId() == 0) {
-                    return HttpResponse.of(400, "text/plain; charset=utf-8",
+                    return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                            HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
                             "Missing appointment ID".getBytes(StandardCharsets.UTF_8));
                 }
 
                 Optional<Appointment> existing = appointmentRepository.findById(appointment.getId());
                 if (existing.isEmpty()) {
-                    return HttpResponse.of(404, "text/plain; charset=utf-8",
+                    return HttpResponse.of(HttpConstants.STATUS_NOT_FOUND,
+                            HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
                             "Appointment not found".getBytes(StandardCharsets.UTF_8));
                 }
 
@@ -139,8 +141,9 @@ public class AppointmentController {
             } catch (IOException e) {
                 System.err.println("Error updating appointment: " + e.getMessage());
                 e.printStackTrace();
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                        HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }

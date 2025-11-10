@@ -1,6 +1,6 @@
 package org.miniboot.app.controllers.payment;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
@@ -51,8 +51,8 @@ public class PaymentController {
             if (idOpt.isPresent()) {
                 return paymentRepository.getPaymentById(idOpt.get())
                         .map(Json::ok)
-                        .orElse(HttpResponse.of(404, "text/plain; charset=utf-8",
-                                AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)));
+                        .orElse(HttpResponse.of(HttpConstants.STATUS_NOT_FOUND, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                                HttpConstants.REASON_NOT_FOUND.getBytes(StandardCharsets.UTF_8)));
             }
 
             // Tìm theo code
@@ -63,16 +63,16 @@ public class PaymentController {
                     var method = paymentRepository.getClass().getMethod("getPaymentByCode", String.class);
                     @SuppressWarnings("unchecked")
                     Optional<Payment> found = (Optional<Payment>) method.invoke(paymentRepository, codeOpt.get());
-                    return found.map(Json::ok).orElse(HttpResponse.of(404, "text/plain; charset=utf-8",
-                            AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)));
+                    return found.map(Json::ok).orElse(HttpResponse.of(HttpConstants.STATUS_NOT_FOUND, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                            HttpConstants.REASON_NOT_FOUND.getBytes(StandardCharsets.UTF_8)));
                 } catch (NoSuchMethodException ignore) {
                     // fallback: lọc từ all (đủ dùng tạm thời, FE vẫn chủ động lọc)
                     return paymentRepository.getPayments().stream()
                             .filter(p -> codeOpt.get().equals(p.getCode()))
                             .findFirst()
                             .map(Json::ok)
-                            .orElse(HttpResponse.of(404, "text/plain; charset=utf-8",
-                                    AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)));
+                            .orElse(HttpResponse.of(HttpConstants.STATUS_NOT_FOUND, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                                    HttpConstants.REASON_NOT_FOUND.getBytes(StandardCharsets.UTF_8)));
                 } catch (Exception e) {
                     e.printStackTrace();
                     return HttpResponse.of(500, "text/plain; charset=utf-8",
@@ -109,8 +109,8 @@ public class PaymentController {
                 return Json.created(saved);
             } catch (Exception e) {
                 e.printStackTrace();
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }
@@ -144,8 +144,8 @@ public class PaymentController {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }
