@@ -10,6 +10,8 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.ValidationUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -37,39 +39,80 @@ public class CustomerRecordController {
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
         return (HttpRequest req) -> {
+            // Validations
+            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+            if (contentTypeError != null) return contentTypeError;
+
+            HttpResponse authError = ValidationUtils.validateJWT(req);
+            if (authError != null) return authError;
+
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+
             try {
                 Gson gson = GsonProvider.getGson();
                 String jsonBody = new String(req.body, StandardCharsets.UTF_8);
                 Customer customerToCreate = gson.fromJson(jsonBody, Customer.class);
 
-                System.out.println("🔄 Attempting to create customer: " + customerToCreate.getFirstname() + " " + customerToCreate.getLastname());
+                // Validate required fields (400)
+                if (customerToCreate.getFirstname() == null ||
+                        customerToCreate.getFirstname().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "First name is required");
+                }
+                if (customerToCreate.getLastname() == null ||
+                        customerToCreate.getLastname().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Last name is required");
+                }
+                if (customerToCreate.getPhone() == null ||
+                        customerToCreate.getPhone().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Phone is required");
+                }
 
-                // Gọi repository save - có thể throw RuntimeException
-                Customer savedCustomer = customerRecordRepository.save(customerToCreate);
+                // Validate business rules (422)
+                if (customerToCreate.getDob() != null &&
+                        customerToCreate.getDob().isAfter(LocalDate.now())) {
+                    return ValidationUtils.error(422, "VALIDATION_FAILED",
+                            "Date of birth cannot be in the future");
+                }
+
+                if (customerToCreate.getDob() != null &&
+                        customerToCreate.getDob().isBefore(LocalDate.now().minusYears(150))) {
+                    return ValidationUtils.error(422, "VALIDATION_FAILED",
+                            "Invalid date of birth");
+                }
+
+                // Check duplicates (409)
+                // TODO: Implement findByPhone, findByEmail in repository
+                // if (phone exists) return 409 CONFLICT
+                // if (email exists) return 409 CONFLICT
+
+                // Save
+                Customer savedCustomer;
+                try {
+                    savedCustomer = customerRecordRepository.save(customerToCreate);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
 
                 if (savedCustomer != null && savedCustomer.getId() > 0) {
                     String jsonResponse = gson.toJson(savedCustomer);
-                    System.out.println("✅ Customer created successfully with ID: " + savedCustomer.getId());
-                    return HttpResponse.of(201, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
+                    return HttpResponse.of(201, "application/json",
+                            jsonResponse.getBytes(StandardCharsets.UTF_8));
                 } else {
-                    System.err.println("❌ Customer creation failed - no customer returned");
-                    return HttpResponse.of(500, "text/plain; charset=utf-8",
-                            "Internal Server Error: Failed to create customer".getBytes(StandardCharsets.UTF_8));
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to create customer");
                 }
-            } catch (RuntimeException e) {
-                // Database errors từ repository
-                System.err.println("❌ Database error creating customer: " + e.getMessage());
-                return HttpResponse.of(500, "text/plain; charset=utf-8",
-                        ("Database Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+
             } catch (Exception e) {
-                // JSON parsing hoặc lỗi khác
-                System.err.println("❌ General error creating customer: " + e.getMessage());
+                System.err.println("❌ Unexpected error in createCustomer: " + e.getMessage());
                 e.printStackTrace();
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
             }
         };
-
     }
     public Function<HttpRequest, HttpResponse> getCustomer() {
         return (HttpRequest req) -> {
@@ -129,20 +172,78 @@ public class CustomerRecordController {
 
     public Function<HttpRequest, HttpResponse> updateCustomer() {
         return (HttpRequest req) -> {
-            try {
-                Customer createdCustomer = null;
-                Gson gson = GsonProvider.getGson();
-                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
-                createdCustomer = gson.fromJson(jsonBody, Customer.class);
-                customerRecordRepository.save(createdCustomer);
-                String jsonResponse = gson.toJson(createdCustomer);
+            // Validations
+            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+            if (contentTypeError != null) return contentTypeError;
 
-                return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
-            }
-            catch (Exception e) {
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+            HttpResponse authError = ValidationUtils.validateJWT(req);
+            if (authError != null) return authError;
+
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+
+            try {
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);
+                Customer customerToUpdate = gson.fromJson(jsonBody, Customer.class);
+
+                // Validate required fields (400)
+                if (customerToUpdate.getFirstname() == null ||
+                        customerToUpdate.getFirstname().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "First name is required");
+                }
+                if (customerToUpdate.getLastname() == null ||
+                        customerToUpdate.getLastname().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Last name is required");
+                }
+                if (customerToUpdate.getPhone() == null ||
+                        customerToUpdate.getPhone().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Phone is required");
+                }
+
+                // Validate business rules (422)
+                if (customerToUpdate.getDob() != null &&
+                        customerToUpdate.getDob().isAfter(LocalDate.now())) {
+                    return ValidationUtils.error(422, "VALIDATION_FAILED",
+                            "Date of birth cannot be in the future");
+                }
+
+                if (customerToUpdate.getDob() != null &&
+                        customerToUpdate.getDob().isBefore(LocalDate.now().minusYears(150))) {
+                    return ValidationUtils.error(422, "VALIDATION_FAILED",
+                            "Invalid date of birth");
+                }
+
+                // Check duplicates (409)
+                // TODO: Implement findByPhone, findByEmail in repository
+                // if (phone exists) return 409 CONFLICT
+                // if (email exists) return 409 CONFLICT
+
+                // Save
+                Customer savedCustomer;
+                try {
+                    savedCustomer = customerRecordRepository.save(customerToUpdate);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                if (savedCustomer != null && savedCustomer.getId() > 0) {
+                    String jsonResponse = gson.toJson(savedCustomer);
+                    return HttpResponse.of(201, "application/json",
+                            jsonResponse.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to create customer");
+                }
+
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in createCustomer: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
             }
         };
     }

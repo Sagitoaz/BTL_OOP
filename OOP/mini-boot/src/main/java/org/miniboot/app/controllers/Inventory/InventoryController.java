@@ -13,6 +13,8 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.ValidationUtils;
 
 public class InventoryController {
      private final ProductRepository productRepo;
@@ -113,63 +115,166 @@ public class InventoryController {
           };
      }
 
-     public Function<HttpRequest, HttpResponse> createProduct() {
-          return (HttpRequest req) -> {
-               try {
-                    Product product = Json.fromBytes(req.body, Product.class);
-                    Product saved = productRepo.save(product);
-                    if (saved == null) {
-                         System.err.println("❌ ERROR: productRepo.save() returned null");
-                         return HttpResponse.of(500, "text/plain",
-                                   "Failed to save product to database".getBytes(StandardCharsets.UTF_8));
+    public Function<HttpRequest, HttpResponse> createProduct() {
+        return (HttpRequest req) -> {
+            // STEP 1: Validate Content-Type (415)
+            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+            if (contentTypeError != null) return contentTypeError;
+
+            // STEP 2: Validate JWT (401)
+            HttpResponse authError = ValidationUtils.validateJWT(req);
+            if (authError != null) return authError;
+
+            // STEP 3: Validate Role - ADMIN only (403)
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+
+            try {
+                // STEP 4: Parse JSON (400)
+                Product product;
+                try {
+                    product = Json.fromBytes(req.body, Product.class);
+                } catch (Exception e) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Invalid JSON format: " + e.getMessage());
+                }
+
+                // STEP 5: Validate required fields (400)
+                if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "SKU is required");
+                }
+                if (product.getName() == null || product.getName().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Name is required");
+                }
+
+                // STEP 6: Validate business rules (422)
+                HttpResponse businessRuleError = ValidationUtils.validateProductBusinessRules(
+                        product.getQtyOnHand(),
+                        product.getPriceCost(),
+                        product.getPriceRetail()
+                );
+                if (businessRuleError != null) return businessRuleError;
+
+                // STEP 7: Check SKU conflict (409)
+                try {
+                    Optional<Product> existing = productRepo.findBySku(product.getSku());
+                    if (existing.isPresent()) {
+                        return ValidationUtils.error(409, "INVENTORY_CONFLICT",
+                                "Product with SKU '" + product.getSku() + "' already exists");
                     }
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
 
-                    return Json.created(saved);
-               } catch (Exception e) {
-                    System.err.println("❌ ERROR in createProduct(): " + e.getMessage());
-                    e.printStackTrace();
-                    return HttpResponse.of(400, "text/plain",
-                              ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
-               }
-          };
-     }
+                // STEP 8: Save to database (503/504/500)
+                Product saved;
+                try {
+                    saved = productRepo.save(product);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
 
-     public Function<HttpRequest, HttpResponse> updateProduct() {
-          return (HttpRequest req) -> {
-               try {
-                    System.out.println("📥 PUT /products - Parsing request body...");
-                    System.out.println("   Body size: " + req.body.length + " bytes");
+                if (saved == null) {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to save product to database");
+                }
 
-                    Product product = Json.fromBytes(req.body, Product.class);
+                // STEP 9: Success (201)
+                return Json.created(saved);
 
-                    System.out.println("✅ Product parsed successfully:");
-                    System.out.println("   ID: " + product.getId());
-                    System.out.println("   SKU: " + product.getSku());
-                    System.out.println("   Name: " + product.getName());
-                    System.out.println("   Category: " + product.getCategory());
+            } catch (Exception e) {
+                // STEP 10: Catch-all for unexpected errors (500)
+                System.err.println("❌ Unexpected error in createProduct: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
+        };
+    }
 
-                    if (product.getId() <= 0) {
-                         System.err.println("❌ ERROR: Missing or invalid product ID: " + product.getId());
-                         return HttpResponse.of(400, "text/plain",
-                                   "Missing product ID".getBytes(StandardCharsets.UTF_8));
+    public Function<HttpRequest, HttpResponse> updateProduct() {
+        return (HttpRequest req) -> {
+            // Validations giống createProduct
+            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+            if (contentTypeError != null) return contentTypeError;
+
+            HttpResponse authError = ValidationUtils.validateJWT(req);
+            if (authError != null) return authError;
+
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+
+            try {
+                Product product = Json.fromBytes(req.body, Product.class);
+
+                // Validate ID (400)
+                if (product.getId() <= 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Product ID is required for update");
+                }
+
+                // Check existence (404)
+                Optional<Product> existing;
+                try {
+                    existing = productRepo.findById(product.getId());
+                    if (existing.isEmpty()) {
+                        return ValidationUtils.error(404, "NOT_FOUND",
+                                "Product with ID " + product.getId() + " not found");
                     }
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
 
-                    System.out.println("🔄 Saving product to database...");
-                    Product updated = productRepo.save(product);
-                    System.out.println("✅ Product updated successfully: ID=" + updated.getId());
+                // Validate business rules
+                HttpResponse businessRuleError = ValidationUtils.validateProductBusinessRules(
+                        product.getQtyOnHand(),
+                        product.getPriceCost(),
+                        product.getPriceRetail()
+                );
+                if (businessRuleError != null) return businessRuleError;
 
-                    return Json.ok(updated);
-               } catch (Exception e) {
-                    System.err.println("❌ ERROR in updateProduct():");
-                    System.err.println("   Type: " + e.getClass().getName());
-                    System.err.println("   Message: " + e.getMessage());
-                    e.printStackTrace();
+                // Check SKU conflict with OTHER products (409)
+                if (product.getSku() != null &&
+                        !product.getSku().equals(existing.get().getSku())) {
+                    try {
+                        Optional<Product> skuConflict = productRepo.findBySku(product.getSku());
+                        if (skuConflict.isPresent() &&
+                                skuConflict.get().getId() != product.getId()) {
+                            return ValidationUtils.error(409, "SKU_CONFLICT",
+                                    "SKU '" + product.getSku() + "' is already used by another product");
+                        }
+                    } catch (Exception e) {
+                        return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+                }
 
-                    return HttpResponse.of(400, "text/plain",
-                              ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
-               }
-          };
-     }
+                // TODO: Implement version/ETag check for optimistic locking (412)
+
+                // Update
+                Product updated;
+                try {
+                    updated = productRepo.save(product);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                if (updated == null) {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to update product");
+                }
+
+                return Json.ok(updated);
+
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in updateProduct: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
+        };
+    }
 
      public Function<HttpRequest, HttpResponse> deleteProduct() {
           return (HttpRequest req) -> {
