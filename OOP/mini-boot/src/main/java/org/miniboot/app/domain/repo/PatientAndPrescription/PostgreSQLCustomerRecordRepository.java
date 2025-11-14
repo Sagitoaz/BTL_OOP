@@ -303,6 +303,43 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
         return 0;
     }
 
+    @Override
+    public Optional<Customer> findByPhone(String phone) {
+        String sqlQuery = "SELECT * FROM customers WHERE phone = ? LIMIT 1;";
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
 
+            pstmt.setString(1, phone);
+            ResultSet rs = pstmt.executeQuery();
 
+            if (rs.next()) {
+                return Optional.of(CustomerMapper.mapResultSetToCustomer(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error finding customer by phone: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database find failed: " + e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Customer> findByEmail(String email) {
+        String sqlQuery = "SELECT * FROM customers WHERE email = ? LIMIT 1;";
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(CustomerMapper.mapResultSetToCustomer(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error finding customer by email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database find failed: " + e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
 }

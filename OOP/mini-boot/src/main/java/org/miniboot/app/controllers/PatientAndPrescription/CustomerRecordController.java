@@ -10,7 +10,9 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.util.CustomerAndPrescriptionConfig;
 import org.miniboot.app.util.GsonProvider;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.CustomerValidator;
 import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.RateLimiter;
 import org.miniboot.app.util.errorvalidation.ValidationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -39,57 +41,25 @@ public class CustomerRecordController {
 
     public Function<HttpRequest, HttpResponse> createCustomer() {
         return (HttpRequest req) -> {
-            // Validations
-            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
-            if (contentTypeError != null) return contentTypeError;
-
-            HttpResponse authError = ValidationUtils.validateJWT(req);
-            if (authError != null) return authError;
-
-            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
-            if (roleError != null) return roleError;
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-3: Standard validations (Content-Type, JWT, Role)
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
 
             try {
+                // Step 4: Parse JSON
                 Gson gson = GsonProvider.getGson();
                 String jsonBody = new String(req.body, StandardCharsets.UTF_8);
                 Customer customerToCreate = gson.fromJson(jsonBody, Customer.class);
 
-                // Validate required fields (400)
-                if (customerToCreate.getFirstname() == null ||
-                        customerToCreate.getFirstname().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "First name is required");
-                }
-                if (customerToCreate.getLastname() == null ||
-                        customerToCreate.getLastname().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Last name is required");
-                }
-                if (customerToCreate.getPhone() == null ||
-                        customerToCreate.getPhone().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Phone is required");
-                }
+                // Step 5: Full customer validation (required fields + business rules + duplicates)
+                HttpResponse customerError = CustomerValidator.validateForCreate(customerToCreate, customerRecordRepository);
+                if (customerError != null) return customerError;
 
-                // Validate business rules (422)
-                if (customerToCreate.getDob() != null &&
-                        customerToCreate.getDob().isAfter(LocalDate.now())) {
-                    return ValidationUtils.error(422, "VALIDATION_FAILED",
-                            "Date of birth cannot be in the future");
-                }
-
-                if (customerToCreate.getDob() != null &&
-                        customerToCreate.getDob().isBefore(LocalDate.now().minusYears(150))) {
-                    return ValidationUtils.error(422, "VALIDATION_FAILED",
-                            "Invalid date of birth");
-                }
-
-                // Check duplicates (409)
-                // TODO: Implement findByPhone, findByEmail in repository
-                // if (phone exists) return 409 CONFLICT
-                // if (email exists) return 409 CONFLICT
-
-                // Save
+                // Step 6: Save customer
                 Customer savedCustomer;
                 try {
                     savedCustomer = customerRecordRepository.save(customerToCreate);
@@ -97,6 +67,7 @@ public class CustomerRecordController {
                     return DatabaseErrorHandler.handleDatabaseException(e);
                 }
 
+                // Step 7: Return success response
                 if (savedCustomer != null && savedCustomer.getId() > 0) {
                     String jsonResponse = gson.toJson(savedCustomer);
                     return HttpResponse.of(201, "application/json",
@@ -172,57 +143,29 @@ public class CustomerRecordController {
 
     public Function<HttpRequest, HttpResponse> updateCustomer() {
         return (HttpRequest req) -> {
-            // Validations
-            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
-            if (contentTypeError != null) return contentTypeError;
-
-            HttpResponse authError = ValidationUtils.validateJWT(req);
-            if (authError != null) return authError;
-
-            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
-            if (roleError != null) return roleError;
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-3: Standard validations (Content-Type, JWT, Role)
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
 
             try {
+                // Step 4: Parse JSON
                 Gson gson = GsonProvider.getGson();
                 String jsonBody = new String(req.body, StandardCharsets.UTF_8);
                 Customer customerToUpdate = gson.fromJson(jsonBody, Customer.class);
 
-                // Validate required fields (400)
-                if (customerToUpdate.getFirstname() == null ||
-                        customerToUpdate.getFirstname().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "First name is required");
-                }
-                if (customerToUpdate.getLastname() == null ||
-                        customerToUpdate.getLastname().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Last name is required");
-                }
-                if (customerToUpdate.getPhone() == null ||
-                        customerToUpdate.getPhone().trim().isEmpty()) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Phone is required");
-                }
+                // Step 5: Check if customer exists
+                HttpResponse existsError = CustomerValidator.checkExists(customerRecordRepository, customerToUpdate.getId());
+                if (existsError != null) return existsError;
 
-                // Validate business rules (422)
-                if (customerToUpdate.getDob() != null &&
-                        customerToUpdate.getDob().isAfter(LocalDate.now())) {
-                    return ValidationUtils.error(422, "VALIDATION_FAILED",
-                            "Date of birth cannot be in the future");
-                }
+                // Step 6: Full customer validation (with ID exclusion for duplicates)
+                HttpResponse customerError = CustomerValidator.validateForUpdate(customerToUpdate, customerRecordRepository);
+                if (customerError != null) return customerError;
 
-                if (customerToUpdate.getDob() != null &&
-                        customerToUpdate.getDob().isBefore(LocalDate.now().minusYears(150))) {
-                    return ValidationUtils.error(422, "VALIDATION_FAILED",
-                            "Invalid date of birth");
-                }
-
-                // Check duplicates (409)
-                // TODO: Implement findByPhone, findByEmail in repository
-                // if (phone exists) return 409 CONFLICT
-                // if (email exists) return 409 CONFLICT
-
-                // Save
+                // Step 7: Save customer
                 Customer savedCustomer;
                 try {
                     savedCustomer = customerRecordRepository.save(customerToUpdate);
@@ -230,6 +173,7 @@ public class CustomerRecordController {
                     return DatabaseErrorHandler.handleDatabaseException(e);
                 }
 
+                // Step 8: Return success response
                 if (savedCustomer != null && savedCustomer.getId() > 0) {
                     String jsonResponse = gson.toJson(savedCustomer);
                     return HttpResponse.of(201, "application/json",
@@ -248,29 +192,55 @@ public class CustomerRecordController {
         };
     }
     public Function<HttpRequest, HttpResponse> deleteCustomer() {
-        return (HttpRequest req)->{
-            try{
-                Customer deletedCustomer = null;
-                Gson gson = GsonProvider.getGson();
-                String jsonBody = new String(req.body, StandardCharsets.UTF_8);;
-                deletedCustomer = gson.fromJson(jsonBody, Customer.class);
-                boolean deleted = customerRecordRepository.deleteById(deletedCustomer.getId());
-                if(deleted){
-                    String jsonResponse = gson.toJson(deletedCustomer);
-                    return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
-                }
-                else{
-                    return HttpResponse.of(404,
-                            "text/plain; charset=utf-8",
-                            AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8));
-                }
-            }
-            catch (Exception e) {
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
-            }
+        return (HttpRequest req) -> {
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-3: Standard validations (Content-Type, JWT, Role)
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
 
+            try {
+                // Step 4: Parse JSON
+                Gson gson = GsonProvider.getGson();
+                String jsonBody = new String(req.body, StandardCharsets.UTF_8);
+                Customer deletedCustomer = gson.fromJson(jsonBody, Customer.class);
+
+                // Step 5: Validate ID
+                if (deletedCustomer == null || deletedCustomer.getId() <= 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Valid customer ID is required");
+                }
+
+                // Step 6: Check if customer exists
+                HttpResponse existsError = CustomerValidator.checkExists(customerRecordRepository, deletedCustomer.getId());
+                if (existsError != null) return existsError;
+
+                // Step 7: Delete customer
+                boolean deleted;
+                try {
+                    deleted = customerRecordRepository.deleteById(deletedCustomer.getId());
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                // Step 8: Return success response
+                if (deleted) {
+                    String jsonResponse = gson.toJson(deletedCustomer);
+                    return HttpResponse.of(200, "application/json", 
+                            jsonResponse.getBytes(StandardCharsets.UTF_8));
+                } else {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to delete customer");
+                }
+
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in deleteCustomer: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
         };
     }
 

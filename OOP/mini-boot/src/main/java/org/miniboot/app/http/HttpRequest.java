@@ -206,4 +206,28 @@ public class HttpRequest {
             return s;
         }
     }
+
+    /**
+     * Set attribute to request context (used for passing data between middleware)
+     * 
+     * @param key Attribute key
+     * @param value Attribute value
+     */
+    public void setAttribute(String key, Object value) {
+        if (value == null) {
+            tags.remove(key);
+        } else {
+            tags.put(key, value.toString());
+        }
+    }
+
+    /**
+     * Get attribute from request context
+     * 
+     * @param key Attribute key
+     * @return Attribute value or null if not found
+     */
+    public Object getAttribute(String key) {
+        return tags.get(key);
+    }
 }

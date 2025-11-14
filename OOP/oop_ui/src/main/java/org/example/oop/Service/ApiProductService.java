@@ -177,17 +177,21 @@ public class ApiProductService {
 
             System.out.println("✅ Product created with ID: " + created.getId());
             return created;
-        } else if (responseCode >= 500) {
-            // ✅ Server error (500, 503, etc.)
-            throw new Exception("Lỗi server (" + responseCode + "): " + responseBody +
-                    "\n\nVui lòng kiểm tra:\n" +
-                    "- Server backend có đang chạy?\n" +
-                    "- Database connection có ổn định?\n" +
-                    "- Xem logs của server để biết chi tiết");
         } else {
-            // Client error (400, 404, etc.)
-            throw new Exception("Lỗi tạo sản phẩm (" + responseCode + "): " + responseBody);
+        // Build detailed error message
+        String errorMessage = "HTTP " + responseCode + ": ";
+
+        // Try to parse JSON error response
+        if (responseBody != null && responseBody.contains("{") && responseBody.contains("message")) {
+            // Response có JSON format
+            errorMessage += responseBody; // Keep full JSON for parsing in Controller
+        } else {
+            // Plain text response
+            errorMessage += (responseBody != null ? responseBody : "Unknown error");
         }
+
+        throw new Exception(errorMessage);
+    }
     }
 
     public Product updateProduct(Product product) throws Exception {
