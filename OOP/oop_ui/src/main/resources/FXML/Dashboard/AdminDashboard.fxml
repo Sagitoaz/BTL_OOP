@@ -13,8 +13,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css, @../../css/global-styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.DashBoard.AdminDashBoardController">
-    <BorderPane prefHeight="800.0" prefWidth="1200.0">
+<AnchorPane prefHeight="800.0" prefWidth="1280.0" stylesheets="@../../css/main.css, @../../css/buttons.css, @../../css/forms.css, @../../css/layouts.css, @../../css/dashboard.css, @../../css/navigation.css, @../../css/global-styles.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.DashBoard.AdminDashBoardController">
+    <BorderPane prefHeight="800.0" prefWidth="1280.0">
         <!-- Sidebar -->
         <left>
             <VBox prefWidth="250" style="-fx-background-color: linear-gradient(to bottom, #0369A1, #0284C7, #0EA5E9); -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.3), 15, 0, 5, 0);" styleClass="sidebar">
@@ -61,7 +61,11 @@
                     <VBox spacing="30" style="-fx-padding: 30px; -fx-background-color: #F0F9FF;" styleClass="dashboard-container">
                         <!-- Welcome Section -->
                         <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%); -fx-background-radius: 20px; -fx-padding: 35px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 25, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 20px;" styleClass="welcome-section">
-                            <Label style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="Chào mừng trở lại, Admin! 👋" />
+                            <Label fx:id="welcomeLabel" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="Chào mừng trở lại, Admin! 👋" />
+                            <HBox spacing="15" alignment="CENTER_LEFT">
+                                <Label fx:id="roleLabel" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-padding: 8px 16px; -fx-background-radius: 15px; -fx-font-weight: 700; -fx-font-size: 13px;" text="QUẢN TRỊ VIÊN" />
+                                <Label fx:id="userNameLabel" style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 14px; -fx-font-weight: 600;" text="@admin" />
+                            </HBox>
                             <Label style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 16px; -fx-font-weight: 500;" text="Quản lý hệ thống phòng khám hiệu quả và chuyên nghiệp" />
                             <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0; -fx-font-weight: 500;" text="📅 Hôm nay: Thứ Năm, 07 tháng 11 năm 2025" />
                         </VBox>
@@ -170,3 +174,4 @@
         </center>
     </BorderPane>
 </AnchorPane>
+

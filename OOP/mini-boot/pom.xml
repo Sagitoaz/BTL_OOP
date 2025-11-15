@@ -13,7 +13,7 @@
         <java-jwt.version>4.4.0</java-jwt.version>
         <mssql.version>12.6.1.jre11</mssql.version>
         <postgresql.version>42.7.3</postgresql.version>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <exec.plugin.version>3.1.0</exec.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -83,7 +83,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>17</release>
+                    <release>21</release>
                 </configuration>
             </plugin>
             

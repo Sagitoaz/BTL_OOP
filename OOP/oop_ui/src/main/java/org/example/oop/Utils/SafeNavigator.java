@@ -34,7 +34,7 @@ public class SafeNavigator {
                     ErrorHandler.showCustomError(500, "Không thể mở màn hình " + title + "\n\n" +
                               "Chi tiết lỗi: " + e.getMessage() + "\n\n" +
                               "Vui lòng thử lại hoặc liên hệ quản trị viên.");
-                    if (onError == null) {
+                    if (onError != null) {
                          onError.run();
                     }
                });
@@ -59,12 +59,17 @@ public class SafeNavigator {
      // điều hướng với quyền
 
      public static void navigateWithPermissionCheck(String role, String module, String fxmlPath, String title) {
+          System.out.println("🔒 Permission check: role=" + role + ", module=" + module);
+
           if (!hasPermission(role, module)) {
+               System.err.println("❌ Permission denied for role: " + role + " on module: " + module);
                Platform.runLater(() -> {
-                    ErrorHandler.showUserFriendlyError(403, "Bạn không có quyền try cập " + title);
+                    ErrorHandler.showUserFriendlyError(403, "Bạn không có quyền truy cập " + title);
                });
                return;
           }
+
+          System.out.println("✅ Permission granted");
           navigate(fxmlPath, title);
      }
 

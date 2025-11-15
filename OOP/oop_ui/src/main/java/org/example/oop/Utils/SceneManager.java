@@ -21,6 +21,10 @@ public final class SceneManager {
     private static Stage primaryStage;
     private static final int MAX_CACHE_SIZE = 5;
     private static final int MAX_HISTORY_SIZE = 10;
+
+    // Fixed window size for all scenes
+    private static final double WINDOW_WIDTH = 1280.0;
+    private static final double WINDOW_HEIGHT = 800.0;
     private static Map<String, Parent> cachedScenes = new HashMap<>();
     private static Stack<SceneInfo> navigationHistory = new Stack<>();
     private static final Stack<SceneInfo> forwardHistory = new Stack<>();
@@ -115,7 +119,7 @@ public final class SceneManager {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
             scene.getProperties().put("fxmlLoader", loader);
             if (scene == null) {
                 System.err.println("Failed to load scene for: " + fxmlPath);
@@ -214,7 +218,7 @@ public final class SceneManager {
         try {
             FXMLLoader loader = new FXMLLoader(SceneManager.class.getResource(fxmlPath));
             Parent root = loader.load();
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
             scene.getProperties().put("fxmlLoader", loader);
             addToCache(fxmlPath, root);
             return scene;

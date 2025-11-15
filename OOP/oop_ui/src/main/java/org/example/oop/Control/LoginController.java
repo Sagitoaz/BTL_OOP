@@ -1,17 +1,8 @@
 package org.example.oop.Control;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.PasswordField;
-import javafx.stage.Stage;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpEmployeeService;
 import org.example.oop.Utils.SceneConfig;
@@ -20,10 +11,13 @@ import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.models.UserRole;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 
 public class LoginController {
 
@@ -111,9 +105,12 @@ public class LoginController {
     }
 
     private String validateInput(String user, String pass) {
-        if (user.isEmpty() && pass.isEmpty()) return "Enter username and password";
-        if (user.isEmpty()) return "Enter username";
-        if (pass.isEmpty()) return "Enter password";
+        if (user.isEmpty() && pass.isEmpty())
+            return "Enter username and password";
+        if (user.isEmpty())
+            return "Enter username";
+        if (pass.isEmpty())
+            return "Enter password";
         return null;
     }
 
@@ -121,9 +118,8 @@ public class LoginController {
     void LoginButtonOnClick(ActionEvent event) throws Exception {
         String username = usernameTextField.getText().trim();
         // Lấy password từ field đang hiển thị
-        String password = isPasswordVisible ?
-                         visiblePasswordTextField.getText().trim() :
-                         enterPasswordTextField.getText().trim();
+        String password = isPasswordVisible ? visiblePasswordTextField.getText().trim()
+                : enterPasswordTextField.getText().trim();
 
         // validate input
         String msg = validateInput(username, password);
@@ -139,47 +135,88 @@ public class LoginController {
             String sessionId = sessionOpt.get();
             // Save sessionId to session storage for later use
             SessionStorage.setCurrentSessionId(sessionId);
-            System.out.println("Login successful" + SessionStorage.getCurrentUsername() + " " + SessionStorage.getCurrentUserRole());
+
+            // Save auth token to SceneManager for SessionValidator
+            SceneManager.setSceneData("authToken", sessionId);
+
+            System.out.println("Login successful" + SessionStorage.getCurrentUsername() + " "
+                    + SessionStorage.getCurrentUserRole());
             // Clear error message
             invalidLoginMessage.setText("");
             // Redirect to dashboard
-            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN")){
-                String[] key = {"role", "accountData"};
-                Object[] data = {UserRole.ADMIN, null};
-                SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+            String userRole = SessionStorage.getCurrentUserRole();
+            System.out.println("🔍 Redirecting user with role: " + userRole);
 
-            }
-            else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
-            {
-                try{
+            if ("admin".equalsIgnoreCase(userRole)) {
+                // Admin không phải là Employee, tạo object giả với username từ auth
+                Employee adminEmployee = new Employee();
+                adminEmployee.setId(SessionStorage.getCurrentUserId());
+                adminEmployee.setUsername(SessionStorage.getCurrentUsername());
+                adminEmployee.setRole("admin");
+                adminEmployee.setFirstname("Admin");
+                adminEmployee.setLastname(""); // Admin không có họ tên thật
+                adminEmployee.setActive(true);
+
+                System.out.println(
+                        "✅ Login as ADMIN: " + adminEmployee.getUsername());
+                System.out.println("   Admin user - not from employees table");
+
+                String[] key = { "role", "accountData", "authToken" };
+                Object[] data = { UserRole.ADMIN, adminEmployee, sessionId };
+                SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key,
+                        data);
+
+            } else if ("customer".equalsIgnoreCase(userRole)) {
+                try {
                     Customer customer = CustomerRecordService.getInstance().searchCustomers(
                             String.valueOf(SessionStorage.getCurrentUserId()),
                             null,
                             null,
-                            null
-                    ).getData().get(0);
-                    String[] key = {"role", "accountData"};
-                    Object[] data = {UserRole.CUSTOMER, customer};
-                    SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                            null).getData().get(0);
+
+                    System.out.println("✅ Login as CUSTOMER: " + customer.getUsername());
+
+                    String[] key = { "role", "accountData", "authToken" };
+                    Object[] data = { UserRole.CUSTOMER, customer, sessionId };
+                    SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD,
+                            key, data);
                 } catch (Exception e) {
                     invalidLoginMessage.setVisible(true);
                     invalidLoginMessage.setText("Data loading error. Please try again later.");
                 }
-            }
-            else{
+            } else if ("doctor".equalsIgnoreCase(userRole) || "nurse".equalsIgnoreCase(userRole)) {
+                // Employee: Doctor or Nurse
                 HttpEmployeeService employeeService = new HttpEmployeeService();
                 Employee employee = employeeService.getEmployeeById(
-                        SessionStorage.getCurrentUserId()
-                );
-                String[] key = {"role", "accountData"};
-                Object[] data = {UserRole.EMPLOYEE,employee };
-                if(employee.getRole().equalsIgnoreCase("doctor")){
-                    SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+                        SessionStorage.getCurrentUserId());
+
+                // ⚠️ OVERRIDE role from database with role from auth service
+                employee.setRole(userRole);
+
+                System.out.println(
+                        "✅ Login as " + userRole + ": " + employee.getFirstname() + " " + employee.getLastname());
+                System.out.println("   Employee role OVERRIDDEN to: " + employee.getRole());
+
+                String[] key = { "role", "accountData", "authToken" };
+                Object[] data = { UserRole.EMPLOYEE, employee, sessionId };
+
+                if (employee.getRole().equalsIgnoreCase("doctor")) {
+                    SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD,
+                            key, data);
+                } else if (employee.getRole().equalsIgnoreCase("nurse")) {
+                    SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD,
+                            key, data);
+                } else {
+                    // Fallback nếu role không match
+                    System.err.println("❌ Unknown employee role: " + employee.getRole());
+                    invalidLoginMessage.setVisible(true);
+                    invalidLoginMessage.setText("Invalid user role configuration. Please contact administrator.");
                 }
-                else{
-                    SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
-                }
-                System.out.println("Login as employee: " + employee.getFirstname() + " " + employee.getLastname());
+            } else {
+                // Unknown role
+                System.err.println("❌ Unknown user role: " + userRole);
+                invalidLoginMessage.setVisible(true);
+                invalidLoginMessage.setText("Invalid user role. Please contact administrator.");
             }
 
         } else {

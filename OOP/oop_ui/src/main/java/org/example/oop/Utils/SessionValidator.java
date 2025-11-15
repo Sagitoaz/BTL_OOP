@@ -19,22 +19,12 @@ public class SessionValidator {
       */
      public static boolean validateEmployeeSession() {
           Employee employee = SceneManager.getSceneData("accountData");
+          
+          System.out.println("🔍 SessionValidator: Checking employee session...");
+          System.out.println("   Employee data: " + (employee != null ? employee.getUsername() : "NULL"));
+          
           if (employee == null) {
                System.err.println("❌ Employee Session invalid: accountData is null");
-               Platform.runLater(() -> {
-                    // Hiển thị thông báo lỗi
-                    ErrorHandler.showCustomError(401, 
-                         "Phiên đăng nhập đã hết hạn.\n\n" +
-                         "Vui lòng đăng nhập lại để tiếp tục.");
-                    
-                    // Clear session data (KHÔNG cần clearHistory)
-                    SceneManager.clearSceneData();
-                    
-                    // Redirect to login
-                    SceneManager.switchScene(
-                         SceneConfig.LOGIN_FXML,
-                         SceneConfig.Titles.LOGIN);
-               });
                return false;
           }
           String token = SceneManager.getSceneData("authToken");

@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         SceneManager.setPrimaryStage(stage);
         SceneManager.clearCache();
-        SceneManager.clearSceneData();
+        SceneManager.clearSceneData();  
         SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
     }
 }

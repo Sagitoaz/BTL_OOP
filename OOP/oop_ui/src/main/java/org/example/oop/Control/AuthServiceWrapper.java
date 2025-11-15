@@ -64,9 +64,14 @@ public class AuthServiceWrapper {
             int userId = (int) userRecord.getClass().getField("id").get(userRecord);
             String role = (String) userRecord.getClass().getField("role").get(userRecord);
 
+            // DEBUG: Log role từ database
+            System.out.println("🔍 AuthServiceWrapper.login() - Role from DB: '" + role + "' for user: " + username);
+            System.out.println("   UserID: " + userId);
+            System.out.println("   Username: " + username);
+
             // Lưu thông tin user vào SessionStorage
             SessionStorage.setCurrentUserId(userId);
-            SessionStorage.setCurrentUserRole(role);
+            SessionStorage.setCurrentUserRole(role);  // Set role CHÍNH XÁC từ DB
             SessionStorage.setCurrentUsername(username);
 
             LOGGER.info("✓ Login successful: " + username + " [" + role + "]");
