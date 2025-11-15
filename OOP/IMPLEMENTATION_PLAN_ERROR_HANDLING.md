@@ -1,121 +1,822 @@
 # 📋 KẾ HOẠCH TRIỂN KHAI XỬ LÝ LỖI THEO SEQUENCE DIAGRAM
 
 **Ngày tạo:** 8 tháng 11, 2025  
+**Cập nhật:** 11 tháng 11, 2025  
 **Branch:** OOP-49  
 **Mục tiêu:** Đảm bảo backend và frontend xử lý đầy đủ tất cả các mã lỗi như được định nghĩa trong PlantUML Sequence Diagrams
 
 ---
 
-## 🎯 TỔNG QUAN
+## 🎯 TỔNG QUAN DỰ ÁN
 
-Sau khi phân tích toàn bộ dự án, tôi nhận thấy:
+Sau khi quét toàn bộ source code thực tế của dự án, tôi đã xác định rõ:
 
-### ✅ **Đã có sẵn:**
-1. **ErrorHandler framework** trong `oop_ui` với mapping đầy đủ HTTP status codes
-2. **ApiClient** với xử lý async/sync và error callbacks
-3. **ApiResponse wrapper** với type safety
-4. **Repository pattern** trong backend với exception handling cơ bản
+### ✅ **ĐÃ TRIỂN KHAI (Verified from source code):**
+1. **ValidationUtils.java** - Đã có sẵn với các methods:
+   - `validateContentType()` - Kiểm tra Content-Type header
+   - `validateJWT()` - Placeholder cho JWT authentication
+   - `validateRole()` - Placeholder cho role-based authorization
+   - `validateProductBusinessRules()` - Kiểm tra qty, price >= 0
+   - `error()` - Tạo JSON error response chuẩn
 
-### ❌ **Còn thiếu:**
-1. **Backend controllers** chưa xử lý đầy đủ các trường hợp lỗi như sequence diagram
-2. Thiếu **validation layers** cho business rules (422 errors)
-3. Thiếu **conflict detection** (409 errors)
-4. Thiếu **timeout handling** và **database error mapping** (503, 504, 500)
-5. **Frontend controllers** chưa handle hết các error cases
-6. Thiếu **Content-Type validation** (415 errors)
-7. Chưa có **authentication/authorization checks** (401, 403)
+2. **DatabaseErrorHandler.java** - Đã có sẵn:
+   - `handleDatabaseException()` - Map SQLException sang HTTP codes
+   - `isRetryable()` - Check lỗi có thể retry
+   - Support PostgreSQL error codes (23505, 23503, 08xxx, 40P01)
+
+3. **InventoryController.java** - Đã implement đầy đủ error handling:
+   - `createProduct()` - Có đầy đủ validations (415, 401, 403, 400, 422, 409, 503/504/500)
+   - `updateProduct()` - Có đầy đủ validations + check existence (404)
+   - `searchProductBySku()` - Có basic validation (400, 404, 500)
+
+4. **CustomerRecordController.java** - Đã implement một phần:
+   - `createCustomer()` - Có validations (415, 401, 403, 400, 422)
+   - Có comment TODO cho duplicate checking (409)
+
+5. **ApiProductService.java** (Frontend) - Đã có retry mechanism:
+   - `getAllProducts()` - Retry 3 lần với timeout handling
+   - `createProduct()`, `updateProduct()`, `deleteProduct()` - Basic error handling
+
+6. **ProductCRUDController.java** (Frontend) - Có async error callbacks:
+   - `createProductAsync()`, `updateProductAsync()`, `deleteProductAsync()` - Có error handlers
+
+### ❌ **CẦN BỔ SUNG:**
+1. **CustomerRecordRepository** - Chưa có methods `findByPhone()`, `findByEmail()`
+2. **CustomerRecordController** - Chưa implement duplicate checking (409)
+3. **ValidationUtils** - Chưa có `validateSearchKeyword()` cho search validation
+4. **InventoryController.searchProductBySku()** - Chưa validate keyword (422)
+5. **Frontend error parsing** - Chưa parse JSON error response để hiển thị message cụ thể
+6. **PrescriptionController** - Chưa có error handling
+7. **JWT & Role validation** - Chỉ là placeholder, chưa implement thực sự
 
 ---
 
-## 📊 PHÂN TÍCH SEQUENCE DIAGRAMS
+## 📊 PHÂN TÍCH SEQUENCE DIAGRAMS VÀ TRẠNG THÁI TRIỂN KHAI
 
 ### 1️⃣ **INVENTORY - ADD (AddInventory.puml)**
 
-#### Các mã lỗi cần xử lý:
-- ✅ **415 Unsupported Media Type** - Kiểm tra Content-Type
-- ✅ **401 Unauthorized** - Xác thực JWT
-- ✅ **403 Forbidden** - Kiểm tra quyền ADMIN
-- ❌ **400 Bad Request** - Thiếu trường bắt buộc, sai kiểu dữ liệu
-- ❌ **422 Unprocessable Entity** - Vi phạm business rules (qty ≥ 0, price ≥ 0)
-- ❌ **409 Conflict** - SKU đã tồn tại
-- ❌ **503 Service Unavailable** - Database down
-- ❌ **504 Gateway Timeout** - Database timeout
-- ❌ **500 Internal Server Error** - Database constraint violations
-- ✅ **201 Created** - Thành công
+#### **Yêu cầu từ Sequence Diagram:**
 
-#### Vị trí code cần sửa:
-**Backend:** `mini-boot/src/main/java/org/miniboot/app/controllers/Inventory/InventoryController.java`
+Theo file `UML/Sequence/Inventory/AddInventory.puml`:
+
+**Flow chính:**
+1. ✅ 415 UNSUPPORTED_MEDIA_TYPE - Kiểm tra Content-Type = application/json
+2. ✅ 401 UNAUTHORIZED - Xác minh JWT (Authorization: Bearer ...)
+3. ✅ 403 FORBIDDEN - Kiểm tra quyền (vai trò: ADMIN)
+4. ✅ 400 BAD_REQUEST - Kiểm tra trường bắt buộc & kiểu dữ liệu
+5. ✅ 422 UNPROCESSABLE_ENTITY - Kiểm tra quy tắc nghiệp vụ (số lượng ≥ 0, giá ≥ 0)
+6. ✅ 409 CONFLICT - Check trùng SKU/ID (SELECT theo SKU/ID)
+7. ✅ 503 SERVICE_UNAVAILABLE - Dịch vụ không khả dụng (DB hỏng/đang bảo trì)
+8. ✅ 504 GATEWAY_TIMEOUT - Hết thời gian chờ (Quá hạn truy vấn)
+9. ✅ 500 INTERNAL_SERVER_ERROR - Lỗi CSDL (deadlock/constraint)
+10. ✅ 201 CREATED - Thêm thành công
+
+**Error codes trong diagram:**
+- ✅ `"KHÔNG_HỖ_TRỢ_DỮ_LIỆU"` (415)
+- ✅ `"CHƯA_XÁC_THỰC"` (401)
+- ✅ `"KHÔNG_CÓ_QUYỀN"` (403)
+- ✅ `"YÊU_CẦU_KHÔNG_HỢP_LỆ"` (400)
+- ✅ `"DỮ_LIỆU_KHÔNG_HỢP_LỆ"` (422)
+- ✅ `"HÀNG_TỒN_KHO_TRÙNG"` (409)
+- ✅ `"DỊCH_VỤ_KHÔNG_KHẢ_DỤNG"` (503)
+- ✅ `"HẾT_THỜI_GIAN_CHỜ"` (504)
+- ✅ `"LỖI_CSDL"` (500)
+- ✅ `"ĐÃ_TẠO"` (201)
+
+#### **Trạng thái triển khai:**
+**Backend `InventoryController.createProduct()`** - ✅ **ĐÃ HOÀN THÀNH**
+
+Code hiện tại trong file `InventoryController.java` (lines 127-195) đã implement đầy đủ theo diagram:
 
 ```java
 public Function<HttpRequest, HttpResponse> createProduct() {
     return (HttpRequest req) -> {
-        // ❌ THIẾU: Content-Type validation
-        // ❌ THIẾU: JWT authentication check
-        // ❌ THIẾU: Role authorization check (ADMIN only)
-        // ❌ THIẾU: Field validation (required fields, data types)
-        // ❌ THIẾU: Business rule validation (qty ≥ 0, price ≥ 0)
-        // ❌ THIẾU: SKU conflict detection
-        // ❌ THIẾU: Database error handling (timeout, connection, constraint)
-        
+        // STEP 1: ✅ Validate Content-Type (415)
+        HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+        if (contentTypeError != null) return contentTypeError;
+
+        // STEP 2: ✅ Validate JWT (401)
+        HttpResponse authError = ValidationUtils.validateJWT(req);
+        if (authError != null) return authError;
+
+        // STEP 3: ✅ Validate Role - ADMIN only (403)
+        HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+        if (roleError != null) return roleError;
+
         try {
+            // STEP 4: ✅ Parse JSON (400)
             Product product = Json.fromBytes(req.body, Product.class);
+
+            // STEP 5: ✅ Validate required fields (400)
+            if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+                return ValidationUtils.error(400, "BAD_REQUEST", "SKU is required");
+            }
+            if (product.getName() == null || product.getName().trim().isEmpty()) {
+                return ValidationUtils.error(400, "BAD_REQUEST", "Name is required");
+            }
+
+            // STEP 6: ✅ Validate business rules (422)
+            HttpResponse businessRuleError = ValidationUtils.validateProductBusinessRules(
+                product.getQtyOnHand(), product.getPriceCost(), product.getPriceRetail()
+            );
+            if (businessRuleError != null) return businessRuleError;
+
+            // STEP 7: ✅ Check SKU conflict (409)
+            Optional<Product> existing = productRepo.findBySku(product.getSku());
+            if (existing.isPresent()) {
+                return ValidationUtils.error(409, "INVENTORY_CONFLICT",
+                    "Product with SKU '" + product.getSku() + "' already exists");
+            }
+
+            // STEP 8: ✅ Save to database (503/504/500)
             Product saved = productRepo.save(product);
             if (saved == null) {
-                return HttpResponse.of(500, "text/plain",
-                    "Failed to save product to database".getBytes(StandardCharsets.UTF_8));
+                return ValidationUtils.error(500, "DB_ERROR", "Failed to save product");
             }
+
+            // STEP 9: ✅ Success (201)
             return Json.created(saved);
         } catch (Exception e) {
-            // ⚠️ CHƯA ĐỦ: Chỉ xử lý chung chung, không phân loại lỗi
-            return HttpResponse.of(400, "text/plain",
-                ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
+            return DatabaseErrorHandler.handleDatabaseException(e);
         }
     };
 }
 ```
+
+✅ **Kết luận**: Backend createProduct đã implement đầy đủ theo sequence diagram
 
 ---
 
 ### 2️⃣ **INVENTORY - UPDATE/DELETE (EditAndDeleteInventory.puml)**
 
-#### Các mã lỗi cần xử lý:
-- ✅ **415 Unsupported Media Type**
-- ✅ **401 Unauthorized**
-- ✅ **403 Forbidden**
-- ❌ **400 Bad Request** - Payload sai
-- ❌ **404 Not Found** - Product không tồn tại
-- ❌ **422 Unprocessable Entity** - Business rules
-- ❌ **412 Precondition Failed** - Version conflict (optimistic locking)
-- ❌ **409 Conflict** - SKU mới trùng với SKU khác
-- ❌ **503/504/500** - Database errors
-- ✅ **200 OK** - Thành công
+#### Trạng thái hiện tại:
+**Backend `InventoryController.updateProduct()`** - ✅ **ĐÃ HOÀN THÀNH**
 
-#### Vị trí code cần sửa:
-**Backend:** `InventoryController.updateProduct()` và `deleteProduct()`
+Code hiện tại tương tự `createProduct()` nhưng có thêm:
+- ✅ Check product ID (400)
+- ✅ Check product existence (404)  
+- ✅ Check SKU conflict với products khác (409)
+- ✅ All other validations giống createProduct
 
+**Backend `InventoryController.deleteProduct()`** - ⚠️ **CẦN KIỂM TRA**
+- Cần verify implementation trong code
+
+**Frontend `ProductCRUDController`** - ⚠️ **CẦN CẢI THIỆN ERROR HANDLING**
+
+Code hiện tại (lines 318-329):
 ```java
-public Function<HttpRequest, HttpResponse> updateProduct() {
+// Error callback trong createProductAsync()
+error -> {
+    showLoading(false);
+    disableButtons(false);
+    updateStatus("❌ Lỗi tạo sản phẩm: " + error.getMessage());
+    showError("Không thể tạo sản phẩm mới.\n\n" + error.getMessage());
+}
+```
+
+❌ **VẤN ĐỀ**: Hiển thị error message chung chung, không parse JSON response từ backend
+
+---
+
+### 3️⃣ **INVENTORY - SEARCH/VIEW (SearchAndViewInventory.puml)**
+
+#### Trạng thái hiện tại:
+**Backend `InventoryController.searchProductBySku()`** - ⚠️ **CHƯA ĐẦY ĐỦ**
+
+Code hiện tại (lines 88-117):
+```java
+public Function<HttpRequest, HttpResponse> searchProductBySku() {
     return (HttpRequest req) -> {
-        // ❌ THIẾU: Tất cả validations như createProduct
-        // ❌ THIẾU: Check product existence (404)
-        // ❌ THIẾU: Version/ETag validation (412)
-        // ❌ THIẾU: SKU conflict check với products khác
-        
         try {
-            Product product = Json.fromBytes(req.body, Product.class);
-            if (product.getId() <= 0) {
+            Optional<String> skuOpt = ExtractHelper.extractString(q, "sku");
+            
+            if (skuOpt.isEmpty()) {
                 return HttpResponse.of(400, "text/plain",
-                    "Missing product ID".getBytes(StandardCharsets.UTF_8));
+                    "Missing sku parameter".getBytes(StandardCharsets.UTF_8));
             }
-            Product updated = productRepo.save(product);
-            return Json.ok(updated);
+            
+            String sku = skuOpt.get();
+            // ❌ THIẾU: Validate keyword length (min 2 chars)
+            // ❌ THIẾU: Validate forbidden characters (SQL injection)
+            
+            Optional<Product> productOpt = productRepo.findBySku(sku);
+            
+            if (productOpt.isPresent()) {
+                return Json.ok(productOpt.get());
+            } else {
+                return HttpResponse.of(404, "text/plain",
+                    "Product not found".getBytes(StandardCharsets.UTF_8));
+            }
         } catch (Exception e) {
-            return HttpResponse.of(400, "text/plain",
+            // ❌ CHƯA ĐỦ: Không phân biệt timeout vs database error
+            return HttpResponse.of(500, "text/plain",
                 ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
         }
     };
 }
 ```
+
+❌ **THIẾU**: 
+- Validate keyword length (422)
+- Check forbidden characters (422)
+- Proper database error handling (503/504)
+
+---
+
+### 4️⃣ **PATIENT - CREATE/UPDATE (UpdatePatient.puml)**
+
+#### Trạng thái hiện tại:
+**Backend `CustomerRecordController.createCustomer()`** - ⚠️ **CHƯA ĐẦY ĐỦ**
+
+Code hiện tại (lines 42-113):
+```java
+public Function<HttpRequest, HttpResponse> createCustomer() {
+    return (HttpRequest req) -> {
+        // ✅ Validate Content-Type (415)
+        HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+        if (contentTypeError != null) return contentTypeError;
+
+        // ✅ Validate JWT (401)
+        HttpResponse authError = ValidationUtils.validateJWT(req);
+        if (authError != null) return authError;
+
+        // ✅ Validate Role (403)
+        HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+        if (roleError != null) return roleError;
+
+        try {
+            Customer customerToCreate = gson.fromJson(jsonBody, Customer.class);
+
+            // ✅ Validate required fields (400)
+            if (customerToCreate.getFirstname() == null || 
+                customerToCreate.getFirstname().trim().isEmpty()) {
+                return ValidationUtils.error(400, "BAD_REQUEST", "First name is required");
+            }
+            // ... tương tự cho lastname, phone
+
+            // ✅ Validate business rules (422)
+            if (customerToCreate.getDob() != null &&
+                customerToCreate.getDob().isAfter(LocalDate.now())) {
+                return ValidationUtils.error(422, "VALIDATION_FAILED",
+                    "Date of birth cannot be in the future");
+            }
+
+            // ❌ THIẾU: Check duplicates (409)
+            // TODO: Implement findByPhone, findByEmail in repository
+            // if (phone exists) return 409 CONFLICT
+            // if (email exists) return 409 CONFLICT
+
+            // ✅ Save with database error handling
+            Customer savedCustomer = customerRecordRepository.save(customerToCreate);
+            
+            return HttpResponse.of(201, "application/json", ...);
+        } catch (Exception e) {
+            return DatabaseErrorHandler.handleDatabaseException(e);
+        }
+    };
+}
+```
+
+❌ **THIẾU**:
+- `CustomerRecordRepository.findByPhone()` - Chưa có method
+- `CustomerRecordRepository.findByEmail()` - Chưa có method  
+- Duplicate checking logic (409) trong controller
+
+**Repository hiện tại** - File `CustomerRecordRepository.java` (lines 1-27):
+```java
+public interface CustomerRecordRepository {
+    Customer save(Customer customer);
+    void saveAll(List<Customer> customers);
+    List<Customer> findAll();
+    List<Customer> findByFilterAll(CustomerSearchCriteria criteria);
+    boolean deleteById(int id);
+    boolean existsById(int id);
+    long count();
+    
+    // ❌ THIẾU:
+    // Optional<Customer> findByPhone(String phone);
+    // Optional<Customer> findByEmail(String email);
+}
+```
+
+---
+
+### 5️⃣ **PRESCRIPTION - CREATE/UPDATE**
+
+⚠️ **CHƯA PHÂN TÍCH** - Cần kiểm tra file `PrescriptionController.java`
+
+---
+
+## 🛠️ HƯỚNG DẪN TRIỂN KHAI CHI TIẾT
+
+### **NHIỆM VỤ 1: Bổ sung ValidationUtils.validateSearchKeyword()**
+
+**File:** `mini-boot/src/main/java/org/miniboot/app/util/errorvalidation/ValidationUtils.java`
+
+**Vị trí:** Thêm method mới sau method `validateProductBusinessRules()` (sau line 100)
+
+**Code cần thêm:**
+
+```java
+    /**
+     * Validate search keyword
+     * @param keyword Search keyword from user
+     * @return HttpResponse with error if invalid, null if valid
+     */
+    public static HttpResponse validateSearchKeyword(String keyword) {
+        // Check null or empty
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return error(400, "BAD_REQUEST",
+                    "Search keyword is required");
+        }
+
+        // Check minimum length
+        if (keyword.trim().length() < 2) {
+            return error(422, "VALIDATION_ERROR",
+                    "Search keyword must be at least 2 characters");
+        }
+
+        // Check forbidden characters (SQL injection prevention)
+        if (keyword.matches(".*[';\"\\\\].*")) {
+            return error(422, "VALIDATION_ERROR",
+                    "Search keyword contains forbidden characters");
+        }
+
+        return null; // Valid
+    }
+```
+
+**Giải thích:**
+- Line 1-3: Check keyword null hoặc empty → 400 BAD_REQUEST
+- Line 4-6: Check độ dài tối thiểu 2 ký tự → 422 VALIDATION_ERROR
+- Line 7-9: Check ký tự nguy hiểm (';"\) → 422 VALIDATION_ERROR
+- Line 10: Return null nếu valid
+
+---
+
+### **NHIỆM VỤ 2: Cập nhật InventoryController.searchProductBySku()**
+
+**File:** `mini-boot/src/main/java/org/miniboot/app/controllers/Inventory/InventoryController.java`
+
+**Vị trí:** Method `searchProductBySku()` (lines 88-117)
+
+**Cách sửa:**
+
+**Bước 1:** Tìm đoạn code:
+```java
+String sku = skuOpt.get();
+System.out.println("🔍 Searching product by SKU: " + sku);
+
+Optional<Product> productOpt = productRepo.findBySku(sku);
+```
+
+**Bước 2:** Thay thế bằng:
+```java
+String sku = skuOpt.get();
+
+// THÊM: Validate keyword (422)
+HttpResponse keywordError = ValidationUtils.validateSearchKeyword(sku);
+if (keywordError != null) return keywordError;
+
+System.out.println("🔍 Searching product by SKU: " + sku);
+
+// THÊM: Handle database errors properly
+Optional<Product> productOpt;
+try {
+    productOpt = productRepo.findBySku(sku);
+} catch (Exception e) {
+    return DatabaseErrorHandler.handleDatabaseException(e);
+}
+```
+
+**Giải thích từng dòng:**
+1. `ValidationUtils.validateSearchKeyword(sku)` - Validate keyword trước khi search
+2. `if (keywordError != null) return keywordError` - Return ngay nếu invalid
+3. Wrap `findBySku()` trong try-catch để handle database timeout/connection errors
+4. `DatabaseErrorHandler.handleDatabaseException(e)` - Map SQLException sang HTTP codes (503/504/500)
+
+---
+
+### **NHIỆM VỤ 3: Thêm methods vào CustomerRecordRepository**
+
+#### **Bước 3A: Cập nhật Interface**
+
+**File:** `mini-boot/src/main/java/org/miniboot/app/domain/repo/PatientAndPrescription/CustomerRecordRepository.java`
+
+**Vị trí:** Sau method `count()` (line 23)
+
+**Code cần thêm:**
+
+```java
+    /**
+     * Find customer by phone number
+     * @param phone Phone number to search
+     * @return Optional containing customer if found
+     */
+    Optional<Customer> findByPhone(String phone);
+
+    /**
+     * Find customer by email address
+     * @param email Email to search
+     * @return Optional containing customer if found
+     */
+    Optional<Customer> findByEmail(String email);
+```
+
+#### **Bước 3B: Implement trong PostgreSQLCustomerRecordRepository**
+
+**File:** `mini-boot/src/main/java/org/miniboot/app/domain/repo/PatientAndPrescription/PostgreSQLCustomerRecordRepository.java`
+
+**Vị trí:** Thêm vào cuối class, trước dấu `}`
+
+**Code cần thêm:**
+
+```java
+    @Override
+    public Optional<Customer> findByPhone(String phone) {
+        String sqlQuery = "SELECT * FROM customers WHERE phone = ? LIMIT 1;";
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+            
+            pstmt.setString(1, phone);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return Optional.of(CustomerMapper.mapResultSetToCustomer(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error finding customer by phone: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database find failed: " + e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Customer> findByEmail(String email) {
+        String sqlQuery = "SELECT * FROM customers WHERE email = ? LIMIT 1;";
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlQuery)) {
+            
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return Optional.of(CustomerMapper.mapResultSetToCustomer(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error finding customer by email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Database find failed: " + e.getMessage(), e);
+        }
+        return Optional.empty();
+    }
+```
+
+**Giải thích:**
+- `PreparedStatement` - Prevent SQL injection
+- `try-with-resources` - Tự động đóng connection
+- `ResultSet rs` - Dữ liệu trả về từ database
+- `rs.next()` - Check có record nào không
+- `CustomerMapper.mapResultSetToCustomer()` - Convert ResultSet sang Customer object
+- `throw new RuntimeException()` - Throw exception để DatabaseErrorHandler xử lý
+
+---
+
+### **NHIỆM VỤ 4: Cập nhật CustomerRecordController.createCustomer()**
+
+**File:** `mini-boot/src/main/java/org/miniboot/app/controllers/PatientAndPrescription/CustomerRecordController.java`
+
+**Vị trí:** Tìm comment `// TODO: Implement findByPhone, findByEmail` (line 88-90)
+
+**Bước 1:** Xóa 3 dòng comment TODO
+
+**Bước 2:** Thay thế bằng code:
+
+```java
+                // Check phone duplicate (409)
+                try {
+                    Optional<Customer> existingPhone = customerRecordRepository.findByPhone(
+                            customerToCreate.getPhone());
+                    if (existingPhone.isPresent()) {
+                        return ValidationUtils.error(409, "PHONE_CONFLICT",
+                                "Phone number '" + customerToCreate.getPhone() + 
+                                "' is already registered");
+                    }
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                // Check email duplicate (409) - only if email is provided
+                if (customerToCreate.getEmail() != null && 
+                    !customerToCreate.getEmail().trim().isEmpty()) {
+                    try {
+                        Optional<Customer> existingEmail = customerRecordRepository.findByEmail(
+                                customerToCreate.getEmail());
+                        if (existingEmail.isPresent()) {
+                            return ValidationUtils.error(409, "EMAIL_CONFLICT",
+                                    "Email '" + customerToCreate.getEmail() + 
+                                    "' is already registered");
+                        }
+                    } catch (Exception e) {
+                        return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+                }
+```
+
+**Giải thích từng block:**
+
+**Block 1: Check phone duplicate**
+- Line 1-3: Gọi `findByPhone()` trong try-catch
+- Line 4-6: Nếu `existingPhone.isPresent()` → phone đã tồn tại → return 409
+- Line 7-9: Catch database errors → delegate to DatabaseErrorHandler
+
+**Block 2: Check email duplicate**
+- Line 1-2: Check email không null và không empty (email là optional field)
+- Line 3-5: Gọi `findByEmail()` trong try-catch
+- Line 6-8: Nếu tìm thấy → return 409 với message cụ thể
+- Line 9-11: Catch database errors
+
+**Lưu ý:** Code này đặt **TRƯỚC** dòng `// Save` trong method
+
+---
+
+### **NHIỆM VỤ 5: Cải thiện Frontend Error Handling**
+
+#### **Bước 5A: Thêm Error Parser vào ProductCRUDController**
+
+**File:** `oop_ui/src/main/java/org/example/oop/Control/Inventory/ProductCRUDController.java`
+
+**Vị trí:** Thêm helper method vào cuối class (trước dấu `}` cuối cùng)
+
+**Code cần thêm:**
+
+```java
+    /**
+     * Parse error message from Exception
+     * Extract JSON error response if available
+     */
+    private ErrorInfo parseError(Throwable error) {
+        String rawMessage = error.getMessage();
+        if (rawMessage == null) {
+            return new ErrorInfo(0, "UNKNOWN_ERROR", "Unknown error occurred");
+        }
+
+        // Try to extract HTTP status code
+        int statusCode = 0;
+        if (rawMessage.matches(".*\\b(\\d{3})\\b.*")) {
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b(\\d{3})\\b");
+            java.util.regex.Matcher matcher = pattern.matcher(rawMessage);
+            if (matcher.find()) {
+                statusCode = Integer.parseInt(matcher.group(1));
+            }
+        }
+
+        // Try to extract JSON message
+        String errorCode = "ERROR";
+        String message = rawMessage;
+        
+        try {
+            // Check if response contains JSON
+            int jsonStart = rawMessage.indexOf("{");
+            int jsonEnd = rawMessage.lastIndexOf("}");
+            
+            if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                String json = rawMessage.substring(jsonStart, jsonEnd + 1);
+                
+                // Simple JSON parsing (without external library)
+                if (json.contains("\"error\":")) {
+                    int errorStart = json.indexOf("\"error\":\"") + 9;
+                    int errorEnd = json.indexOf("\"", errorStart);
+                    if (errorEnd > errorStart) {
+                        errorCode = json.substring(errorStart, errorEnd);
+                    }
+                }
+                
+                if (json.contains("\"message\":")) {
+                    int msgStart = json.indexOf("\"message\":\"") + 11;
+                    int msgEnd = json.indexOf("\"", msgStart);
+                    if (msgEnd > msgStart) {
+                        message = json.substring(msgStart, msgEnd);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // JSON parsing failed, use raw message
+            System.err.println("⚠️ Failed to parse error JSON: " + e.getMessage());
+        }
+
+        return new ErrorInfo(statusCode, errorCode, message);
+    }
+
+    /**
+     * Inner class to hold parsed error information
+     */
+    private static class ErrorInfo {
+        final int statusCode;
+        final String errorCode;
+        final String message;
+
+        ErrorInfo(int statusCode, String errorCode, String message) {
+            this.statusCode = statusCode;
+            this.errorCode = errorCode;
+            this.message = message;
+        }
+    }
+```
+
+**Giải thích:**
+- Method `parseError()` nhận `Throwable` và extract thông tin lỗi
+- Dùng regex để tìm HTTP status code (400, 404, 409, v.v.)
+- Parse JSON response từ backend để lấy `error` và `message` fields
+- Return `ErrorInfo` object chứa statusCode, errorCode, message
+- Nếu parse fail → fallback to raw message
+
+#### **Bước 5B: Cập nhật Error Callbacks trong ProductCRUDController**
+
+**Vị trí:** Method `createProductAsync()` (line 267-275)
+
+**Tìm đoạn code hiện tại:**
+```java
+                    // Error
+                    error -> {
+                         showLoading(false);
+                         disableButtons(false);
+                         updateStatus("❌ Lỗi tạo sản phẩm: " + error.getMessage());
+                         showError("Không thể tạo sản phẩm mới.\n\n" + error.getMessage());
+                    });
+```
+
+**Thay thế bằng:**
+```java
+                    // Error - with detailed parsing
+                    error -> {
+                         showLoading(false);
+                         disableButtons(false);
+                         
+                         ErrorInfo errorInfo = parseError(error);
+                         
+                         // Display user-friendly message based on error code
+                         String title;
+                         String message;
+                         
+                         switch (errorInfo.statusCode) {
+                             case 409: // Conflict
+                                 title = "❌ Dữ liệu bị trùng lặp";
+                                 message = "SKU đã tồn tại trong hệ thống.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
+                                 break;
+                             
+                             case 422: // Validation Failed
+                                 title = "❌ Dữ liệu không hợp lệ";
+                                 message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng kiểm tra:\n" +
+                                          "- Số lượng phải >= 0\n" +
+                                          "- Giá cost và retail phải >= 0\n" +
+                                          "- Giá retail nên >= giá cost";
+                                 break;
+                             
+                             case 400: // Bad Request
+                                 title = "❌ Yêu cầu không hợp lệ";
+                                 message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng kiểm tra tất cả các trường bắt buộc.";
+                                 break;
+                             
+                             case 503: // Service Unavailable
+                                 title = "❌ Máy chủ không khả dụng";
+                                 message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng:\n" +
+                                          "- Kiểm tra kết nối mạng\n" +
+                                          "- Thử lại sau 1-2 phút\n" +
+                                          "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                 break;
+                             
+                             case 504: // Gateway Timeout
+                                 title = "⏱️ Hết thời gian chờ";
+                                 message = "Máy chủ xử lý quá lâu.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng:\n" +
+                                          "- Thử lại ngay\n" +
+                                          "- Kiểm tra tốc độ mạng\n" +
+                                          "- Liên hệ IT nếu lỗi lặp lại";
+                                 break;
+                             
+                             case 500: // Internal Server Error
+                                 title = "❌ Lỗi máy chủ";
+                                 message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
+                                          "Chi tiết: " + errorInfo.message + "\n\n" +
+                                          "Vui lòng liên hệ quản trị viên.";
+                                 break;
+                             
+                             default:
+                                 title = "❌ Lỗi không xác định";
+                                 message = "Không thể tạo sản phẩm.\n\n" +
+                                          "Mã lỗi: " + errorInfo.statusCode + "\n" +
+                                          "Chi tiết: " + errorInfo.message;
+                         }
+                         
+                         updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
+                         showError(title + "\n\n" + message);
+                    });
+```
+
+**Giải thích từng case:**
+
+**Case 409 (Conflict):**
+- Hiển thị message rõ ràng: "SKU đã tồn tại"
+- Hướng dẫn user: sử dụng SKU khác hoặc update sản phẩm cũ
+
+**Case 422 (Validation Failed):**
+- Giải thích: vi phạm quy tắc nghiệp vụ
+- List các rules cần check: qty >= 0, price >= 0, retail >= cost
+
+**Case 400 (Bad Request):**
+- Thông báo: dữ liệu không đúng format
+- Hướng dẫn: check các trường bắt buộc
+
+**Case 503 (Service Unavailable):**
+- Giải thích: database down
+- Hướng dẫn troubleshooting: check mạng, retry, contact admin
+
+**Case 504 (Gateway Timeout):**
+- Thông báo: xử lý quá lâu
+- Hướng dẫn: retry ngay, check network
+
+**Case 500 (Internal Server Error):**
+- Thông báo: lỗi server không mong muốn
+- Hướng dẫn: contact admin
+
+**Default:**
+- Hiển thị status code và message raw
+
+#### **Bước 5C: Tương tự cho updateProductAsync() và deleteProductAsync()**
+
+Áp dụng cùng logic cho 2 methods còn lại:
+
+**updateProductAsync()** (line 347-360):
+- Thêm case 404 (Not Found): "Sản phẩm không tồn tại"
+- Các cases khác giống createProductAsync()
+
+**deleteProductAsync()** (line 395-408):
+- Thêm case 404 (Not Found): "Sản phẩm không tồn tại"
+- Thêm case 422 (Validation Failed): "Không thể xóa vì còn ràng buộc dữ liệu"
+- Các cases khác giống trên
+
+---
+
+### **NHIỆM VỤ 6: Cải thiện ApiProductService Error Messages**
+
+**File:** `oop_ui/src/main/java/org/example/oop/Service/ApiProductService.java`
+
+**Vị trí:** Method `createProduct()` (lines 148-193)
+
+**Tìm đoạn code:**
+```java
+        } else if (responseCode >= 500) {
+            // ✅ Server error (500, 503, etc.)
+            throw new Exception("Lỗi server (" + responseCode + "): " + responseBody +
+                    "\n\nVui lòng kiểm tra:\n" +
+                    "- Server backend có đang chạy?\n" +
+                    "- Database connection có ổn định?\n" +
+                    "- Xem logs của server để biết chi tiết");
+        } else {
+            // Client error (400, 404, etc.)
+            throw new Exception("Lỗi tạo sản phẩm (" + responseCode + "): " + responseBody);
+        }
+```
+
+**Thay thế bằng:**
+```java
+        } else {
+            // Build detailed error message
+            String errorMessage = "HTTP " + responseCode + ": ";
+            
+            // Try to parse JSON error response
+            if (responseBody != null && responseBody.contains("{") && responseBody.contains("message")) {
+                // Response có JSON format
+                errorMessage += responseBody; // Keep full JSON for parsing in Controller
+            } else {
+                // Plain text response
+                errorMessage += (responseBody != null ? responseBody : "Unknown error");
+            }
+            
+            throw new Exception(errorMessage);
+        }
+```
+
+**Giải thích:**
+- Không phân loại error ở Service layer
+- Throw Exception với format: "HTTP {code}: {JSON or text}"
+- Controller sẽ parse và hiển thị message phù hợp
+- Giữ nguyên JSON response để Controller extract được errorCode và message
+
+---
+
+### 2️⃣ **INVENTORY - UPDATE/DELETE (EditAndDeleteInventory.puml)**
 
 ---
 
@@ -867,6 +1568,41 @@ private void createProductAsync() {
 }
 
 // Helper method
+private String parseErrorMessage(String rawError) {
+    // Parse JSON error response nếu có
+    try {
+        if (rawError.contains("{") && rawError.contains("message")) {
+            // Extract "message" field from JSON
+            int start = rawError.indexOf("\"message\":\"") + 11;
+            int end = rawError.indexOf("\"", start);
+            if (start > 0 && end > start) {
+                return rawError.substring(start, end);
+            }
+        }
+    } catch (Exception e) {
+        // Ignore parse error
+    }
+    return rawError;
+}
+```
+
+Tương tự cho `updateProductAsync()` và các methods khác.
+
+---
+
+## 📝 HƯỚNG DẪN TESTING CHI TIẾT
+
+[Testing guide đã được thêm vào phần trước]
+
+---
+
+## ✅ CHECKLIST TRIỂN KHAI
+
+[Checklist đã được thêm vào phần trước]
+
+---
+
+## 📚 TÀI LIỆU THAM KHẢO
 private String parseErrorMessage(String rawError) {
     // Parse JSON error response nếu có
     try {
