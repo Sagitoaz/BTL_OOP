@@ -64,6 +64,59 @@ public class LoginController {
                 enterPasswordTextField.setText(newValue);
             }
         });
+
+        // 🔐 Reset form state AFTER all FXML components are injected
+        // Use Platform.runLater to ensure this runs after scene is fully loaded
+        javafx.application.Platform.runLater(() -> resetLoginForm());
+    }
+
+    /**
+     * Reset login form to initial state
+     * Called when returning to login page after logout
+     */
+    private void resetLoginForm() {
+        try {
+            // Clear input fields (null-safe)
+            if (usernameTextField != null) {
+                usernameTextField.clear();
+            }
+            if (enterPasswordTextField != null) {
+                enterPasswordTextField.clear();
+            }
+            if (visiblePasswordTextField != null) {
+                visiblePasswordTextField.clear();
+            }
+
+            // Enable login button
+            if (loginButton != null) {
+                loginButton.setDisable(false);
+            }
+
+            // Clear error message
+            if (invalidLoginMessage != null) {
+                invalidLoginMessage.setText("");
+                invalidLoginMessage.setVisible(false);
+            }
+
+            // Reset password visibility
+            isPasswordVisible = false;
+            if (enterPasswordTextField != null) {
+                enterPasswordTextField.setVisible(true);
+                enterPasswordTextField.setManaged(true);
+            }
+            if (visiblePasswordTextField != null) {
+                visiblePasswordTextField.setVisible(false);
+                visiblePasswordTextField.setManaged(false);
+            }
+            if (togglePasswordButton != null) {
+                togglePasswordButton.setText("👁"); // Icon mắt mở
+            }
+
+            System.out.println("✅ Login form reset complete");
+        } catch (Exception e) {
+            System.err.println("⚠️ Error resetting login form: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**

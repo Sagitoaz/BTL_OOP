@@ -355,6 +355,10 @@ public class AdminDashBoardController extends BaseController {
             SceneManager.removeSceneData("authToken");
             SceneManager.removeSceneData("role");
             SessionStorage.clear();
+            
+            // Clear Login page from cache to force re-initialization
+            SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
+            
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);

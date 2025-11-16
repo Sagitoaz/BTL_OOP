@@ -69,17 +69,32 @@ public class CustomerDashBoardController extends BaseController {
     }
 
     private void setupUI() {
-        if (currentCustomer == null)
+        if (currentCustomer == null) {
+            System.err.println("⚠️ Customer is null, cannot setup UI");
             return;
+        }
 
         String fullName = currentCustomer.getFullName();
 
+        // Fallback if fullName is null or empty
+        if (fullName == null || fullName.trim().isEmpty()) {
+            fullName = currentCustomer.getUsername();
+            System.out.println("⚠️ Using username as fallback: " + fullName);
+        }
+
+        System.out.println("📝 Setting up UI with name: " + fullName);
+
         if (nameField != null) {
             nameField.setText(fullName);
+            nameField.setStyle("-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 15px;");
         }
         if (welcomeText != null) {
-            welcomeText.setText("Welcome, " + fullName + "!");
+            welcomeText.setText("Xin chào, " + fullName + "! 👋");
+            welcomeText.setStyle(
+                    "-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);");
         }
+
+        System.out.println("✅ UI setup complete");
     }
 
     private void handleInitializationError(Exception e) {
@@ -173,6 +188,20 @@ public class CustomerDashBoardController extends BaseController {
                 SceneConfig.Titles.CUSTOMER_DETAIL);
     }
 
+    @FXML
+    private void handleLogout() {
+        System.out.println("🔄 Customer: Logout requested...");
+        boolean confirmed = showConfirmation(
+                "Đăng xuất",
+                "Bạn có chắc chắn muốn đăng xuất?");
+
+        if (confirmed) {
+            logout();
+        } else {
+            System.out.println("⚠️ User cancelled logout");
+        }
+    }
+
     private boolean isGoingBackToLogin() {
         return true;
     }
@@ -193,6 +222,10 @@ public class CustomerDashBoardController extends BaseController {
             SceneManager.removeSceneData("authToken");
             SceneManager.removeSceneData("role");
             SessionStorage.clear();
+
+            // Clear Login page from cache to force re-initialization
+            SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
+
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);
