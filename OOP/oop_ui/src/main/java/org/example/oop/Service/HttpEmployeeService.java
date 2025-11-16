@@ -18,7 +18,7 @@ import java.util.Map;
 public class HttpEmployeeService {
 
     private static final Gson gson = GsonProvider.getGson();
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
     private final String baseUrl;
     private final String bearerToken; // null nếu không dùng JWT
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -43,8 +43,8 @@ public class HttpEmployeeService {
                 return obj.get("message").getAsString();
             if (obj.has("error"))
                 return obj.get("error").getAsString();
-        } catch (Exception ignore) {
-            System.err.println("Error extracting message from JSON: " + json); // Log the error if JSON parsing fails
+        } catch (java.util.NoSuchElementException | ClassCastException ex) { // ✅ Specific exceptions
+            System.err.println("Error extracting message from JSON: " + json);
         }
         return fallback;
     }
@@ -126,7 +126,7 @@ public class HttpEmployeeService {
         if (employee.getRole() == null)
             throw new IllegalArgumentException("role là bắt buộc");
 
-        String roleLower = employee.getRole().toString().toLowerCase();
+        String roleLower = employee.getRole().toLowerCase(); // ✅ Removed redundant .toString()
         if ("doctor".equals(roleLower) && (employee.getLicenseNo() == null || employee.getLicenseNo().isBlank()))
             throw new IllegalArgumentException("licenseNo là bắt buộc đối với bác sĩ");
 
@@ -177,7 +177,7 @@ public class HttpEmployeeService {
         body.put("firstname", employee.getFirstname());
         body.put("lastname", employee.getLastname());
         if (employee.getRole() != null)
-            body.put("role", employee.getRole().toString().toLowerCase());
+            body.put("role", employee.getRole().toLowerCase()); // ✅ Removed redundant .toString()
         body.put("licenseNo", employee.getLicenseNo());
         body.put("email", employee.getEmail());
         body.put("phone", employee.getPhone());

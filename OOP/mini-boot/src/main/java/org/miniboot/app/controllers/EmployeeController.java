@@ -58,7 +58,6 @@ public class EmployeeController {
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in getAllEmployees(): " + e.getMessage());
-                    e.printStackTrace();
                     return Json.error(500, "Error fetching employees: " + e.getMessage());
                }
           };
@@ -130,7 +129,6 @@ public class EmployeeController {
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in createEmployee(): " + e.getMessage());
-                    e.printStackTrace();
                     return Json.error(500, "Error creating employee: " + e.getMessage());
                }
           };

@@ -195,7 +195,7 @@ public class EmployeeDetailController extends BaseController {
 
                     return new int[] { totalAppointments, totalPatients, workingDays };
                 } catch (Exception ex) {
-                    System.err.println("Khong the lay appointments: " + ex.getMessage());
+                    System.err.println("Không thể lấy appointments: " + ex.getMessage());
                     return new int[] { 0, 0, 0 };
                 }
             }, result -> {
@@ -256,6 +256,7 @@ public class EmployeeDetailController extends BaseController {
                         setEmployeeDetails(refreshed);
                 } catch (Exception ex) {
                     System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
+                    showError("Lỗi: " + ex.getMessage());
                 }
         });
 
