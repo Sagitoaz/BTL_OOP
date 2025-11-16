@@ -4,6 +4,7 @@ import org.miniboot.app.Service.CustomerSearchCriteria;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomerRecordRepository {
 
@@ -23,6 +24,8 @@ public interface CustomerRecordRepository {
 
     long count();
 
+    Optional<Customer> findByPhone(String phone);
 
+    Optional<Customer> findByEmail(String email);
 
 }

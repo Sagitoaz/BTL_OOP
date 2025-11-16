@@ -13,6 +13,10 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.ProductValidator;
+import org.miniboot.app.util.errorvalidation.RateLimiter;
+import org.miniboot.app.util.errorvalidation.ValidationUtils;
 
 public class InventoryController {
      private final ProductRepository productRepo;
@@ -88,10 +92,19 @@ public class InventoryController {
                                    "Missing sku parameter".getBytes(StandardCharsets.UTF_8));
                     }
 
-                    String sku = skuOpt.get();
-                    System.out.println("🔍 Searching product by SKU: " + sku);
+                   String sku = skuOpt.get();
 
-                    Optional<Product> productOpt = productRepo.findBySku(sku);
+                    // Validate keyword (422)
+                   HttpResponse keywordError = ValidationUtils.validateSearchKeyword(sku);
+                   if (keywordError != null) return keywordError;
+
+                    // Handle database errors properly
+                   Optional<Product> productOpt;
+                   try {
+                       productOpt = productRepo.findBySku(sku);
+                   } catch (Exception e) {
+                       return DatabaseErrorHandler.handleDatabaseException(e);
+                   }
 
                     if (productOpt.isPresent()) {
                          Product product = productOpt.get();
@@ -113,83 +126,159 @@ public class InventoryController {
           };
      }
 
-     public Function<HttpRequest, HttpResponse> createProduct() {
-          return (HttpRequest req) -> {
-               try {
-                    Product product = Json.fromBytes(req.body, Product.class);
-                    Product saved = productRepo.save(product);
-                    if (saved == null) {
-                         System.err.println("❌ ERROR: productRepo.save() returned null");
-                         return HttpResponse.of(500, "text/plain",
-                                   "Failed to save product to database".getBytes(StandardCharsets.UTF_8));
-                    }
+    public Function<HttpRequest, HttpResponse> createProduct() {
+        return (HttpRequest req) -> {
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-3: Standard validations (Content-Type, JWT, Role)
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
 
-                    return Json.created(saved);
-               } catch (Exception e) {
-                    System.err.println("❌ ERROR in createProduct(): " + e.getMessage());
-                    e.printStackTrace();
-                    return HttpResponse.of(400, "text/plain",
-                              ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
-               }
-          };
-     }
+            try {
+                // Step 4: Parse JSON
+                Product product;
+                try {
+                    product = Json.fromBytes(req.body, Product.class);
+                } catch (Exception e) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Invalid JSON format: " + e.getMessage());
+                }
 
-     public Function<HttpRequest, HttpResponse> updateProduct() {
-          return (HttpRequest req) -> {
-               try {
-                    System.out.println("📥 PUT /products - Parsing request body...");
-                    System.out.println("   Body size: " + req.body.length + " bytes");
+                // Step 5: Validate required fields
+                if (product.getSku() == null || product.getSku().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST", "SKU is required");
+                }
+                if (product.getName() == null || product.getName().trim().isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST", "Name is required");
+                }
 
-                    Product product = Json.fromBytes(req.body, Product.class);
+                // Step 6-7: Full product validation (business rules + SKU duplicate)
+                HttpResponse productError = ProductValidator.validateForCreate(product, productRepo);
+                if (productError != null) return productError;
 
-                    System.out.println("✅ Product parsed successfully:");
-                    System.out.println("   ID: " + product.getId());
-                    System.out.println("   SKU: " + product.getSku());
-                    System.out.println("   Name: " + product.getName());
-                    System.out.println("   Category: " + product.getCategory());
+                // Step 8: Save to database
+                Product saved;
+                try {
+                    saved = productRepo.save(product);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
 
-                    if (product.getId() <= 0) {
-                         System.err.println("❌ ERROR: Missing or invalid product ID: " + product.getId());
-                         return HttpResponse.of(400, "text/plain",
-                                   "Missing product ID".getBytes(StandardCharsets.UTF_8));
-                    }
+                if (saved == null) {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to save product to database");
+                }
 
-                    System.out.println("🔄 Saving product to database...");
-                    Product updated = productRepo.save(product);
-                    System.out.println("✅ Product updated successfully: ID=" + updated.getId());
+                // Step 9: Return success response
+                return Json.created(saved);
 
-                    return Json.ok(updated);
-               } catch (Exception e) {
-                    System.err.println("❌ ERROR in updateProduct():");
-                    System.err.println("   Type: " + e.getClass().getName());
-                    System.err.println("   Message: " + e.getMessage());
-                    e.printStackTrace();
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in createProduct: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
+        };
+    }
 
-                    return HttpResponse.of(400, "text/plain",
-                              ("Error: " + e.getMessage()).getBytes(StandardCharsets.UTF_8));
-               }
-          };
-     }
+    public Function<HttpRequest, HttpResponse> updateProduct() {
+        return (HttpRequest req) -> {
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-3: Standard validations (Content-Type, JWT, Role)
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
 
-     public Function<HttpRequest, HttpResponse> deleteProduct() {
-          return (HttpRequest req) -> {
-               Map<String, List<String>> q = req.query;
-               Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
+            try {
+                // Step 4: Parse JSON
+                Product product = Json.fromBytes(req.body, Product.class);
 
-               if (idOpt.isEmpty()) {
-                    return HttpResponse.of(400, "text/plain",
-                              "Missing id parameter".getBytes(StandardCharsets.UTF_8));
-               }
+                // Step 5: Validate ID
+                if (product.getId() <= 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Product ID is required for update");
+                }
 
-               boolean deleted = productRepo.deleteById(idOpt.get());
+                // Step 6-8: Full product validation (exists + business rules + SKU duplicate)
+                HttpResponse productError = ProductValidator.validateForUpdate(product, productRepo);
+                if (productError != null) return productError;
 
-               if (deleted) {
-                    return HttpResponse.of(200, "text/plain",
-                              "Product deleted".getBytes(StandardCharsets.UTF_8));
-               } else {
-                    return HttpResponse.of(404, "text/plain",
-                              "Product not found".getBytes(StandardCharsets.UTF_8));
-               }
-          };
-     }
+                // Step 9: Update product
+                Product updated;
+                try {
+                    updated = productRepo.save(product);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                if (updated == null) {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Failed to update product");
+                }
+
+                return Json.ok(updated);
+
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in updateProduct: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
+        };
+    }
+
+    public Function<HttpRequest, HttpResponse> deleteProduct() {
+        return (HttpRequest req) -> {
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Step 1-2: Validate JWT and Role
+            HttpResponse authError = ValidationUtils.validateJWT(req);
+            if (authError != null) return authError;
+
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+
+            // Step 3: Extract ID from query
+            Map<String, List<String>> q = req.query;
+            Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
+
+            if (idOpt.isEmpty()) {
+                return ValidationUtils.error(400, "BAD_REQUEST", "Missing id parameter");
+            }
+
+            int productId = idOpt.get();
+
+            try {
+                // Step 4: Check product exists
+                HttpResponse existsError = ProductValidator.checkExists(productRepo, productId);
+                if (existsError != null) return existsError;
+
+                // Step 5: Delete product
+                boolean deleted;
+                try {
+                    deleted = productRepo.deleteById(productId);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                if (deleted) {
+                    return ValidationUtils.error(200, "OK", "Product deleted successfully");
+                } else {
+                    return ValidationUtils.error(500, "DB_ERROR", "Failed to delete product");
+                }
+
+            } catch (Exception e) {
+                System.err.println("❌ Unexpected error in deleteProduct: " + e.getMessage());
+                e.printStackTrace();
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
+            }
+        };
+    }
 }
