@@ -85,7 +85,7 @@ public class AuthService {
     public static String authenticate(String username, String password) throws Exception {
         Optional<UserData> userOpt = findUserByUsername(username);
         if (!userOpt.isPresent()) {
-            throw new Exception("User does not exist: " + username);
+            throw new Exception("userNotFound");
         }
 
         UserData user = userOpt.get();
@@ -97,7 +97,7 @@ public class AuthService {
 
         // Verify password
         if (!PasswordService.verifyPassword(password, user.password)) {
-            throw new Exception("Invalid password");
+            throw new Exception("incorectPassword");
         }
 
         // Generate JWT token

@@ -5,6 +5,8 @@ import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.LoginValidator;
+import org.miniboot.app.util.errorvalidation.RateLimiter;
 
 import java.util.Map;
 
@@ -32,6 +34,12 @@ public class AuthController {
      */
     private static HttpResponse login(HttpRequest request) {
         try {
+
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(request);
+            if (rateLimitError != null) {
+                return rateLimitError;
+            }
+
             // Parse JSON body
             String body = request.bodyText();
 
@@ -39,10 +47,10 @@ public class AuthController {
             String username = extractJsonField(body, "username");
             String password = extractJsonField(body, "password");
 
-            if (username == null || password == null) {
-                return Json.error(400, "Thieu username hoac password");
+            HttpResponse loginError = LoginValidator.validateLoginCredentials(username, password);
+            if(loginError != null) {
+                return loginError;
             }
-
             // Xác thực và tạo token
             String token = AuthService.authenticate(username, password);
 
@@ -52,7 +60,7 @@ public class AuthController {
                     "expires_in", "86400"));
 
         } catch (Exception e) {
-            return Json.error(401, e.getMessage());
+            return Json.error(401, "Unauthorized: " + e.getMessage());
         }
     }
 
