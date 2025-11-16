@@ -12,6 +12,9 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.ValidationUtils;
+import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.RateLimiter;
 
 public class EmployeeController {
      private final PostgreSQLEmployeeRepository repository;
@@ -36,39 +39,83 @@ public class EmployeeController {
 
      private Function<HttpRequest, HttpResponse> getAllEmployees() {
           return (HttpRequest req) -> {
+               // Step 0: Rate limiting
+               HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+               if (rateLimitError != null)
+                    return rateLimitError;
+
+               // Step 1: JWT validation
+               HttpResponse jwtError = ValidationUtils.validateJWT(req);
+               if (jwtError != null)
+                    return jwtError;
+
                try {
                     Map<String, List<String>> q = req.query;
                     Optional<Integer> idOpt = ExtractHelper.extractInt(q, "id");
 
                     // Nếu có ?id=123 thì lấy 1 employee cụ thể
                     if (idOpt.isPresent()) {
-                         Optional<Employee> employee = repository.findById(idOpt.get());
-                         if (employee.isPresent()) {
-                              return Json.ok(employee.get());
-                         } else {
-                              return Json.error(404, "Employee not found with ID: " + idOpt.get());
+                         try {
+                              Optional<Employee> employee = repository.findById(idOpt.get());
+                              if (employee.isPresent()) {
+                                   return Json.ok(employee.get());
+                              } else {
+                                   return ValidationUtils.error(404, "NOT_FOUND",
+                                             "Employee not found with ID: " + idOpt.get());
+                              }
+                         } catch (Exception e) {
+                              return DatabaseErrorHandler.handleDatabaseException(e);
                          }
                     }
 
                     // Không có ?id thì lấy tất cả
                     System.out.println("🔄 Fetching all employees...");
-                    List<Employee> employees = repository.findAll();
-                    System.out.println("✅ Found " + employees.size() + " employees");
-                    return Json.ok(employees);
+                    try {
+                         List<Employee> employees = repository.findAll();
+                         System.out.println("✅ Found " + employees.size() + " employees");
+                         return Json.ok(employees);
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in getAllEmployees(): " + e.getMessage());
                     e.printStackTrace();
-                    return Json.error(500, "Error fetching employees: " + e.getMessage());
+                    return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                              "Error fetching employees: " + e.getMessage());
                }
           };
      }
 
      private Function<HttpRequest, HttpResponse> createEmployee() {
           return (HttpRequest req) -> {
+               // Step 0: Rate limiting
+               HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+               if (rateLimitError != null)
+                    return rateLimitError;
+
+               // Step 1-2: Standard validations
+               HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+               if (contentTypeError != null)
+                    return contentTypeError;
+
+               HttpResponse jwtError = ValidationUtils.validateJWT(req);
+               if (jwtError != null)
+                    return jwtError;
+
+               // Optional: Admin role check
+               // HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+               // if (roleError != null) return roleError;
+
                try {
                     String body = req.bodyText();
-                    Map<String, Object> data = Json.parseMap(body);
+                    Map<String, Object> data;
+                    try {
+                         data = Json.parseMap(body);
+                    } catch (Exception e) {
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Invalid JSON format: " + e.getMessage());
+                    }
 
                     // Validate required fields
                     String username = (String) data.get("username");
@@ -80,33 +127,72 @@ public class EmployeeController {
 
                     if (username == null || password == null || firstname == null ||
                               lastname == null || role == null || email == null) {
-                         return Json.error(400, "Missing required fields");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Missing required fields");
                     }
 
                     // Validate username length
                     if (username.length() < 3) {
-                         return Json.error(400, "Username must be at least 3 characters");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Username must be at least 3 characters");
                     }
 
                     // Validate password length
                     if (password.length() < 6) {
-                         return Json.error(400, "Password must be at least 6 characters");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Password must be at least 6 characters");
                     }
 
-                    // Check duplicate username
-                    if (repository.findByUserName(username).isPresent()) {
-                         return Json.error(409, "Username already exists: " + username);
+                    // Validate role (422 - Unprocessable Entity)
+                    String roleLower = role.toLowerCase();
+                    if (!roleLower.equals("doctor") && !roleLower.equals("nurse") &&
+                              !roleLower.equals("admin") && !roleLower.equals("receptionist")) {
+                         return ValidationUtils.error(422, "INVALID_ROLE",
+                                   "Invalid role. Must be: doctor, nurse, admin, or receptionist");
                     }
 
-                    // Check duplicate email
-                    if (repository.findByEmail(email).isPresent()) {
-                         return Json.error(409, "Email already exists: " + email);
+                    // Check duplicate username (409 Conflict)
+                    try {
+                         if (repository.findByUserName(username).isPresent()) {
+                              return ValidationUtils.error(409, "USERNAME_CONFLICT",
+                                        "Username already exists: " + username);
+                         }
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+
+                    // Check duplicate email (409 Conflict)
+                    try {
+                         if (repository.findByEmail(email).isPresent()) {
+                              return ValidationUtils.error(409, "EMAIL_CONFLICT",
+                                        "Email already exists: " + email);
+                         }
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+
+                    // Check duplicate phone if provided (409 Conflict)
+                    String phone = (String) data.get("phone");
+                    if (phone != null && !phone.trim().isEmpty()) {
+                         // TODO: Add repository.findByPhone() check
                     }
 
                     // Validate license_no for doctors
                     String licenseNo = (String) data.get("licenseNo");
                     if ("doctor".equalsIgnoreCase(role) && (licenseNo == null || licenseNo.trim().isEmpty())) {
-                         return Json.error(400, "License number is required for doctors");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "License number is required for doctors");
+                    }
+
+                    // Validate active status if provided (422)
+                    if (data.containsKey("active")) {
+                         Object activeObj = data.get("active");
+                         if (!(activeObj instanceof Boolean) &&
+                                   !"true".equalsIgnoreCase(String.valueOf(activeObj)) &&
+                                   !"false".equalsIgnoreCase(String.valueOf(activeObj))) {
+                              return ValidationUtils.error(422, "INVALID_STATUS",
+                                        "Invalid active status. Must be true or false");
+                         }
                     }
 
                     // Create employee object
@@ -118,12 +204,17 @@ public class EmployeeController {
                     employee.setRole(role);
                     employee.setLicenseNo(licenseNo);
                     employee.setEmail(email);
-                    employee.setPhone((String) data.get("phone"));
+                    employee.setPhone(phone);
                     employee.setAvatar((String) data.get("avatar"));
                     employee.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
 
                     // Save to database
-                    Employee saved = repository.save(employee);
+                    Employee saved;
+                    try {
+                         saved = repository.save(employee);
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
 
                     System.out.println("✅ Created employee ID: " + saved.getId());
                     return Json.ok(saved);
@@ -131,20 +222,48 @@ public class EmployeeController {
                } catch (Exception e) {
                     System.err.println("❌ ERROR in createEmployee(): " + e.getMessage());
                     e.printStackTrace();
-                    return Json.error(500, "Error creating employee: " + e.getMessage());
+                    return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                              "Error creating employee: " + e.getMessage());
                }
           };
      }
 
      private Function<HttpRequest, HttpResponse> updateEmployee() {
           return (HttpRequest req) -> {
+               // Step 0: Rate limiting (429)
+               HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+               if (rateLimitError != null)
+                    return rateLimitError;
+
+               // Step 1-2: Standard validations
+               HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+               if (contentTypeError != null)
+                    return contentTypeError;
+
+               // Step 3: JWT validation (401)
+               HttpResponse jwtError = ValidationUtils.validateJWT(req);
+               if (jwtError != null)
+                    return jwtError;
+
+               // Optional: Admin role check (403)
+               // HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+               // if (roleError != null) return roleError;
+
                try {
                     System.out.println("🔄 Updating employee (read ID from body)...");
                     // Parse JSON body -> Map
                     String bodyText = req.bodyText();
-                    Map<String, Object> data = Json.parseMap(bodyText);
+                    Map<String, Object> data;
+                    try {
+                         data = Json.parseMap(bodyText);
+                    } catch (Exception e) {
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Invalid JSON format: " + e.getMessage());
+                    }
+
                     if (data == null || data.isEmpty()) {
-                         return Json.error(400, "Body rỗng hoặc JSON không hợp lệ");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Body is empty or invalid JSON");
                     }
 
                     // Lấy ID từ body (bắt buộc)
@@ -159,13 +278,21 @@ public class EmployeeController {
                          }
                     }
                     if (id == null || id <= 0) {
-                         return Json.error(400, "Thiếu hoặc sai ID trong body");
+                         return ValidationUtils.error(400, "BAD_REQUEST",
+                                   "Missing or invalid employee ID in body");
                     }
 
-                    // Tìm employee hiện có
-                    Optional<Employee> existingOpt = repository.findById(id);
+                    // Tìm employee hiện có (404)
+                    Optional<Employee> existingOpt;
+                    try {
+                         existingOpt = repository.findById(id);
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+
                     if (existingOpt.isEmpty()) {
-                         return Json.error(404, "Employee not found with ID: " + id);
+                         return ValidationUtils.error(404, "NOT_FOUND",
+                                   "Employee not found with ID: " + id);
                     }
                     Employee employee = existingOpt.get();
 
@@ -196,49 +323,81 @@ public class EmployeeController {
                     if (data.containsKey("avatar"))
                          employee.setAvatar(getStr.apply("avatar"));
 
+                    // Validate role if provided (422 - Unprocessable Entity)
                     if (data.containsKey("role")) {
                          String newRole = getStr.apply("role");
-                         employee.setRole(newRole);
-                         // Nếu đổi sang doctor thì bắt buộc licenseNo
-                         if ("doctor".equalsIgnoreCase(newRole)) {
-                              String lic = data.containsKey("licenseNo") ? getStr.apply("licenseNo")
-                                        : employee.getLicenseNo();
-                              if (lic == null || lic.isBlank()) {
-                                   return Json.error(400, "License number required for doctors");
+                         if (newRole != null) {
+                              String roleLower = newRole.toLowerCase();
+                              if (!roleLower.equals("doctor") && !roleLower.equals("nurse") &&
+                                        !roleLower.equals("admin") && !roleLower.equals("receptionist")) {
+                                   return ValidationUtils.error(422, "INVALID_ROLE",
+                                             "Invalid role. Must be: doctor, nurse, admin, or receptionist");
+                              }
+                              employee.setRole(newRole);
+                              // Nếu đổi sang doctor thì bắt buộc licenseNo
+                              if ("doctor".equalsIgnoreCase(newRole)) {
+                                   String lic = data.containsKey("licenseNo") ? getStr.apply("licenseNo")
+                                             : employee.getLicenseNo();
+                                   if (lic == null || lic.isBlank()) {
+                                        return ValidationUtils.error(400, "BAD_REQUEST",
+                                                  "License number required for doctors");
+                                   }
                               }
                          }
                     }
                     if (data.containsKey("licenseNo"))
                          employee.setLicenseNo(getStr.apply("licenseNo"));
 
+                    // Check duplicate email (409 Conflict)
                     if (data.containsKey("email")) {
                          String newEmail = getStr.apply("email");
                          if (newEmail != null && !newEmail.equals(employee.getEmail())) {
-                              if (repository.findByEmail(newEmail).isPresent()) {
-                                   return Json.error(409, "Email already exists: " + newEmail);
+                              try {
+                                   if (repository.findByEmail(newEmail).isPresent()) {
+                                        return ValidationUtils.error(409, "EMAIL_CONFLICT",
+                                                  "Email already exists: " + newEmail);
+                                   }
+                              } catch (Exception e) {
+                                   return DatabaseErrorHandler.handleDatabaseException(e);
                               }
                          }
                          employee.setEmail(newEmail);
                     }
 
-                    if (data.containsKey("phone"))
-                         employee.setPhone(getStr.apply("phone"));
+                    // Check duplicate phone if provided (409 Conflict)
+                    if (data.containsKey("phone")) {
+                         String newPhone = getStr.apply("phone");
+                         if (newPhone != null && !newPhone.equals(employee.getPhone())) {
+                              // TODO: Add repository.findByPhone() check for conflict
+                         }
+                         employee.setPhone(newPhone);
+                    }
 
+                    // Validate active status (422 - Unprocessable Entity)
                     if (data.containsKey("active")) {
                          Boolean active = getBool.apply("active");
-                         if (active == null)
-                              return Json.error(400, "Giá trị 'active' không hợp lệ");
+                         if (active == null) {
+                              return ValidationUtils.error(422, "INVALID_STATUS",
+                                        "Invalid active status value");
+                         }
                          employee.setActive(active);
                     }
 
-                    // Lưu
-                    Employee updated = repository.save(employee);
+                    // Lưu với database error handling
+                    Employee updated;
+                    try {
+                         updated = repository.save(employee);
+                    } catch (Exception e) {
+                         return DatabaseErrorHandler.handleDatabaseException(e);
+                    }
+
                     System.out.println("✅ Updated employee ID: " + updated.getId());
                     return Json.ok(updated);
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in updateEmployee(): " + e.getMessage());
-                    return Json.error(500, "Error updating employee: " + e.getMessage());
+                    return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                              "Error updating employee: " + e.getMessage());
                }
           };
      }
@@ -377,14 +536,14 @@ public class EmployeeController {
                          return Json.error(404, "Không tìm thấy người dùng");
                     }
 
-                    at.favre.lib.crypto.bcrypt.BCrypt.Result result = 
-                         at.favre.lib.crypto.bcrypt.BCrypt.verifyer().verify(oldPassword.toCharArray(), currentPasswordHash);
+                    at.favre.lib.crypto.bcrypt.BCrypt.Result result = at.favre.lib.crypto.bcrypt.BCrypt.verifyer()
+                              .verify(oldPassword.toCharArray(), currentPasswordHash);
                     if (!result.verified) {
                          return Json.error(401, "Mật khẩu hiện tại không đúng");
                     }
 
                     String newPasswordHash = at.favre.lib.crypto.bcrypt.BCrypt.withDefaults()
-                         .hashToString(10, newPassword.toCharArray());
+                              .hashToString(10, newPassword.toCharArray());
                     boolean changed = repository.changePassword(usernameOrEmail, newPasswordHash);
 
                     if (changed) {
