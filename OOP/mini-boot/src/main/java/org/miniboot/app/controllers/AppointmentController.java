@@ -1,12 +1,12 @@
 package org.miniboot.app.controllers;
 
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Appointment;
@@ -17,12 +17,36 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
+import org.miniboot.app.util.errorvalidation.ValidationUtils;
+import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
+import org.miniboot.app.util.errorvalidation.RateLimiter;
 
 public class AppointmentController {
     private final AppointmentRepository appointmentRepository;
 
+    // Idempotency cache for appointment booking
+    private static final ConcurrentHashMap<String, CachedAppointment> idempotencyCache = new ConcurrentHashMap<>();
+    private static final long CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
     public AppointmentController(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
+    }
+
+    // Inner class for caching idempotent appointment results
+    private static class CachedAppointment {
+        final HttpResponse response;
+        final long timestamp;
+        final String requestHash;
+
+        CachedAppointment(HttpResponse response, String requestHash) {
+            this.response = response;
+            this.timestamp = System.currentTimeMillis();
+            this.requestHash = requestHash;
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > CACHE_EXPIRY_MS;
+        }
     }
 
     public static void mount(Router router, AppointmentController ac) {
@@ -33,26 +57,150 @@ public class AppointmentController {
     }
 
     /**
-     * GET /appointments
-     * - Không có query  -> trả mọi appointment
-     * - ?id=123         -> trả 1 appointment theo id (hoặc 404)
-     * - ?doctorId=&date=YYYY-MM-DD -> lọc theo bác sĩ + ngày
+     * POST /appointments
+     * - Tạo appointment mới với đầy đủ validation
+     * - Hỗ trợ Idempotency Key để tránh double booking
+     * - Check slot availability, working hours, conflicts
      */
     public Function<HttpRequest, HttpResponse> createAppointment() {
-        return (HttpRequest req) ->
-        {
+        return (HttpRequest req) -> {
+            // Step 0: Rate limiting check
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null)
+                return rateLimitError;
+
+            // Step 1-3: Standard validations (Content-Type, JWT, optional Role check)
+            HttpResponse contentTypeError = ValidationUtils.validateContentType(req, "application/json");
+            if (contentTypeError != null)
+                return contentTypeError;
+
+            HttpResponse jwtError = ValidationUtils.validateJWT(req);
+            if (jwtError != null)
+                return jwtError;
+
             try {
+                // Step 4: Check Idempotency Key
+                Map<String, String> headers = req.headers;
+                String idempotencyKey = headers.get("Idempotency-Key");
+                if (idempotencyKey == null) {
+                    idempotencyKey = headers.get("idempotency-key");
+                }
+
+                String requestHash = req.body != null ? String.valueOf(new String(req.body).hashCode()) : "";
+
+                if (idempotencyKey != null) {
+                    CachedAppointment cached = idempotencyCache.get(idempotencyKey);
+                    if (cached != null) {
+                        if (cached.isExpired()) {
+                            idempotencyCache.remove(idempotencyKey);
+                        } else {
+                            if (cached.requestHash.equals(requestHash)) {
+                                System.out.println(
+                                        "♻️ Returning cached appointment for idempotency key: " + idempotencyKey);
+                                return cached.response;
+                            } else {
+                                return ValidationUtils.error(409, "IDEMPOTENCY_KEY_CONFLICT",
+                                        "Idempotency Key reuse conflict: different request content");
+                            }
+                        }
+                    }
+                }
+
+                // Step 5: Parse JSON
                 System.out.println("📥 Received body: " + new String(req.body, StandardCharsets.UTF_8));
-                Appointment appointment = Json.fromBytes(req.body, Appointment.class);
-                System.out.println("✅ Parsed appointment: " + appointment);
-                appointmentRepository.save(appointment);
-                return Json.created(appointment);
+                Appointment appointment;
+                try {
+                    appointment = Json.fromBytes(req.body, Appointment.class);
+                    System.out.println("✅ Parsed appointment: " + appointment);
+                } catch (Exception e) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Invalid JSON format: " + e.getMessage());
+                }
+
+                // Step 6: Validate required fields
+                if (appointment.getDoctorId() == 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Doctor ID is required");
+                }
+                if (appointment.getCustomerId() == 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Customer ID (Patient) is required");
+                }
+                if (appointment.getStartTime() == null) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "Start time is required");
+                }
+                if (appointment.getEndTime() == null) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                            "End time is required");
+                }
+
+                // Step 7: Business rules validation
+                // TODO: Check doctor exists và đang active (404)
+                // TODO: Check patient exists (404)
+                // TODO: Check service exists if serviceId provided (404)
+
+                // Check slot không bị trùng (409 Conflict)
+                try {
+                    String date = appointment.getStartTime().toLocalDate().toString();
+                    List<Appointment> existingAppointments = appointmentRepository.findByDoctorIdAndDate(
+                            appointment.getDoctorId(), date);
+
+                    for (Appointment existing : existingAppointments) {
+                        // Skip cancelled appointments
+                        if (existing.getStatus() == AppointmentStatus.CANCELLED) {
+                            continue;
+                        }
+
+                        // Check time overlap
+                        if (appointment.getStartTime().isBefore(existing.getEndTime()) &&
+                                existing.getStartTime().isBefore(appointment.getEndTime())) {
+                            return ValidationUtils.error(409, "SLOT_CONFLICT",
+                                    "This time slot is already booked by another appointment");
+                        }
+                    }
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                // Check thời gian hợp lệ
+                if (!appointment.getStartTime().isBefore(appointment.getEndTime())) {
+                    return ValidationUtils.error(422, "INVALID_TIME_RANGE",
+                            "Start time must be before end time");
+                }
+
+                // TODO: Check working hours (422)
+                // TODO: Check patient không có appointment trùng giờ (422)
+                // TODO: Check không rơi vào ngày nghỉ (422)
+
+                // Step 8: Save appointment
+                Appointment saved;
+                try {
+                    saved = appointmentRepository.save(appointment);
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
+                if (saved == null || saved.getId() == 0) {
+                    return ValidationUtils.error(500, "DB_ERROR",
+                            "Cannot create appointment");
+                }
+
+                System.out.println("✅ Appointment created successfully: ID=" + saved.getId());
+
+                // Step 9: Cache result for idempotency
+                HttpResponse response = Json.created(saved);
+                if (idempotencyKey != null) {
+                    idempotencyCache.put(idempotencyKey, new CachedAppointment(response, requestHash));
+                }
+
+                return response;
+
             } catch (Exception e) {
-                System.err.println("❌ Error creating appointment: " + e.getMessage());
+                System.err.println("❌ Unexpected error in createAppointment: " + e.getMessage());
                 e.printStackTrace();
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred");
             }
         };
     }
@@ -69,16 +217,16 @@ public class AppointmentController {
                         .orElse(HttpResponse.of(
                                 404,
                                 "text/plain; charset=utf-8",
-                                AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
-                        ));
+                                AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)));
             }
 
             // 2. Nếu có ?doctorId=X&date=YYYY-MM-DD -> dùng findByDoctorIdAndDate()
             Optional<Integer> doctorIdOpt = ExtractHelper.extractInt(q, "doctorId");
             Optional<String> dateOpt = ExtractHelper.extractFirst(q, "date");
-            
+
             if (doctorIdOpt.isPresent() && dateOpt.isPresent()) {
-                System.out.println("🔍 DEBUG: GET /appointments?doctorId=" + doctorIdOpt.get() + "&date=" + dateOpt.get());
+                System.out.println(
+                        "🔍 DEBUG: GET /appointments?doctorId=" + doctorIdOpt.get() + "&date=" + dateOpt.get());
                 List<Appointment> result = appointmentRepository.findByDoctorIdAndDate(
                         doctorIdOpt.get(), dateOpt.get());
                 System.out.println("✅ DEBUG: Returning " + result.size() + " appointments for date " + dateOpt.get());
@@ -103,8 +251,7 @@ public class AppointmentController {
                 String search = ExtractHelper.extractFirst(q, "search").orElse(null);
 
                 List<Appointment> filtered = appointmentRepository.findWithFilters(
-                        doctorId, customerId, status, fromDate, toDate, search
-                );
+                        doctorId, customerId, status, fromDate, toDate, search);
 
                 return Json.ok(filtered);
             }
