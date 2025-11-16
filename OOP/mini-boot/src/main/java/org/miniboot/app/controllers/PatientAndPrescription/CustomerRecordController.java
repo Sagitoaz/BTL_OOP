@@ -64,7 +64,6 @@ public class CustomerRecordController {
             } catch (Exception e) {
                 // JSON parsing hoặc lỗi khác
                 System.err.println("❌ General error creating customer: " + e.getMessage());
-                e.printStackTrace();
                 return HttpResponse.of(400, "text/plain; charset=utf-8",
                         AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
             }

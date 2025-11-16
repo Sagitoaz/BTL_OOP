@@ -136,7 +136,6 @@ public class DoctorDashBoardController extends BaseController {
 
     private void handleInitializationError(Exception e) {
         System.err.println("Initialization error : " + e.getMessage());
-        e.printStackTrace();
         Platform.runLater(() -> {
             ErrorHandler.showCustomError(500,
                     "Không thể khởi tạo trang bác sĩ.\n\n" +
