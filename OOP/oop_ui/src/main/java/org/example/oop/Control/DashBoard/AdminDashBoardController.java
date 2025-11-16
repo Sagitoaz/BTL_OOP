@@ -121,12 +121,10 @@ public class AdminDashBoardController extends BaseController {
     private void setupUI() {
         if (currentEmployee == null)
             return;
-        
-        // Admin không có họ tên thật, chỉ hiển thị username
-        String displayName = "admin".equalsIgnoreCase(currentEmployee.getRole()) 
-            ? currentEmployee.getUsername() 
-            : currentEmployee.getFirstname() + " " + currentEmployee.getLastname();
-            
+        String displayName = "admin".equalsIgnoreCase(currentEmployee.getRole())
+                ? currentEmployee.getUsername()
+                : currentEmployee.getFirstname() + " " + currentEmployee.getLastname();
+
         if (welcomeLabel != null) {
             welcomeLabel.setText("Chào mừng trở lại, " + displayName + "! 👋");
         }

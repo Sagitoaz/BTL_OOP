@@ -1,8 +1,7 @@
 package org.example.oop.Utils;
 
-import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.example.oop.Control.SessionStorage;
+import org.miniboot.app.domain.models.Employee;
 
 import javafx.application.Platform;
 
@@ -19,10 +18,10 @@ public class SessionValidator {
       */
      public static boolean validateEmployeeSession() {
           Employee employee = SceneManager.getSceneData("accountData");
-          
+
           System.out.println("🔍 SessionValidator: Checking employee session...");
           System.out.println("   Employee data: " + (employee != null ? employee.getUsername() : "NULL"));
-          
+
           if (employee == null) {
                System.err.println("❌ Employee Session invalid: accountData is null");
                return false;
@@ -41,22 +40,22 @@ public class SessionValidator {
       */
      public static boolean validateCustomerSession() {
           Customer customer = SceneManager.getSceneData("accountData");
-          
+
           if (customer == null) {
                System.err.println("❌ Customer Session invalid: accountData is null");
                Platform.runLater(() -> {
                     ErrorHandler.showCustomError(401,
-                         "Phiên đăng nhập đã hết hạn.\n\n" +
-                         "Vui lòng đăng nhập lại để tiếp tục.");
-                    
+                              "Phiên đăng nhập đã hết hạn.\n\n" +
+                                        "Vui lòng đăng nhập lại để tiếp tục.");
+
                     SceneManager.clearSceneData();
                     SceneManager.switchScene(
-                         SceneConfig.LOGIN_FXML,
-                         SceneConfig.Titles.LOGIN);
+                              SceneConfig.LOGIN_FXML,
+                              SceneConfig.Titles.LOGIN);
                });
                return false;
           }
-          
+
           System.out.println("✅ Customer session valid: " + customer.getUsername());
           return true;
      }
@@ -69,14 +68,14 @@ public class SessionValidator {
       */
      public static boolean validatePermission(String... requiredRoles) {
           Employee employee = SceneManager.getSceneData("accountData");
-          
+
           if (employee == null) {
                System.err.println("❌ Permission check failed: No employee data");
                return false;
           }
 
           String userRole = employee.getRole().toUpperCase();
-          
+
           for (String role : requiredRoles) {
                if (userRole.equals(role.toUpperCase())) {
                     System.out.println("✅ Permission granted: " + userRole + " can access " + role);
@@ -85,14 +84,14 @@ public class SessionValidator {
           }
 
           System.err.println("❌ Permission denied: " + userRole + " cannot access " + String.join(", ", requiredRoles));
-          
+
           Platform.runLater(() -> {
                ErrorHandler.showCustomError(403,
-                    "Bạn không có quyền truy cập chức năng này.\n\n" +
-                    "Vai trò của bạn: " + userRole + "\n" +
-                    "Yêu cầu: " + String.join(" hoặc ", requiredRoles));
+                         "Bạn không có quyền truy cập chức năng này.\n\n" +
+                                   "Vai trò của bạn: " + userRole + "\n" +
+                                   "Yêu cầu: " + String.join(" hoặc ", requiredRoles));
           });
-          
+
           return false;
      }
 

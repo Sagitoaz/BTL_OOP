@@ -128,6 +128,10 @@ public class LoginController {
             return;
         }
 
+        // Disable login button và hiển thị "Đang đăng nhập..."
+        loginButton.setDisable(true);
+        invalidLoginMessage.setText("⏳ Đang đăng nhập...");
+
         // Call mini-boot AuthService through wrapper to avoid module issues
         Optional<String> sessionOpt = AuthServiceWrapper.login(username, password);
 
@@ -183,45 +187,149 @@ public class LoginController {
                 } catch (Exception e) {
                     invalidLoginMessage.setVisible(true);
                     invalidLoginMessage.setText("Data loading error. Please try again later.");
+                    loginButton.setDisable(false);
                 }
+            } else if ("EMPLOYEE".equalsIgnoreCase(userRole)) {
+                // ✅ EMPLOYEE role từ AuthService - cần query employees table để lấy role cụ thể
+                // Load async để không block UI
+                Thread loadEmployeeThread = new Thread(() -> {
+                    try {
+                        System.out.println("🔍 EMPLOYEE role detected, querying employee table for specific role...");
+
+                        // ⚡ Tăng timeout lên 30 giây cho API call này
+                        HttpEmployeeService employeeService = new HttpEmployeeService();
+                        Employee employee = employeeService.getEmployeeById(
+                                SessionStorage.getCurrentUserId());
+
+                        if (employee == null) {
+                            System.err.println("❌ Employee not found in database");
+                            javafx.application.Platform.runLater(() -> {
+                                invalidLoginMessage.setVisible(true);
+                                invalidLoginMessage
+                                        .setText("Employee information not found. Please contact administrator.");
+                                loginButton.setDisable(false);
+                            });
+                            return;
+                        }
+
+                        String actualRole = employee.getRole(); // Get role từ database
+                        System.out.println("✅ Found employee with actual role: " + actualRole);
+                        System.out.println("   Employee: " + employee.getFirstname() + " " + employee.getLastname());
+
+                        String[] key = { "role", "accountData", "authToken" };
+                        Object[] data = { UserRole.EMPLOYEE, employee, sessionId };
+
+                        // Update UI trên main thread
+                        javafx.application.Platform.runLater(() -> {
+                            // Navigate theo role cụ thể
+                            if ("doctor".equalsIgnoreCase(actualRole)) {
+                                System.out.println("🔄 Redirecting to Doctor Dashboard");
+                                SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML,
+                                        SceneConfig.Titles.DASHBOARD, key, data);
+                            } else if ("nurse".equalsIgnoreCase(actualRole)) {
+                                System.out.println("🔄 Redirecting to Nurse Dashboard");
+                                SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML,
+                                        SceneConfig.Titles.DASHBOARD, key, data);
+                            } else {
+                                System.err.println("❌ Unknown employee role: " + actualRole);
+                                invalidLoginMessage.setVisible(true);
+                                invalidLoginMessage.setText("Unknown employee role: " + actualRole);
+                                loginButton.setDisable(false);
+                            }
+                        });
+
+                    } catch (java.net.http.HttpTimeoutException timeoutEx) {
+                        System.err.println("❌ Network timeout - Backend server is slow");
+                        timeoutEx.printStackTrace();
+                        javafx.application.Platform.runLater(() -> {
+                            invalidLoginMessage.setVisible(true);
+                            invalidLoginMessage.setText(
+                                    "⚠️ Server is slow. Login successful but dashboard loading failed. Please try again.");
+                            loginButton.setDisable(false);
+                        });
+                    } catch (Exception e) {
+                        System.err.println("❌ Error querying employee data: " + e.getMessage());
+                        e.printStackTrace();
+                        javafx.application.Platform.runLater(() -> {
+                            invalidLoginMessage.setVisible(true);
+                            invalidLoginMessage.setText("Error loading employee information. Please try again later.");
+                            loginButton.setDisable(false);
+                        });
+                    }
+                });
+
+                loadEmployeeThread.setName("EmployeeDataLoader");
+                loadEmployeeThread.setDaemon(true);
+                loadEmployeeThread.start();
+
             } else if ("doctor".equalsIgnoreCase(userRole) || "nurse".equalsIgnoreCase(userRole)) {
-                // Employee: Doctor or Nurse
-                HttpEmployeeService employeeService = new HttpEmployeeService();
-                Employee employee = employeeService.getEmployeeById(
-                        SessionStorage.getCurrentUserId());
+                // Fallback: nếu AuthService trả về role cụ thể (doctor/nurse)
+                Thread loadEmployeeThread = new Thread(() -> {
+                    try {
+                        HttpEmployeeService employeeService = new HttpEmployeeService();
+                        Employee employee = employeeService.getEmployeeById(
+                                SessionStorage.getCurrentUserId());
 
-                // ⚠️ OVERRIDE role from database with role from auth service
-                employee.setRole(userRole);
+                        if (employee == null) {
+                            System.err.println("❌ Employee not found");
+                            javafx.application.Platform.runLater(() -> {
+                                invalidLoginMessage.setVisible(true);
+                                invalidLoginMessage.setText("Employee information not found.");
+                                loginButton.setDisable(false);
+                            });
+                            return;
+                        }
 
-                System.out.println(
-                        "✅ Login as " + userRole + ": " + employee.getFirstname() + " " + employee.getLastname());
-                System.out.println("   Employee role OVERRIDDEN to: " + employee.getRole());
+                        System.out.println(
+                                "✅ Login as " + userRole + ": " + employee.getFirstname() + " "
+                                        + employee.getLastname());
 
-                String[] key = { "role", "accountData", "authToken" };
-                Object[] data = { UserRole.EMPLOYEE, employee, sessionId };
+                        String[] key = { "role", "accountData", "authToken" };
+                        Object[] data = { UserRole.EMPLOYEE, employee, sessionId };
 
-                if (employee.getRole().equalsIgnoreCase("doctor")) {
-                    SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD,
-                            key, data);
-                } else if (employee.getRole().equalsIgnoreCase("nurse")) {
-                    SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD,
-                            key, data);
-                } else {
-                    // Fallback nếu role không match
-                    System.err.println("❌ Unknown employee role: " + employee.getRole());
-                    invalidLoginMessage.setVisible(true);
-                    invalidLoginMessage.setText("Invalid user role configuration. Please contact administrator.");
-                }
+                        javafx.application.Platform.runLater(() -> {
+                            if ("doctor".equalsIgnoreCase(userRole)) {
+                                SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML,
+                                        SceneConfig.Titles.DASHBOARD, key, data);
+                            } else if ("nurse".equalsIgnoreCase(userRole)) {
+                                SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML,
+                                        SceneConfig.Titles.DASHBOARD, key, data);
+                            }
+                        });
+
+                    } catch (java.net.http.HttpTimeoutException timeoutEx) {
+                        System.err.println("❌ Network timeout - Backend server is slow");
+                        javafx.application.Platform.runLater(() -> {
+                            invalidLoginMessage.setVisible(true);
+                            invalidLoginMessage.setText("⚠️ Server is slow. Please try again.");
+                            loginButton.setDisable(false);
+                        });
+                    } catch (Exception e) {
+                        System.err.println("❌ Error during employee login: " + e.getMessage());
+                        javafx.application.Platform.runLater(() -> {
+                            invalidLoginMessage.setVisible(true);
+                            invalidLoginMessage.setText("Error loading employee data. Please try again later.");
+                            loginButton.setDisable(false);
+                        });
+                    }
+                });
+
+                loadEmployeeThread.setName("EmployeeDataLoader");
+                loadEmployeeThread.setDaemon(true);
+                loadEmployeeThread.start();
+
             } else {
                 // Unknown role
                 System.err.println("❌ Unknown user role: " + userRole);
                 invalidLoginMessage.setVisible(true);
-                invalidLoginMessage.setText("Invalid user role. Please contact administrator.");
+                invalidLoginMessage.setText("Invalid user role: " + userRole + ". Please contact administrator.");
+                loginButton.setDisable(false);
             }
 
         } else {
             invalidLoginMessage.setVisible(true);
             invalidLoginMessage.setText("Invalid username or password");
+            loginButton.setDisable(false);
         }
     }
 }
