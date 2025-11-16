@@ -1,12 +1,12 @@
 package org.example.oop.Utils;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 /**
  * ErrorHandler - Xử lý lỗi HTTP một cách tập trung và user-friendly
@@ -156,6 +156,60 @@ public class ErrorHandler {
 
         // Log
         System.err.println("❌ Custom Error [" + statusCode + "]: " + customMessage);
+    }
+
+    /**
+     * Hiển thị lỗi với tiêu đề + message (public API tiện dụng)
+     * 
+     * @param title   tiêu đề
+     * @param message nội dung
+     */
+    public static void showError(String title, String message) {
+        showErrorAlert(title, message);
+    }
+
+    /**
+     * Hiển thị lỗi với tiêu đề mặc định
+     * 
+     * @param message nội dung
+     */
+    public static void showError(String message) {
+        showError("Lỗi", message);
+    }
+
+    /**
+     * Hiển thị cảnh báo (warning) an toàn cho UI thread
+     * 
+     * @param title   tiêu đề
+     * @param message nội dung
+     */
+    public static void showWarning(String title, String message) {
+        if (Platform.isFxApplicationThread()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.getDialogPane().setMinWidth(400);
+            alert.showAndWait();
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle(title);
+                alert.setHeaderText(null);
+                alert.setContentText(message);
+                alert.getDialogPane().setMinWidth(400);
+                alert.showAndWait();
+            });
+        }
+    }
+
+    /**
+     * Hiển thị cảnh báo với tiêu đề mặc định
+     * 
+     * @param message nội dung
+     */
+    public static void showWarning(String message) {
+        showWarning("Cảnh báo", message);
     }
 
     /**

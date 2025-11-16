@@ -9,13 +9,14 @@ import java.util.function.Consumer;
 import org.example.oop.Utils.ApiClient;
 import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.ErrorHandler;
-import org.example.oop.Utils.HttpException;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import javafx.application.Platform;
 import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.util.CustomerAndPrescriptionConfig;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import javafx.application.Platform;
 
 /**
  * 🌐 CUSTOMER RECORD SERVICE - NGÀY 8 CUSTOMER API INTEGRATION
@@ -203,7 +204,7 @@ public class CustomerRecordService {
      * ✅ Updated với ErrorHandler framework (Ngày 4)
      */
     public void getAllCustomersAsync(Consumer<List<Customer>> onSuccess, Consumer<String> onError) {
-        System.out.println("API GETTING " +CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
+        System.out.println("API GETTING " + CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT);
         apiClient.getAsync(CustomerAndPrescriptionConfig.GET_CUSTOMER_ENDPOINT,
                 response -> {
                     if (response.isSuccess()) {
