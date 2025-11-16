@@ -99,6 +99,7 @@ public class HttpEmployeeService {
     public Employee getEmployeeById(int id) throws Exception {
         System.out.println("Fetching employee with ID: " + id);
         HttpRequest req = reqBuilder("/employees?id=" + id)
+                .timeout(Duration.ofSeconds(30)) // ⚡ Override với 30s timeout
                 .GET()
                 .header("Accept", "application/json")
                 .build();
@@ -273,9 +274,10 @@ public class HttpEmployeeService {
 
     /**
      * Đổi mật khẩu cho user
+     * 
      * @param usernameOrEmail Tên tài khoản hoặc email
-     * @param oldPassword Mật khẩu hiện tại
-     * @param newPassword Mật khẩu mới
+     * @param oldPassword     Mật khẩu hiện tại
+     * @param newPassword     Mật khẩu mới
      * @return true nếu thành công
      * @throws Exception nếu mật khẩu cũ sai hoặc lỗi server
      */

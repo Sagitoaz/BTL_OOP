@@ -225,7 +225,7 @@ public class DoctorDashBoardController extends BaseController {
     }
 
     private boolean isGoingBackToLogin() {
-        return true; // Dashboard thường là trang đầu sau login
+        return true;
     }
 
     private boolean showConfirmation(String title, String message) {
@@ -244,6 +244,7 @@ public class DoctorDashBoardController extends BaseController {
             SceneManager.removeSceneData("accountData");
             SceneManager.removeSceneData("authToken");
             SceneManager.removeSceneData("role");
+            SessionStorage.clear();
             SafeNavigator.navigate(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
             System.out.println("Logout successful");
         } catch (Exception e) {

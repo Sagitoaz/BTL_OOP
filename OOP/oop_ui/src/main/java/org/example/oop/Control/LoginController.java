@@ -121,6 +121,12 @@ public class LoginController {
         String password = isPasswordVisible ? visiblePasswordTextField.getText().trim()
                 : enterPasswordTextField.getText().trim();
 
+        // 🔐 Clear any old session data before login
+        SessionStorage.clear();
+        SceneManager.removeSceneData("authToken");
+        SceneManager.removeSceneData("accountData");
+        SceneManager.removeSceneData("role");
+
         // validate input
         String msg = validateInput(username, password);
         if (msg != null) {
