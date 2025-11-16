@@ -307,10 +307,6 @@ public class CustomerHubController implements Initializable {
                             cachedPrescriptions.put(customer.getId(), new ArrayList<>());
                         }
 
-
-
-
-                        System.out.println("✅ Loaded " + prescriptions.size() + " prescriptions for customer: " + customer.getFullName());
                     });
                 }
             } catch (Exception e) {

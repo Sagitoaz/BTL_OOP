@@ -117,6 +117,10 @@ public class AddCustomerViewController implements Initializable
         curCustomer.setAddress(address);
         curCustomer.setEmail(email);
         curCustomer.setNote(notes);
+        if(curCustomer.getUsername() == null || curCustomer.getUsername().isEmpty() || curCustomer.getGender() == null || curCustomer.getDob() == null || curCustomer.getEmail() == null || curCustomer.getEmail().isEmpty()){
+            CustomerHubController.showErrorAlert("Invalid Input", "Please fill in all required fields (Name, Gender, Date of Birth, Email).");
+            return;
+        }
         if(isCreateMode){
             CustomerRecordService.getInstance().createCustomer(curCustomer);
             SceneManager.setSceneData("newCustomer", curCustomer);

@@ -163,7 +163,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
     }
     public List<Customer> findAll() {
         List<Customer> customers = new ArrayList<>();
-        String sqlQuery = "SELECT * FROM customers;";
+        String sqlQuery = "SELECT * FROM customers ORDER BY id;";
         try (Connection conn = dbConfig.getConnection()){
             PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
             ResultSet rs = pstmt.executeQuery();
@@ -220,6 +220,7 @@ public class PostgreSQLCustomerRecordRepository implements  CustomerRecordReposi
             sqlQuery.append(" AND dob <= ?");
             parameters.add(Date.valueOf(criteria.getDateTo()));
         }
+        sqlQuery.append(" ORDER BY id DESC;");
 
         System.out.println("🔍 SQL Query: " + sqlQuery.toString());
         System.out.println("🔍 Parameters: " + parameters);

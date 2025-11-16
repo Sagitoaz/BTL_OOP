@@ -75,7 +75,7 @@
                             <TextField fx:id="phoneField" promptText="Nhập số điện thoại" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                             <Label styleClass="form-label" text="Email:" GridPane.rowIndex="5" />
-                            <TextField fx:id="emailField" promptText="Nhập email (nếu có)" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                            <TextField fx:id="emailField" promptText="Nhập email (phải có)" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
                             <Label styleClass="form-label" text="Ghi chú:" GridPane.rowIndex="6" GridPane.valignment="TOP">
                                 <padding>
