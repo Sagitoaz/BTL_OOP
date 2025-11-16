@@ -4,14 +4,11 @@ package org.example.oop.Control.PaymentControl;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
@@ -21,7 +18,6 @@ import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.*;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,16 +56,19 @@ public class PaymentController extends BaseController implements Initializable {
     private HttpPaymentService paymentService;
     private HttpPaymentStatusLogService statusLogService;
     private HttpPaymentItemService itemService;
+
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
+
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
     }
 
@@ -84,8 +83,8 @@ public class PaymentController extends BaseController implements Initializable {
         setupEventHandlers();
         setupListeners();
         handleReset();
-        if(SceneManager.getSceneData("savedPaymentId") != null){
-            String paymentId = (String)SceneManager.getSceneData("savedPaymentId");
+        if (SceneManager.getSceneData("savedPaymentId") != null) {
+            String paymentId = (String) SceneManager.getSceneData("savedPaymentId");
             initData(paymentId);
             SceneManager.removeSceneData("paymentId");
         }
@@ -157,10 +156,11 @@ public class PaymentController extends BaseController implements Initializable {
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
                     // 1. Lấy payment
-                    Payment payment = paymentService.getPaymentById(id);
-                    if (payment == null) {
-                        // Ném lỗi để onError xử lý
-                        throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
+                    Payment payment = null;
+                    try {
+                        payment = paymentService.getPaymentById(id);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
 
                     // 2. Lấy trạng thái
@@ -172,7 +172,8 @@ public class PaymentController extends BaseController implements Initializable {
                     } else if (status == PaymentStatus.CANCELLED) {
                         throw new RuntimeException("Hóa đơn này đã bị hủy");
                     } else if (status != PaymentStatus.PENDING) {
-                        throw new RuntimeException("Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
+                        throw new RuntimeException(
+                                "Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
                     }
 
                     // 4. Gán biến global (vẫn an toàn vì onSuccess sẽ đọc sau)
@@ -204,8 +205,7 @@ public class PaymentController extends BaseController implements Initializable {
                         handleError(error);
                     }
                     handleReset(); // Reset form khi có lỗi
-                }
-        );
+                });
     }
 
     private void handleReset() {
@@ -263,19 +263,19 @@ public class PaymentController extends BaseController implements Initializable {
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
                     // 1. GỬI CẬP NHẬT LÊN SERVER
-                    Payment updatedPayment = paymentService.updatePayment(currentPayment);
-
-                    if (updatedPayment == null) {
-                        throw new RuntimeException("Không thể cập nhật thông tin thanh toán. Vui lòng thử lại.");
+                    try {
+                        Payment updatedPayment = paymentService.updatePayment(currentPayment);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
+
 
                     // 2. Cập nhật trạng thái
                     statusLogService.updatePaymentStatus(new PaymentStatusLog(
                             null,
                             currentPayment.getId(),
                             LocalDateTime.now(),
-                            PaymentStatus.PAID)
-                    );
+                            PaymentStatus.PAID));
                 },
 
                 // --------- KHI THÀNH CÔNG (UI THREAD) ---------
@@ -310,7 +310,8 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void handlePaymentMethodChange(PaymentMethod method) {
-        if (currentPayment == null) return;
+        if (currentPayment == null)
+            return;
 
         switch (method) {
             case CASH -> {
@@ -336,11 +337,15 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void printReceipt() {
+        String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
 
-            String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
-
-            Receipt receipt = new Receipt(currentPayment, currentItems);
-            SceneManager.setSceneData("receiptData", receipt);
+        Receipt receipt = new Receipt(currentPayment, currentItems);
+        SceneManager.setSceneData("receiptData", receipt);
+        try {
             SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
+        } catch (Exception e) {
+            // Sử dụng handleError kế thừa từ BaseController để hiển thị lỗi chung
+            handleError(e);
+        }
     }
 }
