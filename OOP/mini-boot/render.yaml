@@ -16,9 +16,7 @@ services:
     # Environment
     envVars:
       # Server Configuration
-      - key: PORT
-        sync: false
-        value: 8080
+      # Note: PORT is automatically set by Render, don't override unless necessary
       
       - key: MAX_BODY_BYTES
         sync: false
@@ -43,8 +41,8 @@ services:
       # - DB_USER: postgres.dwcpuomioxgqznusjewq
       # - DB_PASSWORD: [YOUR-PASSWORD] (from Render Dashboard Secret Files)
     
-    # Health check
-    healthCheckPath: /doctors
+    # Health check (endpoint không cần authentication)
+    healthCheckPath: /health
     
     # Auto-deploy
     autoDeploy: true

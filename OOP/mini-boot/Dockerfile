@@ -58,9 +58,8 @@ USER appuser
 # Expose port (Render will set this dynamically)
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/doctors || exit 1
+# Note: Health check is disabled because Render uses its own health check mechanism
+# and the port is dynamic (set via PORT env var at runtime)
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]

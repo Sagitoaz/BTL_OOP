@@ -88,6 +88,19 @@ public class ServerMain {
         router.use(new CorsMiddleware());
         router.use(new LoggingMiddleware());
         router.use(new ErrorHandle());
+        
+        // Health check endpoint (cho Render, Railway, etc.)
+        router.get("/health", req -> {
+            System.out.println("🏥 Health check received");
+            return org.miniboot.app.http.HttpResponse.of(200, "text/plain", "OK".getBytes());
+        });
+        
+        router.get("/", req -> {
+            System.out.println("🏠 Root endpoint accessed");
+            String message = "mini-boot server is running on port " + port;
+            return org.miniboot.app.http.HttpResponse.of(200, "text/plain", message.getBytes());
+        });
+        
         router.get("/doctors", dc.getDoctors());
 
         DoctorController.mount(router, dc);

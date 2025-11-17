@@ -117,11 +117,14 @@ public class HttpServer {
         running = true;
         System.out.println("[mini-boot] HTTP listening on: 0.0.0.0:" + port);
         System.out.println("[mini-boot] Server is ready to accept connections");
+        System.out.println("[mini-boot] Waiting for incoming connections...");
 
         // Main server loop - accept connections liên tục
         while (!socket.isClosed()) {
             // Accept connection từ client (blocking call)
             Socket client = socket.accept();
+            
+            System.out.println("[mini-boot] 🔗 Connection accepted from: " + client.getInetAddress());
 
             // Đặt timeout cho client socket để tránh hang indefinitely
             client.setSoTimeout(CLIENT_SO_TIMEOUT_MS);
