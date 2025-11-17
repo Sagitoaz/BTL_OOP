@@ -4,7 +4,7 @@
 # ==========================================
 
 # Stage 1: Build stage
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-21-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -28,7 +28,7 @@ RUN mvn clean package -DskipTests -B
 RUN ls -la /app/target/
 
 # Stage 2: Runtime stage
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 # Install dumb-init and wget for health check
 RUN apk add --no-cache dumb-init wget
