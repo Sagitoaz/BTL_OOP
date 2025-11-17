@@ -174,22 +174,28 @@ public class HttpServer {
      * @param client Socket connection tới client
      */
     private void handle(Socket client) {
+        System.out.println("🔧 [handle] Starting request handling...");
         setupClientTimeout(client);
 
         InputStream in;
         OutputStream out = null;
 
         try {
+            System.out.println("🔧 [handle] Getting input/output streams...");
             in = client.getInputStream();
             out = client.getOutputStream();
 
             long startTime = System.nanoTime();
 
             // Bước 1: Parse HTTP request
+            System.out.println("🔧 [handle] Parsing HTTP request...");
             HttpRequest request = HttpRequestParser.parse(in);
+            System.out.println("✅ [handle] Request parsed: " + request.method + " " + request.path);
 
             // Bước 2: Tạo HTTP response dựa trên request
+            System.out.println("🔧 [handle] Dispatching to router...");
             HttpResponse response = router.dispatch(request);
+            System.out.println("✅ [handle] Router returned response with status: " + response.statusCode);
 
             System.out.println("📤 Writing response to client...");
             System.out

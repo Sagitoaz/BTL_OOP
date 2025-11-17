@@ -9,7 +9,7 @@ import org.example.oop.config.ApiConstants;
 public class ApiConfig {
 
      // Environment-specific URLs
-     private static final String DEV_BASE_URL = "https://btl-oop-i9pi.onrender.com/";
+     private static final String DEV_BASE_URL = "https://btl-oop-i9pi.onrender.com";
      private static final String PROD_BASE_URL = "http://production-server:8080";
 
      // Current environment (change as needed)
