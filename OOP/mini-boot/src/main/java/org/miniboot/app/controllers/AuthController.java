@@ -171,7 +171,7 @@ public class AuthController {
             try {
                 username = AuthService.validateToken(authHeader);
             } catch (Exception e) {
-                return Json.error(HttpConstants.STATUS_UNAUTHORIZED, ErrorMessages.ERROR_TOKEN_INVALID);
+                return ChangePasswordValidator.invalidToken();
             }
 
             // 3. Parse request body
@@ -181,8 +181,9 @@ public class AuthController {
             String confirmPassword = extractJsonField(body, "confirmPassword");
 
             // 4. Validate input fields
-            if (oldPassword == null || oldPassword.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Mật khẩu cũ không được để trống.");
+            HttpResponse oldPasswordError = ChangePasswordValidator.incorrectOldPassword(oldPassword);
+            if( oldPasswordError != null) {
+                return oldPasswordError;
             }
 
             // 5. Validate new password format
@@ -197,8 +198,14 @@ public class AuthController {
                 return confirmPasswordError;
             }
 
+
             // 7. Tìm user từ database
-            Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+            Optional<UserRecord> userOpt = Optional.empty();
+            try{
+                userOpt = userDAO.findByUsername(username);
+            } catch (Exception e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
             if (userOpt.isEmpty()) {
                 return Json.error(HttpConstants.STATUS_NOT_FOUND, ErrorMessages.ERROR_USER_NOT_FOUND);
             }
@@ -224,7 +231,7 @@ public class AuthController {
                         "username", username
                 ));
             } else if ("failed".equals(result)) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Không thể cập nhật mật khẩu. Vui lòng thử lại.");
+                return ChangePasswordValidator.updateFailed();
             } else {
                 return ChangePasswordValidator.unexpectedError();
             }
