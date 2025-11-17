@@ -1,6 +1,7 @@
 package org.miniboot.app.controllers;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
+import org.miniboot.app.config.ErrorMessages;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Doctor;
 import org.miniboot.app.domain.models.TimeSlot;
@@ -47,9 +48,9 @@ public class DoctorController {
                 return Json.created(doctor);
             } catch (Exception e) {
                 e.printStackTrace();
-                return HttpResponse.of(400,
-                        "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                        HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        ErrorMessages.ERROR_INVALID_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }
@@ -61,27 +62,12 @@ public class DoctorController {
     public Function<HttpRequest, HttpResponse> getDoctors() {
         return (HttpRequest req) -> {
             Optional<Integer> idOpt = ExtractHelper.extractId(req.query);
-//            if (idOpt.isPresent()) {
-//                int id = idOpt.get();
-//                var doctorOpt = doctorRepository.findById(id);
-//                if (doctorOpt.isPresent()) {
-//                    return Json.ok(doctorOpt.get());
-//                } else {
-//                    return HttpResponse.of(
-//                            404,
-//                            "text/plain; charset=utf-8",
-//                            AppConfig.RESPONSE_404.getBytes()
-//                    );
-//                }
-//            } else {
-//                return Json.ok(doctorRepository.findAll());
-//            }
             return idOpt.map(id -> doctorRepository.findById(id)
                             .map(Json::ok)
                             .orElse(HttpResponse.of(
-                                    404,
-                                    "text/plain; charset=utf-8",
-                                    AppConfig.RESPONSE_404.getBytes(StandardCharsets.UTF_8)
+                                    HttpConstants.STATUS_NOT_FOUND,
+                                    HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                                    ErrorMessages.ERROR_DOCTOR_NOT_FOUND.getBytes(StandardCharsets.UTF_8)
                             )))
                     .orElseGet(() -> Json.ok(doctorRepository.findAll()));
         };
@@ -94,7 +80,8 @@ public class DoctorController {
             Optional<String> dateOpt = ExtractHelper.extractFirst(q, "date");
 
             if (doctorIdOpt.isEmpty() || dateOpt.isEmpty()) {
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                        HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
                         "Missing doctorId or date parameter".getBytes(StandardCharsets.UTF_8));
             }
 
@@ -159,4 +146,3 @@ public class DoctorController {
         return true;
     }
 }
-

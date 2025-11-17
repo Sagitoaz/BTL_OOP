@@ -1,5 +1,7 @@
 package org.example.oop.Utils;
 
+import org.example.oop.config.UIConstants;
+
 public final class SceneConfig {
 
     // Private constructor to prevent instantiation
@@ -8,7 +10,6 @@ public final class SceneConfig {
 
     // ========== Dashboard Scene ==========
     public static final String ADMIN_DASHBOARD_FXML = "/FXML/Dashboard/AdminDashboard.fxml";
-   // public static final String EMPLOYEE_DASHBOARD_FXML = "/FXML/Dashboard/EmployeeDashboard.fxml";
     public static final String CUSTOMER_DASHBOARD_FXML = "/FXML/Dashboard/CustomerDashboard.fxml";
     public static final String DOCTOR_DASHBOARD_FXML = "/FXML/Dashboard/DoctorDashboard.fxml";
     public static final String NURSE_DASHBOARD_FXML = "/FXML/Dashboard/NurseDashboard.fxml";
@@ -50,11 +51,12 @@ public final class SceneConfig {
     public static final String EMPLOYEE_EDIT_FORM_FXML = "/FXML/Employee/EmployeeEditForm.fxml";
     public static final String EMPLOYEE_DETAIL_FXML = "/FXML/Employee/EmployeeDetail.fxml";
 
-    // ========== SCENE TITLES ==========
+    // ========== SCENE TITLES - Sử dụng từ UIConstants ==========
     public static final class Titles {
         private Titles() {
         }
-        public static final String DASHBOARD = "Phòng kham mắt GOAT DŨNG - Eye Clinic";
+        // Base title
+        public static final String DASHBOARD = UIConstants.APP_TITLE;
 
         // Authentication
         public static final String LOGIN = "Đăng nhập - Eye Clinic";

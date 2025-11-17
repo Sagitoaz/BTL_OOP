@@ -1,6 +1,6 @@
 package org.miniboot.app.controllers.payment;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
 import org.miniboot.app.domain.repo.Payment.PaymentItemRepository;
 import org.miniboot.app.http.HttpRequest;
@@ -49,11 +49,11 @@ public class PaymentItemController {
             if (id.isPresent()) {
                 return repo.findById(id.get())
                         .map(Json::ok)
-                        .orElse(HttpResponse.of(404, AppConfig.JSON_UTF_8_TYPE,
+                        .orElse(HttpResponse.of(HttpConstants.STATUS_NOT_FOUND, HttpConstants.CONTENT_TYPE_JSON_UTF8,
                                 Json.stringify(Map.of("error", "PaymentItem not found")).getBytes(StandardCharsets.UTF_8)));
             }
 
-            return HttpResponse.of(400, AppConfig.JSON_UTF_8_TYPE,
+            return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST, HttpConstants.CONTENT_TYPE_JSON_UTF8,
                     Json.stringify(Map.of("error", "Missing query: paymentId or id")).getBytes(StandardCharsets.UTF_8));
         };
     }
@@ -90,7 +90,7 @@ public class PaymentItemController {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return Json.error(400, AppConfig.RESPONSE_400);
+                return Json.error(400, HttpConstants.REASON_BAD_REQUEST);
             }
         };
     }
@@ -115,7 +115,7 @@ public class PaymentItemController {
                 return Json.ok(updated);
             } catch (Exception e) {
                 e.printStackTrace();
-                return Json.error(400, AppConfig.RESPONSE_400);
+                return Json.error(400, HttpConstants.REASON_BAD_REQUEST);
             }
         };
     }
@@ -139,7 +139,7 @@ public class PaymentItemController {
                 return Json.ok(result);
             } catch (Exception e) {
                 e.printStackTrace();
-                return Json.error(400, AppConfig.RESPONSE_400);
+                return Json.error(400, HttpConstants.REASON_BAD_REQUEST);
             }
         };
     }

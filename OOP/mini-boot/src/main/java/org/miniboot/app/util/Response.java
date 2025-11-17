@@ -1,14 +1,14 @@
 package org.miniboot.app.util;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.http.HttpResponse;
 
 import java.nio.charset.StandardCharsets;
 
 public class Response {
     public static HttpResponse text(String s) {
-        return HttpResponse.of(Types.Status.OK)
-                .header(AppConfig.RES_CONTENT_TYPE_KEY, AppConfig.TEXT_UTF_8_TYPE)
+        return HttpResponse.of(Types.Status.OK.code)
+                .header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8)
                 .body(s);
     }
 
@@ -25,11 +25,14 @@ public class Response {
         } else {
             body = new byte[0];
         }
-        HttpResponse response = HttpResponse.of(Types.Status.CREATED).header(AppConfig.LOCATION_KEY, location);
+        HttpResponse response = HttpResponse.of(Types.Status.CREATED.code)
+                .header(HttpConstants.HEADER_LOCATION, location);
         if (body.length > 0) {
-            response.header(AppConfig.RES_CONTENT_TYPE_KEY, AppConfig.JSON_UTF_8_TYPE).body(body);
+            response.header(HttpConstants.HEADER_CONTENT_TYPE, HttpConstants.CONTENT_TYPE_JSON_UTF8)
+                    .body(body);
         } else {
-            response.header(AppConfig.RES_CONTENT_TYPE_KEY, "0").body(body);
+            response.header(HttpConstants.HEADER_CONTENT_LENGTH, "0")
+                    .body(body);
         }
         return response;
     }

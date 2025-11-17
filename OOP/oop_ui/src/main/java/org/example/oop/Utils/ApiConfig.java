@@ -1,5 +1,7 @@
 package org.example.oop.Utils;
 
+import org.example.oop.config.ApiConstants;
+
 /**
  * 🔧 API CONFIGURATION - NGÀY 8 FRONTEND INTEGRATION
  * Centralized configuration for API endpoints and settings
@@ -13,10 +15,10 @@ public class ApiConfig {
      // Current environment (change as needed)
      private static final Environment CURRENT_ENV = Environment.DEVELOPMENT;
 
-     // Timeout settings (in seconds)
-     public static final int CONNECTION_TIMEOUT = 10;
-     public static final int REQUEST_TIMEOUT = 30;
-     public static final int RETRY_ATTEMPTS = 3;
+     // Timeout settings - sử dụng từ ApiConstants
+     public static final int CONNECTION_TIMEOUT = ApiConstants.CONNECTION_TIMEOUT_SECONDS;
+     public static final int REQUEST_TIMEOUT = ApiConstants.REQUEST_TIMEOUT_SECONDS;
+     public static final int RETRY_ATTEMPTS = ApiConstants.RETRY_ATTEMPTS;
 
      // Pagination defaults
      public static final int DEFAULT_PAGE_SIZE = 10;
@@ -48,136 +50,69 @@ public class ApiConfig {
           }
      }
 
-     /**
-      * Get full API URL with version
-      */
-     public static String getApiUrl() {
-          return getBaseUrl();
-     }
-
      // ================================
-     // ENDPOINT BUILDERS
+     // API ENDPOINTS
      // ================================
 
+     // Authentication
+     public static final String AUTH_LOGIN = "/auth/login";
+     public static final String AUTH_PROFILE = "/auth/profile";
+     public static final String AUTH_LOGOUT = "/auth/logout";
+
+     // Customers
+     public static final String CUSTOMERS = "/customers";
+     public static final String CUSTOMER_RECORDS = "/customer-records";
+     public static final String CUSTOMER_SEARCH = "/customers/search";
+
+     // Employees
+     public static final String EMPLOYEES = "/employees";
+
+     // Doctors
+     public static final String DOCTORS = "/doctors";
+
+     // Appointments
+     public static final String APPOINTMENTS = "/appointments";
+
+     // Prescriptions
+     public static final String PRESCRIPTIONS = "/prescriptions";
+
+     // Products & Inventory
+     public static final String PRODUCTS = "/products";
+     public static final String INVENTORY = "/inventory";
+     public static final String STOCK_MOVEMENTS = "/stock-movements";
+
+     // Payments
+     public static final String PAYMENTS = "/payments";
+     public static final String PAYMENT_ITEMS = "/payment-items";
+     public static final String PAYMENT_STATUS_LOG = "/payment-status-log";
+
+     // Health check
+     public static final String HEALTH = "/health";
+
      /**
-      * Build inventory endpoint
+      * Build full URL for an endpoint
       */
-     public static String inventoryEndpoint() {
-          return "/api/inventory";
+     public static String buildUrl(String endpoint) {
+          return getBaseUrl() + endpoint;
      }
 
      /**
-      * Build inventory endpoint with ID
+      * Build URL with query parameters
       */
-     public static String inventoryEndpoint(long id) {
-          return "/api/inventory/" + id;
+     public static String buildUrl(String endpoint, java.util.Map<String, String> params) {
+          StringBuilder url = new StringBuilder(buildUrl(endpoint));
+          if (params != null && !params.isEmpty()) {
+               url.append("?");
+               params.forEach((key, value) -> url.append(key).append("=").append(value).append("&"));
+               url.setLength(url.length() - 1); // Remove last &
+          }
+          return url.toString();
      }
 
      /**
-      * Build stock movements endpoint
-      */
-     public static String stockMovementsEndpoint() {
-          return "/api/stock-movements";
-     }
-
-     /**
-      * Build stock movements endpoint with ID
-      */
-     public static String stockMovementsEndpoint(long id) {
-          return "/api/stock-movements/" + id;
-     }
-
-     /**
-      * Build alerts endpoint
-      */
-     public static String alertsEndpoint() {
-          return "/api/alerts";
-     }
-
-     /**
-      * Build alerts endpoint with ID
-      */
-     public static String alertsEndpoint(long id) {
-          return "/api/alerts/" + id;
-     }
-
-     /**
-      * Build health check endpoint
+      * Get health check endpoint
       */
      public static String healthEndpoint() {
-          return "/health";
-     }
-
-     // ================================
-     // QUERY PARAMETER BUILDERS
-     // ================================
-
-     /**
-      * Build pagination query string
-      */
-     public static String paginationParams(int page, int size) {
-          return "?page=" + page + "&size=" + size;
-     }
-
-     /**
-      * Build search query string
-      */
-     public static String searchParams(String query) {
-          return "?search=" + query;
-     }
-
-     /**
-      * Build filter query string
-      */
-     public static String filterParams(String category, Integer minStock) {
-          StringBuilder params = new StringBuilder("?");
-          boolean hasParam = false;
-
-          if (category != null && !category.isEmpty()) {
-               params.append("category=").append(category);
-               hasParam = true;
-          }
-
-          if (minStock != null) {
-               if (hasParam)
-                    params.append("&");
-               params.append("minStock=").append(minStock);
-               hasParam = true;
-          }
-
-          return hasParam ? params.toString() : "";
-     }
-
-     // ================================
-     // ENVIRONMENT CONTROL
-     // ================================
-
-     /**
-      * Check if running in development mode
-      */
-     public static boolean isDevelopment() {
-          return CURRENT_ENV == Environment.DEVELOPMENT;
-     }
-
-     /**
-      * Check if running in production mode
-      */
-     public static boolean isProduction() {
-          return CURRENT_ENV == Environment.PRODUCTION;
-     }
-
-     /**
-      * Get current environment
-      */
-     public static Environment getCurrentEnvironment() {
-          return CURRENT_ENV;
-     }
-
-     /**
-      * Get environment info for debugging
-      */
-     public static String getEnvironmentInfo() {
-          return String.format("Environment: %s, Base URL: %s, API Version: %s",
-                    CURRENT_ENV, getBaseUrl(), API_VERSION);
+          return buildUrl(HEALTH);
      }
 }
