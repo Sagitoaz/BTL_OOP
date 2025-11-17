@@ -109,10 +109,14 @@ public class HttpServer {
         // Tạo ServerSocket và cấu hình
         socket = new ServerSocket();
         socket.setReuseAddress(true); // Cho phép reuse địa chỉ ngay sau khi đóng
-        socket.bind(new InetSocketAddress(port)); // Bind vào port chỉ định
+        
+        // Bind vào 0.0.0.0 để accept connections từ mọi network interface
+        // Điều này cần thiết cho deployment trên Render, Railway, Heroku, etc.
+        socket.bind(new InetSocketAddress("0.0.0.0", port));
 
         running = true;
-        System.out.println("[mini-boot] HTTP listening on: " + port);
+        System.out.println("[mini-boot] HTTP listening on: 0.0.0.0:" + port);
+        System.out.println("[mini-boot] Server is ready to accept connections");
 
         // Main server loop - accept connections liên tục
         while (!socket.isClosed()) {

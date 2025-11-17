@@ -38,11 +38,15 @@ import org.miniboot.app.router.middleware.LoggingMiddleware;
 
 public class ServerMain {
     public static void main(String[] args) throws Exception {
-        // Đọc port từ AppConfig
-        int port = Integer.parseInt(System.getProperty(AppConfig.PORT_KEY, AppConfig.HTTP_PORT));
-        AppConfig.load(); // Đọc cấu hình từ AppConfig
-
+        // Load config trước để đọc PORT từ environment variables
+        AppConfig.load();
+        
+        // Đọc port từ AppConfig (đã load env vars)
+        int port = Integer.parseInt(AppConfig.HTTP_PORT);
+        
         System.out.println("🚀 Starting mini-boot HTTP Server...");
+        System.out.println("🔌 Port: " + port);
+        System.out.println("🌍 Binding to: 0.0.0.0:" + port);
         System.out.println("📊 Using PostgreSQL repositories (Supabase)");
 
         // Sử dụng PostgreSQL repositories thay vì InMemory
