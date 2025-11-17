@@ -31,7 +31,7 @@ public class ChangePasswordValidator {
         }
         return null; // Match
     }
-    public static HttpResponse incorrectOldPassword(String oldPassword) {
+    public static HttpResponse incorrectOldPassword() {
         return ValidationUtils.error(401, "UNAUTHORIZED", "Mật khẩu cũ không đúng.");
     }
     public static HttpResponse updateFailed() {

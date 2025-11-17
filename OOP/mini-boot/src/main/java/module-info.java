@@ -6,6 +6,7 @@ module mini.boot {
     requires bcrypt;
     requires transitive java.sql;
 
+
     // PostgreSQL, MS SQL Server không phải là proper Java modules
     // Chúng sẽ được load qua classpath tự động (automatic modules)
 

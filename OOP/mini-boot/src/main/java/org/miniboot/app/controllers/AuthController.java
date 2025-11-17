@@ -181,10 +181,9 @@ public class AuthController {
             String newPassword = extractJsonField(body, "newPassword");
             String confirmPassword = extractJsonField(body, "confirmPassword");
 
-            // 4. Validate input fields
-            HttpResponse oldPasswordError = ChangePasswordValidator.incorrectOldPassword(oldPassword);
-            if( oldPasswordError != null) {
-                return oldPasswordError;
+            // 4. Validate input fields - oldPassword not empty
+            if (oldPassword == null || oldPassword.trim().isEmpty()) {
+                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Mật khẩu cũ không được để trống.");
             }
 
             // 5. Validate new password format
@@ -201,7 +200,7 @@ public class AuthController {
 
 
             // 7. Tìm user từ database
-            Optional<UserRecord> userOpt = Optional.empty();
+            Optional<UserRecord> userOpt;
             try{
                 userOpt = userDAO.findByUsername(username);
             } catch (SQLException e){
@@ -216,26 +215,31 @@ public class AuthController {
             // 8. Verify old password
             if (!PasswordService.verifyPassword(oldPassword, user.password)) {
                 LOGGER.warning("Change password failed: Incorrect old password for user " + username);
-                return ChangePasswordValidator.incorrectOldPassword(oldPassword);
+                return ChangePasswordValidator.incorrectOldPassword();
             }
 
             // 9. Hash new password
             String hashedNewPassword = PasswordService.hashPasswordWithSalt(newPassword);
 
             // 10. Update password in database
-            String result = authService.updatePassword(user.id, user.role, hashedNewPassword);
+            try{
+                String result = authService.updatePassword(user.id, user.role, hashedNewPassword);
 
-            if ("success".equals(result)) {
-                LOGGER.info("✓ Password changed successfully for user: " + username);
-                return Json.ok(Map.of(
-                        "message", "Đổi mật khẩu thành công.",
-                        "username", username
-                ));
-            } else if ("failed".equals(result)) {
-                return ChangePasswordValidator.updateFailed();
-            } else {
-                return ChangePasswordValidator.unexpectedError();
+                if ("success".equals(result)) {
+                    LOGGER.info("✓ Password changed successfully for user: " + username);
+                    return Json.ok(Map.of(
+                            "message", "Đổi mật khẩu thành công.",
+                            "username", username
+                    ));
+                } else if ("failed".equals(result)) {
+                    return ChangePasswordValidator.updateFailed();
+                } else {
+                    return ChangePasswordValidator.unexpectedError();
+                }
             }
+           catch (SQLException e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+           }
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error changing password", e);
@@ -260,43 +264,52 @@ public class AuthController {
             String body = request.bodyText();
             String email = extractJsonField(body, "email");
 
+            // 3. Validate email not empty first
+            if (email == null || email.trim().isEmpty()) {
+                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Email không được để trống.");
+            }
+
+            // 4. Validate email format
             HttpResponse emailValidationError = ForgotPasswordValidator.validateEmailFormat(email);
             if (emailValidationError != null) {
                 return emailValidationError;
             }
 
-            // 4. Tìm user theo email
+            // 5. Tìm user theo email
             Optional<UserRecord> userOpt = Optional.empty();
-            try{
+            try {
                 userOpt = userDAO.findByEmail(email);
-            }
-            catch (SQLException e){
+            } catch (SQLException e) {
                 return DatabaseErrorHandler.handleDatabaseException(e);
             }
+
             if (userOpt.isEmpty()) {
                 return ForgotPasswordValidator.emailNotFound();
             }
 
-            // 5. Tạo reset token
-            String resetToken = authService.requestPasswordReset(email);
-            HttpResponse tokenValidationError = ForgotPasswordValidator.validateTokenFormat(resetToken);
-            if (tokenValidationError != null) {
-                return tokenValidationError;
-            }
-            if (resetToken != null) {
-                LOGGER.info("✓ Password reset token created for: " + email);
+            // 6. Tạo reset token
+            String resetToken = null;
+            try {
+                resetToken = authService.requestPasswordReset(email);
+            } catch (Exception e) {
 
-                // Trong thực tế, gửi token qua email
-                // Ở đây chỉ trả về cho mục đích demo/testing
-                return Json.ok(Map.of(
-                        "message", "Mã khôi phục mật khẩu đã được tạo thành công.",
-                        "email", email,
-                        "token", resetToken, // Chỉ để test, production phải gửi qua email
-                        "note", "Mã có hiệu lực trong 15 phút."
-                ));
-            } else {
-                return ForgotPasswordValidator.emailSendingFailed();
+                return ForgotPasswordValidator.mailServiceFailed();
             }
+
+            // 7. Validate token được tạo
+            if (resetToken == null || resetToken.trim().isEmpty()) {
+                return ForgotPasswordValidator.mailServiceFailed();
+            }
+            LOGGER.info("✓ Password reset token created for: " + email);
+
+            // Trong thực tế, gửi token qua email
+            // Ở đây chỉ trả về cho mục đích demo/testing
+            return Json.ok(Map.of(
+                    "message", "Mã khôi phục mật khẩu đã được tạo thành công.",
+                    "email", email,
+                    "token", resetToken, // Chỉ để test, production phải gửi qua email
+                    "note", "Mã có hiệu lực trong 15 phút."
+            ));
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error processing forgot password", e);
@@ -342,26 +355,10 @@ public class AuthController {
             String gender = extractJsonField(body, "gender");
 
             // 3. Validate required fields
-            if (username == null || username.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, ErrorMessages.ERROR_MISSING_USERNAME);
-            }
-            if (password == null || password.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, ErrorMessages.ERROR_MISSING_PASSWORD);
-            }
-            if (email == null || email.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Email không được để trống.");
-            }
-            if (firstname == null || firstname.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Họ không được để trống.");
-            }
-            if (lastname == null || lastname.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Tên không được để trống.");
-            }
-
-            // 4. Validate username format (alphanumeric, 3-50 chars)
-            if (!username.matches("^[a-zA-Z0-9_]{3,50}$")) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST,
-                    "Username phải có 3-50 ký tự và chỉ chứa chữ, số, hoặc dấu gạch dưới.");
+           HttpResponse requiredFieldError = SignUpValidator.validateRequiredFields(
+                username, firstname, lastname, password, email, phone);
+            if (requiredFieldError != null) {
+                return requiredFieldError;
             }
 
             // 5. Validate password format
@@ -376,51 +373,57 @@ public class AuthController {
                 return confirmError;
             }
 
-            // 7. Validate email format
-            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, ErrorMessages.ERROR_INVALID_EMAIL);
-            }
-
-            // 8. Validate phone (optional but if provided, must be valid)
-            if (phone != null && !phone.isEmpty() && !phone.matches("^[0-9]{10,11}$")) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, ErrorMessages.ERROR_INVALID_PHONE);
-            }
-
             // 9. Check if username already exists
-            Optional<UserRecord> existingUser = userDAO.findByUsername(username);
+            Optional<UserRecord> existingUser;
+            try{
+                existingUser = userDAO.findByUsername(username);
+            } catch (SQLException e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
             if (existingUser.isPresent()) {
-                return Json.error(HttpConstants.STATUS_CONFLICT, ErrorMessages.ERROR_USER_ALREADY_EXISTS);
+                return SignUpValidator.existingUsername();
             }
 
             // 10. Check if email already exists
-            Optional<UserRecord> existingEmail = userDAO.findByEmail(email);
+            Optional<UserRecord> existingEmail;
+            try{
+                existingEmail = userDAO.findByEmail(email);
+            } catch (SQLException e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
             if (existingEmail.isPresent()) {
-                return Json.error(HttpConstants.STATUS_CONFLICT, "Email đã được sử dụng.");
+                return SignUpValidator.existingEmail();
             }
 
             // 11. Hash password
             String hashedPassword = PasswordService.hashPasswordWithSalt(password);
 
             // 12. Save customer to database
-            boolean saved = userDAO.saveCustomer(
-                username, hashedPassword, firstname, lastname,
-                phone, email, address, dob, gender
-            );
+            try{
+                boolean saved = userDAO.saveCustomer(
+                        username, hashedPassword, firstname, lastname,
+                        phone, email, address, dob, gender
+                );
 
-            if (saved) {
-                LOGGER.info("✓ New user registered: " + username);
-                return Json.ok(Map.of(
-                        "message", "Đăng ký tài khoản thành công!",
-                        "username", username,
-                        "email", email
-                ));
-            } else {
-                return Json.error(HttpConstants.STATUS_INTERNAL_SERVER_ERROR, "Không thể tạo tài khoản. Vui lòng thử lại sau.");
+                if (saved) {
+                    LOGGER.info("✓ New user registered: " + username);
+                    return Json.ok(Map.of(
+                            "message", "Đăng ký tài khoản thành công!",
+                            "username", username,
+                            "email", email
+                    ));
+                } else {
+                    return SignUpValidator.errorCreatingUser();
+                }
             }
+            catch (SQLException e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
+
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during sign up", e);
-            return Json.error(HttpConstants.STATUS_INTERNAL_SERVER_ERROR, ErrorMessages.ERROR_INTERNAL_SERVER);
+            return SignUpValidator.errorCreatingUser();
         }
     }
 

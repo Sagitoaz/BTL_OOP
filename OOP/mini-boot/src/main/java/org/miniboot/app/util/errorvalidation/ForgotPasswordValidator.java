@@ -131,18 +131,27 @@ public class ForgotPasswordValidator {
                 "Email không tồn tại trong hệ thống.");
     }
 
-
-
+    /**
+     * Create error for mail service failed (502 Bad Gateway)
+     */
+    public static HttpResponse mailServiceFailed() {
+        return ValidationUtils.error(502, "BAD GATEWAY",
+                "Dịch vụ gửi email tạm thời không khả dụng. Vui lòng thử lại sau.");
+    }
 
     /**
-     * Create error for email sending failed
+     * Create error for general service unavailable (503)
      */
-    public static HttpResponse emailSendingFailed() {
-        return ValidationUtils.error(503, "SERVICE_UNAVAILABLE",
-                "Không thể gửi email. Vui lòng thử lại sau.");
+    public static HttpResponse serviceUnavailable() {
+        return ValidationUtils.error(503, "SERVICE UNAVAILABLE",
+                "Dịch vụ tạm thời không khả dụng. Vui lòng thử lại sau.");
     }
+
+    /**
+     * Create error for unexpected errors (500)
+     */
     public static HttpResponse unexpectedError() {
-        return ValidationUtils.error(500, "INTERNAL_SERVER_ERROR",
+        return ValidationUtils.error(500, "INTERNAL SERVER ERROR",
                 "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.");
     }
 

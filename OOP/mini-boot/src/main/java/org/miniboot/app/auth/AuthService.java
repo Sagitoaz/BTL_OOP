@@ -3,6 +3,7 @@ package org.miniboot.app.auth;
 import org.miniboot.app.dao.UserDAO;
 import org.miniboot.app.dao.UserDAO.UserRecord;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,7 +94,7 @@ public class AuthService {
             return null;
         }
     }
-    public String updatePassword(int userId, String userType, String newHashedPassword){
+    public String updatePassword(int userId, String userType, String newHashedPassword) throws SQLException {
         try {
             boolean updated = userDAO.updatePassword(userId, userType, newHashedPassword);
             if (updated) {
@@ -104,8 +105,7 @@ public class AuthService {
                 return "failed";
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error updating password for user ID: " + userId, e);
-            return "error";
+            throw new SQLException(e);
         }
     }
 
@@ -119,9 +119,9 @@ public class AuthService {
         try{
             userOpt = userDAO.findByUsername(username);
         }
-        catch (Exception e){
+        catch (SQLException e){
             // Exception khi kết nối DB
-            throw new Exception(e);
+            throw new SQLException(e);
         }
 
         if (userOpt.isEmpty()) {
@@ -170,12 +170,18 @@ public class AuthService {
      * Đăng xuất (hủy phiên)
      * Xóa session khỏi memory và database
      */
-    public void logout(String sessionId) {
+    public void logout(String sessionId) throws SQLException {
         // Xóa khỏi memory
         sessionManager.invalidateSession(sessionId);
 
         // Xóa khỏi database
-        userDAO.deleteSession(sessionId);
+        try{
+            userDAO.deleteSession(sessionId);
+        }
+        catch (SQLException e){
+            throw new SQLException(e);
+        }
+
 
         LOGGER.info("User logged out: sessionId=" + sessionId);
     }
