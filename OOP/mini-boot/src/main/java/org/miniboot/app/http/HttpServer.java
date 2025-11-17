@@ -195,7 +195,7 @@ public class HttpServer {
             // Bước 2: Tạo HTTP response dựa trên request
             System.out.println("🔧 [handle] Dispatching to router...");
             HttpResponse response = router.dispatch(request);
-            System.out.println("✅ [handle] Router returned response with status: " + response.statusCode);
+            System.out.println("✅ [handle] Router returned response with status: " + response.status);
 
             System.out.println("📤 Writing response to client...");
             System.out
