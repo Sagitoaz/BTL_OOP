@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.router.Router;
 
 /**
@@ -278,7 +279,7 @@ public class HttpServer {
      * Tạo response cho endpoint /ping
      */
     private HttpResponse createPingResponse() {
-        return HttpResponse.of(200, AppConfig.TEXT_UTF_8_TYPE, "pong".getBytes());
+        return HttpResponse.of(200, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8, "pong".getBytes());
     }
 
     /**
@@ -302,14 +303,14 @@ public class HttpServer {
      * Tạo response cho lỗi 405 Method Not Allowed
      */
     private HttpResponse createMethodNotAllowedResponse() {
-        return HttpResponse.of(405, AppConfig.TEXT_UTF_8_TYPE, "method not allowed".getBytes());
+        return HttpResponse.of(405, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8, "method not allowed".getBytes());
     }
 
     /**
      * Tạo response cho lỗi 404 Not Found
      */
     private HttpResponse createNotFoundResponse() {
-        return HttpResponse.of(404, AppConfig.TEXT_UTF_8_TYPE, "not found".getBytes());
+        return HttpResponse.of(404, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8, "not found".getBytes());
     }
 
     /**
@@ -335,7 +336,7 @@ public class HttpServer {
         try {
             if (out == null)
                 out = client.getOutputStream();
-            HttpResponse errorResponse = HttpResponse.of(400, AppConfig.TEXT_UTF_8_TYPE, "bad request".getBytes());
+            HttpResponse errorResponse = HttpResponse.of(400, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8, "bad request".getBytes());
             HttpResponseEncoder.write(out, errorResponse);
         } catch (Exception ignore) {
             // Best effort - nếu không gửi được error response thì thôi
@@ -353,7 +354,7 @@ public class HttpServer {
         try {
             if (out == null)
                 out = client.getOutputStream();
-            HttpResponse errorResponse = HttpResponse.of(500, AppConfig.TEXT_UTF_8_TYPE, "internal error".getBytes());
+            HttpResponse errorResponse = HttpResponse.of(500, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8, "internal error".getBytes());
             HttpResponseEncoder.write(out, errorResponse);
         } catch (Exception ignore) {
             // Best effort - nếu không gửi được error response thì thôi

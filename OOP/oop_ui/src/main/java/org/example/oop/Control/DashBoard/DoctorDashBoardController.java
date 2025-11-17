@@ -15,8 +15,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 public class DoctorDashBoardController extends BaseController {
+    @FXML
+    private StackPane rootPane;
+
     @FXML
     private Label welcomeLabel;
     @FXML
@@ -29,6 +33,7 @@ public class DoctorDashBoardController extends BaseController {
     @FXML
     public void initialize() {
         System.out.println("DoctorDashBoard : Initialinzing ...");
+
         if (!SessionValidator.validateEmployeeSession()) {
             System.err.println("DoctorDahboard : Session validation failed");
             Platform.runLater(() -> {
@@ -37,6 +42,7 @@ public class DoctorDashBoardController extends BaseController {
             });
             return;
         }
+
         try {
             loadEmployeeData();
         } catch (Exception e) {
@@ -44,11 +50,14 @@ public class DoctorDashBoardController extends BaseController {
             handleInitializationError(e);
             return;
         }
+
         if (!validateDoctorRole()) {
             System.err.println("DoctordashBoard: Role validation failed");
             return;
         }
+
         setupUI();
+
         System.out.println("DoctordashBoard : Initialization complete");
     }
 
@@ -136,7 +145,6 @@ public class DoctorDashBoardController extends BaseController {
 
     private void handleInitializationError(Exception e) {
         System.err.println("Initialization error : " + e.getMessage());
-        e.printStackTrace();
         Platform.runLater(() -> {
             ErrorHandler.showCustomError(500,
                     "Không thể khởi tạo trang bác sĩ.\n\n" +
@@ -225,7 +233,7 @@ public class DoctorDashBoardController extends BaseController {
     }
 
     private boolean isGoingBackToLogin() {
-        return true; // Dashboard thường là trang đầu sau login
+        return true;
     }
 
     private boolean showConfirmation(String title, String message) {
@@ -241,14 +249,32 @@ public class DoctorDashBoardController extends BaseController {
 
     private void logout() {
         try {
-            SceneManager.removeSceneData("accountData");
-            SceneManager.removeSceneData("authToken");
-            SceneManager.removeSceneData("role");
+            SceneManager.clearSceneData();
+            SceneManager.clearCache();
+            SessionStorage.clear();
+            
+            // Clear Login page from cache to force re-initialization
+            SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
+            
             SafeNavigator.navigate(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
             System.out.println("Logout successful");
         } catch (Exception e) {
             System.err.println("logout error " + e.getMessage());
             showError("Lỗi khi đăng xuất" + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        System.out.println("🔄 Doctor: Logging out...");
+
+        // Confirmation dialog
+        boolean confirmed = showConfirmation(
+                "Đăng xuất",
+                "Bạn có chắc chắn muốn đăng xuất?");
+
+        if (confirmed) {
+            logout();
         }
     }
 }

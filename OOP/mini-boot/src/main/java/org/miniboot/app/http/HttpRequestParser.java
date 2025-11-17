@@ -9,22 +9,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
+import org.miniboot.app.config.ErrorMessages;
 
 /**
  * Lớp tiện ích để parse (phân tích cú pháp) HTTP Request từ InputStream
- * 
- * Lớp này chịu tr책nhiệm đọc và phân tích cú pháp HTTP request theo chuẩn RFC 2616.
- * Quá trình parse bao gồm 3 phần chính:
- * 1. Request line (phương thức, đường dẫn, phiên bản HTTP)
- * 2. Headers (các thông tin meta)
- * 3. Body (nội dung request)
- * 
- * Lớp này được thiết kế như Utility class (chỉ có static methods),
- * không thể tạo instance (constructor private).
- * 
- * Hiện tại chỉ hỗ trợ Content-Length, chưa hỗ trợ Transfer-Encoding: chunked.
- * 
- * @author Ngũ hổ tướng
  */
 public final class HttpRequestParser {
     
@@ -33,15 +22,6 @@ public final class HttpRequestParser {
 
     /**
      * Phân tích cú pháp HTTP Request từ InputStream
-     * 
-     * Đây là method chính của parser, thực hiện 3 bước:
-     * 1. Parse request line (method + path + HTTP version)
-     * 2. Parse headers cho đến khi gặp dòng trống
-     * 3. Parse body dựa trên Content-Length header
-     * 
-     * @param in InputStream chứa dữ liệu HTTP request thô
-     * @return Đối tượng HttpRequest đã được parse
-     * @throws IOException Nếu có lỗi khi đọc dữ liệu hoặc format không hợp lệ
      */
     public static HttpRequest parse(InputStream in) throws IOException {
         // === BƯỚC 1: PARSE REQUEST LINE ===
@@ -56,7 +36,7 @@ public final class HttpRequestParser {
         if (parts.length < 3) {
             // Sử dụng IllegalArgumentException thay vì IOException cho lỗi format
             // vì đây là lỗi về định dạng dữ liệu, không phải lỗi I/O
-            throw new IllegalArgumentException("Malformed request line: " + requestLine);
+            throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_REQUEST + ": " + requestLine);
         }
         String method = parts[0].trim();        // GET, POST, PUT, DELETE, etc.
         String target = parts[1].trim();        // /path?query=value
@@ -92,21 +72,22 @@ public final class HttpRequestParser {
 
         // Đọc body dựa trên Content-Length header
         byte[] body = new byte[0];
-        String cl = getHeaderIgnoreCase(headers, AppConfig.RES_CONTENT_LENGTH_KEY);
+        String cl = getHeaderIgnoreCase(headers, HttpConstants.HEADER_CONTENT_LENGTH);
         if (cl != null) {
             int len = parseIntSafe(cl, 0);
             
             // Kiểm tra giới hạn kích thước body
             if (len < 0 || len > AppConfig.MAX_BODY_BYTES) {
-                throw new IOException("Bad Content-Length: " + cl);
+                throw new IOException(ErrorMessages.ERROR_PAYLOAD_TOO_LARGE + ": " + cl);
             }
             
             // Đọc body nếu có độ dài > 0
             if (len > 0) {
-                body = readFixedBytes(in, len);
+                body = readExactly(in, len);
             }
         }
 
+        // Trả về HttpRequest đã parse
         return new HttpRequest(method, target, httpVersion, headers, body);
     }
 
@@ -123,105 +104,66 @@ public final class HttpRequestParser {
      * @throws IOException Nếu có lỗi khi đọc dữ liệu
      */
     private static String readLine(InputStream in) throws IOException {
-        ByteArrayOutputStream buf = new ByteArrayOutputStream(64);
-        int ch;
-        boolean gotCR = false; // Flag để track việc đã gặp \r chưa
-        
-        while ((ch = in.read()) != -1) {
-            if (gotCR) {
-                // Đã gặp \r ở ký tự trước
-                if (ch == '\n') {
-                    break; // Hoàn tất CRLF (\r\n) - kết thúc dòng
-                } else {
-                    // \r đơn lẻ (không theo sau bởi \n) 
-                    // → ghi \r vào buffer và tiếp tục xử lý ký tự hiện tại
-                    buf.write('\r');
-                    gotCR = false;
-                }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        int prev = -1;
+        while (true) {
+            int b = in.read();
+            if (b == -1) {
+                if (baos.size() == 0) return null;
+                break;
             }
-            
-            // Xử lý ký tự hiện tại
-            switch (ch) {
-                case '\r' -> gotCR = true; // Đánh dấu đã gặp \r, chờ kiểm tra ký tự tiếp theo
-                case '\n' -> {
-                    return buf.toString(StandardCharsets.UTF_8); // LF đơn - kết thúc dòng
-                }
-                default -> buf.write(ch); // Ký tự bình thường - thêm vào buffer
+            if (b == '\n') {
+                break;
+            }
+            if (prev == '\r') {
+                baos.write(prev);
+            }
+            if (b != '\r') {
+                prev = b;
+            } else {
+                prev = '\r';
             }
         }
-        
-        // Đã đến EOF
-        if (ch == -1 && buf.size() == 0) return null; // EOF và buffer rỗng
-        return buf.toString(StandardCharsets.UTF_8);    // EOF nhưng buffer có dữ liệu
+        if (prev != -1 && prev != '\r') {
+            baos.write(prev);
+        }
+        return baos.toString(StandardCharsets.UTF_8);
     }
 
     /**
-     * Tìm kiếm header không phân biệt hoa thường
-     * 
-     * HTTP headers không phân biệt hoa thường theo RFC 2616,
-     * vì vậy "Content-Length", "content-length", "CONTENT-LENGTH" đều giống nhau.
-     * 
-     * @param headers Map chứa tất cả headers
-     * @param key Tên header cần tìm
-     * @return Giá trị header hoặc null nếu không tìm thấy
+     * Đọc chính xác n bytes từ InputStream
      */
-    private static String getHeaderIgnoreCase(Map<String, String> headers, String key) {
-        for (Map.Entry<String, String> e : headers.entrySet()) {
-            if (e.getKey() != null && e.getKey().equalsIgnoreCase(key)) {
-                return e.getValue();
+    private static byte[] readExactly(InputStream in, int n) throws IOException {
+        byte[] buf = new byte[n];
+        int total = 0;
+        while (total < n) {
+            int read = in.read(buf, total, n - total);
+            if (read < 0) throw new EOFException("Unexpected EOF reading body");
+            total += read;
+        }
+        return buf;
+    }
+
+    /**
+     * Lấy header value không phân biệt hoa thường
+     */
+    private static String getHeaderIgnoreCase(Map<String, String> headers, String name) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(name)) {
+                return entry.getValue();
             }
         }
         return null;
     }
 
     /**
-     * Parse chuỗi thành số nguyên một cách an toàn
-     * 
-     * Nếu parse thất bại (NumberFormatException), trả về giá trị mặc định
-     * thay vì để exception lan truyền. Điều này hữu ích khi parse Content-Length
-     * header có thể không hợp lệ.
-     * 
-     * @param s Chuỗi cần parse (ví dụ: "1024")
-     * @param defaultValue Giá trị mặc định nếu parse thất bại
-     * @return Số nguyên đã parse hoặc giá trị mặc định
+     * Parse int an toàn, trả về defaultValue nếu không hợp lệ
      */
     private static int parseIntSafe(String s, int defaultValue) {
-        if (s == null || s.trim().isEmpty()) {
-            return defaultValue;
-        }
-        
         try {
-            return Integer.parseInt(s.trim());
+            return Integer.parseInt(s);
         } catch (NumberFormatException e) {
-            // Log cảnh báo nếu cần thiết cho debugging
-            // System.err.println("Warning: Invalid integer format: " + s);
             return defaultValue;
         }
-    }
-
-    /**
-     * Đọc chính xác một số lượng byte cố định từ InputStream
-     * 
-     * Đảm bảo đọc đủ số byte yêu cầu, bằng cách lặp lại việc đọc
-     * cho đến khi đủ hoặc gặp EOF. Điều này cần thiết vì InputStream.read()
-     * có thể trả về ít hơn số byte yêu cầu trong một lần gọi.
-     * 
-     * @param in InputStream để đọc
-     * @param len Số byte cần đọc
-     * @return Mảng byte với độ dài chính xác = len
-     * @throws EOFException Nếu gặp EOF trước khi đọc đủ len bytes
-     * @throws IOException Nếu có lỗi I/O khác
-     */
-    private static byte[] readFixedBytes(InputStream in, int len) throws IOException {
-        byte[] buf = new byte[len];
-        int off = 0; // Offset hiện tại trong buffer
-        
-        // Lặp lại việc đọc cho đến khi đủ len bytes
-        while (off < len) {
-            int r = in.read(buf, off, len - off);
-            if (r == -1) throw new EOFException("Unexpected EOF in body");
-            off += r; // Cập nhật offset
-        }
-        return buf;
     }
 }

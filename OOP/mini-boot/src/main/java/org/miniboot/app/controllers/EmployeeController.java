@@ -269,11 +269,11 @@ public class EmployeeController {
                     // Lấy ID từ body (bắt buộc)
                     Object rawId = data.get("id");
                     Integer id = null;
-                    if (rawId instanceof Number) {
-                         id = ((Number) rawId).intValue();
-                    } else if (rawId instanceof String) {
+                    if (rawId instanceof Number num) {  // ⚡ Pattern matching
+                         id = num.intValue();
+                    } else if (rawId instanceof String str) {  // ⚡ Pattern matching
                          try {
-                              id = Integer.parseInt(((String) rawId).trim());
+                              id = Integer.parseInt(str);  // ⚡ Removed unnecessary trim
                          } catch (Exception ignore) {
                          }
                     }

@@ -185,11 +185,13 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                     p.id, p.code, p.customer_id, p.cashier_id, p.issued_at,
                     p.subtotal, p.discount, p.tax_total, p.rounding, p.grand_total,
                     p.payment_method, p.amount_paid, p.note, p.created_at,
-                    rs.status  -- Lấy status từ bảng đã xếp hạng
+                    rs.status, psl.changed_at AS status_updated_at  -- Lấy status và thời gian cập nhật từ bảng đã xếp hạng
                 FROM
                     payments p
                 LEFT JOIN
                     RankedStatus rs ON p.id = rs.payment_id AND rs.rn = 1 -- Chỉ join với status mới nhất
+                LEFT JOIN
+                    payment_status_log psl ON p.id = psl.payment_id AND psl.rn = 1 -- Lấy thời gian cập nhật status
                 ORDER BY
                     p.created_at DESC
                 """;
@@ -210,8 +212,12 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                     paymentStatus = PaymentStatus.valueOf(statusStr);
                 }
 
-                // 4. Thêm vào kết quả bằng DTO (đây là chỗ sửa lỗi chính)
-                result.add(new PaymentWithStatus(payment, paymentStatus));
+                // 4. Lấy thời gian cập nhật status
+                java.sql.Timestamp statusUpdatedTs = rs.getTimestamp("status_updated_at");
+                LocalDateTime statusUpdatedAt = statusUpdatedTs != null ? statusUpdatedTs.toLocalDateTime() : null;
+
+                // 5. Thêm vào kết quả bằng DTO
+                result.add(new PaymentWithStatus(payment, paymentStatus, statusUpdatedAt));
             }
 
             System.out.println("✅ Found " + result.size() + " payments with current status");

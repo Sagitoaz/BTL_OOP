@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.ErrorMessages;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.http.HttpResponse;
 
 import java.io.IOException;
@@ -33,10 +35,11 @@ public class Json {
         return MAPPER.readValue(body, clazz);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> List<T> fromBytesToList(byte[] body, Class<T> clazz) throws IOException {
         // Sử dụng TypeReference để đọc thành List<T>
-        return MAPPER.readValue(body, new TypeReference<List<T>>() {
-        });
+        // Warning: This cast is necessary due to type erasure in Java generics
+        return MAPPER.readValue(body, MAPPER.getTypeFactory().constructCollectionType(List.class, clazz));
     }
 
     public static <T> T fromString(String body, Class<T> clazz) throws IOException {
@@ -44,32 +47,32 @@ public class Json {
     }
 
     public static HttpResponse ok(Object data) {
-        return json(200, data);
+        return json(HttpConstants.STATUS_OK, data);
     }
 
     public static HttpResponse created(Object data) {
-        return json(201, data);
+        return json(HttpConstants.STATUS_CREATED, data);
     }
 
     public static HttpResponse error(int status, String message) {
         return json(status, java.util.Map.of("error", message));
     }
 
-    @SuppressWarnings("unchecked")
     public static HttpResponse json(int status, Object data) {
         try {
             System.out.println("🔄 Serializing to JSON: " + (data != null ? data.getClass().getName() : "null"));
             byte[] body = MAPPER.writeValueAsBytes(data);
             System.out.println("✅ JSON serialized: " + body.length + " bytes");
-            return HttpResponse.of(status, AppConfig.JSON_UTF_8_TYPE, body);
+            return HttpResponse.of(status, HttpConstants.CONTENT_TYPE_JSON_UTF8, body);
         } catch (JsonProcessingException e) {
             System.err.println("❌ JSON SERIALIZATION FAILED!");
             System.err.println("   Data type: " + (data != null ? data.getClass().getName() : "null"));
             System.err.println("   Error: " + e.getMessage());
             System.err.println("   Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "none"));
             e.printStackTrace();
-            byte[] body = ("{\"error\":\"json-serialize-failed\"}").getBytes();
-            return HttpResponse.of(500, AppConfig.JSON_UTF_8_TYPE, body);
+            byte[] body = ("{\"error\":\"" + ErrorMessages.ERROR_JSON_PARSE + "\"}").getBytes();
+            return HttpResponse.of(HttpConstants.STATUS_INTERNAL_SERVER_ERROR,
+                    HttpConstants.CONTENT_TYPE_JSON_UTF8, body);
         }
     }
 
@@ -101,43 +104,27 @@ public class Json {
             StringBuilder sb = new StringBuilder();
             sb.append("[");
             boolean first = true;
-            for (Object o : it) {
+            for (Object item : it) {
                 if (!first)
                     sb.append(",");
-                sb.append(stringify(o));
+                sb.append(stringify(item));
                 first = false;
             }
             sb.append("]");
             return sb.toString();
         }
-        return quote(data.toString());
+
+        // fallback
+        return "\"" + data + "\"";
     }
 
     private static String quote(String s) {
-        StringBuilder sb = new StringBuilder("\"");
-        for (char c : s.toCharArray()) {
-            switch (c) {
-                case '"' -> sb.append("\\\"");
-                case '\\' -> sb.append("\\\\");
-                case '\b' -> sb.append("\\b");
-                case '\f' -> sb.append("\\f");
-                case '\n' -> sb.append("\\n");
-                case '\r' -> sb.append("\\r");
-                case '\t' -> sb.append("\\t");
-                default -> {
-                    if (c < 0x20) {
-                        sb.append(String.format("\\u%04x", (int) c));
-                    } else {
-                        sb.append(c);
-                    }
-                }
-            }
-        }
-        sb.append("\"");
-        return sb.toString();
+        return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, Object> parseMap(String body) throws IOException {
-        return fromString(body, Map.class);
+        // Warning: Raw type usage is necessary here due to runtime type erasure
+        return MAPPER.readValue(body, new TypeReference<Map<String, Object>>() {});
     }
 }

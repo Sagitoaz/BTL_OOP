@@ -28,17 +28,15 @@ public class DatabaseConfig {
      * Đọc thông tin kết nối từ environment variables hoặc system properties
      */
     private DatabaseConfig() {
-        // Đọc từ environment variables hoặc system properties, có giá trị mặc định
-        DB_URL = getConfig(AppConfig.DB_URL_KEY,
-                "jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:6543/postgres");
-        DB_USER = getConfig(AppConfig.DB_USER_KEY,
-                "postgres.dwcpuomioxgqznusjewq");
-        DB_PASSWORD = getConfig(AppConfig.DB_PASSWORD_KEY, "Nguhotuongd23@");
+        // Sử dụng constants từ DatabaseConstants
+        DB_URL = getConfig(DatabaseConstants.CONFIG_DB_URL, DatabaseConstants.DEFAULT_DB_URL);
+        DB_USER = getConfig(DatabaseConstants.CONFIG_DB_USER, DatabaseConstants.DEFAULT_DB_USER);
+        DB_PASSWORD = getConfig(DatabaseConstants.CONFIG_DB_PASSWORD, DatabaseConstants.DEFAULT_DB_PASSWORD);
 
         // Kiểm tra nếu password chưa được set
         if (DB_PASSWORD.isEmpty()) {
             System.err.println("⚠️  WARNING: Database password is not set!");
-            System.err.println("Please set DB_PASSWORD environment variable or system property");
+            System.err.println("Please set " + DatabaseConstants.CONFIG_DB_PASSWORD + " environment variable or system property");
         }
     }
 
@@ -78,23 +76,23 @@ public class DatabaseConfig {
     public Connection getConnection() throws SQLException {
         try {
             // Load PostgreSQL driver
-            Class.forName("org.postgresql.Driver");
+            Class.forName(DatabaseConstants.DEFAULT_DB_DRIVER);
 
-            // ✅ Set connection timeout (10 seconds)
-            DriverManager.setLoginTimeout(10);
+            // ✅ Set connection timeout
+            DriverManager.setLoginTimeout(DatabaseConstants.DEFAULT_DB_TIMEOUT);
 
             // ✅ Tạo connection MỚI mỗi lần (không cache)
             Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            System.out.println("Database connection established successfully!");
+            System.out.println(SuccessMessages.SUCCESS_DB_CONNECTION);
             System.out.println("Connected to: " + DB_URL);
 
             return conn;
 
         } catch (ClassNotFoundException e) {
-            throw new SQLException("PostgreSQL Driver not found!", e);
+            throw new SQLException(ErrorMessages.ERROR_DB_DRIVER, e);
         } catch (SQLException e) {
-            System.err.println("❌ Failed to connect to database:");
+            System.err.println("❌ " + ErrorMessages.ERROR_DB_CONNECTION + ":");
             System.err.println("   URL: " + DB_URL);
             System.err.println("   User: " + DB_USER);
             System.err.println("   Error: " + e.getMessage());
@@ -103,39 +101,39 @@ public class DatabaseConfig {
     }
 
     /**
-     * Đóng connection
+     * Đóng connection (nếu cần)
      */
     public void closeConnection() {
         if (connection != null) {
             try {
                 connection.close();
-                System.out.println("Database connection closed");
+                System.out.println("Database connection closed successfully!");
             } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
+                System.err.println("❌ Failed to close database connection: " + e.getMessage());
             }
         }
     }
 
     /**
-     * Test connection
-     */
-    public boolean testConnection() {
-        try {
-            Connection conn = getConnection();
-            return conn != null && !conn.isClosed();
-        } catch (SQLException e) {
-            System.err.println("Connection test failed: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * In thông tin cấu hình database (ẩn password)
+     * In thông tin cấu hình database
      */
     public void printConfig() {
         System.out.println("Database Configuration:");
         System.out.println("  URL: " + DB_URL);
         System.out.println("  User: " + DB_USER);
-        System.out.println("  Password: " + (DB_PASSWORD.isEmpty() ? "❌ NOT SET" : "✅ SET (hidden)"));
+        System.out.println("  Password: " + (DB_PASSWORD.isEmpty() ? "NOT SET" : "***"));
+    }
+
+    /**
+     * Test kết nối database
+     * @return true nếu kết nối thành công, false nếu thất bại
+     */
+    public boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn != null && !conn.isClosed();
+        } catch (SQLException e) {
+            System.err.println("Connection test failed: " + e.getMessage());
+            return false;
+        }
     }
 }

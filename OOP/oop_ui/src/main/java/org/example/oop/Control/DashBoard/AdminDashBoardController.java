@@ -7,11 +7,13 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
+import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 /**
  * AdminDashBoardController - Controller cho trang quản trị viên
@@ -28,6 +30,9 @@ import javafx.scene.control.Label;
 public class AdminDashBoardController extends BaseController {
 
     @FXML
+    private StackPane rootPane;
+
+    @FXML
     private Label welcomeLabel;
 
     @FXML
@@ -37,10 +42,6 @@ public class AdminDashBoardController extends BaseController {
     private Label userNameLabel;
 
     private Employee currentEmployee;
-
-    // ========================================
-    // INITIALIZATION
-    // ========================================
 
     @FXML
     public void initialize() {
@@ -58,7 +59,6 @@ public class AdminDashBoardController extends BaseController {
             return;
         }
 
-        // BƯỚC 2: Load user data
         try {
             loadEmployeeData();
             System.out.println("✅ AdminDashboard: Employee data loaded");
@@ -68,13 +68,11 @@ public class AdminDashBoardController extends BaseController {
             return;
         }
 
-        // BƯỚC 3: Validate role
         if (!validateAdminRole()) {
             System.err.println("❌ AdminDashboard: Role validation failed");
             return;
         }
 
-        // BƯỚC 4: Setup UI
         try {
             setupUI();
             System.out.println("✅ AdminDashboard: UI setup complete");
@@ -83,7 +81,6 @@ public class AdminDashBoardController extends BaseController {
             e.printStackTrace();
         }
 
-        // BƯỚC 5: Load statistics (optional, async)
         loadDashboardStatistics();
 
         System.out.println("✅ AdminDashboard: Initialization complete");
@@ -317,24 +314,10 @@ public class AdminDashBoardController extends BaseController {
         }
     }
 
-    /**
-     * Check if going back would lead to Login page
-     */
     private boolean isGoingBackToLogin() {
-        // Dashboard thường là trang đầu tiên sau login
-        // Cách đơn giản: Luôn hỏi confirm khi nhấn Back từ Dashboard
-        // Vì từ Dashboard về trước đó thường là Login
-
-        // Có thể cải tiến: Check previous scene path chứa "Login"
-        // Nhưng cần thêm method getPreviousScene() trong SceneManager
-
-        // Tạm thời: Return true để bảo vệ khỏi logout vô tình
         return true;
     }
 
-    /**
-     * Redirect to login page
-     */
     private void redirectToLogin(String reason) {
         System.out.println("⚠️ Redirecting to login. Reason: " + reason);
         SceneManager.removeSceneData("accountData");
@@ -377,9 +360,13 @@ public class AdminDashBoardController extends BaseController {
 
     private void logout() {
         try {
-            SceneManager.removeSceneData("accountData");
-            SceneManager.removeSceneData("authToken");
-            SceneManager.removeSceneData("role");
+            SceneManager.clearSceneData();
+            SceneManager.clearCache();
+            SessionStorage.clear();
+            
+            // Clear Login page from cache to force re-initialization
+            SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
+            
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);

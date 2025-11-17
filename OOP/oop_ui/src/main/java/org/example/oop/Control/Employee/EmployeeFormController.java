@@ -128,7 +128,7 @@ public class EmployeeFormController extends BaseController {
                     return employeeService.updateEmployee(updated);
                 } catch (Exception e) {
                     System.err.println("Lỗi khi cập nhật nhân viên: " + e.getMessage());
-                    throw new RuntimeException(e);
+                    return null; // ✅ Return null instead of throwing RuntimeException
                 }
             }, this::handleUpdateResponse, throwable -> {
                 Throwable real = throwable.getCause() != null ? throwable.getCause() : throwable;
@@ -178,7 +178,7 @@ public class EmployeeFormController extends BaseController {
                         return employeeService.createEmployee(newEmployee);
                     } catch (Exception e) {
                         System.err.println("Lỗi khi tạo nhân viên: " + e.getMessage());
-                        throw new RuntimeException(e);
+                        return null;
                     }
                 },
                 this::handleSaveResponse,

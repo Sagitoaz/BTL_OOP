@@ -6,7 +6,7 @@ control "Authentication API" as Auth
 database DB
 
 User -> UI: Login request
-UI -> Auth: Request Login (username, password)
+UI -> Auth: uest Login (username, password)
 activate Auth
 
 Auth -> DB: Query: get account by username/email

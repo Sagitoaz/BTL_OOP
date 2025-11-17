@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import org.miniboot.app.config.AuthConstants;
+
 import java.util.Date;
 
 /**
@@ -15,14 +17,8 @@ import java.util.Date;
  */
 public class JwtService {
 
-    // Khóa bí mật để ký JWT (phải >= 256 bits cho HMAC256)
-    private static final String SECRET_KEY = "miniboot-secret-key-must-be-at-least-256-bits-long-for-security";
-
-    // Thời gian hết hạn: 24 giờ
-    private static final long EXPIRATION_TIME = 86400000; // 24 hours
-
-    // Thuật toán HMAC256
-    private static final Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+    // Sử dụng constants từ AuthConstants
+    private static final Algorithm algorithm = Algorithm.HMAC256(AuthConstants.JWT_SECRET_KEY);
 
     /**
      * Tạo JWT từ userId
@@ -31,8 +27,10 @@ public class JwtService {
     public static String generateToken(String userId) {
         return JWT.create()
                 .withSubject(userId)
+                .withIssuer(AuthConstants.JWT_ISSUER)
+                .withAudience(AuthConstants.JWT_AUDIENCE)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + AuthConstants.JWT_EXPIRATION_TIME))
                 .sign(algorithm);
     }
 
@@ -44,6 +42,8 @@ public class JwtService {
     public static String validateTokenAndGetUserId(String token) {
         try {
             DecodedJWT jwt = JWT.require(algorithm)
+                    .withIssuer(AuthConstants.JWT_ISSUER)
+                    .withAudience(AuthConstants.JWT_AUDIENCE)
                     .build()
                     .verify(token);
             return jwt.getSubject();

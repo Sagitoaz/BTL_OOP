@@ -1,7 +1,7 @@
 package org.miniboot.app.controllers.payment;
 
 import com.google.gson.Gson;
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.repo.Payment.PaymentStatusLogRepository;
 import org.miniboot.app.http.HttpRequest;
@@ -58,8 +58,8 @@ public class PaymentStatusLogController {
 
                 SetStatusBody body = gson.fromJson(jsonBody, SetStatusBody.class);
                 if (body == null || body.paymentId() == null || body.status() == null) {
-                    return HttpResponse.of(400, "text/plain; charset=utf-8",
-                            AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                    return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                            HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
                 }
                 PaymentStatus target;
                 try {
@@ -78,8 +78,8 @@ public class PaymentStatusLogController {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                return HttpResponse.of(400, "text/plain; charset=utf-8",
-                        AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST, HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                        HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
         };
     }

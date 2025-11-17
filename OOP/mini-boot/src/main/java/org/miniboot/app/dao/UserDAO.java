@@ -32,24 +32,39 @@ public class UserDAO {
      * Tìm user theo username
      * Tìm kiếm trong 3 bảng: Admins, Employees, Customers
      */
-    public Optional<UserRecord> findByUsername(String username) {
+    public Optional<UserRecord> findByUsername(String username) throws SQLException {
         // Tìm trong Admins
-        Optional<UserRecord> admin = findAdminByUsername(username);
-        if (admin.isPresent()) return admin;
+        try{
+            Optional<UserRecord> admin = findAdminByUsername(username);
+            if (admin.isPresent()) return admin;
+        }
+        catch (SQLException e){
+            throw new SQLException(e);
+        }
 
         // Tìm trong Employees
-        Optional<UserRecord> employee = findEmployeeByUsername(username);
-        if (employee.isPresent()) return employee;
+        try{
+            Optional<UserRecord> employee = findEmployeeByUsername(username);
+            if (employee.isPresent()) return employee;
+        }
+        catch (SQLException e){
+            throw new SQLException(e);
+        }
 
         // Tìm trong Customers
-        Optional<UserRecord> customer = findCustomerByUsername(username);
-        return customer;
+        try {
+            Optional<UserRecord> customer = findCustomerByUsername(username);
+            if (customer.isPresent()) return customer;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+        return Optional.empty();
     }
 
     /**
      * Tìm admin theo username
      */
-    private Optional<UserRecord> findAdminByUsername(String username) {
+    private Optional<UserRecord> findAdminByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, email, is_active FROM Admins WHERE username = ?";
 
         try (Connection conn = dbConfig.getConnection();
@@ -71,7 +86,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding admin by username: " + username, e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -80,7 +95,7 @@ public class UserDAO {
     /**
      * Tìm employee theo username
      */
-    private Optional<UserRecord> findEmployeeByUsername(String username) {
+    private Optional<UserRecord> findEmployeeByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, firstname, lastname, role, email, phone, is_active " +
                     "FROM Employees WHERE username = ?";
 
@@ -104,7 +119,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding employee by username: " + username, e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -113,10 +128,9 @@ public class UserDAO {
     /**
      * Tìm customer theo username
      */
-    private Optional<UserRecord> findCustomerByUsername(String username) {
+    private Optional<UserRecord> findCustomerByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, firstname, lastname, email, phone " +
                     "FROM Customers WHERE username = ?";
-
         try (Connection conn = dbConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -137,7 +151,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding customer by username: " + username, e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -146,7 +160,7 @@ public class UserDAO {
     /**
      * Tìm user theo email
      */
-    public Optional<UserRecord> findByEmail(String email) {
+    public Optional<UserRecord> findByEmail(String email) throws SQLException {
         // Tìm trong Customers trước (vì thường là customer reset password)
         String sql = "SELECT id, username, firstname, lastname, email, phone " +
                     "FROM Customers WHERE email = ?";
@@ -170,7 +184,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding user by email: " + email, e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -181,7 +195,7 @@ public class UserDAO {
      */
     public boolean saveCustomer(String username, String hashedPassword, String firstname,
                                 String lastname, String phone, String email,
-                                String address, String dob, String gender) {
+                                String address, String dob, String gender) throws SQLException {
         String sql = "INSERT INTO Customers (username, password, firstname, lastname, phone, email, address, dob, gender, created_at) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?::date, ?, CURRENT_TIMESTAMP)";
 
@@ -225,7 +239,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error saving customer: " + username, e);
+            throw new SQLException(e);
         }
 
         return false;
@@ -234,7 +248,7 @@ public class UserDAO {
     /**
      * Cập nhật mật khẩu cho user
      */
-    public boolean updatePassword(int userId, String userType, String newHashedPassword) {
+    public boolean updatePassword(int userId, String userType, String newHashedPassword) throws SQLException {
         String sql;
 
         switch (userType.toUpperCase()) {
@@ -266,7 +280,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating password for user ID: " + userId, e);
+            throw new SQLException(e);
         }
 
         return false;
@@ -275,7 +289,7 @@ public class UserDAO {
     /**
      * Lưu token reset mật khẩu
      */
-    public boolean savePasswordResetToken(String token, int userId, String userType, int expiryMinutes) {
+    public boolean savePasswordResetToken(String token, int userId, String userType, int expiryMinutes) throws SQLException {
         String sql = "INSERT INTO Password_Reset_Tokens (token, user_id, user_type, expires_at) " +
                     "VALUES (?, ?, ?, DATEADD(MINUTE, ?, CURRENT_TIMESTAMP))";
 
@@ -295,7 +309,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error saving reset token", e);
+            throw new SQLException(e);
         }
 
         return false;
@@ -304,7 +318,7 @@ public class UserDAO {
     /**
      * Validate reset token và lấy thông tin user
      */
-    public Optional<UserRecord> validateResetToken(String token) {
+    public Optional<UserRecord> validateResetToken(String token) throws SQLException {
         String sql = "SELECT user_id, user_type FROM Password_Reset_Tokens " +
                     "WHERE token = ? AND used = 0 AND expires_at > CURRENT_TIMESTAMP";
 
@@ -327,7 +341,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error validating reset token", e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -336,7 +350,7 @@ public class UserDAO {
     /**
      * Đánh dấu token đã được sử dụng
      */
-    public boolean markTokenAsUsed(String token) {
+    public boolean markTokenAsUsed(String token) throws SQLException {
         String sql = "UPDATE Password_Reset_Tokens SET used = 1 WHERE token = ?";
 
         try (Connection conn = dbConfig.getConnection();
@@ -348,16 +362,16 @@ public class UserDAO {
             return rows > 0;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error marking token as used", e);
+            throw new SQLException(e);
         }
 
-        return false;
+
     }
 
     /**
      * Lưu session vào database
      */
-    public boolean saveSession(String sessionId, int userId, String userType, int expiryHours) {
+    public boolean saveSession(String sessionId, int userId, String userType, int expiryHours) throws SQLException {
         String sql = "INSERT INTO User_Sessions (session_id, user_id, user_type, expires_at, last_activity) " +
                     "VALUES (?, ?, ?, DATEADD(HOUR, ?, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP)";
 
@@ -374,16 +388,16 @@ public class UserDAO {
             return rows > 0;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error saving session", e);
+            throw new SQLException(e);
         }
 
-        return false;
+
     }
 
     /**
      * Kiểm tra session có hợp lệ không
      */
-    public boolean validateSession(String sessionId) {
+    public boolean validateSession(String sessionId) throws SQLException {
         String sql = "SELECT session_id FROM User_Sessions " +
                     "WHERE session_id = ? AND expires_at > CURRENT_TIMESTAMP";
 
@@ -396,16 +410,16 @@ public class UserDAO {
             return rs.next();
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error validating session", e);
+            throw new SQLException(e);
         }
 
-        return false;
+
     }
 
     /**
      * Xóa session (logout)
      */
-    public boolean deleteSession(String sessionId) {
+    public boolean deleteSession(String sessionId) throws SQLException {
         String sql = "DELETE FROM User_Sessions WHERE session_id = ?";
 
         try (Connection conn = dbConfig.getConnection();
@@ -417,10 +431,10 @@ public class UserDAO {
             return rows > 0;
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error deleting session", e);
+            throw new SQLException(e);
         }
 
-        return false;
+
     }
 
     /**

@@ -1,7 +1,7 @@
 package org.miniboot.app.controllers.PatientAndPrescription;
 import com.google.gson.Gson;
 
-import org.miniboot.app.AppConfig;
+import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.Service.CustomerSearchCriteria;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.repo.PatientAndPrescription.CustomerRecordRepository;
@@ -130,9 +130,9 @@ public class CustomerRecordController {
 
                     return Json.ok(results);
                 } catch (Exception e) {
-                    return HttpResponse.of(400,
-                            "text/plain; charset=utf-8",
-                            AppConfig.RESPONSE_400.getBytes(StandardCharsets.UTF_8));
+                    return HttpResponse.of(HttpConstants.STATUS_BAD_REQUEST,
+                            HttpConstants.CONTENT_TYPE_TEXT_PLAIN_UTF8,
+                            HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
                 }
             }
 

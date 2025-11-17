@@ -1,5 +1,6 @@
 package org.miniboot.app.controllers.payment;
 
+import org.miniboot.app.AppConfig;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
@@ -14,6 +15,7 @@ import org.miniboot.app.util.errorvalidation.ValidationUtils;
 import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
 import org.miniboot.app.util.errorvalidation.RateLimiter;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
