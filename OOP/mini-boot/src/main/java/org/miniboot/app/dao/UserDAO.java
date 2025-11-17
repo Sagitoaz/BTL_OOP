@@ -71,7 +71,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding admin by username: " + username, e);
+            throw new RuntimeException(e);
         }
 
         return Optional.empty();
@@ -104,7 +104,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding employee by username: " + username, e);
+            throw new RuntimeException(e);
         }
 
         return Optional.empty();
@@ -137,7 +137,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding customer by username: " + username, e);
+            throw new RuntimeException(e);
         }
 
         return Optional.empty();

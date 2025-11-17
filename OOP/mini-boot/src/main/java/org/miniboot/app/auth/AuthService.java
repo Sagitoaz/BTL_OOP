@@ -76,6 +76,38 @@ public class AuthService {
             return Optional.empty();
         }
     }
+    public String findByUsername(String username) {
+        try {
+            // Tìm user từ DATABASE
+            Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+
+            if (userOpt.isEmpty()) {
+                throw new Exception("User does not exist: " + username);
+            }
+
+            UserRecord user = userOpt.get();
+            return user.role;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error finding user role", e);
+            return null;
+        }
+    }
+    public String updatePassword(int userId, String userType, String newHashedPassword){
+        try {
+            boolean updated = userDAO.updatePassword(userId, userType, newHashedPassword);
+            if (updated) {
+                LOGGER.info("Password updated successfully for user ID: " + userId);
+                return "success";
+            } else {
+                LOGGER.warning("Failed to update password for user ID: " + userId);
+                return "failed";
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating password for user ID: " + userId, e);
+            return "error";
+        }
+    }
 
     /**
      * Xác thực người dùng và tạo token (cho API)
@@ -83,17 +115,24 @@ public class AuthService {
      */
     public String authenticate(String username, String password) throws Exception {
         // Tìm user từ DATABASE
-        Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+        Optional<UserRecord> userOpt = Optional.empty();
+        try{
+            userOpt = userDAO.findByUsername(username);
+        }
+        catch (Exception e){
+            // Exception khi kết nối DB
+            throw new Exception(e);
+        }
 
         if (userOpt.isEmpty()) {
-            throw new Exception("User does not exist: " + username);
+            throw new Exception("User Not Found");
         }
 
         UserRecord user = userOpt.get();
 
         // Check active status
         if (!user.active) {
-            throw new Exception("Account is not active: " + username);
+            throw new Exception("Account is not active");
         }
 
         // Verify password với bcrypt

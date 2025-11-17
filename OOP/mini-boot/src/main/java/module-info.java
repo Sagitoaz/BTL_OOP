@@ -43,8 +43,5 @@ module mini.boot {
     opens org.miniboot.app.controllers.Inventory to com.fasterxml.jackson.databind, com.google.gson;
     opens org.miniboot.app.controllers.PatientAndPrescription to com.fasterxml.jackson.databind, com.google.gson;
 
-    exports org.miniboot.app.domain.models.CustomerAndPrescription;
-
-    opens org.miniboot.app.domain.models.CustomerAndPrescription to com.fasterxml.jackson.databind, com.google.gson;
     exports org.miniboot.app.util.errorvalidation;
 }
