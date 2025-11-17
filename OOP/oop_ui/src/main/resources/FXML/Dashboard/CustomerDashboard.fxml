@@ -2,8 +2,6 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -58,14 +56,14 @@
                     </VBox>
 
                     <!-- Logout Button -->
-                    <Button fx:id="logoutButton" onAction="#handleLogout" style="-fx-background-color: rgba(239, 68, 68, 0.9); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-padding: 12px 24px; -fx-background-radius: 12px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" text="🚪 Đăng xuất" />
+                    <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="btn-delete" text="🚪 Đăng xuất" />
                 </HBox>
 
                 <!-- Content Body -->
-                <ScrollPane fitToWidth="true" styleClass="content-scroll-pane" style="-fx-background: #F0F9FF; -fx-background-color: #F0F9FF;" VBox.vgrow="ALWAYS">
-                    <VBox spacing="30" styleClass="dashboard-container" style="-fx-padding: 30px; -fx-background-color: #F0F9FF;">
+                <ScrollPane fitToWidth="true" style="-fx-background: #F0F9FF; -fx-background-color: #F0F9FF;" styleClass="content-scroll-pane" VBox.vgrow="ALWAYS">
+                    <VBox spacing="30" style="-fx-padding: 30px; -fx-background-color: #F0F9FF;" styleClass="dashboard-container">
                         <!-- Welcome Section -->
-                        <VBox spacing="12" styleClass="welcome-section" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%); -fx-background-radius: 20px; -fx-padding: 35px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 25, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 20px;">
+                        <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%); -fx-background-radius: 20px; -fx-padding: 35px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 25, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 20px;" styleClass="welcome-section">
                             <Label fx:id="welcomeText" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="Xin chào, Bệnh nhân! 👋" />
                             <Label style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 16px; -fx-font-weight: 500;" text="Chúng tôi luôn sẵn sàng chăm sóc sức khỏe mắt của bạn" />
                             <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0; -fx-font-weight: 500;" text="📅 Hôm nay: Thứ Năm, 07 tháng 11 năm 2025" />
@@ -73,7 +71,7 @@
 
                         <!-- Main Functions Grid -->
                         <VBox spacing="20" style="-fx-background-color: transparent;">
-                            <Label styleClass="section-header" style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" text="🏥 DỊCH VỤ CỦA TÔI" />
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" styleClass="section-header" text="🏥 DỊCH VỤ CỦA TÔI" />
                             <GridPane hgap="20" styleClass="function-grid" vgap="20">
                                 <columnConstraints>
                                     <ColumnConstraints percentWidth="50" />
@@ -85,7 +83,7 @@
                                 </rowConstraints>
 
                                 <!-- Row 1 - Đặt lịch khám -->
-                                <VBox spacing="15" styleClass="function-card" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F0F9FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.2), 20, 0, 0, 8); -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F0F9FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.2), 20, 0, 0, 8); -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 10, 0, 0, 3);" text="📅" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #0EA5E9; -fx-padding: 5px 0;" text="Đặt lịch khám" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Đặt lịch hẹn khám với bác sĩ nhanh chóng và tiện lợi" wrapText="true" />
@@ -93,7 +91,7 @@
                                 </VBox>
 
                                 <!-- Row 1 - Lịch hẹn của tôi -->
-                                <VBox spacing="15" styleClass="function-card" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #ECFDF5); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.2), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #ECFDF5); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.2), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 10, 0, 0, 3);" text="📋" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981; -fx-padding: 5px 0;" text="Lịch hẹn của tôi" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và quản lý các lịch hẹn đã đặt với bác sĩ" wrapText="true" />
@@ -101,7 +99,7 @@
                                 </VBox>
 
                                 <!-- Row 2 - Hồ sơ bệnh án -->
-                                <VBox spacing="15" styleClass="function-card" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FFFBEB); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.2), 20, 0, 0, 8); -fx-border-color: #FDE68A; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FFFBEB); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.2), 20, 0, 0, 8); -fx-border-color: #FDE68A; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3), 10, 0, 0, 3);" text="📄" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #F59E0B; -fx-padding: 5px 0;" text="Hồ sơ bệnh án" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem lịch sử khám bệnh và kết quả điều trị của bạn" wrapText="true" />
@@ -109,7 +107,7 @@
                                 </VBox>
 
                                 <!-- Row 2 - Thanh toán -->
-                                <VBox spacing="15" styleClass="function-card" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F5F3FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.2), 20, 0, 0, 8); -fx-border-color: #DDD6FE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #F5F3FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.2), 20, 0, 0, 8); -fx-border-color: #DDD6FE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 10, 0, 0, 3);" text="💰" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #8B5CF6; -fx-padding: 5px 0;" text="Thanh toán" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem hóa đơn và lịch sử thanh toán viện phí" wrapText="true" />
@@ -120,19 +118,19 @@
 
                         <!-- Quick Info -->
                         <VBox spacing="20" style="-fx-background-color: transparent;">
-                            <Label styleClass="section-header" style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" text="📊 THÔNG TIN NHANH" />
+                            <Label style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #0369A1; -fx-padding: 0 0 10px 0; -fx-effect: dropshadow(gaussian, rgba(3,105,161,0.1), 3, 0, 0, 1);" styleClass="section-header" text="📊 THÔNG TIN NHANH" />
                             <HBox spacing="20" styleClass="quick-stats">
-                                <VBox spacing="12" styleClass="quick-stat-card, quick-stat-card-blue" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #E0F2FE 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.25), 20, 0, 0, 8); -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 18px;" HBox.hgrow="ALWAYS">
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #E0F2FE 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.25), 20, 0, 0, 8); -fx-border-color: #BAE6FD; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card, quick-stat-card-blue" HBox.hgrow="ALWAYS">
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="LỊCH HẸN SẮP TỚI" />
                                     <Label fx:id="upcomingAppointmentsLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #0EA5E9; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.3), 8, 0, 0, 2);" text="2" />
                                     <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="cuộc hẹn" />
                                 </VBox>
-                                <VBox spacing="12" styleClass="quick-stat-card, quick-stat-card-orange" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #FEF3C7 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.25), 20, 0, 0, 8); -fx-border-color: #FDE68A; -fx-border-width: 2px; -fx-border-radius: 18px;" HBox.hgrow="ALWAYS">
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #FEF3C7 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.25), 20, 0, 0, 8); -fx-border-color: #FDE68A; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card, quick-stat-card-orange" HBox.hgrow="ALWAYS">
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="HÓA ĐƠN CHƯA THANH TOÁN" />
                                     <Label fx:id="unpaidInvoicesLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #F59E0B; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3), 8, 0, 0, 2);" text="1" />
                                     <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="hóa đơn" />
                                 </VBox>
-                                <VBox spacing="12" styleClass="quick-stat-card, quick-stat-card-green" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #D1FAE5 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.25), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px;" HBox.hgrow="ALWAYS">
+                                <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #FFFFFF 0%, #D1FAE5 100%); -fx-background-radius: 18px; -fx-padding: 28px; -fx-alignment: center; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.25), 20, 0, 0, 8); -fx-border-color: #A7F3D0; -fx-border-width: 2px; -fx-border-radius: 18px;" styleClass="quick-stat-card, quick-stat-card-green" HBox.hgrow="ALWAYS">
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 700; -fx-letter-spacing: 0.5px;" text="LẦN KHÁM GẦN NHẤT" />
                                     <Label fx:id="lastVisitLabel" style="-fx-font-size: 42px; -fx-font-weight: 700; -fx-text-fill: #10B981; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 8, 0, 0, 2);" text="15/10" />
                                     <Label style="-fx-font-size: 13px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;" text="tháng này" />
