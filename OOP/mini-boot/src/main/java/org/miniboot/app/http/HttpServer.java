@@ -117,14 +117,11 @@ public class HttpServer {
         running = true;
         System.out.println("[mini-boot] HTTP listening on: 0.0.0.0:" + port);
         System.out.println("[mini-boot] Server is ready to accept connections");
-        System.out.println("[mini-boot] Waiting for incoming connections...");
 
         // Main server loop - accept connections liên tục
         while (!socket.isClosed()) {
             // Accept connection từ client (blocking call)
             Socket client = socket.accept();
-            
-            System.out.println("[mini-boot] 🔗 Connection accepted from: " + client.getInetAddress());
 
             // Đặt timeout cho client socket để tránh hang indefinitely
             client.setSoTimeout(CLIENT_SO_TIMEOUT_MS);
@@ -174,37 +171,25 @@ public class HttpServer {
      * @param client Socket connection tới client
      */
     private void handle(Socket client) {
-        System.out.println("🔧 [handle] Starting request handling...");
         setupClientTimeout(client);
 
         InputStream in;
         OutputStream out = null;
 
         try {
-            System.out.println("🔧 [handle] Getting input/output streams...");
             in = client.getInputStream();
             out = client.getOutputStream();
 
             long startTime = System.nanoTime();
 
             // Bước 1: Parse HTTP request
-            System.out.println("🔧 [handle] Parsing HTTP request...");
             HttpRequest request = HttpRequestParser.parse(in);
-            System.out.println("✅ [handle] Request parsed: " + request.method + " " + request.path);
 
             // Bước 2: Tạo HTTP response dựa trên request
-            System.out.println("🔧 [handle] Dispatching to router...");
             HttpResponse response = router.dispatch(request);
-            System.out.println("✅ [handle] Router returned response with status: " + response.status);
-
-            System.out.println("📤 Writing response to client...");
-            System.out
-                    .println("   Response body size: " + (response.body != null ? response.body.length : 0) + " bytes");
 
             // Bước 3: Ghi response ra client
             HttpResponseEncoder.write(out, response);
-
-            System.out.println("✅ Response written successfully");
 
             // Bước 4: Log kết quả xử lý
             logRequest(request, response, startTime);

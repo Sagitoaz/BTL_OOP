@@ -109,7 +109,6 @@ public class CustomerRecordController {
 
             // Convert string gender to Gender enum trong CustomerSearchCriteria
             Customer.Gender genderEnum = null;
-            System.out.println(gender);
             if (gender.isPresent()) {
                 try {
                     genderEnum = Customer.Gender.valueOf(gender.get());

@@ -34,11 +34,14 @@ public class ApiClient {
 
      private ApiClient() {
           this.httpClient = HttpClient.newBuilder()
+                    .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1 (server không hỗ trợ HTTP/2)
                     .connectTimeout(Duration.ofSeconds(ApiConfig.CONNECTION_TIMEOUT))
                     .build();
      }
 
      public static synchronized ApiClient getInstance() {
+          // Force recreate để áp dụng HTTP/1.1 config
+          instance = null;
           if (instance == null) {
                instance = new ApiClient();
           }
@@ -57,6 +60,7 @@ public class ApiClient {
                HttpRequest request = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
                          .header("Content-Type", "application/json")
+                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
                          .GET()
                          .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
                          .build();
@@ -79,6 +83,7 @@ public class ApiClient {
                HttpRequest request = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
                          .header("Content-Type", "application/json")
+                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
                          .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                          .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
                          .build();
@@ -101,6 +106,7 @@ public class ApiClient {
                HttpRequest request = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
                          .header("Content-Type", "application/json")
+                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
                          .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                          .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
                          .build();
@@ -123,6 +129,7 @@ public class ApiClient {
                HttpRequest request = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
                          .header("Content-Type", "application/json")
+                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
                          .DELETE()
                          .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
                          .build();

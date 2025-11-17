@@ -27,6 +27,7 @@ public final class HttpRequestParser {
         // === BƯỚC 1: PARSE REQUEST LINE ===
         // Request line có format: "METHOD /path HTTP/1.1"
         String requestLine = readLine(in);
+        
         if (requestLine == null || requestLine.isEmpty()) {
             throw new IOException("Empty request line");
         }
@@ -34,8 +35,6 @@ public final class HttpRequestParser {
         // Tách request line thành 3 phần: method, path, version
         String[] parts = requestLine.split(" ", 3);
         if (parts.length < 3) {
-            // Sử dụng IllegalArgumentException thay vì IOException cho lỗi format
-            // vì đây là lỗi về định dạng dữ liệu, không phải lỗi I/O
             throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_REQUEST + ": " + requestLine);
         }
         String method = parts[0].trim();        // GET, POST, PUT, DELETE, etc.
@@ -43,8 +42,6 @@ public final class HttpRequestParser {
         String httpVersion = parts[2].trim();   // HTTP/1.1
 
         // === BƯỚC 2: PARSE HEADERS ===
-        // Headers có format: "Header-Name: Header-Value"
-        // Kết thúc bằng một dòng trống
         Map<String, String> headers = new LinkedHashMap<>();
         while (true) {
             String line = readLine(in);
@@ -57,16 +54,13 @@ public final class HttpRequestParser {
             
             String name = line.substring(0, colon).trim();
             String value = line.substring(colon + 1).trim();
-            headers.put(name, value); // Việc normalize header name sẽ được làm trong HttpRequest
+            headers.put(name, value);
         }
 
         // === BƯỚC 3: PARSE BODY ===
-        // Hiện tại chỉ hỗ trợ Content-Length, chưa hỗ trợ Transfer-Encoding: chunked
-        
         // Kiểm tra Transfer-Encoding - từ chối nếu không phải identity
         String te = getHeaderIgnoreCase(headers, "transfer-encoding");
         if (te != null && !te.isBlank() && !"identity".equalsIgnoreCase(te)) {
-            // Chưa hỗ trợ chunked encoding → từ chối request
             throw new IOException("Transfer-Encoding not supported: " + te);
         }
 
@@ -105,29 +99,35 @@ public final class HttpRequestParser {
      */
     private static String readLine(InputStream in) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int prev = -1;
+        boolean foundEOF = false;
+        
         while (true) {
             int b = in.read();
+            
             if (b == -1) {
-                if (baos.size() == 0) return null;
+                foundEOF = true;
                 break;
             }
+            
             if (b == '\n') {
                 break;
             }
-            if (prev == '\r') {
-                baos.write(prev);
+            
+            if (b == '\r') {
+                continue;
             }
-            if (b != '\r') {
-                prev = b;
-            } else {
-                prev = '\r';
-            }
+            
+            baos.write(b);
         }
-        if (prev != -1 && prev != '\r') {
-            baos.write(prev);
+        
+        String result = baos.toString(StandardCharsets.UTF_8);
+        
+        // Nếu EOF và chưa đọc gì → return null
+        if (foundEOF && baos.size() == 0) {
+            return null;
         }
-        return baos.toString(StandardCharsets.UTF_8);
+        
+        return result;
     }
 
     /**

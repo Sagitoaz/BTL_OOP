@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.LoadingOverlay;
@@ -21,6 +22,7 @@ import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.models.UserRole;
 import org.miniboot.app.domain.models.Admin;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -230,12 +232,27 @@ public class LoginController {
                             );
 
                             // Lấy thông tin customer từ API endpoint
-                            Customer customer = CustomerRecordService.getInstance().searchCustomers(
+                            LOGGER.info("Fetching customer data for userId: " + userId);
+                            ApiResponse<List<Customer>> customerResponse = CustomerRecordService.getInstance().searchCustomers(
                                     String.valueOf(userId),
                                     null,
                                     null,
                                     null
-                            ).getData().get(0);
+                            );
+
+                            // Kiểm tra response trước khi lấy data
+                            if (!customerResponse.isSuccess()) {
+                                LOGGER.severe("Customer search failed: " + customerResponse.getErrorMessage());
+                                throw new RuntimeException("Failed to fetch customer data: " + customerResponse.getErrorMessage());
+                            }
+                            
+                            if (customerResponse.getData() == null || customerResponse.getData().isEmpty()) {
+                                LOGGER.severe("Customer data is null or empty");
+                                throw new RuntimeException("No customer data found for userId: " + userId);
+                            }
+
+                            Customer customer = customerResponse.getData().get(0);
+                            LOGGER.info("Customer data loaded successfully: " + customer.getFirstname());
 
                             // Delay nhỏ
                             Thread.sleep(400);
