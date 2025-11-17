@@ -7,11 +7,13 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
+import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 /**
  * AdminDashBoardController - Controller cho trang quản trị viên
@@ -28,6 +30,9 @@ import javafx.scene.control.Label;
 public class AdminDashBoardController extends BaseController {
 
     @FXML
+    private StackPane rootPane;
+
+    @FXML
     private Label welcomeLabel;
 
     @FXML
@@ -42,39 +47,70 @@ public class AdminDashBoardController extends BaseController {
     public void initialize() {
         System.out.println("🔵 AdminDashboard: Initializing...");
 
-        // BƯỚC 1: Validate session (đồng bộ)
-        if (!SessionValidator.validateEmployeeSession()) {
-            System.err.println("❌ AdminDashboard: Session validation failed - redirecting to login");
-            Platform.runLater(() -> {
-                ErrorHandler.showCustomError(401,
-                        "Phiên đăng nhập đã hết hạn.\n\n" +
-                                "Vui lòng đăng nhập lại để tiếp tục.");
-                redirectToLogin("Session validation failed");
-            });
-            return;
-        }
-        try {
-            loadEmployeeData();
-            System.out.println("✅ AdminDashboard: Employee data loaded");
-        } catch (Exception e) {
-            System.err.println("❌ AdminDashboard: Failed to load employee data");
-            handleInitializationError(e);
-            return;
-        }
-        if (!validateAdminRole()) {
-            System.err.println("❌ AdminDashboard: Role validation failed");
-            return;
-        }
-        try {
-            setupUI();
-            System.out.println("✅ AdminDashboard: UI setup complete");
-        } catch (Exception e) {
-            System.err.println("❌ AdminDashboard: Failed to setup UI");
-            e.printStackTrace();
-        }
-        loadDashboardStatistics();
+        // Hiển thị loading overlay
+        LoadingOverlay.show(rootPane, "Đang tải Dashboard...", "Đang xác thực phiên làm việc");
 
-        System.out.println("✅ AdminDashboard: Initialization complete");
+        // Chạy initialization trong background thread
+        new Thread(() -> {
+            try {
+                // BƯỚC 1: Validate session (đồng bộ)
+                if (!SessionValidator.validateEmployeeSession()) {
+                    System.err.println("❌ AdminDashboard: Session validation failed - redirecting to login");
+                    Platform.runLater(() -> {
+                        LoadingOverlay.hide(rootPane);
+                        ErrorHandler.showCustomError(401,
+                                "Phiên đăng nhập đã hết hạn.\n\n" +
+                                        "Vui lòng đăng nhập lại để tiếp tục.");
+                        redirectToLogin("Session validation failed");
+                    });
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin người dùng")
+                );
+
+                loadEmployeeData();
+                System.out.println("✅ AdminDashboard: Employee data loaded");
+
+                if (!validateAdminRole()) {
+                    System.err.println("❌ AdminDashboard: Role validation failed");
+                    Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang hoàn tất...", "Đang thiết lập giao diện")
+                );
+
+                Platform.runLater(() -> {
+                    try {
+                        setupUI();
+                        System.out.println("✅ AdminDashboard: UI setup complete");
+                    } catch (Exception e) {
+                        System.err.println("❌ AdminDashboard: Failed to setup UI");
+                        e.printStackTrace();
+                    }
+                });
+
+                loadDashboardStatistics();
+
+                System.out.println("✅ AdminDashboard: Initialization complete");
+
+                // Ẩn loading sau khi hoàn thành (với delay nhỏ để mượt mà)
+                Thread.sleep(300);
+                Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+
+            } catch (Exception e) {
+                System.err.println("❌ AdminDashboard: Failed to load employee data");
+                Platform.runLater(() -> {
+                    LoadingOverlay.hide(rootPane);
+                    handleInitializationError(e);
+                });
+            }
+        }).start();
     }
 
     private void loadEmployeeData() throws Exception {

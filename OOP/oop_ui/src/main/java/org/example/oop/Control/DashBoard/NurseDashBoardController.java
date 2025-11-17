@@ -7,13 +7,18 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
+import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 public class NurseDashBoardController extends BaseController {
+    @FXML
+    private StackPane rootPane;
+
     @FXML
     private Label welcomeLabel;
 
@@ -28,28 +33,60 @@ public class NurseDashBoardController extends BaseController {
     @FXML
     public void initialize() {
         System.out.println("NurseDashBoard : Initializing ..");
-        if (!SessionValidator.validateEmployeeSession()) {
-            System.err.println("NurseDashBoard : session validation failed");
-            Platform.runLater(() -> {
-                ErrorHandler.showCustomError(401,
-                        "Phiên đăng nhập đã hết hạn. \n\n Vui lòng đăng nhập lại.");
-                redirectToLogin("Session  validation failed");
-            });
-            return;
-        }
-        try {
-            loadEmployeeData();
-        } catch (Exception e) {
-            System.err.println("NurseDashBoard : failed to load employee data");
-            handleInitializationError(e);
-            return;
-        }
-        if (!validateNurseRole()) {
-            System.err.println("NurseDashBoard : Role validation failed");
-            return;
-        }
-        setupUI();
-        System.out.println("NurseDashBoard : Initialization complete");
+
+        // Hiển thị loading overlay
+        LoadingOverlay.show(rootPane, "Đang tải Dashboard...", "Đang xác thực phiên làm việc");
+
+        // Chạy initialization trong background thread
+        new Thread(() -> {
+            try {
+                if (!SessionValidator.validateEmployeeSession()) {
+                    System.err.println("NurseDashBoard : session validation failed");
+                    Platform.runLater(() -> {
+                        LoadingOverlay.hide(rootPane);
+                        ErrorHandler.showCustomError(401,
+                                "Phiên đăng nhập đã hết hạn. \n\n Vui lòng đăng nhập lại.");
+                        redirectToLogin("Session  validation failed");
+                    });
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin người dùng")
+                );
+
+                loadEmployeeData();
+
+                if (!validateNurseRole()) {
+                    System.err.println("NurseDashBoard : Role validation failed");
+                    Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang hoàn tất...", "Đang thiết lập giao diện")
+                );
+
+                Platform.runLater(() -> {
+                    setupUI();
+                });
+
+                System.out.println("NurseDashBoard : Initialization complete");
+
+                // Ẩn loading sau khi hoàn thành
+                Thread.sleep(300);
+                Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+
+            } catch (Exception e) {
+                System.err.println("NurseDashBoard : failed to load employee data");
+                Platform.runLater(() -> {
+                    LoadingOverlay.hide(rootPane);
+                    handleInitializationError(e);
+                });
+            }
+        }).start();
     }
 
     private void loadEmployeeData() throws Exception {

@@ -7,6 +7,7 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
+import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Employee;
 
 import javafx.application.Platform;
@@ -15,8 +16,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 public class DoctorDashBoardController extends BaseController {
+    @FXML
+    private StackPane rootPane;
+
     @FXML
     private Label welcomeLabel;
     @FXML
@@ -29,27 +34,59 @@ public class DoctorDashBoardController extends BaseController {
     @FXML
     public void initialize() {
         System.out.println("DoctorDashBoard : Initialinzing ...");
-        if (!SessionValidator.validateEmployeeSession()) {
-            System.err.println("DoctorDahboard : Session validation failed");
-            Platform.runLater(() -> {
-                ErrorHandler.showCustomError(401, "Phiên đăng nhập đã hết hạn.\n\nVui lòng đăng nhập lại.");
-                redirectToLogin("Session validation fail");
-            });
-            return;
-        }
-        try {
-            loadEmployeeData();
-        } catch (Exception e) {
-            System.err.println("DoctordashBoard : fail to load employee data");
-            handleInitializationError(e);
-            return;
-        }
-        if (!validateDoctorRole()) {
-            System.err.println("DoctordashBoard: Role validation failed");
-            return;
-        }
-        setupUI();
-        System.out.println("DoctordashBoard : Initialization complete");
+
+        // Hiển thị loading overlay
+        LoadingOverlay.show(rootPane, "Đang tải Dashboard...", "Đang xác thực phiên làm việc");
+
+        // Chạy initialization trong background thread
+        new Thread(() -> {
+            try {
+                if (!SessionValidator.validateEmployeeSession()) {
+                    System.err.println("DoctorDahboard : Session validation failed");
+                    Platform.runLater(() -> {
+                        LoadingOverlay.hide(rootPane);
+                        ErrorHandler.showCustomError(401, "Phiên đăng nhập đã hết hạn.\n\nVui lòng đăng nhập lại.");
+                        redirectToLogin("Session validation fail");
+                    });
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin bác sĩ")
+                );
+
+                loadEmployeeData();
+
+                if (!validateDoctorRole()) {
+                    System.err.println("DoctordashBoard: Role validation failed");
+                    Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+                    return;
+                }
+
+                // Cập nhật loading message
+                Platform.runLater(() ->
+                    LoadingOverlay.show(rootPane, "Đang hoàn tất...", "Đang thiết lập giao diện")
+                );
+
+                Platform.runLater(() -> {
+                    setupUI();
+                });
+
+                System.out.println("DoctordashBoard : Initialization complete");
+
+                // Ẩn loading sau khi hoàn thành
+                Thread.sleep(300);
+                Platform.runLater(() -> LoadingOverlay.hide(rootPane));
+
+            } catch (Exception e) {
+                System.err.println("DoctordashBoard : fail to load employee data");
+                Platform.runLater(() -> {
+                    LoadingOverlay.hide(rootPane);
+                    handleInitializationError(e);
+                });
+            }
+        }).start();
     }
 
     private void setupUI() {
