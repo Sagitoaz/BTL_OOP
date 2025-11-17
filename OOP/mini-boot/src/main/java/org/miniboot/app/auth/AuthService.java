@@ -1,31 +1,34 @@
 package org.miniboot.app.auth;
 
-import java.io.*;
-import java.nio.file.*;
+import org.miniboot.app.dao.UserDAO;
+import org.miniboot.app.dao.UserDAO.UserRecord;
+
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * AuthService: Xử lý logic xác thực người dùng
- * - Kiểm tra thông tin đăng nhập từ 3 bảng: Admins, Employees, Customers
- * - Tạo JWT token cho người dùng hợp lệ
+ * Sử dụng UserDAO để đọc từ DATABASE
+ * - Kiểm tra thông tin đăng nhập từ PostgreSQL (3 bảng: Admins, Employees, Customers)
+ * - Tạo session cho người dùng hợp lệ
  * - Quản lý phiên đăng nhập và quyền truy cập
- *
- * Đã cập nhật theo database mới:
- * - Đọc từ 3 file riêng biệt thay vì users.txt
- * - Hỗ trợ 3 loại user: ADMIN, EMPLOYEE (doctor/nurse), CUSTOMER
  */
 public class AuthService {
-    // Singleton để đảm bảo chỉ có một instance AuthService trong ứng dụng
+    private static final Logger LOGGER = Logger.getLogger(AuthService.class.getName());
+
+    // Singleton instance
     private static AuthService instance;
-    // SessionManager: quản lý session (create/invalidate/get). Là một singleton bên trong.
+
+    // SessionManager: quản lý session trong memory
     private static final SessionManager sessionManager = SessionManager.getInstance();
 
-    // Đường dẫn 3 file dữ liệu mới
-    private static final String ADMINS_FILE = "oop_ui/src/main/resources/Data/admins.txt";
-    private static final String EMPLOYEES_FILE = "oop_ui/src/main/resources/Data/employees.txt";
-    private static final String CUSTOMERS_FILE = "oop_ui/src/main/resources/Data/customers.txt";
+    // UserDAO: Data Access Object để tương tác với database
+    private final UserDAO userDAO;
 
-    private AuthService() {}
+    private AuthService() {
+        this.userDAO = new UserDAO();
+    }
 
     public static AuthService getInstance() {
         if (instance == null) {
@@ -36,87 +39,78 @@ public class AuthService {
 
     /**
      * Đăng nhập với tên đăng nhập và mật khẩu
-     * Tìm kiếm trong cả 3 file: admins, employees, customers
+     * Tìm kiếm trong DATABASE: admins, employees, customers
      */
     public Optional<String> login(String username, String password) {
         try {
-            Optional<UserData> userOpt = findUserByUsername(username);
-            if (!userOpt.isPresent()) {
-                System.out.println("✗ Login failed: User does not exist - " + username);
+            // Tìm user từ DATABASE thông qua UserDAO
+            Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+
+            if (userOpt.isEmpty()) {
+                LOGGER.warning("Login failed: User does not exist - " + username);
                 return Optional.empty();
             }
 
-            UserData user = userOpt.get();
+            UserRecord user = userOpt.get();
 
             // Check active status
             if (!user.active) {
-                System.out.println("✗ Login failed: Account is not active - " + username);
+                LOGGER.warning("Login failed: Account is not active - " + username);
                 return Optional.empty();
             }
 
-            // Verify password
-            // PasswordService.verifyPassword sẽ tách salt từ stored hash và băm password nhập để so sánh
+            // Verify password với bcrypt (password đã hash trong database)
             if (!PasswordService.verifyPassword(password, user.password)) {
-                System.out.println("✗ Login failed: Invalid password - " + username);
+                LOGGER.warning("Login failed: Invalid password - " + username);
                 return Optional.empty();
             }
 
-            // Create session for user
-            // SessionManager.createSession trả về sessionId (chuỗi) để client lưu (ví dụ cookie hoặc header)
-            String sessionId = sessionManager.createSession(user.id, user.username, user.role);
-            System.out.println("✓ Login successful: " + username + " (" + user.role + ")");
+            // Tạo session với userId là String
+            String sessionId = sessionManager.createSession(String.valueOf(user.id), user.username, user.role);
 
+            LOGGER.info("Login successful: " + username + " (" + user.role + ")");
             return Optional.of(sessionId);
 
         } catch (Exception e) {
-            // Bắt và in lỗi tổng quát. Tránh lộ stack trace chi tiết ra production log.
-            System.err.println("✗ Login error: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Login error", e);
             return Optional.empty();
         }
     }
 
     /**
      * Xác thực người dùng và tạo token (cho API)
-     *
-     * Luồng xử lý tương tự login, nhưng trả về JWT token thay vì sessionId.
-     * Token được tạo bằng JwtService.generateToken(username).
-     * Token nên có expiration; việc validate token dựa vào JwtService.validateTokenAndGetUserId.
+     * Sử dụng DATABASE thay vì file
      */
-    public static String authenticate(String username, String password) throws Exception {
-        Optional<UserData> userOpt = findUserByUsername(username);
-        if (!userOpt.isPresent()) {
+    public String authenticate(String username, String password) throws Exception {
+        // Tìm user từ DATABASE
+        Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+
+        if (userOpt.isEmpty()) {
             throw new Exception("User does not exist: " + username);
         }
 
-        UserData user = userOpt.get();
+        UserRecord user = userOpt.get();
 
         // Check active status
         if (!user.active) {
             throw new Exception("Account is not active: " + username);
         }
 
-        // Verify password
+        // Verify password với bcrypt
         if (!PasswordService.verifyPassword(password, user.password)) {
             throw new Exception("Invalid password");
         }
 
         // Generate JWT token
-        // JwtService.generateToken nên đóng gói thông tin cần thiết (ví dụ: username, exp)
         String token = JwtService.generateToken(username);
 
-        System.out.println("✓ Authentication successful: " + username + " (" + user.role + ")");
-
+        LOGGER.info("Authentication successful: " + username + " (" + user.role + ")");
         return token;
     }
 
     /**
      * Xác thực token từ header Authorization
-     *
-     * Format header mong đợi: "Authorization: Bearer <token>"
-     * - Kiểm tra null/format
-     * - Gọi JwtService để validate và lấy userId (hoặc username tuỳ implement)
-     *
-     * Trả về userId nếu token hợp lệ, ngược lại ném Exception.
+     * Format: "Authorization: Bearer <token>"
      */
     public static String validateToken(String authHeader) throws Exception {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -135,165 +129,151 @@ public class AuthService {
 
     /**
      * Đăng xuất (hủy phiên)
-     *
-     * Gọi SessionManager.invalidateSession để remove session khỏi store.
+     * Xóa session khỏi memory và database
      */
-    public static void logout(String sessionId) {
+    public void logout(String sessionId) {
+        // Xóa khỏi memory
         sessionManager.invalidateSession(sessionId);
+
+        // Xóa khỏi database
+        userDAO.deleteSession(sessionId);
+
+        LOGGER.info("User logged out: sessionId=" + sessionId);
     }
 
     /**
      * Lấy thông tin phiên đăng nhập hiện tại theo sessionId
-     * Trả về Optional.empty nếu session không tồn tại hoặc đã hết hạn.
      */
-    public static Optional<SessionManager.Session> getCurrentSession(String sessionId) {
+    public Optional<SessionManager.Session> getCurrentSession(String sessionId) {
         return sessionManager.getSession(sessionId);
     }
 
     /**
-     * Kiểm tra quyền truy cập cho session given
-     *
-     * Quy trình:
-     * 1. Lấy session từ SessionManager
-     * 2. Lấy role trong session
-     * 3. Kiểm tra quyền bằng RolePermissions.hasPermission
+     * Kiểm tra quyền truy cập cho session
      */
-    public static boolean hasPermission(String sessionId, RolePermissions.Permission permission) {
+    public boolean hasPermission(String sessionId, RolePermissions.Permission permission) {
         Optional<SessionManager.Session> sessionOpt = sessionManager.getSession(sessionId);
-        if (!sessionOpt.isPresent()) return false;
+        if (sessionOpt.isEmpty()) return false;
 
         String role = sessionOpt.get().getRole();
         return RolePermissions.hasPermission(role, permission);
     }
 
     /**
-     * Tìm người dùng theo username từ cả 3 file
-     * Thứ tự tìm kiếm: Admins -> Employees -> Customers
+     * Yêu cầu reset mật khẩu
+     * Tạo token và lưu vào database
      */
-    private static Optional<UserData> findUserByUsername(String username) {
-        // Tìm trong Admins
-        Optional<UserData> admin = findInAdmins(username);
-        if (admin.isPresent()) return admin;
-
-        // Tìm trong Employees
-        Optional<UserData> employee = findInEmployees(username);
-        if (employee.isPresent()) return employee;
-
-        // Tìm trong Customers
-        Optional<UserData> customer = findInCustomers(username);
-        if (customer.isPresent()) return customer;
-
-        return Optional.empty();
-    }
-
-    /**
-     * Tìm trong file admins.txt
-     * Format: id|username|password|email|is_active
-     */
-    private static Optional<UserData> findInAdmins(String username) {
+    public String requestPasswordReset(String email) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(ADMINS_FILE));
-            for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
-                if (parts.length >= 5 && parts[1].equals(username)) {
-                    return Optional.of(new UserData(
-                        parts[0],                           // id
-                        parts[1],                           // username
-                        parts[2],                           // password (hashed)
-                        "ADMIN",                            // role
-                        parts[3],                           // email
-                        "Admin User",                       // fullName
-                        "",                                 // phone
-                        Boolean.parseBoolean(parts[4])      // active
-                    ));
-                }
+            // Tìm user theo email từ DATABASE
+            Optional<UserRecord> userOpt = userDAO.findByEmail(email);
+
+            if (userOpt.isEmpty()) {
+                LOGGER.warning("Password reset failed: Email not found - " + email);
+                return null;
             }
-        } catch (IOException e) {
-            System.err.println("Error reading admins file: " + e.getMessage());
+
+            UserRecord user = userOpt.get();
+
+            // Tạo token ngẫu nhiên
+            String token = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+            // Lưu token vào DATABASE với thời gian hết hạn 15 phút
+            boolean saved = userDAO.savePasswordResetToken(token, user.id, user.role, 15);
+
+            if (saved) {
+                LOGGER.info("Password reset token created for: " + email);
+                return token;
+            } else {
+                LOGGER.warning("Failed to save reset token");
+                return null;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error creating reset token", e);
+            return null;
         }
-        return Optional.empty();
     }
 
     /**
-     * Tìm trong file employees.txt
-     * Format: id|username|password|firstname|lastname|avatar|role|license_no|email|phone|is_active|created_at
+     * Reset mật khẩu với token
+     * Validate token từ database và cập nhật password
      */
-    private static Optional<UserData> findInEmployees(String username) {
+    public boolean resetPassword(String token, String newPassword) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(EMPLOYEES_FILE));
-            for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
-                if (parts.length >= 12 && parts[1].equals(username)) {
-                    String employeeRole = parts[6]; // "doctor" hoặc "nurse"
-                    String roleForSession = "EMPLOYEE"; // Hoặc có thể dùng "DOCTOR"/"NURSE" nếu cần phân biệt
+            // Validate token từ DATABASE
+            Optional<UserRecord> userOpt = userDAO.validateResetToken(token);
 
-                    return Optional.of(new UserData(
-                        parts[0],                           // id
-                        parts[1],                           // username
-                        parts[2],                           // password (hashed)
-                        roleForSession,                     // role
-                        parts[8],                           // email
-                        parts[3] + " " + parts[4],          // fullName (firstname + lastname)
-                        parts[9],                           // phone
-                        Boolean.parseBoolean(parts[10])     // active
-                    ));
-                }
+            if (userOpt.isEmpty()) {
+                LOGGER.warning("Invalid or expired reset token: " + token);
+                return false;
             }
-        } catch (IOException e) {
-            System.err.println("Error reading employees file: " + e.getMessage());
+
+            UserRecord user = userOpt.get();
+
+            // Hash password mới với bcrypt
+            String hashedPassword = PasswordService.hashPasswordWithSalt(newPassword);
+
+            // Cập nhật password trong DATABASE
+            boolean updated = userDAO.updatePassword(user.id, user.role, hashedPassword);
+
+            if (updated) {
+                // Đánh dấu token đã sử dụng
+                userDAO.markTokenAsUsed(token);
+
+                LOGGER.info("Password reset successful for user ID: " + user.id);
+                return true;
+            } else {
+                LOGGER.warning("Failed to update password");
+                return false;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error resetting password", e);
+            return false;
         }
-        return Optional.empty();
     }
 
     /**
-     * Tìm trong file customers.txt
-     * Format: id|username|password|firstname|lastname|phone|email|dob|gender|address|note|created_at
+     * Đăng ký customer mới
+     * Lưu vào DATABASE thông qua UserDAO
      */
-    private static Optional<UserData> findInCustomers(String username) {
+    public boolean registerCustomer(String username, String email, String password,
+                                   String firstname, String lastname, String phone,
+                                   String address, String dob, String gender) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(CUSTOMERS_FILE));
-            for (String line : lines) {
-                if (line.trim().isEmpty() || line.startsWith("#")) continue;
-                String[] parts = line.split("\\|", -1);
-                if (parts.length >= 12 && parts[1].equals(username)) {
-                    return Optional.of(new UserData(
-                        parts[0],                           // id
-                        parts[1],                           // username
-                        parts[2],                           // password (hashed)
-                        "CUSTOMER",                         // role (hoặc "PATIENT")
-                        parts[6],                           // email
-                        parts[3] + " " + parts[4],          // fullName (firstname + lastname)
-                        parts[5],                           // phone
-                        true                                // active (customers không có trường is_active, mặc định true)
-                    ));
-                }
+            // Kiểm tra username đã tồn tại chưa
+            Optional<UserRecord> existing = userDAO.findByUsername(username);
+            if (existing.isPresent()) {
+                LOGGER.warning("Registration failed: Username already exists - " + username);
+                return false;
             }
-        } catch (IOException e) {
-            System.err.println("Error reading customers file: " + e.getMessage());
-        }
-        return Optional.empty();
-    }
 
-    /**
-     * Lớp dữ liệu người dùng đơn giản dùng nội bộ trong AuthService
-     * Chứa các trường cần thiết để xác thực và tạo session.
-     */
-    private static class UserData {
-        String id, username, password, role, email, fullName, phone;
-        boolean active;
+            // Kiểm tra email đã tồn tại chưa
+            Optional<UserRecord> existingEmail = userDAO.findByEmail(email);
+            if (existingEmail.isPresent()) {
+                LOGGER.warning("Registration failed: Email already exists - " + email);
+                return false;
+            }
 
-        UserData(String id, String username, String password, String role,
-                 String email, String fullName, String phone, boolean active) {
-            this.id = id;
-            this.username = username;
-            this.password = password;
-            this.role = role;
-            this.email = email;
-            this.fullName = fullName;
-            this.phone = phone;
-            this.active = active;
+            // Hash password với bcrypt
+            String hashedPassword = PasswordService.hashPasswordWithSalt(password);
+
+            // Lưu customer vào DATABASE
+            boolean saved = userDAO.saveCustomer(username, hashedPassword, firstname, lastname,
+                                                phone, email, address, dob, gender);
+
+            if (saved) {
+                LOGGER.info("Customer registered successfully: " + username);
+                return true;
+            } else {
+                LOGGER.warning("Failed to save customer");
+                return false;
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error registering customer", e);
+            return false;
         }
     }
 }

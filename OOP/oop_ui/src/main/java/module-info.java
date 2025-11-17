@@ -10,8 +10,11 @@ module org.example.oop {
     requires jakarta.mail;
     requires java.desktop;
     requires java.net.http;
+
+    // ========== BCrypt & Jackson ==========
     requires bcrypt;
     requires com.fasterxml.jackson.annotation;
+
     // ========== Mini-boot Module ==========
     // NOTE: mini-boot is loaded as automatic module from classpath
     // This avoids conflicts with shaded dependencies

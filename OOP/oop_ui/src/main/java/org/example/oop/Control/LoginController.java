@@ -1,17 +1,14 @@
 package org.example.oop.Control;
 
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
-import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpEmployeeService;
 import org.example.oop.Utils.SceneConfig;
@@ -20,7 +17,6 @@ import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.models.UserRole;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,11 +49,15 @@ public class LoginController {
     @FXML
     private Hyperlink signUpbutton;
 
-    // Trạng thái hiển thị mật khẩu
     private boolean isPasswordVisible = false;
+    private PauseTransition errorMessageTimer;
 
     @FXML
     public void initialize() {
+        // Khởi tạo timer cho thông báo lỗi (5 giây)
+        errorMessageTimer = new PauseTransition(Duration.seconds(5));
+        errorMessageTimer.setOnFinished(event -> hideErrorMessage());
+
         // Đồng bộ nội dung giữa PasswordField và TextField
         enterPasswordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!isPasswordVisible) {
@@ -70,6 +70,45 @@ public class LoginController {
                 enterPasswordTextField.setText(newValue);
             }
         });
+
+        // Thiết lập listeners để ẩn thông báo lỗi khi người dùng tương tác
+        setupFieldListeners();
+    }
+
+    /**
+     * Thiết lập listeners để ẩn thông báo lỗi khi người dùng click hoặc gõ
+     */
+    private void setupFieldListeners() {
+        usernameTextField.setOnMouseClicked(event -> hideErrorMessage());
+        enterPasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
+        visiblePasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
+
+        usernameTextField.setOnKeyPressed(event -> hideErrorMessage());
+        enterPasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        visiblePasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+    }
+
+    /**
+     * Ẩn thông báo lỗi và dừng timer
+     */
+    private void hideErrorMessage() {
+        invalidLoginMessage.setVisible(false);
+        if (errorMessageTimer != null) {
+            errorMessageTimer.stop();
+        }
+    }
+
+    /**
+     * Hiển thị thông báo lỗi với timer tự động ẩn sau 5 giây
+     */
+    private void showErrorMessage(String message) {
+        invalidLoginMessage.setText(message);
+        invalidLoginMessage.setVisible(true);
+
+        if (errorMessageTimer != null) {
+            errorMessageTimer.stop();
+            errorMessageTimer.playFromStart();
+        }
     }
 
     /**
@@ -80,21 +119,19 @@ public class LoginController {
         isPasswordVisible = !isPasswordVisible;
 
         if (isPasswordVisible) {
-            // Hiển thị mật khẩu
             visiblePasswordTextField.setText(enterPasswordTextField.getText());
             visiblePasswordTextField.setVisible(true);
             visiblePasswordTextField.setManaged(true);
             enterPasswordTextField.setVisible(false);
             enterPasswordTextField.setManaged(false);
-            togglePasswordButton.setText("🙈"); // Icon mắt đóng
+            togglePasswordButton.setText("🙈");
         } else {
-            // Ẩn mật khẩu
             enterPasswordTextField.setText(visiblePasswordTextField.getText());
             enterPasswordTextField.setVisible(true);
             enterPasswordTextField.setManaged(true);
             visiblePasswordTextField.setVisible(false);
             visiblePasswordTextField.setManaged(false);
-            togglePasswordButton.setText("👁"); // Icon mắt mở
+            togglePasswordButton.setText("👁");
         }
     }
 
@@ -105,86 +142,106 @@ public class LoginController {
 
     @FXML
     void GoToSignUpButtonOnClick(ActionEvent event) {
-
         SceneManager.switchScene(SceneConfig.SIGNUP_FXML, SceneConfig.SIGNUP_FXML);
-
     }
 
     private String validateInput(String user, String pass) {
-        if (user.isEmpty() && pass.isEmpty()) return "Enter username and password";
-        if (user.isEmpty()) return "Enter username";
-        if (pass.isEmpty()) return "Enter password";
+        if (user.isEmpty() && pass.isEmpty()) return "Vui lòng nhập tên đăng nhập và mật khẩu";
+        if (user.isEmpty()) return "Vui lòng nhập tên đăng nhập";
+        if (pass.isEmpty()) return "Vui lòng nhập mật khẩu";
         return null;
     }
 
     @FXML
     void LoginButtonOnClick(ActionEvent event) throws Exception {
+        hideErrorMessage();
+
         String username = usernameTextField.getText().trim();
-        // Lấy password từ field đang hiển thị
         String password = isPasswordVisible ?
                          visiblePasswordTextField.getText().trim() :
                          enterPasswordTextField.getText().trim();
 
-        // validate input
+        // Validate input
         String msg = validateInput(username, password);
         if (msg != null) {
-            invalidLoginMessage.setText(msg);
+            showErrorMessage(msg);
             return;
         }
 
-        // Call mini-boot AuthService through wrapper to avoid module issues
-        Optional<String> sessionOpt = AuthServiceWrapper.login(username, password);
+        try {
+            // Sử dụng AuthServiceWrapper để login qua backend
+            Optional<String> sessionOpt = AuthServiceWrapper.login(username, password);
 
-        if (sessionOpt.isPresent()) {
-            String sessionId = sessionOpt.get();
-            // Save sessionId to session storage for later use
-            SessionStorage.setCurrentSessionId(sessionId);
-            System.out.println("Login successful" + SessionStorage.getCurrentUsername() + " " + SessionStorage.getCurrentUserRole());
-            // Clear error message
-            invalidLoginMessage.setText("");
-            // Redirect to dashboard
-            if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("ADMIN")){
-                String[] key = {"role", "accountData"};
-                Object[] data = {UserRole.ADMIN, null};
-                SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
+            if (sessionOpt.isPresent()) {
+                String sessionId = sessionOpt.get();
+                SessionStorage.setCurrentSessionId(sessionId);
+                LOGGER.info("Login successful: " + SessionStorage.getCurrentUsername() +
+                           " [" + SessionStorage.getCurrentUserRole() + "]");
 
-            }
-            else if (SessionStorage.getCurrentUserRole().equalsIgnoreCase("CUSTOMER"))
-            {
-                try{
-                    Customer customer = CustomerRecordService.getInstance().searchCustomers(
-                            String.valueOf(SessionStorage.getCurrentUserId()),
-                            null,
-                            null,
-                            null
-                    ).getData().get(0);
+                hideErrorMessage();
+
+                // Redirect to dashboard based on role
+                String role = SessionStorage.getCurrentUserRole();
+                int userId = SessionStorage.getCurrentUserId();
+
+                if (role.equalsIgnoreCase("ADMIN")) {
                     String[] key = {"role", "accountData"};
-                    Object[] data = {UserRole.CUSTOMER, customer};
-                    SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
-                } catch (Exception e) {
-                    invalidLoginMessage.setVisible(true);
-                    invalidLoginMessage.setText("Data loading error. Please try again later.");
+                    Object[] data = {UserRole.ADMIN, null};
+                    SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML,
+                                                    SceneConfig.Titles.DASHBOARD, key, data);
+
+                } else if (role.equalsIgnoreCase("CUSTOMER")) {
+                    try {
+                        // Lấy thông tin customer từ API endpoint
+                        Customer customer = CustomerRecordService.getInstance().searchCustomers(
+                                String.valueOf(userId),
+                                null,
+                                null,
+                                null
+                        ).getData().get(0);
+
+                        String[] key = {"role", "accountData"};
+                        Object[] data = {UserRole.CUSTOMER, customer};
+                        SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML,
+                                                        SceneConfig.Titles.DASHBOARD, key, data);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error loading customer data", e);
+                        showErrorMessage("Lỗi tải dữ liệu khách hàng. Vui lòng thử lại.");
+                    }
+
+                } else if (role.equalsIgnoreCase("EMPLOYEE")) {
+                    try {
+                        HttpEmployeeService employeeService = new HttpEmployeeService();
+                        Employee employee = employeeService.getEmployeeById(userId);
+
+                        String[] key = {"role", "accountData"};
+                        Object[] data = {UserRole.EMPLOYEE, employee};
+
+                        if (employee.getRole().equalsIgnoreCase("doctor")) {
+                            SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML,
+                                                            SceneConfig.Titles.DASHBOARD, key, data);
+                        } else {
+                            SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML,
+                                                            SceneConfig.Titles.DASHBOARD, key, data);
+                        }
+
+                        LOGGER.info("Login as employee: " + employee.getFirstname() +
+                                   " " + employee.getLastname());
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error loading employee data", e);
+                        showErrorMessage("Lỗi tải dữ liệu nhân viên. Vui lòng thử lại.");
+                    }
+                } else {
+                    showErrorMessage("Vai trò không hợp lệ");
                 }
-            }
-            else{
-                HttpEmployeeService employeeService = new HttpEmployeeService();
-                Employee employee = employeeService.getEmployeeById(
-                        SessionStorage.getCurrentUserId()
-                );
-                String[] key = {"role", "accountData"};
-                Object[] data = {UserRole.EMPLOYEE,employee };
-                if(employee.getRole().equalsIgnoreCase("doctor")){
-                    SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
-                }
-                else{
-                    SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML, SceneConfig.Titles.DASHBOARD, key, data);
-                }
-                System.out.println("Login as employee: " + employee.getFirstname() + " " + employee.getLastname());
+
+            } else {
+                showErrorMessage("Tên đăng nhập hoặc mật khẩu không đúng");
             }
 
-        } else {
-            invalidLoginMessage.setVisible(true);
-            invalidLoginMessage.setText("Invalid username or password");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Login error", e);
+            showErrorMessage("Lỗi đăng nhập. Vui lòng thử lại.");
         }
     }
 }

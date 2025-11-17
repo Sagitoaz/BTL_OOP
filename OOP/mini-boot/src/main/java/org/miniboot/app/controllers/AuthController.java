@@ -20,6 +20,9 @@ import java.util.Map;
  */
 public class AuthController {
 
+    // Get AuthService instance
+    private static final AuthService authService = AuthService.getInstance();
+
     /**
      * Mount các route vào Router
      */
@@ -48,8 +51,8 @@ public class AuthController {
                     username == null ? ErrorMessages.ERROR_MISSING_USERNAME : ErrorMessages.ERROR_MISSING_PASSWORD);
             }
 
-            // Xác thực và tạo token
-            String token = AuthService.authenticate(username, password);
+            // Xác thực và tạo token - gọi instance method
+            String token = authService.authenticate(username, password);
 
             return Json.ok(Map.of(
                     AuthConstants.FIELD_ACCESS_TOKEN, token,
