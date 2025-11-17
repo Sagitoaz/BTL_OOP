@@ -200,23 +200,23 @@ public class LoginController {
                     int userId = SessionStorage.getCurrentUserId();
                     String currentUsername = SessionStorage.getCurrentUsername();
 
-                    Platform.runLater(() -> {
-                        LoadingOverlay.show(rootPane, "Đăng nhập thành công!", "Đang chuyển hướng...");
-                    });
-
-                    // Delay nhỏ để người dùng thấy message thành công
-                    Thread.sleep(500);
-
                     if (role.equalsIgnoreCase("ADMIN")) {
+                        Platform.runLater(() -> {
+                            LoadingOverlay.show(rootPane, "Đang tải dữ liệu Admin...", "Đang chuẩn bị chuyển hướng");
+                        });
+
                         // Tạo Admin object từ SessionStorage
                         Admin admin = new Admin();
                         admin.setId(userId);
                         admin.setUsername(currentUsername);
                         admin.setActive(true);
 
+                        // Delay nhỏ để hiển thị message
+                        Thread.sleep(400);
+
                         Platform.runLater(() -> {
                             hideErrorMessage();
-                            LoadingOverlay.hide(rootPane);
+                            LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
                             String[] key = {"role", "accountData"};
                             Object[] data = {UserRole.ADMIN, admin};
                             SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML,
@@ -237,9 +237,12 @@ public class LoginController {
                                     null
                             ).getData().get(0);
 
+                            // Delay nhỏ
+                            Thread.sleep(400);
+
                             Platform.runLater(() -> {
                                 hideErrorMessage();
-                                LoadingOverlay.hide(rootPane);
+                                LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
                                 String[] key = {"role", "accountData"};
                                 Object[] data = {UserRole.CUSTOMER, customer};
                                 SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML,
@@ -263,9 +266,12 @@ public class LoginController {
                             HttpEmployeeService employeeService = new HttpEmployeeService();
                             Employee employee = employeeService.getEmployeeById(userId);
 
+                            // Delay nhỏ
+                            Thread.sleep(400);
+
                             Platform.runLater(() -> {
                                 hideErrorMessage();
-                                LoadingOverlay.hide(rootPane);
+                                LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
                                 String[] key = {"role", "accountData"};
                                 Object[] data = {UserRole.EMPLOYEE, employee};
 

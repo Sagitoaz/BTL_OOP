@@ -7,14 +7,12 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
-import org.example.oop.Utils.LoadingOverlay;
-import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.layout.StackPane;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 public class CustomerDashBoardController extends BaseController {
 
@@ -33,59 +31,32 @@ public class CustomerDashBoardController extends BaseController {
     public void initialize() {
         System.out.println("🔵 CustomerDashboard: Initializing...");
 
-        // Hiển thị loading overlay
-        LoadingOverlay.show(rootPane, "Đang tải Dashboard...", "Đang xác thực phiên làm việc");
+        if (!SessionValidator.validateCustomerSession()) {
+            System.err.println("❌ CustomerDashboard: Session validation failed");
+            Platform.runLater(() -> {
+                ErrorHandler.showCustomError(401,
+                        "Phiên đăng nhập đã hết hạn.\n\nVui lòng đăng nhập lại.");
+                redirectToLogin("Session validation failed");
+            });
+            return;
+        }
 
-        // Chạy initialization trong background thread
-        new Thread(() -> {
-            try {
-                if (!SessionValidator.validateCustomerSession()) {
-                    System.err.println("❌ CustomerDashboard: Session validation failed");
-                    Platform.runLater(() -> {
-                        LoadingOverlay.hide(rootPane);
-                        ErrorHandler.showCustomError(401,
-                                "Phiên đăng nhập đã hết hạn.\n\nVui lòng đăng nhập lại.");
-                        redirectToLogin("Session validation failed");
-                    });
-                    return;
-                }
+        try {
+            loadCustomerData();
+        } catch (Exception e) {
+            System.err.println("❌ CustomerDashboard: Failed to load customer data");
+            handleInitializationError(e);
+            return;
+        }
 
-                // Cập nhật loading message
-                Platform.runLater(() ->
-                    LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin bệnh nhân")
-                );
+        if (!validateCustomerRole()) {
+            System.err.println("❌ CustomerDashboard: Role validation failed");
+            return;
+        }
 
-                loadCustomerData();
+        setupUI();
 
-                if (!validateCustomerRole()) {
-                    System.err.println("❌ CustomerDashboard: Role validation failed");
-                    Platform.runLater(() -> LoadingOverlay.hide(rootPane));
-                    return;
-                }
-
-                // Cập nhật loading message
-                Platform.runLater(() ->
-                    LoadingOverlay.show(rootPane, "Đang hoàn tất...", "Đang thiết lập giao diện")
-                );
-
-                Platform.runLater(() -> {
-                    setupUI();
-                });
-
-                System.out.println("✅ CustomerDashboard: Initialization complete");
-
-                // Ẩn loading sau khi hoàn thành
-                Thread.sleep(300);
-                Platform.runLater(() -> LoadingOverlay.hide(rootPane));
-
-            } catch (Exception e) {
-                System.err.println("❌ CustomerDashboard: Failed to load customer data");
-                Platform.runLater(() -> {
-                    LoadingOverlay.hide(rootPane);
-                    handleInitializationError(e);
-                });
-            }
-        }).start();
+        System.out.println("✅ CustomerDashboard: Initialization complete");
     }
 
     private void loadCustomerData() throws Exception {

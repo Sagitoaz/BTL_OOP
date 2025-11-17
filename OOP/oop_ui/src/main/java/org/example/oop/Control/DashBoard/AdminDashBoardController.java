@@ -47,70 +47,43 @@ public class AdminDashBoardController extends BaseController {
     public void initialize() {
         System.out.println("🔵 AdminDashboard: Initializing...");
 
-        // Hiển thị loading overlay
-        LoadingOverlay.show(rootPane, "Đang tải Dashboard...", "Đang xác thực phiên làm việc");
+        // BƯỚC 1: Validate session (đồng bộ)
+        if (!SessionValidator.validateEmployeeSession()) {
+            System.err.println("❌ AdminDashboard: Session validation failed - redirecting to login");
+            Platform.runLater(() -> {
+                ErrorHandler.showCustomError(401,
+                        "Phiên đăng nhập đã hết hạn.\n\n" +
+                                "Vui lòng đăng nhập lại để tiếp tục.");
+                redirectToLogin("Session validation failed");
+            });
+            return;
+        }
 
-        // Chạy initialization trong background thread
-        new Thread(() -> {
-            try {
-                // BƯỚC 1: Validate session (đồng bộ)
-                if (!SessionValidator.validateEmployeeSession()) {
-                    System.err.println("❌ AdminDashboard: Session validation failed - redirecting to login");
-                    Platform.runLater(() -> {
-                        LoadingOverlay.hide(rootPane);
-                        ErrorHandler.showCustomError(401,
-                                "Phiên đăng nhập đã hết hạn.\n\n" +
-                                        "Vui lòng đăng nhập lại để tiếp tục.");
-                        redirectToLogin("Session validation failed");
-                    });
-                    return;
-                }
+        try {
+            loadEmployeeData();
+            System.out.println("✅ AdminDashboard: Employee data loaded");
+        } catch (Exception e) {
+            System.err.println("❌ AdminDashboard: Failed to load employee data");
+            handleInitializationError(e);
+            return;
+        }
 
-                // Cập nhật loading message
-                Platform.runLater(() ->
-                    LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin người dùng")
-                );
+        if (!validateAdminRole()) {
+            System.err.println("❌ AdminDashboard: Role validation failed");
+            return;
+        }
 
-                loadEmployeeData();
-                System.out.println("✅ AdminDashboard: Employee data loaded");
+        try {
+            setupUI();
+            System.out.println("✅ AdminDashboard: UI setup complete");
+        } catch (Exception e) {
+            System.err.println("❌ AdminDashboard: Failed to setup UI");
+            e.printStackTrace();
+        }
 
-                if (!validateAdminRole()) {
-                    System.err.println("❌ AdminDashboard: Role validation failed");
-                    Platform.runLater(() -> LoadingOverlay.hide(rootPane));
-                    return;
-                }
+        loadDashboardStatistics();
 
-                // Cập nhật loading message
-                Platform.runLater(() ->
-                    LoadingOverlay.show(rootPane, "Đang hoàn tất...", "Đang thiết lập giao diện")
-                );
-
-                Platform.runLater(() -> {
-                    try {
-                        setupUI();
-                        System.out.println("✅ AdminDashboard: UI setup complete");
-                    } catch (Exception e) {
-                        System.err.println("❌ AdminDashboard: Failed to setup UI");
-                        e.printStackTrace();
-                    }
-                });
-
-                loadDashboardStatistics();
-
-                System.out.println("✅ AdminDashboard: Initialization complete");
-
-                // Ẩn loading sau khi hoàn thành (với delay nhỏ để mượt mà)
-                Thread.sleep(300);
-                Platform.runLater(() -> LoadingOverlay.hide(rootPane));
-
-            } catch (Exception e) {
-                System.err.println("❌ AdminDashboard: Failed to load employee data");
-                Platform.runLater(() -> {
-                    LoadingOverlay.hide(rootPane);
-                    handleInitializationError(e);
-                });
-            }
-        }).start();
+        System.out.println("✅ AdminDashboard: Initialization complete");
     }
 
     private void loadEmployeeData() throws Exception {
