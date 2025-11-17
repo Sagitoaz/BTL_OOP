@@ -61,7 +61,6 @@ public class PrescriptionController
             } catch (Exception e) {
                 // JSON parsing hoặc lỗi khác
                 System.err.println("❌ General error creating prescription: " + e.getMessage());
-                e.printStackTrace();
                 return HttpResponse.of(400, "text/plain; charset=utf-8",
                         HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
             }
@@ -146,7 +145,6 @@ public class PrescriptionController
           } catch (Exception e) {
               // JSON parsing hoặc lỗi khác
               System.err.println("❌ General error updating prescription: " + e.getMessage());
-              e.printStackTrace();
               return HttpResponse.of(400, "text/plain; charset=utf-8",
                       HttpConstants.REASON_BAD_REQUEST.getBytes(StandardCharsets.UTF_8));
           }

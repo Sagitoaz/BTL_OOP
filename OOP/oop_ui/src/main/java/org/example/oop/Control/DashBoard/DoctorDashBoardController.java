@@ -136,7 +136,6 @@ public class DoctorDashBoardController extends BaseController {
 
     private void handleInitializationError(Exception e) {
         System.err.println("Initialization error : " + e.getMessage());
-        e.printStackTrace();
         Platform.runLater(() -> {
             ErrorHandler.showCustomError(500,
                     "Không thể khởi tạo trang bác sĩ.\n\n" +
@@ -225,7 +224,7 @@ public class DoctorDashBoardController extends BaseController {
     }
 
     private boolean isGoingBackToLogin() {
-        return true; // Dashboard thường là trang đầu sau login
+        return true;
     }
 
     private boolean showConfirmation(String title, String message) {
@@ -244,6 +243,11 @@ public class DoctorDashBoardController extends BaseController {
             SceneManager.removeSceneData("accountData");
             SceneManager.removeSceneData("authToken");
             SceneManager.removeSceneData("role");
+            SessionStorage.clear();
+            
+            // Clear Login page from cache to force re-initialization
+            SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
+            
             SafeNavigator.navigate(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
             System.out.println("Logout successful");
         } catch (Exception e) {

@@ -59,9 +59,7 @@
 
                     <MenuButton fx:id="nameField" styleClass="user-menu-button" text="Bệnh nhân">
                         <items>
-                            <MenuItem text="Thông tin cá nhân" />
-                            <MenuItem text="Cài đặt" />
-                            <MenuItem text="Đăng xuất" />
+                            <MenuItem onAction="#handleLogout" text="🚪 Đăng xuất" />
                         </items>
                     </MenuButton>
                 </HBox>

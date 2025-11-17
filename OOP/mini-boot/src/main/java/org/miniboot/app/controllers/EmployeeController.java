@@ -58,7 +58,6 @@ public class EmployeeController {
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in getAllEmployees(): " + e.getMessage());
-                    e.printStackTrace();
                     return Json.error(500, "Error fetching employees: " + e.getMessage());
                }
           };
@@ -120,7 +119,10 @@ public class EmployeeController {
                     employee.setEmail(email);
                     employee.setPhone((String) data.get("phone"));
                     employee.setAvatar((String) data.get("avatar"));
-                    employee.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
+                    // ⚡ Fix: Handle null boolean safely
+                    Object activeObj = data.get("active");
+                    boolean isActive = activeObj instanceof Boolean ? (Boolean) activeObj : true;
+                    employee.setActive(isActive);
 
                     // Save to database
                     Employee saved = repository.save(employee);
@@ -130,7 +132,6 @@ public class EmployeeController {
 
                } catch (Exception e) {
                     System.err.println("❌ ERROR in createEmployee(): " + e.getMessage());
-                    e.printStackTrace();
                     return Json.error(500, "Error creating employee: " + e.getMessage());
                }
           };
@@ -150,11 +151,11 @@ public class EmployeeController {
                     // Lấy ID từ body (bắt buộc)
                     Object rawId = data.get("id");
                     Integer id = null;
-                    if (rawId instanceof Number) {
-                         id = ((Number) rawId).intValue();
-                    } else if (rawId instanceof String) {
+                    if (rawId instanceof Number num) {  // ⚡ Pattern matching
+                         id = num.intValue();
+                    } else if (rawId instanceof String str) {  // ⚡ Pattern matching
                          try {
-                              id = Integer.parseInt(((String) rawId).trim());
+                              id = Integer.parseInt(str);  // ⚡ Removed unnecessary trim
                          } catch (Exception ignore) {
                          }
                     }
