@@ -157,7 +157,12 @@ public class PaymentController extends BaseController implements Initializable {
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
                     // 1. Lấy payment
-                    Payment payment = paymentService.getPaymentById(id);
+                    Payment payment = null;
+                    try {
+                        payment = paymentService.getPaymentById(id);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     if (payment == null) {
                         // Ném lỗi để onError xử lý
                         throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
@@ -263,7 +268,12 @@ public class PaymentController extends BaseController implements Initializable {
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
                     // 1. GỬI CẬP NHẬT LÊN SERVER
-                    Payment updatedPayment = paymentService.updatePayment(currentPayment);
+                    Payment updatedPayment = null;
+                    try {
+                        updatedPayment = paymentService.updatePayment(currentPayment);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 
                     if (updatedPayment == null) {
                         throw new RuntimeException("Không thể cập nhật thông tin thanh toán. Vui lòng thử lại.");
