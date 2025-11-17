@@ -275,4 +275,18 @@ public class NurseDashBoardController extends BaseController {
                 .map(response -> response == yesButton)
                 .orElse(false);
     }
+
+    @FXML
+    private void handleLogout() {
+        System.out.println("🔄 Nurse: Logging out...");
+
+        // Confirmation dialog
+        boolean confirmed = showConfirmation(
+                "Đăng xuất",
+                "Bạn có chắc chắn muốn đăng xuất?");
+
+        if (confirmed) {
+            logout();
+        }
+    }
 }

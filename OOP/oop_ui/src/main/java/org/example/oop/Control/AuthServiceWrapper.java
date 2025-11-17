@@ -38,10 +38,11 @@ public class AuthServiceWrapper {
             if (sessionOpt.isPresent()) {
                 String sessionId = sessionOpt.get();
 
+
                 // Lấy thông tin user từ session để lưu vào SessionStorage
                 Method getCurrentSessionMethod = authServiceInstance.getClass().getMethod("getCurrentSession", String.class);
                 Optional<?> currentSessionOpt = (Optional<?>) getCurrentSessionMethod.invoke(authServiceInstance, sessionId);
-
+                System.out.println("✓ Login successful, sessionId: " + currentSessionOpt.get());
                 if (currentSessionOpt.isPresent()) {
                     Object session = currentSessionOpt.get();
 

@@ -255,4 +255,18 @@ public class DoctorDashBoardController extends BaseController {
             showError("Lỗi khi đăng xuất" + e.getMessage());
         }
     }
+
+    @FXML
+    private void handleLogout() {
+        System.out.println("🔄 Doctor: Logging out...");
+
+        // Confirmation dialog
+        boolean confirmed = showConfirmation(
+                "Đăng xuất",
+                "Bạn có chắc chắn muốn đăng xuất?");
+
+        if (confirmed) {
+            logout();
+        }
+    }
 }

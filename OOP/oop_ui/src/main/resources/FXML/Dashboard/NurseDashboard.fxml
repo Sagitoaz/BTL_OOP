@@ -51,9 +51,12 @@
                     </HBox>
 
                     <VBox spacing="5" HBox.hgrow="ALWAYS">
-                        <Label prefHeight="32.0" prefWidth="283.0" styleClass="dashboard-title" text="Trang Làm Việc Y Tá" />
-                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-font-weight: 500;" text="Hỗ trợ chăm sóc và quản lý bệnh nhân hiệu quả" />
+                        <Label styleClass="dashboard-title" text="Trang Y Tá" />
+                        <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 14px; -fx-font-weight: 500;" text="Hỗ trợ khám chữa bệnh và quản lý bệnh nhân" />
                     </VBox>
+
+                    <!-- Logout Button -->
+                    <Button fx:id="logoutButton" onAction="#handleLogout" style="-fx-background-color: rgba(239, 68, 68, 0.9); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700; -fx-padding: 12px 24px; -fx-background-radius: 12px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);" text="🚪 Đăng xuất" />
                 </HBox>
 
                 <!-- Content Body -->
@@ -138,4 +141,3 @@
         </center>
     </BorderPane>
 </AnchorPane>
-
