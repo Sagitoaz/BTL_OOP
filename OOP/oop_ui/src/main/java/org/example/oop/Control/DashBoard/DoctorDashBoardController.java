@@ -240,9 +240,8 @@ public class DoctorDashBoardController extends BaseController {
 
     private void logout() {
         try {
-            SceneManager.removeSceneData("accountData");
-            SceneManager.removeSceneData("authToken");
-            SceneManager.removeSceneData("role");
+            SceneManager.clearSceneData();
+            SceneManager.clearCache();
             SessionStorage.clear();
             
             // Clear Login page from cache to force re-initialization
