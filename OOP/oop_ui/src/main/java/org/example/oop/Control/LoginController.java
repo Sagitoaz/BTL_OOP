@@ -13,6 +13,8 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Service.HttpAuthService;
+import org.example.oop.Utils.ApiConfig;
 import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
@@ -188,7 +190,25 @@ public class LoginController {
         // Chạy login trong background thread
         new Thread(() -> {
             try {
-                // Sử dụng AuthServiceWrapper để login qua backend
+                // Step 1: Get JWT token via HTTP authentication
+                HttpAuthService.LoginResult loginResult = HttpAuthService.getInstance().login(username, password);
+                
+                if (!loginResult.isSuccess()) {
+                    LOGGER.warning("HTTP login failed: " + loginResult.getErrorMessage());
+                    Platform.runLater(() -> {
+                        LoadingOverlay.hide(rootPane);
+                        showErrorMessage("Đăng nhập thất bại: " + loginResult.getErrorMessage());
+                        if (loginButton != null) loginButton.setDisable(false);
+                    });
+                    return;
+                }
+                
+                // Store JWT token
+                String jwtToken = loginResult.getAccessToken();
+                SessionStorage.setJwtToken(jwtToken);
+                LOGGER.info("JWT token obtained and stored");
+                
+                // Step 2: Also call session-based login for backward compatibility
                 Optional<String> sessionOpt = AuthServiceWrapper.login(username, password);
 
                 if (sessionOpt.isPresent()) {
@@ -280,7 +300,9 @@ public class LoginController {
                                 LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin nhân viên")
                             );
 
-                            HttpEmployeeService employeeService = new HttpEmployeeService();
+                            // Create employee service with JWT token
+                            String token = SessionStorage.getJwtToken();
+                            HttpEmployeeService employeeService = new HttpEmployeeService(ApiConfig.getBaseUrl(), token);
                             Employee employee = employeeService.getEmployeeById(userId);
 
                             // Delay nhỏ

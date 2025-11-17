@@ -12,6 +12,7 @@ public class SessionStorage {
     private static int currentUserId;
     private static String currentUserRole;
     private static String currentUsername;
+    private static String jwtToken; // JWT token for API authentication
 
     // Dữ liệu cho reset password
     private static String resetToken;
@@ -49,6 +50,15 @@ public class SessionStorage {
 
     public static String getCurrentUsername() {
         return currentUsername;
+    }
+
+    // JWT token methods
+    public static void setJwtToken(String token) {
+        jwtToken = token;
+    }
+
+    public static String getJwtToken() {
+        return jwtToken;
     }
 
     // Reset password methods
@@ -106,6 +116,7 @@ public class SessionStorage {
         currentUserId = 0;
         currentUserRole = null;
         currentUsername = null;
+        jwtToken = null;
         clearResetToken();
     }
 }
