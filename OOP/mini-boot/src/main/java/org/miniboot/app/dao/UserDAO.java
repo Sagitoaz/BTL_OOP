@@ -32,24 +32,39 @@ public class UserDAO {
      * Tìm user theo username
      * Tìm kiếm trong 3 bảng: Admins, Employees, Customers
      */
-    public Optional<UserRecord> findByUsername(String username) {
+    public Optional<UserRecord> findByUsername(String username) throws SQLException {
         // Tìm trong Admins
-        Optional<UserRecord> admin = findAdminByUsername(username);
-        if (admin.isPresent()) return admin;
+        try{
+            Optional<UserRecord> admin = findAdminByUsername(username);
+            if (admin.isPresent()) return admin;
+        }
+        catch (SQLException e){
+            throw new SQLException(e);
+        }
 
         // Tìm trong Employees
-        Optional<UserRecord> employee = findEmployeeByUsername(username);
-        if (employee.isPresent()) return employee;
+        try{
+            Optional<UserRecord> employee = findEmployeeByUsername(username);
+            if (employee.isPresent()) return employee;
+        }
+        catch (SQLException e){
+            throw new SQLException(e);
+        }
 
         // Tìm trong Customers
-        Optional<UserRecord> customer = findCustomerByUsername(username);
-        return customer;
+        try {
+            Optional<UserRecord> customer = findCustomerByUsername(username);
+            if (customer.isPresent()) return customer;
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
+        return Optional.empty();
     }
 
     /**
      * Tìm admin theo username
      */
-    private Optional<UserRecord> findAdminByUsername(String username) {
+    private Optional<UserRecord> findAdminByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, email, is_active FROM Admins WHERE username = ?";
 
         try (Connection conn = dbConfig.getConnection();
@@ -71,7 +86,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -80,7 +95,7 @@ public class UserDAO {
     /**
      * Tìm employee theo username
      */
-    private Optional<UserRecord> findEmployeeByUsername(String username) {
+    private Optional<UserRecord> findEmployeeByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, firstname, lastname, role, email, phone, is_active " +
                     "FROM Employees WHERE username = ?";
 
@@ -104,7 +119,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -113,7 +128,7 @@ public class UserDAO {
     /**
      * Tìm customer theo username
      */
-    private Optional<UserRecord> findCustomerByUsername(String username) {
+    private Optional<UserRecord> findCustomerByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, password, firstname, lastname, email, phone " +
                     "FROM Customers WHERE username = ?";
 
@@ -137,7 +152,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();
@@ -146,7 +161,7 @@ public class UserDAO {
     /**
      * Tìm user theo email
      */
-    public Optional<UserRecord> findByEmail(String email) {
+    public Optional<UserRecord> findByEmail(String email) throws SQLException {
         // Tìm trong Customers trước (vì thường là customer reset password)
         String sql = "SELECT id, username, firstname, lastname, email, phone " +
                     "FROM Customers WHERE email = ?";
@@ -170,7 +185,7 @@ public class UserDAO {
             }
 
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error finding user by email: " + email, e);
+            throw new SQLException(e);
         }
 
         return Optional.empty();

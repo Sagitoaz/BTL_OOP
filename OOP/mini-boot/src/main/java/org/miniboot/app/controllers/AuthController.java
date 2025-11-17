@@ -14,6 +14,7 @@ import org.miniboot.app.router.Router;
 import org.miniboot.app.util.Json;
 import org.miniboot.app.util.errorvalidation.*;
 
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -203,7 +204,7 @@ public class AuthController {
             Optional<UserRecord> userOpt = Optional.empty();
             try{
                 userOpt = userDAO.findByUsername(username);
-            } catch (Exception e){
+            } catch (SQLException e){
                 return DatabaseErrorHandler.handleDatabaseException(e);
             }
             if (userOpt.isEmpty()) {
@@ -259,31 +260,29 @@ public class AuthController {
             String body = request.bodyText();
             String email = extractJsonField(body, "email");
 
-            // 3. Validate email
-            if (email == null || email.trim().isEmpty()) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, "Email không được để trống.");
-            }
-
-            // Validate email format
-            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                return Json.error(HttpConstants.STATUS_BAD_REQUEST, ErrorMessages.ERROR_INVALID_EMAIL);
+            HttpResponse emailValidationError = ForgotPasswordValidator.validateEmailFormat(email);
+            if (emailValidationError != null) {
+                return emailValidationError;
             }
 
             // 4. Tìm user theo email
-            Optional<UserRecord> userOpt = userDAO.findByEmail(email);
+            Optional<UserRecord> userOpt = Optional.empty();
+            try{
+                userOpt = userDAO.findByEmail(email);
+            }
+            catch (SQLException e){
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
             if (userOpt.isEmpty()) {
-                // Vì bảo mật, không nên báo email không tồn tại
-                // Trả về thông báo chung
-                LOGGER.warning("Forgot password: Email not found - " + email);
-                return Json.ok(Map.of(
-                        "message", "Nếu email tồn tại trong hệ thống, mã khôi phục đã được gửi.",
-                        "email", email
-                ));
+                return ForgotPasswordValidator.emailNotFound();
             }
 
             // 5. Tạo reset token
             String resetToken = authService.requestPasswordReset(email);
-
+            HttpResponse tokenValidationError = ForgotPasswordValidator.validateTokenFormat(resetToken);
+            if (tokenValidationError != null) {
+                return tokenValidationError;
+            }
             if (resetToken != null) {
                 LOGGER.info("✓ Password reset token created for: " + email);
 
@@ -296,12 +295,12 @@ public class AuthController {
                         "note", "Mã có hiệu lực trong 15 phút."
                 ));
             } else {
-                return Json.error(HttpConstants.STATUS_INTERNAL_SERVER_ERROR, "Không thể tạo mã khôi phục. Vui lòng thử lại sau.");
+                return ForgotPasswordValidator.emailSendingFailed();
             }
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error processing forgot password", e);
-            return Json.error(HttpConstants.STATUS_INTERNAL_SERVER_ERROR, ErrorMessages.ERROR_INTERNAL_SERVER);
+            return ForgotPasswordValidator.unexpectedError();
         }
     }
 
