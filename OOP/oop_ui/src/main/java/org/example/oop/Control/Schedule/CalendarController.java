@@ -15,7 +15,11 @@ import java.util.ResourceBundle;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.*;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.AppointmentStatus;
+import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.models.Employee;
+import org.miniboot.app.domain.models.UserRole;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -44,17 +48,17 @@ import javafx.scene.layout.VBox;
  * - Navigate tuần trước/sau
  */
 public class CalendarController implements Initializable {
-    
+
     // SERVICES
     private HttpAppointmentService appointmentService;
     private HttpDoctorService doctorService;
-    
+
     // DATA
     private List<Doctor> doctorList;
     private List<Appointment> appointmentList;
     private Doctor selectedDoctor;
     private LocalDate currentWeekStart; // Thứ 2 của tuần hiện tại
-    
+
     // CONSTANTS
     private static final LocalTime START_TIME = LocalTime.of(8, 0);
     private static final LocalTime END_TIME = LocalTime.of(20, 0);
@@ -62,31 +66,46 @@ public class CalendarController implements Initializable {
     public static final int PIXELS_PER_HOUR = 60; // 1 giờ = 60px
     public static final int TOTAL_HOURS = 12; // 8:00-20:00 = 12 giờ
     private static final int GRID_HEIGHT = TOTAL_HOURS * PIXELS_PER_HOUR; // 720px
-    
+
     // FXML CONTROLS
-    @FXML private GridPane calendarGrid;
-    @FXML private VBox timeLabelColumn;
-    @FXML private AnchorPane appointmentPane;
-    @FXML private ComboBox<String> doctorComboBox;
-    @FXML private ComboBox<String> roleComboBox; // Chọn role (Doctor/Nurse)
-    @FXML private ComboBox<String> employeeComboBox; // Chọn nhân viên
-    @FXML private DatePicker weekDatePicker;
-    @FXML private Button prevWeekBtn;
-    @FXML private Button nextWeekBtn;
-    @FXML private Button todayBtn;
-    @FXML private Label weekRangeLabel;
-    
+    @FXML
+    private GridPane calendarGrid;
+    @FXML
+    private VBox timeLabelColumn;
+    @FXML
+    private AnchorPane appointmentPane;
+    @FXML
+    private ComboBox<String> doctorComboBox;
+    @FXML
+    private ComboBox<String> roleComboBox; // Chọn role (Doctor/Nurse)
+    @FXML
+    private ComboBox<String> employeeComboBox; // Chọn nhân viên
+    @FXML
+    private DatePicker weekDatePicker;
+    @FXML
+    private Button prevWeekBtn;
+    @FXML
+    private Button nextWeekBtn;
+    @FXML
+    private Button todayBtn;
+    @FXML
+    private Label weekRangeLabel;
+
     // Navigation buttons
-    @FXML private Button backButton;
-    @FXML private Button forwardButton;
-    @FXML private Button reloadButton;
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button forwardButton;
+    @FXML
+    private Button reloadButton;
 
     // INITIALIZATION
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // 1. Khởi tạo services
-        appointmentService = new HttpAppointmentService();
+        // 1. Khởi tạo services with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
         doctorService = new HttpDoctorService();
 
         // 2. Khởi tạo data
@@ -102,11 +121,11 @@ public class CalendarController implements Initializable {
 
         // 5. Setup listeners
         setupListeners();
-        if(SceneManager.getSceneData("role") == UserRole.EMPLOYEE){
+        if (SceneManager.getSceneData("role") == UserRole.EMPLOYEE) {
             System.out.println("✅ CalendarController initialized for EMPLOYEE role");
             Employee emp = SceneManager.getSceneData("accountData");
 
-            if(emp.getRole().equalsIgnoreCase("doctor")){
+            if (emp.getRole().equalsIgnoreCase("doctor")) {
                 selectedDoctor = new Doctor(emp.getId(), emp.getFirstname(), emp.getLastname(), emp.getLicenseNo());
                 System.out.println("✅ Pre-selecting doctor (EMPLOYEE): " + selectedDoctor.getFullName());
                 doctorComboBox.getItems().clear();
@@ -115,13 +134,11 @@ public class CalendarController implements Initializable {
             }
         }
         // 6. Load data
-        if(doctorComboBox.getItems().isEmpty()){
+        if (doctorComboBox.getItems().isEmpty()) {
             loadDoctors();
         }
 
-
-
-        if(SceneManager.getSceneData("selectedDoctor") != null || SceneManager.getSceneData("selectedDate") != null){
+        if (SceneManager.getSceneData("selectedDoctor") != null || SceneManager.getSceneData("selectedDate") != null) {
             selectedDoctor = SceneManager.getSceneData("selectedDoctor");
             LocalDate selectedDate = SceneManager.getSceneData("selectedDate");
             if (selectedDoctor != null && selectedDate != null) {
@@ -145,13 +162,8 @@ public class CalendarController implements Initializable {
 
         System.out.println("✅ CalendarController initialized");
 
-
-
-
-
-
     }
-    
+
     private void setupListeners() {
         // DatePicker listener
         if (weekDatePicker != null) {
@@ -163,7 +175,7 @@ public class CalendarController implements Initializable {
                 }
             });
         }
-        
+
         // Doctor ComboBox listener
         if (doctorComboBox != null) {
             doctorComboBox.setOnAction(e -> {
@@ -178,40 +190,40 @@ public class CalendarController implements Initializable {
 
     private void setupTimeLabels() {
         timeLabelColumn.getChildren().clear();
-        
+
         LocalTime currentTime = START_TIME;
         while (currentTime.isBefore(END_TIME) || currentTime.equals(END_TIME)) {
             Label timeLabel = new Label(currentTime.format(DateTimeFormatter.ofPattern("HH:mm")));
             timeLabel.setPrefHeight(PIXELS_PER_HOUR / 2.0); // 30px cho mỗi 30 phút
             timeLabel.setAlignment(Pos.TOP_RIGHT);
             timeLabel.setPadding(new Insets(0, 8, 0, 0));
-            
+
             timeLabelColumn.getChildren().add(timeLabel);
-            
+
             currentTime = currentTime.plusMinutes(30);
         }
     }
-    
+
     private void setupGridLines() {
         // Set grid height
         calendarGrid.setPrefHeight(GRID_HEIGHT);
-        
+
         // Vẽ horizontal lines (mỗi 30 phút)
         for (int i = 0; i <= TOTAL_HOURS * 2; i++) {
             double y = i * (PIXELS_PER_HOUR / 2.0);
-            
+
             for (int col = 0; col < 7; col++) {
                 Pane cell = new Pane();
                 cell.setPrefHeight(PIXELS_PER_HOUR / 2.0);
-                
+
                 // Border
                 cell.setStyle("-fx-border-color: #E0E0E0; -fx-border-width: 0.5;");
-                
+
                 // Darker line mỗi giờ
                 if (i % 2 == 0) {
                     cell.setStyle("-fx-border-color: #BDBDBD; -fx-border-width: 0.5;");
                 }
-                
+
                 GridPane.setRowIndex(cell, i);
                 GridPane.setColumnIndex(cell, col);
                 calendarGrid.getChildren().add(cell);
@@ -226,16 +238,16 @@ public class CalendarController implements Initializable {
                 return doctorService.getAllDoctors();
             }
         };
-        
+
         task.setOnSucceeded(e -> {
             doctorList = task.getValue();
-            
+
             if (doctorComboBox != null) {
                 doctorComboBox.getItems().clear();
                 for (Doctor doc : doctorList) {
                     doctorComboBox.getItems().add(doc.getFullName());
                 }
-                
+
                 if (!doctorList.isEmpty()) {
                     doctorComboBox.getSelectionModel().selectFirst();
                     selectedDoctor = doctorList.get(0);
@@ -249,78 +261,80 @@ public class CalendarController implements Initializable {
                 }
             }
         });
-        
+
         task.setOnFailed(e -> {
             showError("Lỗi", "Không thể tải danh sách bác sĩ");
         });
-        
+
         new Thread(task).start();
     }
-    
+
     private void loadAppointments() {
-        if (selectedDoctor == null) return;
-        
+        if (selectedDoctor == null)
+            return;
+
         LocalDate weekEnd = currentWeekStart.plusDays(6);
-        System.out.println(selectedDoctor.getId() + " - Loading appointments for week " + currentWeekStart + " to " + weekEnd);
+        System.out.println(
+                selectedDoctor.getId() + " - Loading appointments for week " + currentWeekStart + " to " + weekEnd);
         Task<List<Appointment>> task = new Task<>() {
             @Override
             protected List<Appointment> call() {
                 return appointmentService.getByDoctorAndDateRange(
-                    selectedDoctor.getId(),
-                    currentWeekStart,
-                    weekEnd
-                );
+                        selectedDoctor.getId(),
+                        currentWeekStart,
+                        weekEnd);
             }
         };
-        
+
         task.setOnSucceeded(e -> {
             appointmentList = task.getValue();
             System.out.println("✅ Loaded " + appointmentList.size() + " appointments");
-            
+
             // Update week range label
             updateWeekRangeLabel();
-            
+
             // Render appointments
             renderAppointments();
         });
-        
+
         task.setOnFailed(e -> {
             showError("Lỗi", "Không thể tải danh sách lịch hẹn");
         });
-        
+
         new Thread(task).start();
     }
 
     private void renderAppointments() {
         // Clear existing appointments
         appointmentPane.getChildren().clear();
-        
+
         // Sort appointments by start time
         appointmentList.sort(Comparator.comparing(Appointment::getStartTime));
-        
+
         for (Appointment apt : appointmentList) {
             drawAppointmentBlock(apt);
         }
     }
-    
+
     private void drawAppointmentBlock(Appointment apt) {
         LocalDateTime startTime = apt.getStartTime();
         LocalDateTime endTime = apt.getEndTime();
-        
+
         // Tính ngày trong tuần (0=Monday, 6=Sunday)
         int dayOfWeek = startTime.getDayOfWeek().getValue() - 1; // 0-6
-        
+
         // Tính vị trí X (cột nào)
         double columnWidth = calendarGrid.getWidth() / 7.0;
-        if (columnWidth <= 0) columnWidth = 100; // Default nếu chưa render
-        
+        if (columnWidth <= 0)
+            columnWidth = 100; // Default nếu chưa render
+
         double x = dayOfWeek * columnWidth;
-        
+
         // Tính vị trí Y (hàng nào)
         double startY = calculateYPosition(startTime.toLocalTime());
         double endY = calculateYPosition(endTime.toLocalTime());
         double height = endY - startY;
-        
+
         // Tạo block
         VBox block = new VBox(3);
         block.setLayoutX(x + 2);
@@ -328,41 +342,40 @@ public class CalendarController implements Initializable {
         block.setPrefWidth(columnWidth - 4);
         block.setPrefHeight(height);
         block.setPadding(new Insets(4));
-        
+
         // Style theo status
         block.setStyle(getStyleForStatus(apt.getStatus()));
-        
+
         // Thêm thông tin
         Label timeLabel = new Label(
-            startTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
-            " - " +
-            endTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
-        );
+                startTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")) +
+                        " - " +
+                        endTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
         timeLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 10px;");
-        
+
         Label typeLabel = new Label(apt.getAppointmentType().toString());
         typeLabel.setStyle("-fx-text-fill: white; -fx-font-size: 9px;");
-        
+
         Label customerLabel = new Label("Bệnh nhân #" + apt.getCustomerId());
         customerLabel.setStyle("-fx-text-fill: white; -fx-font-size: 9px;");
-        
+
         block.getChildren().addAll(timeLabel, typeLabel, customerLabel);
-        
+
         // Click event
         block.setOnMouseClicked(e -> showAppointmentDetail(apt));
-        
+
         // Hover effect
         block.setOnMouseEntered(e -> block.setStyle(getStyleForStatus(apt.getStatus()) + "-fx-opacity: 0.8;"));
         block.setOnMouseExited(e -> block.setStyle(getStyleForStatus(apt.getStatus())));
-        
+
         appointmentPane.getChildren().add(block);
     }
-    
+
     private double calculateYPosition(LocalTime time) {
         long minutesFromStart = java.time.Duration.between(START_TIME, time).toMinutes();
         return (minutesFromStart / 60.0) * PIXELS_PER_HOUR;
     }
-    
+
     private String getStyleForStatus(AppointmentStatus status) {
         String baseStyle = "-fx-background-radius: 5; -fx-cursor: hand; ";
         switch (status) {
@@ -390,7 +403,7 @@ public class CalendarController implements Initializable {
         updateWeekRangeLabel();
         loadAppointments();
     }
-    
+
     @FXML
     private void onNextWeek() {
         currentWeekStart = currentWeekStart.plusWeeks(1);
@@ -400,7 +413,7 @@ public class CalendarController implements Initializable {
         updateWeekRangeLabel();
         loadAppointments();
     }
-    
+
     @FXML
     private void onToday() {
         currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -410,35 +423,34 @@ public class CalendarController implements Initializable {
         updateWeekRangeLabel();
         loadAppointments();
     }
-    
+
     private void updateWeekRangeLabel() {
         if (weekRangeLabel != null) {
             LocalDate weekEnd = currentWeekStart.plusDays(6);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             weekRangeLabel.setText(
-                "Tuần: " + currentWeekStart.format(formatter) + " - " + weekEnd.format(formatter)
-            );
+                    "Tuần: " + currentWeekStart.format(formatter) + " - " + weekEnd.format(formatter));
         }
     }
-    
+
     /**
      * Public method để pre-select doctor và jump to specific week
      * Called from AppointmentBookingController khi navigate to Calendar
      * 
      * @param doctor Doctor to select (có thể null)
-     * @param date Date to jump to
+     * @param date   Date to jump to
      */
     public void selectDoctorAndDate(Doctor doctor, LocalDate date) {
         System.out.println("🗓️ CalendarController.selectDoctorAndDate() called");
         System.out.println("   Doctor: " + (doctor != null ? doctor.getFullName() : "null"));
         System.out.println("   Date: " + date);
-        
+
         // 1. Select doctor nếu có
         if (doctor != null && doctorList != null) {
             for (int i = 0; i < doctorList.size(); i++) {
                 if (doctorList.get(i).getId() == doctor.getId()) {
                     selectedDoctor = doctor;
-                    
+
                     if (doctorComboBox != null) {
                         doctorComboBox.getSelectionModel().select(i);
                         System.out.println("✅ Doctor selected in ComboBox: " + doctor.getFullName());
@@ -447,52 +459,51 @@ public class CalendarController implements Initializable {
                 }
             }
         }
-        
+
         // 2. Jump to week containing date
         if (date != null) {
             currentWeekStart = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            
+
             if (weekDatePicker != null) {
                 weekDatePicker.setValue(date);
                 System.out.println("✅ DatePicker updated to: " + date);
             }
-            
+
             updateWeekRangeLabel();
         }
-        
+
         // 3. Reload appointments with new selection
         loadAppointments();
-        
+
         System.out.println("✅ Calendar pre-selection completed");
     }
-    
+
     // ==================== APPOINTMENT DETAIL ====================
-    
+
     private void showAppointmentDetail(Appointment apt) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Chi tiết lịch hẹn");
         alert.setHeaderText("Appointment #" + apt.getId());
-        
+
         String content = String.format(
-            "Bệnh nhân ID: %d\n" +
-            "Bác sĩ ID: %d\n" +
-            "Loại: %s\n" +
-            "Thời gian: %s - %s\n" +
-            "Trạng thái: %s\n" +
-            "Ghi chú: %s",
-            apt.getCustomerId(),
-            apt.getDoctorId(),
-            apt.getAppointmentType(),
-            apt.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-            apt.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-            apt.getStatus(),
-            apt.getNotes() != null ? apt.getNotes() : "Không có"
-        );
-        
+                "Bệnh nhân ID: %d\n" +
+                        "Bác sĩ ID: %d\n" +
+                        "Loại: %s\n" +
+                        "Thời gian: %s - %s\n" +
+                        "Trạng thái: %s\n" +
+                        "Ghi chú: %s",
+                apt.getCustomerId(),
+                apt.getDoctorId(),
+                apt.getAppointmentType(),
+                apt.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                apt.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                apt.getStatus(),
+                apt.getNotes() != null ? apt.getNotes() : "Không có");
+
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
+
     private void showError(String title, String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.ERROR);

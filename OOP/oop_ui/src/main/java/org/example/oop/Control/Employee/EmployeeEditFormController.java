@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 
 public class EmployeeEditFormController extends BaseController {
 
-    private final HttpEmployeeService service = new HttpEmployeeService();
+    private HttpEmployeeService service;
     private Employee employeeToEdit;
 
     @FXML
@@ -53,11 +53,14 @@ public class EmployeeEditFormController extends BaseController {
 
     @FXML
     public void initialize() {
-        if(SceneManager.getSceneData("employeeEdit") == null) {
+        // Initialize service with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        service = new HttpEmployeeService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+
+        if (SceneManager.getSceneData("employeeEdit") == null) {
             System.err.println("Không tìm thấy dữ liệu nhân viên để chỉnh sửa");
             return;
-        }
-        else{
+        } else {
             Employee emp = (Employee) SceneManager.getSceneData("employeeEdit");
             setEmployeeForEdit(emp);
             SceneManager.removeSceneData("employeeEdit");

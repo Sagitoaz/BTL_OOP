@@ -1,5 +1,23 @@
 package org.example.oop.Control;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpAuthService;
+import org.example.oop.Service.HttpEmployeeService;
+import org.example.oop.Utils.ApiConfig;
+import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.LoadingOverlay;
+import org.example.oop.Utils.SceneConfig;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.Admin;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.Employee;
+import org.miniboot.app.domain.models.UserRole;
+
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -7,27 +25,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import org.example.oop.Service.CustomerRecordService;
-import org.example.oop.Service.HttpEmployeeService;
-import org.example.oop.Service.HttpAuthService;
-import org.example.oop.Utils.ApiConfig;
-import org.example.oop.Utils.ApiResponse;
-import org.example.oop.Utils.SceneConfig;
-import org.example.oop.Utils.SceneManager;
-import org.example.oop.Utils.LoadingOverlay;
-import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.domain.models.Employee;
-import org.miniboot.app.domain.models.UserRole;
-import org.miniboot.app.domain.models.Admin;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class LoginController {
 
@@ -69,6 +70,31 @@ public class LoginController {
         errorMessageTimer = new PauseTransition(Duration.seconds(5));
         errorMessageTimer.setOnFinished(event -> hideErrorMessage());
 
+        // Thêm xử lý phím Enter cho các trường nhập liệu
+        if (usernameTextField != null) {
+            usernameTextField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    LoginButtonOnClick(null);
+                }
+            });
+        }
+
+        if (enterPasswordTextField != null) {
+            enterPasswordTextField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    LoginButtonOnClick(null);
+                }
+            });
+        }
+
+        if (visiblePasswordTextField != null) {
+            visiblePasswordTextField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                    LoginButtonOnClick(null);
+                }
+            });
+        }
+
         // Đồng bộ nội dung giữa PasswordField và TextField
         enterPasswordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!isPasswordVisible) {
@@ -94,9 +120,11 @@ public class LoginController {
         enterPasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
         visiblePasswordTextField.setOnMouseClicked(event -> hideErrorMessage());
 
-        usernameTextField.setOnKeyPressed(event -> hideErrorMessage());
-        enterPasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
-        visiblePasswordTextField.setOnKeyPressed(event -> hideErrorMessage());
+        // Note: setOnKeyPressed for Enter is already set in initialize()
+        // We only add additional key typed listener here for hiding error messages
+        usernameTextField.setOnKeyTyped(event -> hideErrorMessage());
+        enterPasswordTextField.setOnKeyTyped(event -> hideErrorMessage());
+        visiblePasswordTextField.setOnKeyTyped(event -> hideErrorMessage());
     }
 
     /**
@@ -157,9 +185,12 @@ public class LoginController {
     }
 
     private String validateInput(String user, String pass) {
-        if (user.isEmpty() && pass.isEmpty()) return "Vui lòng nhập tên đăng nhập và mật khẩu";
-        if (user.isEmpty()) return "Vui lòng nhập tên đăng nhập";
-        if (pass.isEmpty()) return "Vui lòng nhập mật khẩu";
+        if (user.isEmpty() && pass.isEmpty())
+            return "Vui lòng nhập tên đăng nhập và mật khẩu";
+        if (user.isEmpty())
+            return "Vui lòng nhập tên đăng nhập";
+        if (pass.isEmpty())
+            return "Vui lòng nhập mật khẩu";
         return null;
     }
 
@@ -168,9 +199,8 @@ public class LoginController {
         hideErrorMessage();
 
         String username = usernameTextField.getText().trim();
-        String password = isPasswordVisible ?
-                         visiblePasswordTextField.getText().trim() :
-                         enterPasswordTextField.getText().trim();
+        String password = isPasswordVisible ? visiblePasswordTextField.getText().trim()
+                : enterPasswordTextField.getText().trim();
 
         // Validate input
         String msg = validateInput(username, password);
@@ -192,22 +222,23 @@ public class LoginController {
             try {
                 // Step 1: Get JWT token via HTTP authentication
                 HttpAuthService.LoginResult loginResult = HttpAuthService.getInstance().login(username, password);
-                
+
                 if (!loginResult.isSuccess()) {
                     LOGGER.warning("HTTP login failed: " + loginResult.getErrorMessage());
                     Platform.runLater(() -> {
                         LoadingOverlay.hide(rootPane);
                         showErrorMessage("Đăng nhập thất bại: " + loginResult.getErrorMessage());
-                        if (loginButton != null) loginButton.setDisable(false);
+                        if (loginButton != null)
+                            loginButton.setDisable(false);
                     });
                     return;
                 }
-                
+
                 // Store JWT token
                 String jwtToken = loginResult.getAccessToken();
                 SessionStorage.setJwtToken(jwtToken);
                 LOGGER.info("JWT token obtained and stored");
-                
+
                 // Step 2: Also call session-based login for backward compatibility
                 Optional<String> sessionOpt = AuthServiceWrapper.login(username, password);
 
@@ -215,7 +246,7 @@ public class LoginController {
                     String sessionId = sessionOpt.get();
                     SessionStorage.setCurrentSessionId(sessionId);
                     LOGGER.info("Login successful: " + SessionStorage.getCurrentUsername() +
-                               " [" + SessionStorage.getCurrentUserRole() + "]");
+                            " [" + SessionStorage.getCurrentUserRole() + "]");
 
                     // Redirect to dashboard based on role
                     String role = SessionStorage.getCurrentUserRole();
@@ -239,33 +270,33 @@ public class LoginController {
                         Platform.runLater(() -> {
                             hideErrorMessage();
                             LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
-                            String[] key = {"role", "accountData"};
-                            Object[] data = {UserRole.ADMIN, admin};
+                            String[] key = { "role", "accountData", "authToken" };
+                            Object[] data = { UserRole.ADMIN, admin, jwtToken };
                             SceneManager.switchSceneWithData(SceneConfig.ADMIN_DASHBOARD_FXML,
-                                                            SceneConfig.Titles.DASHBOARD, key, data);
+                                    SceneConfig.Titles.DASHBOARD, key, data);
                         });
 
                     } else if (role.equalsIgnoreCase("CUSTOMER")) {
                         try {
-                            Platform.runLater(() ->
-                                LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin khách hàng")
-                            );
+                            Platform.runLater(() -> LoadingOverlay.show(rootPane, "Đang tải dữ liệu...",
+                                    "Đang tải thông tin khách hàng"));
 
                             // Lấy thông tin customer từ API endpoint
                             LOGGER.info("Fetching customer data for userId: " + userId);
-                            ApiResponse<List<Customer>> customerResponse = CustomerRecordService.getInstance().searchCustomers(
-                                    String.valueOf(userId),
-                                    null,
-                                    null,
-                                    null
-                            );
+                            ApiResponse<List<Customer>> customerResponse = CustomerRecordService.getInstance()
+                                    .searchCustomers(
+                                            String.valueOf(userId),
+                                            null,
+                                            null,
+                                            null);
 
                             // Kiểm tra response trước khi lấy data
                             if (!customerResponse.isSuccess()) {
                                 LOGGER.severe("Customer search failed: " + customerResponse.getErrorMessage());
-                                throw new RuntimeException("Failed to fetch customer data: " + customerResponse.getErrorMessage());
+                                throw new RuntimeException(
+                                        "Failed to fetch customer data: " + customerResponse.getErrorMessage());
                             }
-                            
+
                             if (customerResponse.getData() == null || customerResponse.getData().isEmpty()) {
                                 LOGGER.severe("Customer data is null or empty");
                                 throw new RuntimeException("No customer data found for userId: " + userId);
@@ -280,29 +311,30 @@ public class LoginController {
                             Platform.runLater(() -> {
                                 hideErrorMessage();
                                 LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
-                                String[] key = {"role", "accountData"};
-                                Object[] data = {UserRole.CUSTOMER, customer};
+                                String[] key = { "role", "accountData", "authToken" };
+                                Object[] data = { UserRole.CUSTOMER, customer, jwtToken };
                                 SceneManager.switchSceneWithData(SceneConfig.CUSTOMER_DASHBOARD_FXML,
-                                                                SceneConfig.Titles.DASHBOARD, key, data);
+                                        SceneConfig.Titles.DASHBOARD, key, data);
                             });
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, "Error loading customer data", e);
                             Platform.runLater(() -> {
                                 LoadingOverlay.hide(rootPane);
                                 showErrorMessage("Lỗi tải dữ liệu khách hàng. Vui lòng thử lại.");
-                                if (loginButton != null) loginButton.setDisable(false);
+                                if (loginButton != null)
+                                    loginButton.setDisable(false);
                             });
                         }
 
                     } else if (role.equalsIgnoreCase("EMPLOYEE")) {
                         try {
-                            Platform.runLater(() ->
-                                LoadingOverlay.show(rootPane, "Đang tải dữ liệu...", "Đang tải thông tin nhân viên")
-                            );
+                            Platform.runLater(() -> LoadingOverlay.show(rootPane, "Đang tải dữ liệu...",
+                                    "Đang tải thông tin nhân viên"));
 
                             // Create employee service with JWT token
                             String token = SessionStorage.getJwtToken();
-                            HttpEmployeeService employeeService = new HttpEmployeeService(ApiConfig.getBaseUrl(), token);
+                            HttpEmployeeService employeeService = new HttpEmployeeService(ApiConfig.getBaseUrl(),
+                                    token);
                             Employee employee = employeeService.getEmployeeById(userId);
 
                             // Delay nhỏ
@@ -311,33 +343,35 @@ public class LoginController {
                             Platform.runLater(() -> {
                                 hideErrorMessage();
                                 LoadingOverlay.hide(rootPane); // ẨN LOADING TRƯỚC KHI CHUYỂN SCENE
-                                String[] key = {"role", "accountData"};
-                                Object[] data = {UserRole.EMPLOYEE, employee};
+                                String[] key = { "role", "accountData", "authToken" };
+                                Object[] data = { UserRole.EMPLOYEE, employee, jwtToken };
 
                                 if (employee.getRole().equalsIgnoreCase("doctor")) {
                                     SceneManager.switchSceneWithData(SceneConfig.DOCTOR_DASHBOARD_FXML,
-                                                                    SceneConfig.Titles.DASHBOARD, key, data);
+                                            SceneConfig.Titles.DASHBOARD, key, data);
                                 } else {
                                     SceneManager.switchSceneWithData(SceneConfig.NURSE_DASHBOARD_FXML,
-                                                                    SceneConfig.Titles.DASHBOARD, key, data);
+                                            SceneConfig.Titles.DASHBOARD, key, data);
                                 }
                             });
 
                             LOGGER.info("Login as employee: " + employee.getFirstname() +
-                                       " " + employee.getLastname());
+                                    " " + employee.getLastname());
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, "Error loading employee data", e);
                             Platform.runLater(() -> {
                                 LoadingOverlay.hide(rootPane);
                                 showErrorMessage("Lỗi tải dữ liệu nhân viên. Vui lòng thử lại.");
-                                if (loginButton != null) loginButton.setDisable(false);
+                                if (loginButton != null)
+                                    loginButton.setDisable(false);
                             });
                         }
                     } else {
                         Platform.runLater(() -> {
                             LoadingOverlay.hide(rootPane);
                             showErrorMessage("Vai trò không hợp lệ");
-                            if (loginButton != null) loginButton.setDisable(false);
+                            if (loginButton != null)
+                                loginButton.setDisable(false);
                         });
                     }
 
@@ -345,7 +379,8 @@ public class LoginController {
                     Platform.runLater(() -> {
                         LoadingOverlay.hide(rootPane);
                         showErrorMessage("Tên đăng nhập hoặc mật khẩu không đúng");
-                        if (loginButton != null) loginButton.setDisable(false);
+                        if (loginButton != null)
+                            loginButton.setDisable(false);
                     });
                 }
 
@@ -354,7 +389,8 @@ public class LoginController {
                 Platform.runLater(() -> {
                     LoadingOverlay.hide(rootPane);
                     showErrorMessage("Lỗi đăng nhập. Vui lòng thử lại.");
-                    if (loginButton != null) loginButton.setDisable(false);
+                    if (loginButton != null)
+                        loginButton.setDisable(false);
                 });
             }
         }).start();

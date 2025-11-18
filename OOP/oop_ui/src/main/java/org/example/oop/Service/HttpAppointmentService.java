@@ -28,6 +28,7 @@ import java.util.Optional;
 public class HttpAppointmentService {
 
     private final String baseUrl;
+    private final String bearerToken;
     private final HttpClient httpClient;
     private final Gson gson;
 
@@ -35,16 +36,36 @@ public class HttpAppointmentService {
      * Constructor mặc định - kết nối localhost:8080
      */
     public HttpAppointmentService() {
-        this( ApiConfig.getBaseUrl());
+        this(ApiConfig.getBaseUrl(), null);
     }
 
     /**
      * Constructor với custom URL
      */
     public HttpAppointmentService(String baseUrl) {
+        this(baseUrl, null);
+    }
+
+    /**
+     * Constructor với custom URL và token
+     */
+    public HttpAppointmentService(String baseUrl, String bearerToken) {
         this.baseUrl = baseUrl;
+        this.bearerToken = bearerToken;
         this.httpClient = HttpClient.newHttpClient();
         this.gson = GsonProvider.getGson();
+    }
+
+    private HttpRequest.Builder requestBuilder(String path) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + path))
+                .header("Accept", "application/json");
+
+        if (bearerToken != null && !bearerToken.isBlank()) {
+            builder.header("Authorization", "Bearer " + bearerToken);
+        }
+
+        return builder;
     }
 
     /**
@@ -52,10 +73,8 @@ public class HttpAppointmentService {
      */
     public List<Appointment> getAllAppointments() {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/appointments"))
+            HttpRequest request = requestBuilder("/appointments")
                     .GET()
-                    .header("Accept", "application/json")
                     .build();
 
             HttpResponse<String> response = httpClient.send(request,
@@ -83,23 +102,22 @@ public class HttpAppointmentService {
      */
     public List<Appointment> getByDoctorAndDate(int doctorId, LocalDate date) {
         try {
-            String url = String.format("%s/appointments?doctorId=%d&date=%s",
-                    baseUrl, doctorId, date.toString());
-            
-            System.out.println("🔍 DEBUG: Calling API: " + url);
-            
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
+            String path = String.format("/appointments?doctorId=%d&date=%s",
+                    doctorId, date.toString());
+
+            System.out.println("🔍 DEBUG: Calling API: " + baseUrl + path);
+
+            HttpRequest request = requestBuilder(path)
                     .GET()
-                    .header("Accept", "application/json")
                     .build();
 
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                List<Appointment> appointments = gson.fromJson(response.body(), 
-                        new TypeToken<List<Appointment>>(){}.getType());
+                List<Appointment> appointments = gson.fromJson(response.body(),
+                        new TypeToken<List<Appointment>>() {
+                        }.getType());
                 System.out.println("✅ DEBUG: Received " + appointments.size() + " appointments");
                 // Debug first appointment if exists
                 if (!appointments.isEmpty()) {
@@ -125,7 +143,7 @@ public class HttpAppointmentService {
         try {
             String jsonBody = gson.toJson(appointment);
             System.out.println("Sending JSON: " + jsonBody);
-            
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/appointments"))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
@@ -206,31 +224,36 @@ public class HttpAppointmentService {
             }
 
             if (customerId != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("customerId=").append(customerId);
                 hasParam = true;
             }
 
             if (status != null && !status.equals("Tất cả")) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("status=").append(status);
                 hasParam = true;
             }
 
             if (fromDate != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("fromDate=").append(fromDate.toString());
                 hasParam = true;
             }
 
             if (toDate != null) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 url.append("toDate=").append(toDate.toString());
                 hasParam = true;
             }
 
             if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-                if (hasParam) url.append("&");
+                if (hasParam)
+                    url.append("&");
                 // URL encode search keyword
                 url.append("search=").append(URLEncoder.encode(searchKeyword.trim(), "UTF-8"));
             }
@@ -249,7 +272,8 @@ public class HttpAppointmentService {
 
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(),
-                        new TypeToken<List<Appointment>>(){}.getType());
+                        new TypeToken<List<Appointment>>() {
+                        }.getType());
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();
@@ -282,7 +306,8 @@ public class HttpAppointmentService {
 
             if (response.statusCode() == 200) {
                 return gson.fromJson(response.body(),
-                        new TypeToken<List<Appointment>>(){}.getType());
+                        new TypeToken<List<Appointment>>() {
+                        }.getType());
             } else {
                 System.err.println("❌ HTTP Error: " + response.statusCode());
                 return List.of();
@@ -360,7 +385,6 @@ public class HttpAppointmentService {
             return false;
         }
     }
-
 
     /**
      * Kiểm tra kết nối server

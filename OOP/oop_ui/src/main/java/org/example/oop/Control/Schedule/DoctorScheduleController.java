@@ -36,12 +36,9 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -64,10 +61,21 @@ public class DoctorScheduleController implements Initializable {
         Set<DayOfWeek> workingDays = new HashSet<>();
         Set<String> shifts = new HashSet<>();
 
-        public Set<DayOfWeek> getWorkingDays() { return workingDays; }
-        public void setWorkingDays(Set<DayOfWeek> days) { this.workingDays = days; }
-        public Set<String> getShifts() { return shifts; }
-        public void setShifts(Set<String> shifts) { this.shifts = shifts; }
+        public Set<DayOfWeek> getWorkingDays() {
+            return workingDays;
+        }
+
+        public void setWorkingDays(Set<DayOfWeek> days) {
+            this.workingDays = days;
+        }
+
+        public Set<String> getShifts() {
+            return shifts;
+        }
+
+        public void setShifts(Set<String> shifts) {
+            this.shifts = shifts;
+        }
     }
 
     private Map<Integer, WorkingSchedule> doctorSchedules = new HashMap<>();
@@ -83,70 +91,105 @@ public class DoctorScheduleController implements Initializable {
     private LocalDate selectedDate;
     private LocalDate weekStart; // Ngày đầu tuần (Monday) cho Week View
     private boolean isDayView = true; // true = Day View, false = Week View
-    private boolean isAdmin = false; // Role: true = Admin (edit), false = Doctor (view only) - will be set from session
+    private boolean isAdmin = false; // Role: true = Admin (edit), false = Doctor (view only) - will be set from
+                                     // session
 
     // CONSTANTS
-    private static final LocalTime START_TIME = LocalTime.of(8, 0);   // 8:00 AM
-    private static final LocalTime END_TIME = LocalTime.of(17, 0);    // 5:00 PM (17:00)
+    private static final LocalTime START_TIME = LocalTime.of(8, 0); // 8:00 AM
+    private static final LocalTime END_TIME = LocalTime.of(17, 0); // 5:00 PM (17:00)
     private static final int SLOT_DURATION = 30; // 30 phút
     private static final int PIXELS_PER_HOUR = 60; // Chiều cao 1 giờ = 60px
 
     // FXML controls
-    @FXML private ComboBox<String> cboDoctorSelect; // Chọn bác sĩ
-    @FXML private DatePicker datePicker;
-    @FXML private ToggleButton dayViewBtn;
-    @FXML private ToggleButton weekViewBtn;
-    @FXML private Button todayBtn;
-    @FXML private TextField searchField;
-    @FXML private Button addScheduleBtn;
+    @FXML
+    private ComboBox<String> cboDoctorSelect; // Chọn bác sĩ
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private ToggleButton dayViewBtn;
+    @FXML
+    private ToggleButton weekViewBtn;
+    @FXML
+    private Button todayBtn;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button addScheduleBtn;
 
     // Working hours checkboxes
-    @FXML private CheckBox mondayChk;
-    @FXML private CheckBox tuesdayChk;
-    @FXML private CheckBox wednesdayChk;
-    @FXML private CheckBox thursdayChk;
-    @FXML private CheckBox fridayChk;
-    @FXML private CheckBox saturdayChk;
-    @FXML private CheckBox sundayChk;
+    @FXML
+    private CheckBox mondayChk;
+    @FXML
+    private CheckBox tuesdayChk;
+    @FXML
+    private CheckBox wednesdayChk;
+    @FXML
+    private CheckBox thursdayChk;
+    @FXML
+    private CheckBox fridayChk;
+    @FXML
+    private CheckBox saturdayChk;
+    @FXML
+    private CheckBox sundayChk;
 
     // Shift checkboxes
-    @FXML private CheckBox morningShiftChk;
-    @FXML private CheckBox afternoonShiftChk;
-    @FXML private CheckBox eveningShiftChk;
-    @FXML private Button applyShiftBtn;
+    @FXML
+    private CheckBox morningShiftChk;
+    @FXML
+    private CheckBox afternoonShiftChk;
+    @FXML
+    private CheckBox eveningShiftChk;
+    @FXML
+    private Button applyShiftBtn;
 
     // Filter checkboxes
-    @FXML private CheckBox emptyChk;
-    @FXML private CheckBox bookedChk;
-    @FXML private CheckBox inProgressChk;
-    @FXML private CheckBox completedChk;
-    @FXML private CheckBox cancelledChk;
+    @FXML
+    private CheckBox emptyChk;
+    @FXML
+    private CheckBox bookedChk;
+    @FXML
+    private CheckBox inProgressChk;
+    @FXML
+    private CheckBox completedChk;
+    @FXML
+    private CheckBox cancelledChk;
 
     // Conflict list
-    @FXML private ListView<String> conflictList;
+    @FXML
+    private ListView<String> conflictList;
 
     // Schedule display
-    @FXML private VBox timeLabelsBox; // Time labels container
-    @FXML private ScrollPane scheduleScrollPane; // ✅ Main schedule scroll pane
-    @FXML private ScrollPane timeLabelsScrollPane; // ✅ ScrollPane for time labels
-    @FXML private AnchorPane schedulePane;
+    @FXML
+    private VBox timeLabelsBox; // Time labels container
+    @FXML
+    private ScrollPane scheduleScrollPane; // ✅ Main schedule scroll pane
+    @FXML
+    private ScrollPane timeLabelsScrollPane; // ✅ ScrollPane for time labels
+    @FXML
+    private AnchorPane schedulePane;
 
     // Bottom buttons
-    @FXML private Button saveBtn;
-    @FXML private Button exportPdfBtn;
-    @FXML private Button undoBtn;
-    @FXML private Button redoBtn;
+    @FXML
+    private Button saveBtn;
+    @FXML
+    private Button exportPdfBtn;
+    @FXML
+    private Button undoBtn;
+    @FXML
+    private Button redoBtn;
 
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
+
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
     }
 
@@ -156,9 +199,10 @@ public class DoctorScheduleController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         System.out.println("✅ DoctorScheduleController initialized");
 
-        // 1. Khởi tạo services
+        // 1. Khởi tạo services with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
         doctorService = new HttpDoctorService();
-        appointmentService = new HttpAppointmentService();
+        appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
 
         // 2. Khởi tạo data lists
         doctorList = FXCollections.observableArrayList();
@@ -193,7 +237,8 @@ public class DoctorScheduleController implements Initializable {
 
     // Sinh time labels động (8:00, 8:30, 9:00, ..., 20:00)
     private void generateTimeLabels() {
-        if (timeLabelsBox == null) return;
+        if (timeLabelsBox == null)
+            return;
 
         timeLabelsBox.getChildren().clear();
         timeLabelsBox.setSpacing(0);
@@ -239,7 +284,8 @@ public class DoctorScheduleController implements Initializable {
             String userRole = SessionStorage.getCurrentUserRole();
 
             if (userRole != null) {
-                // Check if user is ADMIN or EMPLOYEE (EMPLOYEE includes doctors/nurses with edit rights)
+                // Check if user is ADMIN or EMPLOYEE (EMPLOYEE includes doctors/nurses with
+                // edit rights)
                 isAdmin = userRole.equalsIgnoreCase("ADMIN") || userRole.equalsIgnoreCase("EMPLOYEE");
                 System.out.println("🔐 User role: " + userRole + " | Can edit: " + isAdmin);
             } else {
@@ -255,21 +301,34 @@ public class DoctorScheduleController implements Initializable {
         boolean canEdit = isAdmin;
 
         // Disable các controls nếu không phải admin
-        if (mondayChk != null) mondayChk.setDisable(!canEdit);
-        if (tuesdayChk != null) tuesdayChk.setDisable(!canEdit);
-        if (wednesdayChk != null) wednesdayChk.setDisable(!canEdit);
-        if (thursdayChk != null) thursdayChk.setDisable(!canEdit);
-        if (fridayChk != null) fridayChk.setDisable(!canEdit);
-        if (saturdayChk != null) saturdayChk.setDisable(!canEdit);
-        if (sundayChk != null) sundayChk.setDisable(!canEdit);
+        if (mondayChk != null)
+            mondayChk.setDisable(!canEdit);
+        if (tuesdayChk != null)
+            tuesdayChk.setDisable(!canEdit);
+        if (wednesdayChk != null)
+            wednesdayChk.setDisable(!canEdit);
+        if (thursdayChk != null)
+            thursdayChk.setDisable(!canEdit);
+        if (fridayChk != null)
+            fridayChk.setDisable(!canEdit);
+        if (saturdayChk != null)
+            saturdayChk.setDisable(!canEdit);
+        if (sundayChk != null)
+            sundayChk.setDisable(!canEdit);
 
-        if (morningShiftChk != null) morningShiftChk.setDisable(!canEdit);
-        if (afternoonShiftChk != null) afternoonShiftChk.setDisable(!canEdit);
-        if (eveningShiftChk != null) eveningShiftChk.setDisable(!canEdit);
-        if (applyShiftBtn != null) applyShiftBtn.setDisable(!canEdit);
+        if (morningShiftChk != null)
+            morningShiftChk.setDisable(!canEdit);
+        if (afternoonShiftChk != null)
+            afternoonShiftChk.setDisable(!canEdit);
+        if (eveningShiftChk != null)
+            eveningShiftChk.setDisable(!canEdit);
+        if (applyShiftBtn != null)
+            applyShiftBtn.setDisable(!canEdit);
 
-        if (saveBtn != null) saveBtn.setDisable(!canEdit);
-        if (addScheduleBtn != null) addScheduleBtn.setDisable(!canEdit);
+        if (saveBtn != null)
+            saveBtn.setDisable(!canEdit);
+        if (addScheduleBtn != null)
+            addScheduleBtn.setDisable(!canEdit);
 
         System.out.println("✅ Permissions: " + (canEdit ? "ADMIN (edit)" : "DOCTOR (view only)"));
     }
@@ -281,10 +340,10 @@ public class DoctorScheduleController implements Initializable {
                 if (newVal != null && !doctorList.isEmpty()) {
                     // Tìm doctor theo tên
                     currentDoctor = doctorList.stream()
-                        .filter(d -> d.getFullName().equals(newVal))
-                        .findFirst()
-                        .orElse(null);
-                    
+                            .filter(d -> d.getFullName().equals(newVal))
+                            .findFirst()
+                            .orElse(null);
+
                     if (currentDoctor != null) {
                         System.out.println("✅ Switched to doctor: " + currentDoctor.getFullName());
                         loadAppointments();
@@ -292,7 +351,7 @@ public class DoctorScheduleController implements Initializable {
                 }
             });
         }
-        
+
         // DatePicker listener
         datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
             if (newDate != null) {
@@ -309,11 +368,16 @@ public class DoctorScheduleController implements Initializable {
         });
 
         // Filter checkboxes listeners
-        if (emptyChk != null) emptyChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
-        if (bookedChk != null) bookedChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
-        if (inProgressChk != null) inProgressChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
-        if (completedChk != null) completedChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
-        if (cancelledChk != null) cancelledChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
+        if (emptyChk != null)
+            emptyChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
+        if (bookedChk != null)
+            bookedChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
+        if (inProgressChk != null)
+            inProgressChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
+        if (completedChk != null)
+            completedChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
+        if (cancelledChk != null)
+            cancelledChk.selectedProperty().addListener((obs, old, val) -> applyFilters());
     }
 
     private void loadInitialData() {
@@ -394,7 +458,8 @@ public class DoctorScheduleController implements Initializable {
     // LOAD DATA
 
     private void loadAppointments() {
-        if (currentDoctor == null) return;
+        if (currentDoctor == null)
+            return;
 
         Task<List<Appointment>> task = new Task<>() {
             @Override
@@ -404,8 +469,7 @@ public class DoctorScheduleController implements Initializable {
                     return appointmentService.getByDoctorAndDateRange(
                             currentDoctor.getId(),
                             selectedDate,
-                            selectedDate
-                    );
+                            selectedDate);
                 } else {
                     // Load appointments cho cả tuần
                     LocalDate startOfWeek = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -414,8 +478,7 @@ public class DoctorScheduleController implements Initializable {
                     return appointmentService.getByDoctorAndDateRange(
                             currentDoctor.getId(),
                             startOfWeek,
-                            endOfWeek
-                    );
+                            endOfWeek);
                 }
             }
         };
@@ -597,7 +660,8 @@ public class DoctorScheduleController implements Initializable {
                 int existingId = (int) node.getUserData();
 
                 // Skip chính nó
-                if (existingId == apt.getId()) continue;
+                if (existingId == apt.getId())
+                    continue;
 
                 // Check overlap về position
                 double existingX = node.getLayoutX();
@@ -654,8 +718,7 @@ public class DoctorScheduleController implements Initializable {
                         "Loại: " + apt.getAppointmentType() + "\n" +
                         "Thời gian: " + apt.getStartTime() + " - " + apt.getEndTime() + "\n" +
                         "Trạng thái: " + apt.getStatus() + "\n" +
-                        "Ghi chú: " + (apt.getNotes() != null ? apt.getNotes() : "Không có")
-        );
+                        "Ghi chú: " + (apt.getNotes() != null ? apt.getNotes() : "Không có"));
         alert.showAndWait();
     }
 
@@ -688,8 +751,7 @@ public class DoctorScheduleController implements Initializable {
                     "Đã lưu lịch làm việc cho BS. %s:\nNgày: %s\nCa: %s",
                     currentDoctor.getFullName(),
                     selectedDays,
-                    selectedShifts
-            );
+                    selectedShifts);
 
             showInfo("Thành công", message);
         }
@@ -700,13 +762,20 @@ public class DoctorScheduleController implements Initializable {
     private List<DayOfWeek> getSelectedWorkingDays() {
         List<DayOfWeek> days = new ArrayList<>();
 
-        if (mondayChk.isSelected()) days.add(DayOfWeek.MONDAY);
-        if (tuesdayChk.isSelected()) days.add(DayOfWeek.TUESDAY);
-        if (wednesdayChk.isSelected()) days.add(DayOfWeek.WEDNESDAY);
-        if (thursdayChk.isSelected()) days.add(DayOfWeek.THURSDAY);
-        if (fridayChk.isSelected()) days.add(DayOfWeek.FRIDAY);
-        if (saturdayChk.isSelected()) days.add(DayOfWeek.SATURDAY);
-        if (sundayChk.isSelected()) days.add(DayOfWeek.SUNDAY);
+        if (mondayChk.isSelected())
+            days.add(DayOfWeek.MONDAY);
+        if (tuesdayChk.isSelected())
+            days.add(DayOfWeek.TUESDAY);
+        if (wednesdayChk.isSelected())
+            days.add(DayOfWeek.WEDNESDAY);
+        if (thursdayChk.isSelected())
+            days.add(DayOfWeek.THURSDAY);
+        if (fridayChk.isSelected())
+            days.add(DayOfWeek.FRIDAY);
+        if (saturdayChk.isSelected())
+            days.add(DayOfWeek.SATURDAY);
+        if (sundayChk.isSelected())
+            days.add(DayOfWeek.SUNDAY);
 
         return days;
     }
@@ -714,9 +783,12 @@ public class DoctorScheduleController implements Initializable {
     private List<String> getSelectedShifts() {
         List<String> shifts = new ArrayList<>();
 
-        if (morningShiftChk.isSelected()) shifts.add("Sáng (8:00-12:00)");
-        if (afternoonShiftChk.isSelected()) shifts.add("Chiều (13:00-17:00)");
-        if (eveningShiftChk.isSelected()) shifts.add("Tối (17:00-20:00)");
+        if (morningShiftChk.isSelected())
+            shifts.add("Sáng (8:00-12:00)");
+        if (afternoonShiftChk.isSelected())
+            shifts.add("Chiều (13:00-17:00)");
+        if (eveningShiftChk.isSelected())
+            shifts.add("Tối (17:00-20:00)");
 
         return shifts;
     }
@@ -744,8 +816,7 @@ public class DoctorScheduleController implements Initializable {
                         current.getEndTime().toLocalTime(),
                         next.getId(),
                         next.getStartTime().toLocalTime(),
-                        next.getEndTime().toLocalTime()
-                );
+                        next.getEndTime().toLocalTime());
                 conflicts.add(conflict);
             }
         }
@@ -831,21 +902,21 @@ public class DoctorScheduleController implements Initializable {
 
     // ADD SCHEDULE
 
-//    @FXML
-//    private void onAddSchedule(ActionEvent event) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(
-//                    getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
-//            );
-//            Parent root = loader.load();
-//
-//            Scene scene = addScheduleBtn.getScene();
-//            scene.setRoot(root);
-//
-//        } catch (Exception e) {
-//            showInfo("Lỗi", e.getMessage());
-//        }
-//    }
+    // @FXML
+    // private void onAddSchedule(ActionEvent event) {
+    // try {
+    // FXMLLoader loader = new FXMLLoader(
+    // getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
+    // );
+    // Parent root = loader.load();
+    //
+    // Scene scene = addScheduleBtn.getScene();
+    // scene.setRoot(root);
+    //
+    // } catch (Exception e) {
+    // showInfo("Lỗi", e.getMessage());
+    // }
+    // }
 
     // SAVE/EXPORT
 
@@ -865,19 +936,29 @@ public class DoctorScheduleController implements Initializable {
 
         // Collect working days from checkboxes
         Set<DayOfWeek> workingDays = new HashSet<>();
-        if (mondayChk != null && mondayChk.isSelected()) workingDays.add(DayOfWeek.MONDAY);
-        if (tuesdayChk != null && tuesdayChk.isSelected()) workingDays.add(DayOfWeek.TUESDAY);
-        if (wednesdayChk != null && wednesdayChk.isSelected()) workingDays.add(DayOfWeek.WEDNESDAY);
-        if (thursdayChk != null && thursdayChk.isSelected()) workingDays.add(DayOfWeek.THURSDAY);
-        if (fridayChk != null && fridayChk.isSelected()) workingDays.add(DayOfWeek.FRIDAY);
-        if (saturdayChk != null && saturdayChk.isSelected()) workingDays.add(DayOfWeek.SATURDAY);
-        if (sundayChk != null && sundayChk.isSelected()) workingDays.add(DayOfWeek.SUNDAY);
+        if (mondayChk != null && mondayChk.isSelected())
+            workingDays.add(DayOfWeek.MONDAY);
+        if (tuesdayChk != null && tuesdayChk.isSelected())
+            workingDays.add(DayOfWeek.TUESDAY);
+        if (wednesdayChk != null && wednesdayChk.isSelected())
+            workingDays.add(DayOfWeek.WEDNESDAY);
+        if (thursdayChk != null && thursdayChk.isSelected())
+            workingDays.add(DayOfWeek.THURSDAY);
+        if (fridayChk != null && fridayChk.isSelected())
+            workingDays.add(DayOfWeek.FRIDAY);
+        if (saturdayChk != null && saturdayChk.isSelected())
+            workingDays.add(DayOfWeek.SATURDAY);
+        if (sundayChk != null && sundayChk.isSelected())
+            workingDays.add(DayOfWeek.SUNDAY);
 
         // Collect shifts from checkboxes
         Set<String> shifts = new HashSet<>();
-        if (morningShiftChk != null && morningShiftChk.isSelected()) shifts.add("MORNING");
-        if (afternoonShiftChk != null && afternoonShiftChk.isSelected()) shifts.add("AFTERNOON");
-        if (eveningShiftChk != null && eveningShiftChk.isSelected()) shifts.add("EVENING");
+        if (morningShiftChk != null && morningShiftChk.isSelected())
+            shifts.add("MORNING");
+        if (afternoonShiftChk != null && afternoonShiftChk.isSelected())
+            shifts.add("AFTERNOON");
+        if (eveningShiftChk != null && eveningShiftChk.isSelected())
+            shifts.add("EVENING");
 
         // Validate at least one working day
         if (workingDays.isEmpty()) {
@@ -899,17 +980,17 @@ public class DoctorScheduleController implements Initializable {
 
         // Log saved data
         System.out.println("✅ Working days: " + workingDays.stream()
-            .map(d -> d.toString().substring(0, 3))
-            .collect(Collectors.joining(", ")));
+                .map(d -> d.toString().substring(0, 3))
+                .collect(Collectors.joining(", ")));
         System.out.println("✅ Shifts: " + String.join(", ", shifts));
 
         // TODO: Gọi API backend để lưu vào database khi có endpoint
         // doctorService.saveWorkingSchedule(currentDoctor.getId(), schedule);
 
         showInfo("Lưu thành công",
-            "Đã lưu lịch làm việc của BS. " + currentDoctor.getFullName() + "\n" +
-            "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
-            "Ca làm: " + shifts.size() + " ca/ngày");
+                "Đã lưu lịch làm việc của BS. " + currentDoctor.getFullName() + "\n" +
+                        "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
+                        "Ca làm: " + shifts.size() + " ca/ngày");
     }
 
     @FXML
@@ -925,8 +1006,8 @@ public class DoctorScheduleController implements Initializable {
             // Prepare file name with timestamp
             String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
             String fileName = String.format("Schedule_%s_%s.txt",
-                currentDoctor.getFullName().replace(" ", "_"),
-                timestamp);
+                    currentDoctor.getFullName().replace(" ", "_"),
+                    timestamp);
 
             // Build schedule content
             StringBuilder content = new StringBuilder();
@@ -940,7 +1021,7 @@ public class DoctorScheduleController implements Initializable {
                 content.append("Giấy phép hành nghề: ").append(currentDoctor.getLicenseNo()).append("\n");
             }
             content.append("Ngày xuất: ").append(LocalDate.now().format(
-                DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append("\n\n");
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append("\n\n");
 
             content.append("-".repeat(60)).append("\n");
             content.append("THỜI GIAN LÀM VIỆC:\n");
@@ -951,8 +1032,8 @@ public class DoctorScheduleController implements Initializable {
             if (schedule != null && !schedule.workingDays.isEmpty()) {
                 content.append("Ngày làm việc:\n");
                 List<DayOfWeek> sortedDays = schedule.workingDays.stream()
-                    .sorted(Comparator.comparingInt(DayOfWeek::getValue))
-                    .collect(Collectors.toList());
+                        .sorted(Comparator.comparingInt(DayOfWeek::getValue))
+                        .collect(Collectors.toList());
 
                 for (DayOfWeek day : sortedDays) {
                     String dayName = getDayNameVietnamese(day);
@@ -978,18 +1059,18 @@ public class DoctorScheduleController implements Initializable {
             // Get appointments for current week
             if (appointmentList != null && !appointmentList.isEmpty()) {
                 List<Appointment> doctorAppointments = appointmentList.stream()
-                    .filter(apt -> apt.getDoctorId() == currentDoctor.getId())
-                    .sorted(Comparator.comparing(Appointment::getStartTime))
-                    .collect(Collectors.toList());
+                        .filter(apt -> apt.getDoctorId() == currentDoctor.getId())
+                        .sorted(Comparator.comparing(Appointment::getStartTime))
+                        .collect(Collectors.toList());
 
                 if (!doctorAppointments.isEmpty()) {
                     for (Appointment apt : doctorAppointments) {
                         content.append(String.format("• %s %s - %s | Bệnh nhân #%d | %s\n",
-                            apt.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                            apt.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                            apt.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-                            apt.getCustomerId(),
-                            apt.getStatus().toString()));
+                                apt.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                apt.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                                apt.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                                apt.getCustomerId(),
+                                apt.getStatus().toString()));
                     }
                 } else {
                     content.append("Không có lịch hẹn nào trong tuần này.\n");
@@ -1019,7 +1100,7 @@ public class DoctorScheduleController implements Initializable {
 
             System.out.println("✅ Schedule exported to: " + fullPath);
             showInfo("Xuất file thành công",
-                "Đã xuất lịch làm việc ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+                    "Đã xuất lịch làm việc ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
 
             // TODO: Nếu cần PDF thực sự, dùng iText library:
             // com.itextpdf:itextpdf:5.5.13.3
@@ -1030,10 +1111,10 @@ public class DoctorScheduleController implements Initializable {
             e.printStackTrace();
 
             String errorMsg = "Không thể xuất lịch làm việc:\n\n" +
-                            "Lỗi: " + e.getClass().getSimpleName() + "\n" +
-                            "Chi tiết: " + e.getMessage() + "\n\n" +
-                            "Đường dẫn dự kiến: " + System.getProperty("user.home") + "\\Desktop\\" +
-                            currentDoctor.getFullName().replace(" ", "_") + "_*.txt";
+                    "Lỗi: " + e.getClass().getSimpleName() + "\n" +
+                    "Chi tiết: " + e.getMessage() + "\n\n" +
+                    "Đường dẫn dự kiến: " + System.getProperty("user.home") + "\\Desktop\\" +
+                    currentDoctor.getFullName().replace(" ", "_") + "_*.txt";
 
             showError("Lỗi xuất file", errorMsg);
         }
@@ -1042,23 +1123,35 @@ public class DoctorScheduleController implements Initializable {
     // Helper methods for Vietnamese names
     private String getDayNameVietnamese(DayOfWeek day) {
         switch (day) {
-            case MONDAY: return "Thứ Hai";
-            case TUESDAY: return "Thứ Ba";
-            case WEDNESDAY: return "Thứ Tư";
-            case THURSDAY: return "Thứ Năm";
-            case FRIDAY: return "Thứ Sáu";
-            case SATURDAY: return "Thứ Bảy";
-            case SUNDAY: return "Chủ Nhật";
-            default: return day.toString();
+            case MONDAY:
+                return "Thứ Hai";
+            case TUESDAY:
+                return "Thứ Ba";
+            case WEDNESDAY:
+                return "Thứ Tư";
+            case THURSDAY:
+                return "Thứ Năm";
+            case FRIDAY:
+                return "Thứ Sáu";
+            case SATURDAY:
+                return "Thứ Bảy";
+            case SUNDAY:
+                return "Chủ Nhật";
+            default:
+                return day.toString();
         }
     }
 
     private String getShiftNameVietnamese(String shift) {
         switch (shift.toUpperCase()) {
-            case "MORNING": return "Ca sáng (8:00 - 12:00)";
-            case "AFTERNOON": return "Ca chiều (13:00 - 17:00)";
-            case "EVENING": return "Ca tối (18:00 - 21:00)";
-            default: return shift;
+            case "MORNING":
+                return "Ca sáng (8:00 - 12:00)";
+            case "AFTERNOON":
+                return "Ca chiều (13:00 - 17:00)";
+            case "EVENING":
+                return "Ca tối (18:00 - 21:00)";
+            default:
+                return shift;
         }
     }
 
@@ -1083,7 +1176,7 @@ public class DoctorScheduleController implements Initializable {
         }
     }
 
-    //HELPER METHODS
+    // HELPER METHODS
 
     private void showInfo(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

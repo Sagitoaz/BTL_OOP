@@ -1,5 +1,6 @@
 package org.example.oop.Utils;
 
+import org.miniboot.app.domain.models.Admin;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Employee;
 
@@ -11,6 +12,28 @@ import javafx.application.Platform;
  * Sử dụng: Gọi ở đầu initialize() của mỗi Dashboard/Controller
  */
 public class SessionValidator {
+     /**
+      * Validate admin session
+      * 
+      * @return true nếu valid, false nếu invalid (sẽ redirect về login)
+      */
+     public static boolean validateAdminSession() {
+          Admin admin = SceneManager.getSceneData("accountData");
+
+          System.out.println("🔍 SessionValidator: Checking admin session...");
+          System.out.println("   Admin data: " + (admin != null ? admin.getUsername() : "NULL"));
+
+          if (admin == null) {
+               System.err.println("❌ Admin Session invalid: accountData is null");
+               return false;
+          }
+          String token = SceneManager.getSceneData("authToken");
+          if (token == null || token.isEmpty()) {
+               System.err.println("auth token missing");
+          }
+          return true;
+     }
+
      /**
       * Validate employee session
       * 
@@ -93,6 +116,20 @@ public class SessionValidator {
           });
 
           return false;
+     }
+
+     /**
+      * Lấy admin data một cách an toàn
+      * 
+      * @return Admin hoặc null nếu không có
+      */
+     public static Admin getSafeAdminData() {
+          try {
+               return SceneManager.getSceneData("accountData");
+          } catch (Exception e) {
+               System.err.println("❌ Error getting admin data: " + e.getMessage());
+               return null;
+          }
      }
 
      /**

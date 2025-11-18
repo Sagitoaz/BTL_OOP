@@ -7,12 +7,13 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.layout.StackPane;
-import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 
 public class CustomerDashBoardController extends BaseController {
 
@@ -24,6 +25,9 @@ public class CustomerDashBoardController extends BaseController {
 
     @FXML
     private Label welcomeText;
+
+    @FXML
+    private javafx.scene.layout.AnchorPane loadingOverlay;
 
     private Customer currentCustomer;
 
@@ -56,6 +60,9 @@ public class CustomerDashBoardController extends BaseController {
 
         setupUI();
 
+        // Hide loading overlay after initialization
+        hideLoadingOverlay();
+
         System.out.println("✅ CustomerDashboard: Initialization complete");
     }
 
@@ -73,6 +80,14 @@ public class CustomerDashBoardController extends BaseController {
             return false;
         }
         return true;
+    }
+
+    private void hideLoadingOverlay() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(false);
+            loadingOverlay.setManaged(false);
+            System.out.println("✅ Loading overlay hidden");
+        }
     }
 
     private void setupUI() {
@@ -263,4 +278,3 @@ public class CustomerDashBoardController extends BaseController {
                 .orElse(false);
     }
 }
-

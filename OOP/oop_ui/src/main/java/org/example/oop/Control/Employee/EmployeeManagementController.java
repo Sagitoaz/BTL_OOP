@@ -1,6 +1,5 @@
 package org.example.oop.Control.Employee;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -20,12 +19,9 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -37,14 +33,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class EmployeeManagementController extends BaseController implements Initializable {
 
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
-    private final HttpEmployeeService service = new HttpEmployeeService();
+    private HttpEmployeeService service;
     private final ObservableList<Employee> master = FXCollections.observableArrayList();
     private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(300));
     // ====== Top bar labels ======
@@ -106,6 +100,22 @@ public class EmployeeManagementController extends BaseController implements Init
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        System.out.println("🔵 EmployeeManagementController: Initializing...");
+
+        // Initialize service with token
+        String token = SceneManager.getSceneData("authToken");
+        System.out
+                .println("🔑 Token retrieved: " + (token != null ? "EXISTS (length=" + token.length() + ")" : "NULL"));
+
+        if (token == null || token.isEmpty()) {
+            System.err.println("❌ ERROR: Token is null or empty!");
+            showError("Không tìm thấy token xác thực.\nVui lòng đăng nhập lại.");
+            return;
+        }
+
+        service = new HttpEmployeeService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+        System.out.println("✅ Service initialized with token");
+
         setupTable();
         setupFilters();
         bindTableSorting();
@@ -119,7 +129,7 @@ public class EmployeeManagementController extends BaseController implements Init
         SceneManager.removeSceneData("employeeDetailData");
         SceneManager.setSceneData("employeeDetailData", employee);
         SceneManager.setSceneData("isModal", true);
-        SceneManager.openModalWindow(SceneConfig.EMPLOYEE_DETAIL_FXML, SceneConfig.Titles.EMPLOYEE_DETAIL, ()->{
+        SceneManager.openModalWindow(SceneConfig.EMPLOYEE_DETAIL_FXML, SceneConfig.Titles.EMPLOYEE_DETAIL, () -> {
             SceneManager.removeFromCache("employeeDetailDat");
             SceneManager.removeSceneData("isModal");
         });

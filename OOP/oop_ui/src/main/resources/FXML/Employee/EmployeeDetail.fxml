@@ -17,11 +17,16 @@
     <!-- ========== HEADER ========== -->
     <top>
         <VBox>
-            <!-- Navigation Bar -->
-            <HBox alignment="CENTER_LEFT" spacing="10" styleClass="navigation-bar">
+            <!-- Navigation Bar (for normal mode) -->
+            <HBox fx:id="navigationBar" alignment="CENTER_LEFT" spacing="10" styleClass="navigation-bar">
                 <Button fx:id="backButton" onAction="#handleBackButton" styleClass="btn-back" text="◀ Quay lại" />
                 <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="btn-forward" text="Tiến ▶" />
                 <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="btn-reload" text="⟳ Tải lại" />
+            </HBox>
+
+            <!-- Close Button Bar (for modal mode) -->
+            <HBox fx:id="closeButtonBar" alignment="CENTER_LEFT" spacing="10" styleClass="navigation-bar" managed="false" visible="false">
+                <Button fx:id="closeButton" onAction="#handleClose" styleClass="btn-back" text="❌ Đóng" />
             </HBox>
 
             <!-- Employee Header -->

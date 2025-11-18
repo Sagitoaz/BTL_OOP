@@ -128,8 +128,9 @@ public class AppointmentManagementController implements Initializable {
         }
         System.out.println("AppointmentManagementController initialized");
 
-        // Khởi tạo services
-        appointmentService = new HttpAppointmentService();
+        // Khởi tạo services with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
         doctorService = new HttpDoctorService();
         customerService = CustomerRecordService.getInstance();
 

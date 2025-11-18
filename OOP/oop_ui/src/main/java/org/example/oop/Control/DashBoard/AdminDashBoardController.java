@@ -8,7 +8,7 @@ import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
 import org.example.oop.Utils.LoadingOverlay;
-import org.miniboot.app.domain.models.Employee;
+import org.miniboot.app.domain.models.Admin;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -41,14 +41,14 @@ public class AdminDashBoardController extends BaseController {
     @FXML
     private Label userNameLabel;
 
-    private Employee currentEmployee;
+    private Admin currentAdmin;
 
     @FXML
     public void initialize() {
         System.out.println("🔵 AdminDashboard: Initializing...");
 
         // BƯỚC 1: Validate session (đồng bộ)
-        if (!SessionValidator.validateEmployeeSession()) {
+        if (!SessionValidator.validateAdminSession()) {
             System.err.println("❌ AdminDashboard: Session validation failed - redirecting to login");
             Platform.runLater(() -> {
                 ErrorHandler.showCustomError(401,
@@ -87,40 +87,27 @@ public class AdminDashBoardController extends BaseController {
     }
 
     private void loadEmployeeData() throws Exception {
-        currentEmployee = SceneManager.getSceneData("accountData");
-        if (currentEmployee == null) {
-            throw new Exception("Employee data is null in session");
+        currentAdmin = SceneManager.getSceneData("accountData");
+        if (currentAdmin == null) {
+            throw new Exception("Admin data is null in session");
         }
-        System.out.println("📊 Loaded employee: " + currentEmployee.getUsername() +
-                " (Role: " + currentEmployee.getRole() + ")");
+        System.out.println("📊 Loaded admin: " + currentAdmin.getUsername());
     }
 
     private boolean validateAdminRole() {
-        if (currentEmployee == null) {
+        if (currentAdmin == null) {
             redirectToLogin("Không tìm thấy thông tin người dùng");
             return false;
         }
 
-        String role = currentEmployee.getRole();
-        if (!"admin".equalsIgnoreCase(role)) {
-            Platform.runLater(() -> {
-                ErrorHandler.showUserFriendlyError(403,
-                        "Bạn không có quyền truy cập trang quản trị.\n\n" +
-                                "Vai trò của bạn: " + role);
-            });
-            redirectToDashboardByRole(role);
-            return false;
-        }
-
+        // Admin không có role property, luôn là admin
         return true;
     }
 
     private void setupUI() {
-        if (currentEmployee == null)
+        if (currentAdmin == null)
             return;
-        String displayName = "admin".equalsIgnoreCase(currentEmployee.getRole())
-                ? currentEmployee.getUsername()
-                : currentEmployee.getFirstname() + " " + currentEmployee.getLastname();
+        String displayName = currentAdmin.getUsername();
 
         if (welcomeLabel != null) {
             welcomeLabel.setText("Chào mừng trở lại, " + displayName + "! 👋");
@@ -133,7 +120,7 @@ public class AdminDashBoardController extends BaseController {
             if (realUsername != null && !realUsername.isEmpty()) {
                 userNameLabel.setText("@" + realUsername);
             } else {
-                userNameLabel.setText("@" + currentEmployee.getUsername());
+                userNameLabel.setText("@" + currentAdmin.getUsername());
             }
         }
     }
@@ -253,7 +240,7 @@ public class AdminDashBoardController extends BaseController {
     private void handleOpenEmployeeManagement() {
         System.out.println("🔄 Admin: Opening Employee Management...");
         SafeNavigator.navigateWithPermissionCheck(
-                currentEmployee != null ? currentEmployee.getRole() : "",
+                "admin",
                 "EMPLOYEE_MANAGEMENT",
                 SceneConfig.EMPLOYEE_MANAGEMENT_FXML,
                 SceneConfig.Titles.EMPLOYEE_MANAGEMENT);
@@ -287,15 +274,15 @@ public class AdminDashBoardController extends BaseController {
     private void handleOpenProfile() {
         System.out.println("🔄 Admin: Opening Profile...");
 
-        // Set employee data cho profile view
-        SceneManager.setSceneData("employeeDetailData", currentEmployee);
+        // Set admin data cho profile view
+        SceneManager.setSceneData("adminDetailData", currentAdmin);
         SceneManager.setSceneData("isModal", true);
 
         SafeNavigator.openModal(
                 SceneConfig.EMPLOYEE_DETAIL_FXML,
                 SceneConfig.Titles.EMPLOYEE_DETAIL,
                 () -> {
-                    SceneManager.removeSceneData("employeeDetailData");
+                    SceneManager.removeSceneData("adminDetailData");
                     SceneManager.removeSceneData("isModal");
                 });
     }

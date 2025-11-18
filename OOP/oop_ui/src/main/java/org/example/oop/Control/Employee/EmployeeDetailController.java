@@ -1,6 +1,5 @@
 package org.example.oop.Control.Employee;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,26 +15,22 @@ import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.Employee;
+import org.miniboot.app.domain.models.UserRole;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.miniboot.app.domain.models.UserRole;
 
 public class EmployeeDetailController extends BaseController {
 
     private static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
-    private final HttpEmployeeService service = new HttpEmployeeService();
-    private final HttpAppointmentService appointmentService = new HttpAppointmentService();
+    private HttpEmployeeService service;
+    private HttpAppointmentService appointmentService;
     private Employee employee;
 
     // Header / top
@@ -86,20 +81,17 @@ public class EmployeeDetailController extends BaseController {
     @FXML
     private Button reloadButton;
     @FXML
-    private void handleBackButton(){
-        SceneManager.goBack();
-    }
+    private HBox navigationBar;
     @FXML
-    private void handleForwardButton(){
-        SceneManager.goForward();
-    }
-    @FXML
-    private void handleReloadButton(){
-        SceneManager.reloadCurrentScene();
-    }
+    private HBox closeButtonBar;
 
     @FXML
     public void initialize() {
+        // Initialize services with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        service = new HttpEmployeeService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+        appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+
         if (closeButton != null)
             closeButton.setOnAction(e -> handleClose(e));
         if (editButton != null)
@@ -110,26 +102,41 @@ public class EmployeeDetailController extends BaseController {
             licenseBox.setVisible(false);
             licenseBox.setManaged(false);
         }
-        if(SceneManager.getSceneData("isModal") != null && (Boolean)SceneManager.getSceneData("isModal")){
-            if(backButton != null) {
-                backButton.setVisible(false);
-                backButton.setManaged(false);
+        
+        // Handle modal vs normal mode
+        boolean isModal = SceneManager.getSceneData("isModal") != null && (Boolean) SceneManager.getSceneData("isModal");
+        
+        if (isModal) {
+            // Modal mode: show Close button, hide navigation bar
+            if (navigationBar != null) {
+                navigationBar.setVisible(false);
+                navigationBar.setManaged(false);
             }
-            if(forwardButton != null) {
-                forwardButton.setVisible(false);
-
-                forwardButton.setManaged(false);
+            if (closeButtonBar != null) {
+                closeButtonBar.setVisible(true);
+                closeButtonBar.setManaged(true);
+            }
+        } else {
+            // Normal mode: show navigation bar, hide close button
+            if (navigationBar != null) {
+                navigationBar.setVisible(true);
+                navigationBar.setManaged(true);
+            }
+            if (closeButtonBar != null) {
+                closeButtonBar.setVisible(false);
+                closeButtonBar.setManaged(false);
             }
         }
-        if(SceneManager.getSceneData("employeeDetailData") != null){
-            Employee emp = (Employee)SceneManager.getSceneData("employeeDetailData");
+        
+        if (SceneManager.getSceneData("employeeDetailData") != null) {
+            Employee emp = (Employee) SceneManager.getSceneData("employeeDetailData");
             setEmployeeDetails(emp);
-        }
-        else if(SceneManager.getSceneData("role") == UserRole.EMPLOYEE){
-            Employee emp = (Employee)SceneManager.getSceneData("accountData");
+        } else if (SceneManager.getSceneData("role") == UserRole.EMPLOYEE) {
+            Employee emp = (Employee) SceneManager.getSceneData("accountData");
             setEmployeeDetails(emp);
         }
     }
+
     public void setEmployeeDetails(Employee employee) {
         this.employee = employee;
         updateUI();
@@ -242,22 +249,36 @@ public class EmployeeDetailController extends BaseController {
     }
 
     @FXML
+    public void handleBackButton() {
+        SceneManager.goBack();
+    }
+
+    @FXML
+    public void handleForwardButton() {
+        SceneManager.goForward();
+    }
+
+    @FXML
+    public void handleReloadButton() {
+        SceneManager.reloadCurrentScene();
+    }
+
+    @FXML
     public void handleEdit(ActionEvent event) {
         if (employee == null)
             return;
 
-
         SceneManager.setSceneData("employeeEdit", employee);
         SceneManager.openModalWindow(SceneConfig.EMPLOYEE_EDIT_FORM_FXML, SceneConfig.Titles.EMPLOYEE_EDIT_FORM, () -> {
-                try {
-                    Employee refreshed = SceneManager.getSceneData("employeeDetailData");
-                    if (refreshed != null)
-                        SceneManager.removeSceneData("employeeDetailData");
-                        setEmployeeDetails(refreshed);
-                } catch (Exception ex) {
-                    System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
-                    showError("Lỗi: " + ex.getMessage());
-                }
+            try {
+                Employee refreshed = SceneManager.getSceneData("employeeDetailData");
+                if (refreshed != null)
+                    SceneManager.removeSceneData("employeeDetailData");
+                setEmployeeDetails(refreshed);
+            } catch (Exception ex) {
+                System.err.println("Không thể làm mới thông tin sau khi edit: " + ex.getMessage());
+                showError("Lỗi: " + ex.getMessage());
+            }
         });
 
     }

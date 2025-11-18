@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 
 public class EmployeeFormController extends BaseController {
 
-    private final HttpEmployeeService employeeService = new HttpEmployeeService();
+    private HttpEmployeeService employeeService;
 
     @FXML
     private ImageView leftImageView;
@@ -53,6 +53,10 @@ public class EmployeeFormController extends BaseController {
 
     @FXML
     public void initialize() {
+        // Initialize service with token
+        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        employeeService = new HttpEmployeeService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+
         saveButton.setOnAction(event -> handleSave());
         cancelButton.setOnAction(event -> handleCancel());
         roleComboBox.getItems().setAll("doctor", "nurse");
