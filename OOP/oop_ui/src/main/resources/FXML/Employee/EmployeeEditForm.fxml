@@ -22,7 +22,7 @@
 
     <!-- ========== HEADER ========== -->
     <top>
-        <VBox style="-fx-background-color: linear-gradient(to right, #F472B6, #FBB6CE); -fx-padding: 25px;">
+        <VBox style="-fx-background-color: linear-gradient(to right, #0EA5E9, #38BDF8); -fx-padding: 25px;">
             <HBox alignment="CENTER_LEFT" spacing="12">
                 <Label style="-fx-font-size: 32px;" text="👤" />
                 <VBox spacing="3">
@@ -51,7 +51,7 @@
 
                                 <!-- ========== SECTION 1: Thông tin cá nhân ========== -->
                                 <VBox spacing="15">
-                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👨‍⚕️ Thông Tin Cá Nhân" />
+                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0EA5E9; -fx-border-color: #0EA5E9; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👨‍⚕️ Thông Tin Cá Nhân" />
 
                                     <GridPane hgap="15" vgap="15">
                                         <!-- Firstname -->
@@ -93,7 +93,7 @@
 
                                 <!-- ========== SECTION 2: Thông tin nghề nghiệp ========== -->
                                 <VBox spacing="15">
-                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="💼 Thông Tin Nghề Nghiệp" />
+                                    <Label style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #0EA5E9; -fx-border-color: #0EA5E9; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="💼 Thông Tin Nghề Nghiệp" />
 
                                     <GridPane hgap="15" vgap="15">
                                         <!-- Role -->

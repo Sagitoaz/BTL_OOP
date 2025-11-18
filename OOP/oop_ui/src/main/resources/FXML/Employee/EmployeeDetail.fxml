@@ -30,7 +30,7 @@
             </HBox>
 
             <!-- Employee Header -->
-            <VBox style="-fx-background-color: linear-gradient(to right, #F472B6, #FBB6CE);">
+            <VBox style="-fx-background-color: linear-gradient(to right, #0EA5E9, #38BDF8);">
                 <padding>
                     <Insets bottom="25" left="30" right="30" top="25" />
                 </padding>
@@ -73,7 +73,7 @@
 
                 <!-- ========== SECTION 1: Thông tin cơ bản ========== -->
                 <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 12px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);">
-                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F472B6; -fx-border-color: #F472B6; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👤 Thông Tin Cơ Bản" />
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0EA5E9; -fx-border-color: #0EA5E9; -fx-border-width: 0 0 0 3; -fx-padding: 0 0 0 10;" text="👤 Thông Tin Cơ Bản" />
 
                     <GridPane hgap="20" vgap="15">
                         <!-- Employee ID -->
