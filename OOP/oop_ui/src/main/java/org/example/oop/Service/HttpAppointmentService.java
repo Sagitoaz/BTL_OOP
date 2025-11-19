@@ -175,7 +175,7 @@ public class HttpAppointmentService {
         try {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(url)
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
@@ -260,7 +260,7 @@ public class HttpAppointmentService {
             System.out.println("🔍 Calling API: " + url);
 
             // Execute request
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(url.toString())
                     .uri(URI.create(url.toString()))
                     .GET()
                     .header("Accept", "application/json")
@@ -294,7 +294,7 @@ public class HttpAppointmentService {
             String url = String.format("%s/appointments?doctorId=%d&fromDate=%s&toDate=%s",
                     baseUrl, doctorId, fromDate.toString(), toDate.toString());
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(url)
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
@@ -328,7 +328,7 @@ public class HttpAppointmentService {
             String jsonBody = gson.toJson(appointment);
             System.out.println("📤 Updating appointment: " + jsonBody);
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(baseUrl+ "/appointments")
                     .uri(URI.create(baseUrl + "/appointments"))
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
@@ -362,7 +362,7 @@ public class HttpAppointmentService {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
             System.out.println("📤 Deleting appointment: " + id);
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(url)
                     .uri(URI.create(url))
                     .DELETE()
                     .build();
