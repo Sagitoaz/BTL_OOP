@@ -2,6 +2,7 @@ package org.miniboot.app.util;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import org.miniboot.app.domain.models.AppointmentStatus;
@@ -46,6 +47,7 @@ public class GsonProvider {
     public static Gson createGson() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
 
         return new GsonBuilder()
                 // ✅ QUAN TRỌNG: Gson phải đọc cả snake_case và camelCase
@@ -114,6 +116,18 @@ public class GsonProvider {
                 .registerTypeAdapter(LocalDate.class,
                         (JsonSerializer<LocalDate>) (src, type, context) ->
                                 context.serialize(src.format(dateFormatter)))
+
+                // LocalTime adapter (for DoctorSchedule)
+                .registerTypeAdapter(LocalTime.class,
+                        (JsonDeserializer<LocalTime>) (json, type, context) -> {
+                            if (json.isJsonNull()) return null;
+                            return LocalTime.parse(json.getAsString(), timeFormatter);
+                        })
+                .registerTypeAdapter(LocalTime.class,
+                        (JsonSerializer<LocalTime>) (src, type, context) -> {
+                            if (src == null) return null;
+                            return context.serialize(src.format(timeFormatter));
+                        })
 
                 // AppointmentType ENUM adapter
                 .registerTypeAdapter(AppointmentType.class,

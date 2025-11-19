@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
 import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.HttpAppointmentService;
+import org.example.oop.Service.HttpDoctorScheduleService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Appointment;
@@ -54,6 +55,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.miniboot.app.domain.models.DoctorSchedule;
 
 public class DoctorScheduleController implements Initializable {
 
@@ -83,6 +85,7 @@ public class DoctorScheduleController implements Initializable {
     // SERVICES
     private HttpDoctorService doctorService;
     private HttpAppointmentService appointmentService;
+    private HttpDoctorScheduleService scheduleService;
 
     // DATA
     private ObservableList<Doctor> doctorList;
@@ -93,6 +96,9 @@ public class DoctorScheduleController implements Initializable {
     private boolean isDayView = true; // true = Day View, false = Week View
     private boolean isAdmin = false; // Role: true = Admin (edit), false = Doctor (view only) - will be set from
                                      // session
+    
+    // ✅ Cache working schedules để vẽ nhanh mà không cần gọi API mỗi lần
+    private List<DoctorSchedule> cachedWorkingSchedules = new ArrayList<>();
 
     // CONSTANTS
     private static final LocalTime START_TIME = LocalTime.of(8, 0); // 8:00 AM
@@ -201,8 +207,14 @@ public class DoctorScheduleController implements Initializable {
 
         // 1. Khởi tạo services with token
         String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        if (token == null) {
+            token = SessionStorage.getJwtToken(); // Fallback to session storage
+        }
+        
         doctorService = new HttpDoctorService();
         appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
+        scheduleService = new org.example.oop.Service.HttpDoctorScheduleService(
+            org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
 
         // 2. Khởi tạo data lists
         doctorList = FXCollections.observableArrayList();
@@ -346,6 +358,7 @@ public class DoctorScheduleController implements Initializable {
 
                     if (currentDoctor != null) {
                         System.out.println("✅ Switched to doctor: " + currentDoctor.getFullName());
+                        loadDoctorSchedule();
                         loadAppointments();
                     }
                 }
@@ -434,18 +447,22 @@ public class DoctorScheduleController implements Initializable {
 
     @FXML
     private void onDayView(ActionEvent event) {
+        System.out.println("🔄 Switching to DAY view");
         isDayView = true;
         dayViewBtn.setSelected(true);
         weekViewBtn.setSelected(false);
         refreshScheduleView();
+        System.out.println("✅ Day view rendered");
     }
 
     @FXML
     private void onWeekView(ActionEvent event) {
+        System.out.println("🔄 Switching to WEEK view");
         isDayView = false;
         dayViewBtn.setSelected(false);
         weekViewBtn.setSelected(true);
         refreshScheduleView();
+        System.out.println("✅ Week view rendered");
     }
 
     @FXML
@@ -456,6 +473,103 @@ public class DoctorScheduleController implements Initializable {
     }
 
     // LOAD DATA
+
+    /**
+     * Load working schedule của bác sĩ từ database và cập nhật checkboxes
+     */
+    private void loadDoctorSchedule() {
+        if (currentDoctor == null) return;
+        
+        Task<List<org.miniboot.app.domain.models.DoctorSchedule>> task = new Task<>() {
+            @Override
+            protected List<org.miniboot.app.domain.models.DoctorSchedule> call() throws Exception {
+                return scheduleService.getDoctorSchedules(currentDoctor.getId());
+            }
+        };
+        
+        task.setOnSucceeded(e -> {
+            List<org.miniboot.app.domain.models.DoctorSchedule> schedules = task.getValue();
+            System.out.println("✅ Loaded " + schedules.size() + " working schedules for doctor " + currentDoctor.getId());
+            
+            // ✅ Cache schedules để vẽ calendar
+            cachedWorkingSchedules.clear();
+            cachedWorkingSchedules.addAll(schedules);
+            
+            // Reset tất cả checkboxes
+            if (mondayChk != null) mondayChk.setSelected(false);
+            if (tuesdayChk != null) tuesdayChk.setSelected(false);
+            if (wednesdayChk != null) wednesdayChk.setSelected(false);
+            if (thursdayChk != null) thursdayChk.setSelected(false);
+            if (fridayChk != null) fridayChk.setSelected(false);
+            if (saturdayChk != null) saturdayChk.setSelected(false);
+            if (sundayChk != null) sundayChk.setSelected(false);
+            
+            if (morningShiftChk != null) morningShiftChk.setSelected(false);
+            if (afternoonShiftChk != null) afternoonShiftChk.setSelected(false);
+            if (eveningShiftChk != null) eveningShiftChk.setSelected(false);
+            
+            // Cập nhật checkboxes dựa trên data từ database
+            Set<java.time.DayOfWeek> workingDays = new HashSet<>();
+            Set<String> shifts = new HashSet<>();
+            
+            for (org.miniboot.app.domain.models.DoctorSchedule schedule : schedules) {
+                if (!schedule.isActive()) continue;
+                
+                workingDays.add(schedule.getDayOfWeek());
+                
+                // Xác định shift dựa trên time range
+                java.time.LocalTime start = schedule.getStartTime();
+                java.time.LocalTime end = schedule.getEndTime();
+                
+                if (start.equals(java.time.LocalTime.of(8, 0)) && end.equals(java.time.LocalTime.of(12, 0))) {
+                    shifts.add("MORNING");
+                } else if (start.equals(java.time.LocalTime.of(13, 0)) && end.equals(java.time.LocalTime.of(17, 0))) {
+                    shifts.add("AFTERNOON");
+                } else if (start.equals(java.time.LocalTime.of(17, 0)) && end.equals(java.time.LocalTime.of(20, 0))) {
+                    shifts.add("EVENING");
+                }
+            }
+            
+            // Set working days checkboxes
+            if (mondayChk != null && workingDays.contains(java.time.DayOfWeek.MONDAY)) 
+                mondayChk.setSelected(true);
+            if (tuesdayChk != null && workingDays.contains(java.time.DayOfWeek.TUESDAY)) 
+                tuesdayChk.setSelected(true);
+            if (wednesdayChk != null && workingDays.contains(java.time.DayOfWeek.WEDNESDAY)) 
+                wednesdayChk.setSelected(true);
+            if (thursdayChk != null && workingDays.contains(java.time.DayOfWeek.THURSDAY)) 
+                thursdayChk.setSelected(true);
+            if (fridayChk != null && workingDays.contains(java.time.DayOfWeek.FRIDAY)) 
+                fridayChk.setSelected(true);
+            if (saturdayChk != null && workingDays.contains(java.time.DayOfWeek.SATURDAY)) 
+                saturdayChk.setSelected(true);
+            if (sundayChk != null && workingDays.contains(java.time.DayOfWeek.SUNDAY)) 
+                sundayChk.setSelected(true);
+            
+            // Set shift checkboxes
+            if (morningShiftChk != null && shifts.contains("MORNING")) 
+                morningShiftChk.setSelected(true);
+            if (afternoonShiftChk != null && shifts.contains("AFTERNOON")) 
+                afternoonShiftChk.setSelected(true);
+            if (eveningShiftChk != null && shifts.contains("EVENING")) 
+                eveningShiftChk.setSelected(true);
+            
+            System.out.println("✅ Working days: " + workingDays);
+            System.out.println("✅ Shifts: " + shifts);
+            
+            // ✅ Vẽ lại schedule để hiển thị working hours
+            renderSchedule();
+        });
+        
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            System.err.println("❌ Failed to load doctor schedule: " + ex.getMessage());
+            cachedWorkingSchedules.clear(); // Clear cache nếu load fail
+            // Không hiển thị error dialog, chỉ log
+        });
+        
+        new Thread(task).start();
+    }
 
     private void loadAppointments() {
         if (currentDoctor == null)
@@ -504,12 +618,21 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private void refreshScheduleView() {
-        loadAppointments();
+        // ✅ Vẽ lại ngay lập tức với data hiện tại
+        renderSchedule();
+        
+        // Sau đó load appointments mới (nếu cần)
+        // loadAppointments(); // Không cần gọi vì renderSchedule() đã vẽ với appointmentList hiện tại
     }
 
     // RENDER SCHEDULE
 
     private void renderSchedule() {
+        System.out.println("🎨 renderSchedule() called - isDayView=" + isDayView + 
+                ", doctor=" + (currentDoctor != null ? currentDoctor.getFullName() : "null") +
+                ", cachedSchedules=" + cachedWorkingSchedules.size() +
+                ", appointments=" + (appointmentList != null ? appointmentList.size() : 0));
+        
         // Clear existing content
         schedulePane.getChildren().clear();
 
@@ -536,17 +659,43 @@ public class DoctorScheduleController implements Initializable {
 
         // 1. Vẽ grid lines (mỗi 30 phút)
         drawTimeGrid(totalHeight);
-
-        // 2. Vẽ appointments
+        
         // Use prefWidth từ FXML (880px) thay vì getPrefWidth() có thể = 0
         double contentWidth = schedulePane.getPrefWidth() > 0 ? schedulePane.getPrefWidth() : 880;
+        
+        // 1.5. Vẽ day header để dễ nhận biết
+        String dayName = getDayNameVietnamese(selectedDate.getDayOfWeek());
+        String dayText = dayName + " - " + selectedDate.getDayOfMonth() + "/" + 
+                selectedDate.getMonthValue() + "/" + selectedDate.getYear();
+        
+        Label dayHeader = new Label(dayText);
+        dayHeader.setStyle("-fx-background-color: #e3f2fd; -fx-padding: 8; " +
+                "-fx-font-size: 14px; -fx-font-weight: bold; " +
+                "-fx-border-color: #90caf9; -fx-border-width: 0 0 2 0; " +
+                "-fx-text-fill: #1976d2; -fx-alignment: center;");
+        dayHeader.setLayoutX(0);
+        dayHeader.setLayoutY(-35);
+        dayHeader.setPrefWidth(contentWidth);
+        
+        // Highlight today
+        if (selectedDate.equals(LocalDate.now())) {
+            dayHeader.setStyle(dayHeader.getStyle() + " -fx-background-color: #bbdefb;");
+        }
+        
+        schedulePane.getChildren().add(dayHeader);
+        
+        // 2. Vẽ working hours background (NEW!)
+        drawWorkingHoursBackground(contentWidth);
 
+        // 3. Vẽ appointments
         for (Appointment apt : appointmentList) {
             // Chỉ vẽ appointment trong ngày đã chọn
             if (apt.getStartTime().toLocalDate().equals(selectedDate)) {
                 drawAppointmentBlock(apt, 0, contentWidth);
             }
         }
+        
+        System.out.println("✅ Day view rendering complete - added " + schedulePane.getChildren().size() + " elements to schedulePane");
     }
 
     private void renderWeekView() {
@@ -561,15 +710,51 @@ public class DoctorScheduleController implements Initializable {
         double contentWidth = schedulePane.getPrefWidth() > 0 ? schedulePane.getPrefWidth() : 880;
         double columnWidth = contentWidth / 7.0;
 
+        System.out.println("📅 WeekView rendering:");
+        System.out.println("   - Start of week: " + startOfWeek);
+        System.out.println("   - Content width: " + contentWidth + "px");
+        System.out.println("   - Column width: " + columnWidth + "px (7 columns)");
+        System.out.println("   - Total height: " + totalHeight + "px");
+
         // 1. Vẽ grid
         drawTimeGrid(totalHeight);
 
-        // 2. Vẽ vertical lines cho 7 ngày
-        for (int i = 1; i < 7; i++) {
-            Rectangle line = new Rectangle(columnWidth * i, 0, 1, totalHeight);
-            line.setFill(Color.LIGHTGRAY);
-            schedulePane.getChildren().add(line);
+        // 2. Vẽ vertical lines cho 7 ngày + Day headers
+        for (int i = 0; i < 7; i++) {
+            LocalDate day = startOfWeek.plusDays(i);
+            double xPos = columnWidth * i;
+            
+            // Vertical line
+            if (i > 0) {
+                Rectangle line = new Rectangle(xPos, 0, 2, totalHeight);
+                line.setFill(Color.GRAY);
+                schedulePane.getChildren().add(line);
+            }
+            
+            // Day header label (tên ngày + số)
+            String dayName = getDayNameVietnamese(day.getDayOfWeek());
+            String dayText = dayName + "\n" + day.getDayOfMonth() + "/" + day.getMonthValue();
+            
+            Label dayLabel = new Label(dayText);
+            dayLabel.setStyle("-fx-background-color: #f5f5f5; -fx-padding: 5; " +
+                    "-fx-font-size: 11px; -fx-font-weight: bold; " +
+                    "-fx-border-color: #ddd; -fx-border-width: 0 0 1 0; " +
+                    "-fx-alignment: center;");
+            dayLabel.setLayoutX(xPos + 5);
+            dayLabel.setLayoutY(-40); // Đặt trên schedulePane (negative Y)
+            dayLabel.setPrefWidth(columnWidth - 10);
+            dayLabel.setWrapText(true);
+            
+            // Highlight today
+            if (day.equals(LocalDate.now())) {
+                dayLabel.setStyle(dayLabel.getStyle() + " -fx-background-color: #bbdefb; -fx-text-fill: #1976d2;");
+            }
+            
+            schedulePane.getChildren().add(dayLabel);
         }
+        
+        // 2.5. Vẽ working hours background (NEW!)
+        drawWorkingHoursBackground(contentWidth);
 
         // 3. Vẽ appointments cho từng ngày
         for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
@@ -582,6 +767,8 @@ public class DoctorScheduleController implements Initializable {
                 }
             }
         }
+        
+        System.out.println("✅ Week view rendering complete - added " + schedulePane.getChildren().size() + " elements to schedulePane");
     }
 
     private void drawTimeGrid(double totalHeight) {
@@ -599,6 +786,98 @@ public class DoctorScheduleController implements Initializable {
             currentTime = currentTime.plusMinutes(30);
             lineIndex++;
         }
+    }
+    
+    /**
+     * Vẽ working hours blocks (giờ làm việc của bác sĩ) dưới nền
+     * ✅ Sử dụng cached data, không gọi API (để tránh block UI thread)
+     */
+    private void drawWorkingHoursBackground(double contentWidth) {
+        if (currentDoctor == null) return;
+        
+        // ✅ Sử dụng cached schedules thay vì gọi API
+        if (cachedWorkingSchedules.isEmpty()) {
+            System.out.println("⚠️ No cached working schedules - call loadDoctorSchedule() first");
+            return;
+        }
+        
+        List<org.miniboot.app.domain.models.DoctorSchedule> schedules;
+        
+        if (isDayView) {
+            // Lọc schedule cho ngày hiện tại
+            java.time.DayOfWeek dayOfWeek = selectedDate.getDayOfWeek();
+            schedules = cachedWorkingSchedules.stream()
+                    .filter(s -> s.getDayOfWeek() == dayOfWeek)
+                    .collect(java.util.stream.Collectors.toList());
+            System.out.println("📅 Day view (" + dayOfWeek + "): found " + schedules.size() + " working schedules");
+        } else {
+            // Week view: Hiển thị tất cả schedules
+            schedules = cachedWorkingSchedules;
+            System.out.println("📅 Week view: displaying " + schedules.size() + " working schedules");
+        }
+        
+        for (org.miniboot.app.domain.models.DoctorSchedule schedule : schedules) {
+                if (!schedule.isActive()) continue;
+                
+                double xStart = 0;
+                double width = contentWidth;
+                
+                // Nếu là week view, tính xStart dựa trên day of week
+                if (!isDayView) {
+                    // MONDAY=1, TUESDAY=2, ..., SUNDAY=7 trong Java DayOfWeek
+                    // Chuyển sang: MONDAY=0, TUESDAY=1, ..., SUNDAY=6 cho week view
+                    int dayIndex = schedule.getDayOfWeek().getValue() - 1; // MONDAY=0, SUNDAY=6
+                    double columnWidth = contentWidth / 7.0;
+                    xStart = dayIndex * columnWidth;
+                    width = columnWidth;
+                    
+                    System.out.println("📅 Week view: " + schedule.getDayOfWeek() + " → dayIndex=" + dayIndex + ", xStart=" + xStart);
+                }
+                
+                // Tính vị trí Y
+                double startY = calculateYPosition(schedule.getStartTime());
+                double endY = calculateYPosition(schedule.getEndTime());
+                double height = endY - startY;
+                
+                // ✅ Tạo working hours block với màu nổi bật hơn
+                Rectangle workingBlock = new Rectangle(xStart + 2, startY, width - 4, height);
+                
+                // Màu xanh lá nhạt để dễ phân biệt với appointments
+                workingBlock.setFill(Color.web("#C8E6C9", 0.7)); // Light green, 70% opacity
+                workingBlock.setStroke(Color.web("#66BB6A")); // Green border
+                workingBlock.setStrokeWidth(2);
+                workingBlock.setArcWidth(5);
+                workingBlock.setArcHeight(5);
+                
+                // Thêm vào schedulePane TRƯỚC appointments (để appointments nằm trên)
+                schedulePane.getChildren().add(0, workingBlock);
+                
+                // ✅ Thêm label "GIỜ LÀM VIỆC" để dễ nhận biết
+                if (height > 30) { // Chỉ hiện label nếu block đủ cao
+                    Label workLabel = new Label("⏰ GIỜ LÀM VIỆC");
+                    workLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; " +
+                            "-fx-text-fill: #2E7D32; -fx-background-color: transparent;");
+                    workLabel.setLayoutX(xStart + 10);
+                    workLabel.setLayoutY(startY + 5);
+                    workLabel.setMouseTransparent(true); // Không block click events
+                    
+                    schedulePane.getChildren().add(workLabel);
+                    
+                    // Thêm time range label
+                    Label timeLabel = new Label(schedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")) 
+                            + " - " + schedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                    timeLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #1B5E20;");
+                    timeLabel.setLayoutX(xStart + 10);
+                    timeLabel.setLayoutY(startY + 20);
+                    timeLabel.setMouseTransparent(true);
+                    
+                    schedulePane.getChildren().add(timeLabel);
+                }
+                
+                System.out.println("✅ Drew working hour block: " + schedule.getDayOfWeek() + 
+                        " " + schedule.getStartTime() + "-" + schedule.getEndTime() +
+                        " at x=" + xStart + ", y=" + startY + ", height=" + height);
+            }
     }
 
     private void drawAppointmentBlock(Appointment apt, double xStart, double width) {
@@ -723,41 +1002,7 @@ public class DoctorScheduleController implements Initializable {
     }
 
     // WORKING HOURS SETUP
-
-    @FXML
-    private void onApplyShift(ActionEvent event) {
-        List<DayOfWeek> selectedDays = getSelectedWorkingDays();
-        List<String> selectedShifts = getSelectedShifts();
-
-        if (selectedDays.isEmpty()) {
-            showWarning("Cảnh báo", "Vui lòng chọn ít nhất một ngày làm việc");
-            return;
-        }
-
-        if (selectedShifts.isEmpty()) {
-            showWarning("Cảnh báo", "Vui lòng chọn ít nhất một ca làm việc");
-            return;
-        }
-
-        // Save to memory
-        WorkingSchedule schedule = new WorkingSchedule();
-        schedule.setWorkingDays(new HashSet<>(selectedDays));
-        schedule.setShifts(new HashSet<>(selectedShifts));
-
-        if (currentDoctor != null) {
-            doctorSchedules.put(currentDoctor.getId(), schedule);
-
-            String message = String.format(
-                    "Đã lưu lịch làm việc cho BS. %s:\nNgày: %s\nCa: %s",
-                    currentDoctor.getFullName(),
-                    selectedDays,
-                    selectedShifts);
-
-            showInfo("Thành công", message);
-        }
-
-        refreshScheduleView();
-    }
+    // Note: onApplyShift removed - now only using onSave() to save directly to database
 
     private List<DayOfWeek> getSelectedWorkingDays() {
         List<DayOfWeek> days = new ArrayList<>();
@@ -984,13 +1229,72 @@ public class DoctorScheduleController implements Initializable {
                 .collect(Collectors.joining(", ")));
         System.out.println("✅ Shifts: " + String.join(", ", shifts));
 
-        // TODO: Gọi API backend để lưu vào database khi có endpoint
-        // doctorService.saveWorkingSchedule(currentDoctor.getId(), schedule);
-
-        showInfo("Lưu thành công",
-                "Đã lưu lịch làm việc của BS. " + currentDoctor.getFullName() + "\n" +
-                        "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
-                        "Ca làm: " + shifts.size() + " ca/ngày");
+        // Gọi API backend để lưu vào database
+        Task<Void> saveTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                // Xóa tất cả schedule cũ của bác sĩ này
+                List<org.miniboot.app.domain.models.DoctorSchedule> existing = 
+                    scheduleService.getDoctorSchedules(currentDoctor.getId());
+                
+                for (org.miniboot.app.domain.models.DoctorSchedule old : existing) {
+                    scheduleService.deleteSchedule(old.getId());
+                }
+                
+                // Tạo schedule mới cho mỗi ngày và shift
+                for (java.time.DayOfWeek day : workingDays) {
+                    for (String shift : shifts) {
+                        org.miniboot.app.domain.models.DoctorSchedule newSchedule = 
+                            new org.miniboot.app.domain.models.DoctorSchedule();
+                        newSchedule.setDoctorId(currentDoctor.getId());
+                        newSchedule.setDayOfWeek(day);
+                        
+                        // Map shift to time ranges
+                        switch (shift) {
+                            case "MORNING":
+                                newSchedule.setStartTime(java.time.LocalTime.of(8, 0));
+                                newSchedule.setEndTime(java.time.LocalTime.of(12, 0));
+                                break;
+                            case "AFTERNOON":
+                                newSchedule.setStartTime(java.time.LocalTime.of(13, 0));
+                                newSchedule.setEndTime(java.time.LocalTime.of(17, 0));
+                                break;
+                            case "EVENING":
+                                newSchedule.setStartTime(java.time.LocalTime.of(17, 0));
+                                newSchedule.setEndTime(java.time.LocalTime.of(20, 0));
+                                break;
+                        }
+                        
+                        newSchedule.setActive(true);
+                        scheduleService.createSchedule(newSchedule);
+                    }
+                }
+                
+                return null;
+            }
+        };
+        
+        saveTask.setOnSucceeded(e -> {
+            showInfo("Lưu thành công",
+                    "Đã lưu lịch làm việc của BS. " + currentDoctor.getFullName() + "\n" +
+                            "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
+                            "Ca làm: " + shifts.size() + " ca/ngày");
+            
+            // ✅ Reload working schedule để update cache và vẽ lại
+            loadDoctorSchedule();
+            
+            // Refresh appointments
+            loadAppointments();
+        });
+        
+        saveTask.setOnFailed(e -> {
+            Throwable ex = saveTask.getException();
+            System.err.println("❌ Failed to save schedule: " + ex.getMessage());
+            ex.printStackTrace();
+            showError("Lưu thất bại", "Không thể lưu lịch làm việc: " + ex.getMessage());
+        });
+        
+        new Thread(saveTask).start();
     }
 
     @FXML
