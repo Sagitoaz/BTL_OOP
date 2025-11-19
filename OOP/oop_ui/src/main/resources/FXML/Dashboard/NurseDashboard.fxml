@@ -82,6 +82,7 @@
                                 <rowConstraints>
                                     <RowConstraints />
                                     <RowConstraints />
+                                    <RowConstraints />
                                 </rowConstraints>
 
                                 <!-- Row 1 -->
@@ -100,14 +101,29 @@
                                 </VBox>
 
                                 <!-- Row 2 -->
-                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #DBEAFE); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.2), 20, 0, 0, 8); -fx-border-color: #BFDBFE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FEF3C7); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(251,191,36,0.25), 20, 0, 0, 8); -fx-border-color: #FDE68A; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(251,191,36,0.3), 10, 0, 0, 3);" text="📅" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #F59E0B; -fx-padding: 5px 0;" text="Đặt lịch khám" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Đặt lịch hẹn khám bệnh với bác sĩ" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleAppointmentBookingButton" style="-fx-background-color: linear-gradient(to right, #F59E0B, #D97706); -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(245,158,11,0.4), 10, 0, 0, 4);" styleClass="btn-add" text="➕ Đặt lịch ngay" />
+                                </VBox>
+
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #D1FAE5); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.25), 20, 0, 0, 8); -fx-border-color: #6EE7B7; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3), 10, 0, 0, 3);" text="🗓️" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #10B981; -fx-padding: 5px 0;" text="Xem lịch hẹn" />
+                                    <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và quản lý các lịch hẹn đã đặt" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleAppointmentManagement" style="-fx-background-color: linear-gradient(to right, #10B981, #059669); -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="👁 Xem lịch hẹn" />
+                                </VBox>
+
+                                <!-- Row 3 -->
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #DBEAFE); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.2), 20, 0, 0, 8); -fx-border-color: #BFDBFE; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="0" GridPane.rowIndex="2">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 10, 0, 0, 3);" text="👤" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #3B82F6; -fx-padding: 5px 0;" text="Thông tin cá nhân" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và cập nhật thông tin cá nhân của bạn" wrapText="true" />
                                     <Button maxWidth="Infinity" onAction="#openProfile" style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="👁 Xem thông tin" />
                                 </VBox>
 
-                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #E0F2FE); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.25), 20, 0, 0, 8); -fx-border-color: #67E8F9; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #E0F2FE); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.25), 20, 0, 0, 8); -fx-border-color: #67E8F9; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                     <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(6,182,212,0.3), 10, 0, 0, 3);" text="📦" />
                                     <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #06B6D4; -fx-padding: 5px 0;" text="Quản lý sản phẩm" />
                                     <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Quản lý vật tư y tế và thuốc men" wrapText="true" />
