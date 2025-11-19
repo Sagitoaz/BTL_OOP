@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
@@ -129,7 +130,7 @@ public class AppointmentBookingController implements Initializable {
         System.out.println("AppointmentBookingController initialized");
 
         // Khởi tạo services with token
-        String token = org.example.oop.Utils.SceneManager.getSceneData("authToken");
+        String token = SessionStorage.getJwtToken();;
         appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
         doctorService = new HttpDoctorService();
         customerService = CustomerRecordService.getInstance();

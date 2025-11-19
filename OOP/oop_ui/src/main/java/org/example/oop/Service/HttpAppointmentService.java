@@ -144,13 +144,12 @@ public class HttpAppointmentService {
             String jsonBody = gson.toJson(appointment);
             System.out.println("Sending JSON: " + jsonBody);
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest request = requestBuilder(baseUrl + "/appointments")
                     .uri(URI.create(baseUrl + "/appointments"))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .build();
-
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
