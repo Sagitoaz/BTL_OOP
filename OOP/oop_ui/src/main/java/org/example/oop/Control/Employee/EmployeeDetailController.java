@@ -84,6 +84,10 @@ public class EmployeeDetailController extends BaseController {
     private HBox navigationBar;
     @FXML
     private HBox closeButtonBar;
+    @FXML
+    private void handleChangePassword(){
+        SceneManager.openModalWindow(SceneConfig.CHANGE_PASSWORD_FXML, SceneConfig.Titles.CHANGE_PASSWORD, null);
+    }
 
     @FXML
     public void initialize() {
