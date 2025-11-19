@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import javafx.application.Platform;
+import org.example.oop.Control.SessionStorage;
 
 /**
  * 🌐 SIMPLE API CLIENT - NGÀY 8 FRONTEND INTEGRATION
@@ -22,6 +23,7 @@ import javafx.application.Platform;
  * - Comprehensive error handling
  * - Connection timeout and retry logic
  * - Type-safe responses
+ * - ✅ JWT token auto-injection (Fixed: 401 unauthorized errors)
  */
 public class ApiClient {
 
@@ -49,6 +51,25 @@ public class ApiClient {
      }
 
      // ================================
+     // HELPER METHOD - JWT TOKEN
+     // ================================
+
+     /**
+      * Add JWT token to request builder if available
+      * ✅ FIX: Automatically inject JWT token for authenticated requests
+      */
+     private HttpRequest.Builder addAuthHeaders(HttpRequest.Builder builder) {
+          builder.header("Content-Type", "application/json");
+
+          String jwtToken = SessionStorage.getJwtToken();
+          if (jwtToken != null && !jwtToken.isEmpty()) {
+               builder.header("Authorization", "Bearer " + jwtToken);
+          }
+
+          return builder;
+     }
+
+     // ================================
      // SYNCHRONOUS HTTP METHODS
      // ================================
 
@@ -57,13 +78,13 @@ public class ApiClient {
       */
      public ApiResponse<String> get(String endpoint) {
           try {
-               HttpRequest request = HttpRequest.newBuilder()
+               HttpRequest.Builder builder = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
-                         .header("Content-Type", "application/json")
-                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
+                         .version(HttpClient.Version.HTTP_1_1)
                          .GET()
-                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                         .build();
+                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+               HttpRequest request = addAuthHeaders(builder).build();
 
                HttpResponse<String> response = httpClient.send(request,
                          HttpResponse.BodyHandlers.ofString());
@@ -80,13 +101,13 @@ public class ApiClient {
       */
      public ApiResponse<String> post(String endpoint, String jsonBody) {
           try {
-               HttpRequest request = HttpRequest.newBuilder()
+               HttpRequest.Builder builder = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
-                         .header("Content-Type", "application/json")
-                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
+                         .version(HttpClient.Version.HTTP_1_1)
                          .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                         .build();
+                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+               HttpRequest request = addAuthHeaders(builder).build();
 
                HttpResponse<String> response = httpClient.send(request,
                          HttpResponse.BodyHandlers.ofString());
@@ -100,16 +121,17 @@ public class ApiClient {
 
      /**
       * Synchronous PUT request
+      * ✅ FIX: Now includes JWT token for authentication
       */
      public ApiResponse<String> put(String endpoint, String jsonBody) {
           try {
-               HttpRequest request = HttpRequest.newBuilder()
+               HttpRequest.Builder builder = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
-                         .header("Content-Type", "application/json")
-                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
+                         .version(HttpClient.Version.HTTP_1_1)
                          .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                         .build();
+                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+               HttpRequest request = addAuthHeaders(builder).build();
 
                HttpResponse<String> response = httpClient.send(request,
                          HttpResponse.BodyHandlers.ofString());
@@ -123,16 +145,17 @@ public class ApiClient {
 
      /**
       * Synchronous DELETE request
+      * ✅ FIX: Now includes JWT token for authentication
       */
      public ApiResponse<String> delete(String endpoint) {
           try {
-               HttpRequest request = HttpRequest.newBuilder()
+               HttpRequest.Builder builder = HttpRequest.newBuilder()
                          .uri(URI.create(BASE_URL + endpoint))
-                         .header("Content-Type", "application/json")
-                         .version(HttpClient.Version.HTTP_1_1) // Force HTTP/1.1
+                         .version(HttpClient.Version.HTTP_1_1)
                          .DELETE()
-                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                         .build();
+                         .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+               HttpRequest request = addAuthHeaders(builder).build();
 
                HttpResponse<String> response = httpClient.send(request,
                          HttpResponse.BodyHandlers.ofString());
@@ -155,12 +178,12 @@ public class ApiClient {
 
           CompletableFuture.supplyAsync(() -> {
                try {
-                    HttpRequest request = HttpRequest.newBuilder()
+                    HttpRequest.Builder builder = HttpRequest.newBuilder()
                               .uri(URI.create(BASE_URL + endpoint))
-                              .header("Content-Type", "application/json")
                               .GET()
-                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                              .build();
+                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+                    HttpRequest request = addAuthHeaders(builder).build();
 
                     return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -189,12 +212,12 @@ public class ApiClient {
 
           CompletableFuture.supplyAsync(() -> {
                try {
-                    HttpRequest request = HttpRequest.newBuilder()
+                    HttpRequest.Builder builder = HttpRequest.newBuilder()
                               .uri(URI.create(BASE_URL + endpoint))
-                              .header("Content-Type", "application/json")
                               .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                              .build();
+                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+                    HttpRequest request = addAuthHeaders(builder).build();
 
                     return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -223,12 +246,12 @@ public class ApiClient {
 
           CompletableFuture.supplyAsync(() -> {
                try {
-                    HttpRequest request = HttpRequest.newBuilder()
+                    HttpRequest.Builder builder = HttpRequest.newBuilder()
                               .uri(URI.create(BASE_URL + endpoint))
-                              .header("Content-Type", "application/json")
                               .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                              .build();
+                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+                    HttpRequest request = addAuthHeaders(builder).build();
 
                     return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -256,12 +279,12 @@ public class ApiClient {
 
           CompletableFuture.supplyAsync(() -> {
                try {
-                    HttpRequest request = HttpRequest.newBuilder()
+                    HttpRequest.Builder builder = HttpRequest.newBuilder()
                               .uri(URI.create(BASE_URL + endpoint))
-                              .header("Content-Type", "application/json")
                               .DELETE()
-                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT))
-                              .build();
+                              .timeout(Duration.ofSeconds(ApiConfig.REQUEST_TIMEOUT));
+
+                    HttpRequest request = addAuthHeaders(builder).build();
 
                     return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -400,3 +423,4 @@ public class ApiClient {
           }
      }
 }
+
