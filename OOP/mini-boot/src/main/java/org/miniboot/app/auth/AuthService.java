@@ -321,4 +321,54 @@ public class AuthService {
             return false;
         }
     }
+
+    /**
+     * Đổi mật khẩu cho user đang đăng nhập
+     * Kiểm tra mật khẩu hiện tại và cập nhật mật khẩu mới
+     */
+    public boolean changePassword(String username, String currentPassword, String newPassword) {
+        try {
+            // Tìm user từ DATABASE
+            Optional<UserRecord> userOpt = userDAO.findByUsername(username);
+
+            if (userOpt.isEmpty()) {
+                LOGGER.warning("Change password failed: User not found - " + username);
+                return false;
+            }
+
+            UserRecord user = userOpt.get();
+
+            // Check active status
+            if (!user.active) {
+                LOGGER.warning("Change password failed: Account is not active - " + username);
+                throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
+            }
+
+            // Verify current password
+            if (!PasswordService.verifyPassword(currentPassword, user.password)) {
+                LOGGER.warning("Change password failed: Current password incorrect - " + username);
+                throw new RuntimeException("Mật khẩu hiện tại không đúng");
+            }
+
+            // Hash new password với bcrypt
+            String hashedPassword = PasswordService.hashPasswordWithSalt(newPassword);
+
+            // Update password trong DATABASE
+            boolean updated = userDAO.updatePassword(user.id, user.role, hashedPassword);
+
+            if (updated) {
+                LOGGER.info("Password changed successfully for user: " + username + " [" + user.role + "]");
+                return true;
+            } else {
+                LOGGER.warning("Failed to update password for user: " + username);
+                throw new RuntimeException("Cập nhật mật khẩu thất bại");
+            }
+
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error changing password", e);
+            throw new RuntimeException("Lỗi hệ thống khi đổi mật khẩu: " + e.getMessage());
+        }
+    }
 }
