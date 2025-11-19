@@ -217,24 +217,26 @@ public class PaymentController {
                     return ValidationUtils.error(400, "BAD_REQUEST",
                             "Grand total must be greater than 0");
                 }
-                if (payment.getPaymentMethod() == null) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Payment method is required");
-                }
-                if (payment.getAmountPaid() == null) {
-                    return ValidationUtils.error(400, "BAD_REQUEST",
-                            "Amount paid is required");
+                
+                // ✅ LOGIC MỚI: Chỉ validate paymentMethod và amountPaid khi đã thanh toán
+                // Cho phép tạo invoice với paymentMethod=null, amountPaid=null (trạng thái UNPAID)
+                if (payment.getAmountPaid() != null && payment.getAmountPaid() > 0) {
+                    // Nếu đã có amountPaid > 0, thì phải có paymentMethod
+                    if (payment.getPaymentMethod() == null) {
+                        return ValidationUtils.error(400, "BAD_REQUEST",
+                                "Payment method is required when amount paid is specified");
+                    }
+                    
+                    // Step 7: Business rules validation
+                    if (payment.getAmountPaid() < payment.getGrandTotal()) {
+                        return ValidationUtils.error(422, "VALIDATION_FAILED",
+                                "Amount paid (" + payment.getAmountPaid() + ") must be >= grand total ("
+                                        + payment.getGrandTotal() + ")");
+                    }
                 }
 
-                // Step 7: Business rules validation
-                if (payment.getAmountPaid() < payment.getGrandTotal()) {
-                    return ValidationUtils.error(422, "VALIDATION_FAILED",
-                            "Amount paid (" + payment.getAmountPaid() + ") must be >= grand total ("
-                                    + payment.getGrandTotal() + ")");
-                }
-
-                // Maximum payment limit: 1 billion VND
-                if (payment.getAmountPaid() > 1_000_000_000) {
+                // Maximum payment limit: 1 billion VND (chỉ check khi có amountPaid)
+                if (payment.getAmountPaid() != null && payment.getAmountPaid() > 1_000_000_000) {
                     return ValidationUtils.error(422, "VALIDATION_FAILED",
                             "Amount paid exceeds maximum limit of 1,000,000,000 VND");
                 }

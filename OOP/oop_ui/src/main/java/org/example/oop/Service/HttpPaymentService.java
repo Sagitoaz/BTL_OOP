@@ -2,272 +2,368 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Utils.ApiConfig;
+import javafx.application.Platform;
+import org.example.oop.Utils.ApiClient;
+import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
-import org.miniboot.app.util.GsonProvider;
+import org.miniboot.app.util.PaymentConfig;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+/**
+ * 🌐 PAYMENT SERVICE - Payment API Integration
+ *
+ * Service layer làm cầu nối giữa Frontend và Backend API cho Payment operations
+ * Theo pattern của CustomerRecordService với:
+ * - Singleton pattern
+ * - ApiResponse wrapper cho type safety
+ * - Sync và Async methods
+ * - JavaFX Platform threading
+ * - Error handling chuẩn
+ * - JSON serialization/deserialization
+ * - Automatic JWT authentication via ApiClient
+ */
 public class HttpPaymentService {
 
-    private final String baseUrl;
-    private final HttpClient httpClient;
+    private final ApiClient apiClient;
     private final Gson gson;
-    private String jwtToken = null; // JWT token for authentication
 
-    public HttpPaymentService() {
-        this(ApiConfig.getBaseUrl());
+    // Singleton instance
+    private static HttpPaymentService instance;
+
+    private HttpPaymentService() {
+        this.apiClient = ApiClient.getInstance();
+        this.gson = GsonProvider.createGson();
     }
 
-    public HttpPaymentService(String baseUrl) {
-        this.baseUrl = baseUrl;
-        this.httpClient = HttpClient.newHttpClient();
-        this.gson = GsonProvider.getGson();
-    }
-
-    /**
-     * Set JWT token for authenticated requests
-     */
-    public void setJwtToken(String token) {
-        this.jwtToken = token;
-    }
-
-    /**
-     * Build request with JWT authentication header
-     */
-    private HttpRequest.Builder buildAuthenticatedRequest(String url) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Accept", "application/json");
-
-        if (jwtToken != null && !jwtToken.isEmpty()) {
-            builder.header("Authorization", "Bearer " + jwtToken);
+    public static synchronized HttpPaymentService getInstance() {
+        if (instance == null) {
+            instance = new HttpPaymentService();
         }
-
-        return builder;
+        return instance;
     }
 
-    /**
-     * GET /payments - Lấy tất cả các payment
-     * Throws exception with detailed error message for UI handling
-     */
-    public List<Payment> getAllPayments() throws Exception {
-        HttpRequest request = buildAuthenticatedRequest(baseUrl + "/payments")
-                .GET()
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(),
-                    new TypeToken<List<Payment>>() {
-                    }.getType());
-        } else if (response.statusCode() == 401) {
-            throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        } else if (response.statusCode() == 429) {
-            throw new Exception("429: Quá nhiều yêu cầu. Vui lòng đợi 1 phút và thử lại.");
-        } else if (response.statusCode() == 503 || response.statusCode() == 504) {
-            throw new Exception(response.statusCode() + ": Hệ thống đang bận. Vui lòng thử lại sau.");
-        } else {
-            throw new Exception(response.statusCode() + ": Lỗi không xác định - " + response.body());
-        }
-    }
+    // ================================
+    // SYNCHRONOUS METHODS (ĐỒNG BỘ)
+    // ================================
 
     /**
-     * GET /payments?id={} - Lấy payment theo id
-     * Throws exception with detailed error message for UI handling
+     * GET /payments - Lấy tất cả payments (Sync)
      */
-    public Payment getPaymentById(int paymentId) throws Exception {
-        String url = String.format("%s/payments?id=%d", baseUrl, paymentId);
+    public ApiResponse<List<Payment>> getAllPayments() {
+        ApiResponse<String> response = apiClient.get(PaymentConfig.GET_PAYMENT_ENDPOINT);
 
-        HttpRequest request = buildAuthenticatedRequest(url)
-                .GET()
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(),
-                    new TypeToken<Payment>() {
-                    }.getType());
-        } else if (response.statusCode() == 404) {
-            throw new Exception("404: Không tìm thấy hóa đơn với ID " + paymentId);
-        } else if (response.statusCode() == 401) {
-            throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        } else if (response.statusCode() == 403) {
-            throw new Exception("403: Bạn không có quyền xem hóa đơn này.");
-        } else if (response.statusCode() == 429) {
-            throw new Exception("429: Quá nhiều yêu cầu. Vui lòng đợi 1 phút.");
-        } else if (response.statusCode() == 503 || response.statusCode() == 504) {
-            throw new Exception(response.statusCode() + ": Hệ thống đang bận. Vui lòng thử lại sau.");
-        } else {
-            throw new Exception(response.statusCode() + ": Lỗi không xác định - " + response.body());
-        }
-    }
-
-    /**
-     * POST /payments - Tạo payment mới
-     * Supports Idempotency-Key header to prevent duplicate payments
-     * Throws exception with detailed error message for UI handling
-     */
-    public Payment create(Payment payment) throws Exception {
-        return create(payment, java.util.UUID.randomUUID().toString());
-    }
-
-    /**
-     * POST /payments với Idempotency Key
-     */
-    public Payment create(Payment payment, String idempotencyKey) throws Exception {
-        String jsonBody = gson.toJson(payment);
-        System.out.println("📤 Sending JSON: " + jsonBody);
-
-        HttpRequest.Builder builder = buildAuthenticatedRequest(baseUrl + "/payments")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .header("Content-Type", "application/json");
-
-        if (idempotencyKey != null && !idempotencyKey.isEmpty()) {
-            builder.header("Idempotency-Key", idempotencyKey);
-        }
-
-        HttpRequest request = builder.build();
-
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 201 || response.statusCode() == 200) {
-            return gson.fromJson(response.body(), Payment.class);
-        } else if (response.statusCode() == 400) {
-            throw new Exception("400: Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin đã nhập.");
-        } else if (response.statusCode() == 401) {
-            throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        } else if (response.statusCode() == 404) {
-            throw new Exception("404: Không tìm thấy hóa đơn này trong hệ thống.");
-        } else if (response.statusCode() == 409) {
-            String body = response.body();
-            if (body.contains("PAID")) {
-                throw new Exception("409: Hóa đơn này đã được thanh toán trước đó.");
-            } else if (body.contains("Idempotency")) {
-                throw new Exception("409: Yêu cầu thanh toán đang được xử lý. Vui lòng đợi.");
-            } else {
-                throw new Exception("409: Xung đột dữ liệu - " + body);
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải danh sách thanh toán")) {
+                return ApiResponse.error("Empty or invalid response");
             }
-        } else if (response.statusCode() == 422) {
-            String body = response.body();
-            if (body.contains("amount") && body.contains("grand total")) {
-                throw new Exception("422: Số tiền thanh toán phải lớn hơn hoặc bằng tổng tiền hóa đơn.");
-            } else if (body.contains("maximum")) {
-                throw new Exception("422: Số tiền thanh toán không được vượt quá 1 tỷ VNĐ.");
-            } else {
-                throw new Exception("422: Dữ liệu không hợp lệ - " + body);
+
+            try {
+                List<Payment> payments = gson.fromJson(response.getData(),
+                        new TypeToken<List<Payment>>() {}.getType());
+                return ApiResponse.success(payments, response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payments list");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
             }
-        } else if (response.statusCode() == 429) {
-            throw new Exception("429: Quá nhiều yêu cầu. Vui lòng đợi 1 phút và thử lại.");
-        } else if (response.statusCode() == 502 || response.statusCode() == 503 || response.statusCode() == 504) {
-            throw new Exception(response.statusCode()
-                    + ": Lỗi kết nối với cổng thanh toán hoặc hệ thống quá tải. Vui lòng thử lại sau.");
         } else {
-            throw new Exception(response.statusCode() + ": Lỗi không xác định - " + response.body());
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải danh sách thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
-     * PUT /payments - Cập nhật payment
-     * Throws exception with detailed error message for UI handling
+     * GET /payments?id={id} - Lấy payment theo ID (Sync)
      */
-    public Payment updatePayment(Payment payment) throws Exception {
-        String jsonBody = gson.toJson(payment);
-        System.out.println("🔄 Updating JSON: " + jsonBody);
+    public ApiResponse<Payment> getPaymentById(int paymentId) {
+        String endpoint = PaymentConfig.GET_PAYMENT_ENDPOINT + "?id=" + paymentId;
+        ApiResponse<String> response = apiClient.get(endpoint);
 
-        HttpRequest request = buildAuthenticatedRequest(baseUrl + "/payments")
-                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .header("Content-Type", "application/json")
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(), Payment.class);
-        } else if (response.statusCode() == 400) {
-            throw new Exception("400: Dữ liệu không hợp lệ. Vui lòng kiểm tra lại thông tin.");
-        } else if (response.statusCode() == 401) {
-            throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        } else if (response.statusCode() == 404) {
-            throw new Exception("404: Không tìm thấy payment với ID này.");
-        } else if (response.statusCode() == 412) {
-            throw new Exception("412: Xung đột phiên bản. Dữ liệu đã được sửa bởi người khác, vui lòng tải lại.");
-        } else if (response.statusCode() == 422) {
-            String body = response.body();
-            if (body.contains("PAID")) {
-                throw new Exception("422: Không thể giảm số tiền của hóa đơn đã thanh toán.");
-            } else {
-                throw new Exception("422: Dữ liệu không hợp lệ - " + body);
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải thông tin thanh toán")) {
+                return ApiResponse.error("Empty or invalid response");
             }
-        } else if (response.statusCode() == 429) {
-            throw new Exception("429: Quá nhiều yêu cầu. Vui lòng đợi 1 phút.");
-        } else if (response.statusCode() == 503 || response.statusCode() == 504) {
-            throw new Exception(response.statusCode() + ": Hệ thống đang bận. Vui lòng thử lại sau.");
+
+            try {
+                Payment payment = gson.fromJson(response.getData(), Payment.class);
+                return ApiResponse.success(payment, response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payment by ID");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
+            }
         } else {
-            throw new Exception(response.statusCode() + ": Lỗi không xác định - " + response.body());
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải thông tin thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
-     * Kiểm tra kết nối server
+     * POST /payments - Tạo payment mới (Sync)
+     * OLD API compatibility: method name 'create'
      */
-    public boolean isServerAvailable() {
+    public ApiResponse<Payment> create(Payment payment) {
+        return createPayment(payment);
+    }
+
+    /**
+     * POST /payments - Tạo payment mới (Sync)
+     */
+    public ApiResponse<Payment> createPayment(Payment payment) {
         try {
-            // Thay đổi từ /echo sang /appointments vì đã xóa EchoController
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payments"))
-                    .GET()
-                    .timeout(java.time.Duration.ofSeconds(5))
-                    .build();
+            String jsonBody = gson.toJson(payment);
+            ApiResponse<String> response = apiClient.post(PaymentConfig.POST_PAYMENT_ENDPOINT, jsonBody);
 
-            HttpResponse<String> response = httpClient.send(request,
-                    HttpResponse.BodyHandlers.ofString());
+            if (response.isSuccess()) {
+                if (!ErrorHandler.validateResponse(response.getData(), "Tạo thanh toán mới")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
 
-            return response.statusCode() == 200;
-
+                try {
+                    Payment createdPayment = gson.fromJson(response.getData(), Payment.class);
+                    return ApiResponse.success(createdPayment, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse created payment");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
+            } else {
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tạo thanh toán mới");
+                return ApiResponse.error(response.getErrorMessage());
+            }
         } catch (Exception e) {
-            return false;
+            ErrorHandler.handleJsonParseError(e, "Serialize payment");
+            return ApiResponse.error("JSON serialization error: " + e.getMessage());
         }
     }
 
     /**
-     * GET /payments/with-status - Lấy danh sách tất cả payments với trạng thái của
-     * chúng
-     * Throws exception with detailed error message for UI handling
+     * PUT /payments - Cập nhật payment (Sync)
      */
-    public List<PaymentWithStatus> getPaymentsWithStatus() throws Exception {
-        HttpRequest request = buildAuthenticatedRequest(baseUrl + "/payments/with-status")
-                .GET()
-                .build();
-
-        System.out.println("⏳ Sending request to: " + baseUrl + "/payments/with-status");
-
-        HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(),
-                    new TypeToken<List<PaymentWithStatus>>() {
-                    }.getType());
-        } else if (response.statusCode() == 401) {
-            throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        } else if (response.statusCode() == 429) {
-            throw new Exception("429: Quá nhiều yêu cầu. Vui lòng đợi 1 phút.");
-        } else if (response.statusCode() == 503 || response.statusCode() == 504) {
-            throw new Exception(response.statusCode() + ": Hệ thống đang bận. Vui lòng thử lại sau.");
-        } else {
-            throw new Exception(response.statusCode() + ": Lỗi không xác định - " + response.body());
+    public ApiResponse<Payment> updatePayment(Payment payment) {
+        if (payment.getId() <= 0) {
+            return ApiResponse.error("Payment ID is required for update");
         }
+
+        try {
+            String jsonBody = gson.toJson(payment);
+            String endpoint = PaymentConfig.PUT_PAYMENT_ENDPOINT;
+            ApiResponse<String> response = apiClient.put(endpoint, jsonBody);
+
+            if (response.isSuccess()) {
+                if (!ErrorHandler.validateResponse(response.getData(), "Cập nhật thanh toán")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
+
+                try {
+                    Payment updatedPayment = gson.fromJson(response.getData(), Payment.class);
+                    return ApiResponse.success(updatedPayment, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse updated payment");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
+            } else {
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể cập nhật thanh toán");
+                return ApiResponse.error(response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize payment");
+            return ApiResponse.error("JSON serialization error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * GET /payments/with-status - Lấy tất cả payments với trạng thái (Sync)
+     */
+    public ApiResponse<List<PaymentWithStatus>> getPaymentsWithStatus() {
+        ApiResponse<String> response = apiClient.get(PaymentConfig.GET_PAYMENT_WITH_STATUS_ENDPOINT);
+
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải danh sách thanh toán với trạng thái")) {
+                return ApiResponse.error("Empty or invalid response");
+            }
+
+            try {
+                List<PaymentWithStatus> payments = gson.fromJson(response.getData(),
+                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
+                return ApiResponse.success(payments, response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payments with status");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
+            }
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải danh sách thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
+        }
+    }
+
+    // ================================
+    // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
+    // ================================
+
+    /**
+     * ASYNC - GET /payments - Lấy tất cả payments (Async)
+     */
+    public void getAllPaymentsAsync(Consumer<List<Payment>> onSuccess, Consumer<String> onError) {
+        apiClient.getAsync(PaymentConfig.GET_PAYMENT_ENDPOINT,
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<Payment> payments;
+
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
+                                payments = new ArrayList<>();
+                            } else {
+                                payments = gson.fromJson(responseData, new TypeToken<List<Payment>>() {}.getType());
+                                if (payments == null) {
+                                    payments = new ArrayList<>();
+                                }
+                            }
+
+                            onSuccess.accept(payments);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse payments list (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                "Không thể tải danh sách thanh toán");
+                        onError.accept(response.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tải danh sách thanh toán (async)");
+                    onError.accept(error);
+                });
+    }
+
+    /**
+     * ASYNC - GET /payments/with-status - Lấy payments với trạng thái (Async)
+     */
+    public void getPaymentsWithStatusAsync(Consumer<List<PaymentWithStatus>> onSuccess, Consumer<String> onError) {
+        apiClient.getAsync(PaymentConfig.GET_PAYMENT_WITH_STATUS_ENDPOINT,
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<PaymentWithStatus> payments;
+
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
+                                payments = new ArrayList<>();
+                            } else {
+                                payments = gson.fromJson(responseData,
+                                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
+                                if (payments == null) {
+                                    payments = new ArrayList<>();
+                                }
+                            }
+
+                            onSuccess.accept(payments);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse payments with status (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                "Không thể tải danh sách thanh toán");
+                        onError.accept(response.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error),
+                            "Tải danh sách thanh toán với trạng thái (async)");
+                    onError.accept(error);
+                });
+    }
+
+    /**
+     * ASYNC - POST /payments - Tạo payment mới (Async)
+     */
+    public void createPaymentAsync(Payment payment, Consumer<Payment> onSuccess, Consumer<String> onError) {
+        try {
+            String jsonBody = gson.toJson(payment);
+
+            apiClient.postAsync(PaymentConfig.POST_PAYMENT_ENDPOINT, jsonBody,
+                    response -> {
+                        if (response.isSuccess()) {
+                            try {
+                                Payment createdPayment = gson.fromJson(response.getData(), Payment.class);
+                                onSuccess.accept(createdPayment);
+                            } catch (Exception e) {
+                                ErrorHandler.handleJsonParseError(e, "Parse created payment (async)");
+                                onError.accept("JSON parse error: " + e.getMessage());
+                            }
+                        } else {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể tạo thanh toán mới");
+                            onError.accept(response.getErrorMessage());
+                        }
+                    },
+                    error -> {
+                        ErrorHandler.handleConnectionError(new Exception(error), "Tạo thanh toán (async)");
+                        onError.accept(error);
+                    });
+        } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize payment (async)");
+            Platform.runLater(() -> onError.accept("JSON serialization error: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * ASYNC - PUT /payments - Cập nhật payment (Async)
+     */
+    public void updatePaymentAsync(Payment payment, Consumer<Payment> onSuccess, Consumer<String> onError) {
+        if (payment.getId() <= 0) {
+            Platform.runLater(() -> onError.accept("Payment ID is required for update"));
+            return;
+        }
+
+        try {
+            String jsonBody = gson.toJson(payment);
+            String endpoint = PaymentConfig.PUT_PAYMENT_ENDPOINT;
+
+            apiClient.putAsync(endpoint, jsonBody,
+                    response -> {
+                        if (response.isSuccess()) {
+                            try {
+                                Payment updatedPayment = gson.fromJson(response.getData(), Payment.class);
+                                onSuccess.accept(updatedPayment);
+                            } catch (Exception e) {
+                                ErrorHandler.handleJsonParseError(e, "Parse updated payment (async)");
+                                onError.accept("JSON parse error: " + e.getMessage());
+                            }
+                        } else {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể cập nhật thanh toán");
+                            onError.accept(response.getErrorMessage());
+                        }
+                    },
+                    error -> {
+                        ErrorHandler.handleConnectionError(new Exception(error), "Cập nhật thanh toán (async)");
+                        onError.accept(error);
+                    });
+        } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize payment (async)");
+            Platform.runLater(() -> onError.accept("JSON serialization error: " + e.getMessage()));
+        }
+    }
+
+    // ================================
+    // UTILITY METHODS (PHƯƠNG THỨC HỖ TRỢ)
+    // ================================
+
+    /**
+     * Kiểm tra kết nối server (Async)
+     */
+    public void checkServerConnection(Consumer<Boolean> onResult) {
+        apiClient.getAsync(PaymentConfig.GET_PAYMENT_ENDPOINT,
+                response -> onResult.accept(response.isSuccess()),
+                error -> onResult.accept(false));
     }
 }

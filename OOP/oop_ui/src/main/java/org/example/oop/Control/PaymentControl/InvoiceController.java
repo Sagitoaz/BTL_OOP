@@ -14,6 +14,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Service.*;
+import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
@@ -133,10 +134,10 @@ public class InvoiceController extends BaseController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         productService = new ApiProductService();
-        paymentService = new HttpPaymentService();
-        itemService = new HttpPaymentItemService();
+        paymentService = HttpPaymentService.getInstance();
+        itemService = HttpPaymentItemService.getInstance();
         stockMovementService = new ApiStockMovementService();
-        paymentStatusLogService = new HttpPaymentStatusLogService();
+        paymentStatusLogService = HttpPaymentStatusLogService.getInstance();
         customerService = CustomerRecordService.getInstance();
 
         setupTableColumns();
@@ -383,18 +384,26 @@ public class InvoiceController extends BaseController implements Initializable {
 
         // --- Logic này chạy trong LUỒNG NỀN ---
 
-        // 1. Lưu Payment
-        Payment savedPayment = paymentService.create(paymentToSave);
-        if (savedPayment == null) {
+        // 1. Lưu Payment với ApiResponse handling
+        ApiResponse<Payment> paymentResponse = paymentService.create(paymentToSave);
+        if (!paymentResponse.isSuccess()) {
+            throw new Exception("Không thể tạo hóa đơn: " + paymentResponse.getErrorMessage());
+        }
+        Payment savedPayment = paymentResponse.getData();
+        if (savedPayment == null || savedPayment.getId() == null) {
             throw new Exception("Không thể tạo hóa đơn. Service trả về null.");
         }
         int savedPaymentId = savedPayment.getId();
 
-        // 2. Gán PaymentId và Batch Save Items
+        // 2. Gán PaymentId và Batch Save Items với ApiResponse handling
         for (PaymentItem item : itemsToSave) {
             item.setPaymentId(savedPaymentId);
         }
-        List<PaymentItem> savedItems = itemService.saveAllPaymentItems(itemsToSave);
+        ApiResponse<List<PaymentItem>> itemsResponse = itemService.saveAllPaymentItems(itemsToSave);
+        if (!itemsResponse.isSuccess()) {
+            throw new Exception("Lỗi Lưu Chi Tiết: " + itemsResponse.getErrorMessage());
+        }
+        List<PaymentItem> savedItems = itemsResponse.getData();
         if (savedItems == null || savedItems.isEmpty() || savedItems.size() != itemsToSave.size()) {
             // (Tùy chọn: Xóa payment đã tạo nếu bước này lỗi)
             throw new Exception("Lỗi Lưu Chi Tiết: Không thể lưu (batch save) các chi tiết hóa đơn.");
@@ -414,11 +423,15 @@ public class InvoiceController extends BaseController implements Initializable {
             stockMovementService.createStockMovement(movement);
         }
 
-        // 4. TẠO STATUS LOG = UNPAID
+        // 4. TẠO STATUS LOG = UNPAID với ApiResponse handling
         PaymentStatusLog unpaidLog = new PaymentStatusLog();
         unpaidLog.setPaymentId(savedPaymentId);
-        unpaidLog.setStatus(PaymentStatus.valueOf("UNPAID"));
-        paymentStatusLogService.updatePaymentStatus(unpaidLog);
+        unpaidLog.setStatus(PaymentStatus.UNPAID);
+        
+        ApiResponse<PaymentStatusLog> statusResponse = paymentStatusLogService.updatePaymentStatus(unpaidLog);
+        if (!statusResponse.isSuccess()) {
+            throw new Exception("Không thể tạo status log: " + statusResponse.getErrorMessage());
+        }
 
         return savedPayment; // Trả về payment đã lưu thành công
     }
@@ -496,7 +509,11 @@ public class InvoiceController extends BaseController implements Initializable {
                                 PaymentStatusLog pendingLog = new PaymentStatusLog();
                                 pendingLog.setPaymentId(savedPayment.getId());
                                 pendingLog.setStatus(PaymentStatus.PENDING);
-                                paymentStatusLogService.updatePaymentStatus(pendingLog);
+                                
+                                ApiResponse<PaymentStatusLog> response = paymentStatusLogService.updatePaymentStatus(pendingLog);
+                                if (!response.isSuccess()) {
+                                    throw new RuntimeException("Không thể cập nhật status PENDING: " + response.getErrorMessage());
+                                }
                                 return null; // Không cần trả về gì
                             },
                             (nothing) -> {
@@ -565,9 +582,10 @@ public class InvoiceController extends BaseController implements Initializable {
         int tax = safeParseInt(txtTaxAmount.getText());
         int grandTotal = safeParseInt(txtGrandTotal.getText());
 
+        // ✅ Khi tạo invoice (chưa thanh toán): paymentMethod=null, amountPaid=null
         return new Payment(0, txtInvoiceCode.getText(), customerId, cashierId, issuedAt,
                 subtotal, discount, tax, 0, grandTotal,
-                null, 0, txtInvoiceNote.getText(), LocalDateTime.now());
+                null, null, txtInvoiceNote.getText(), LocalDateTime.now());
     }
 
     private int safeParseInt(String text) {

@@ -106,7 +106,9 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
             ps.setInt(9, p.getGrandTotal());
             if (p.getPaymentMethod() == null) ps.setNull(10, Types.OTHER, "payment_method");
             else ps.setString(10, p.getPaymentMethod().getCode());
-            ps.setInt(11, p.getAmountPaid());
+            // ✅ Handle amountPaid as nullable Integer
+            if (p.getAmountPaid() == null) ps.setNull(11, Types.INTEGER);
+            else ps.setInt(11, p.getAmountPaid());
             ps.setString(12, p.getNote());
             ps.setTimestamp(13, Timestamp.valueOf(p.getCreatedAt()));
 
@@ -147,7 +149,9 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
             ps.setInt(9, p.getGrandTotal());
             if (p.getPaymentMethod() == null) ps.setNull(10, Types.OTHER, "payment_method");
             else ps.setString(10, p.getPaymentMethod().getCode());
-            ps.setInt(11, p.getAmountPaid());
+            // ✅ Handle amountPaid as nullable Integer
+            if (p.getAmountPaid() == null) ps.setNull(11, Types.INTEGER);
+            else ps.setInt(11, p.getAmountPaid());
             ps.setString(12, p.getNote());
             ps.setInt(13, p.getId());
 
@@ -249,7 +253,9 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
         String method = rs.getString("payment_method");
         if (method != null) p.setPaymentMethod(PaymentMethod.fromCode(method));
 
-        p.setAmountPaid(rs.getInt("amount_paid"));
+        // ✅ Handle amountPaid as nullable Integer when reading from DB
+        Integer amountPaid = (Integer) rs.getObject("amount_paid");
+        p.setAmountPaid(amountPaid);  // Set null if not paid yet
         p.setNote(rs.getString("note"));
 
         Timestamp createdAt = rs.getTimestamp("created_at");

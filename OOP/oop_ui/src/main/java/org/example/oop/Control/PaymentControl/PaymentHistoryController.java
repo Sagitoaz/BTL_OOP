@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Payment.Payment;
@@ -57,7 +58,7 @@ public class PaymentHistoryController implements Initializable {
     private TableColumn<PaymentWithStatus, String> colNote;
 
     public PaymentHistoryController() {
-        this.paymentService = new HttpPaymentService();
+        this.paymentService = HttpPaymentService.getInstance();
         this.paymentsWithStatus = FXCollections.observableArrayList();
     }
 
@@ -241,25 +242,29 @@ public class PaymentHistoryController implements Initializable {
 
     private void loadPayments() {
         System.out.println("⏳ Đang tải lịch sử thanh toán...");
-        try {
-            List<PaymentWithStatus> allPayments = paymentService.getPaymentsWithStatus();
-            if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
-                int customerId = ((Customer)SceneManager.getSceneData("accountData")).getId();
-                System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
-                for(PaymentWithStatus p : allPayments){
-
-                    System.out.println("💰 Payment ID: " + p.getPayment().getId() + ", Customer ID: " + p.getPayment().getCustomerId());
-                }
-                allPayments = allPayments.stream()
-                        .filter(p -> p.getPayment().getCustomerId() == customerId)
-                        .toList();
-            }
-            allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
-            paymentsWithStatus.setAll(allPayments);
-            tablePayments.setItems(paymentsWithStatus);
-        } catch (Exception e) {
-            e.printStackTrace();
+        
+        ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
+        
+        if (!response.isSuccess()) {
+            System.err.println("❌ Lỗi tải lịch sử thanh toán: " + response.getErrorMessage());
+            return;
         }
+        
+        List<PaymentWithStatus> allPayments = response.getData();
+        
+        if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+            int customerId = ((Customer)SceneManager.getSceneData("accountData")).getId();
+            System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
+            for(PaymentWithStatus p : allPayments){
+                System.out.println("💰 Payment ID: " + p.getPayment().getId() + ", Customer ID: " + p.getPayment().getCustomerId());
+            }
+            allPayments = allPayments.stream()
+                    .filter(p -> p.getPayment().getCustomerId() == customerId)
+                    .toList();
+        }
+        allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
+        paymentsWithStatus.setAll(allPayments);
+        tablePayments.setItems(paymentsWithStatus);
     }
 
     private void showPaymentDetails(Payment payment) {

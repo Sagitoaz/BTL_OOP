@@ -63,7 +63,12 @@ public class ApiClient {
 
           String jwtToken = SessionStorage.getJwtToken();
           if (jwtToken != null && !jwtToken.isEmpty()) {
+               // 🔍 DEBUG: Log JWT token (first 20 chars for security)
+               System.out.println("🔑 [ApiClient] JWT Token: " + 
+                    (jwtToken.length() > 20 ? jwtToken.substring(0, 20) + "..." : jwtToken));
                builder.header("Authorization", "Bearer " + jwtToken);
+          } else {
+               System.out.println("⚠️ [ApiClient] No JWT token found in SessionStorage!");
           }
 
           return builder;

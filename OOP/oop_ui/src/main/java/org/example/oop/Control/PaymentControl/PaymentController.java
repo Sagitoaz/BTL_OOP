@@ -17,6 +17,7 @@ import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Service.HttpPaymentStatusLogService;
+import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.*;
@@ -75,10 +76,10 @@ public class PaymentController extends BaseController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // <-- Khởi tạo các service
-        paymentService = new HttpPaymentService();
-        statusLogService = new HttpPaymentStatusLogService();
-        itemService = new HttpPaymentItemService();
+        // <-- Khởi tạo các service với getInstance()
+        paymentService = HttpPaymentService.getInstance();
+        statusLogService = HttpPaymentStatusLogService.getInstance();
+        itemService = HttpPaymentItemService.getInstance();
 
         setupPaymentMethods();
         setupEventHandlers();
@@ -156,10 +157,14 @@ public class PaymentController extends BaseController implements Initializable {
         executeAsync(
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
-                    // 1. Lấy payment
+                    // 1. Lấy payment với ApiResponse handling
                     Payment payment = null;
                     try {
-                        payment = paymentService.getPaymentById(id);
+                        ApiResponse<Payment> paymentResponse = paymentService.getPaymentById(id);
+                        if (!paymentResponse.isSuccess()) {
+                            throw new RuntimeException("Không thể lấy payment: " + paymentResponse.getErrorMessage());
+                        }
+                        payment = paymentResponse.getData();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -168,8 +173,12 @@ public class PaymentController extends BaseController implements Initializable {
                         throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
                     }
 
-                    // 2. Lấy trạng thái
-                    PaymentStatus status = statusLogService.getCurrentStatusById(payment.getId()).getStatus();
+                    // 2. Lấy trạng thái với ApiResponse handling
+                    ApiResponse<PaymentStatusLog> statusResponse = statusLogService.getCurrentStatusById(payment.getId());
+                    if (!statusResponse.isSuccess()) {
+                        throw new RuntimeException("Không thể lấy trạng thái: " + statusResponse.getErrorMessage());
+                    }
+                    PaymentStatus status = statusResponse.getData().getStatus();
 
                     // 3. Kiểm tra trạng thái
                     if (status == PaymentStatus.PAID) {
@@ -182,7 +191,13 @@ public class PaymentController extends BaseController implements Initializable {
 
                     // 4. Gán biến global (vẫn an toàn vì onSuccess sẽ đọc sau)
                     currentPayment = payment;
-                    currentItems = itemService.getAllPaymentItems(Optional.of(id), Optional.empty());
+                    
+                    // Lấy items với ApiResponse handling
+                    ApiResponse<List<PaymentItem>> itemsResponse = itemService.getPaymentItemsByPaymentId(id);
+                    if (!itemsResponse.isSuccess()) {
+                        throw new RuntimeException("Không thể lấy items: " + itemsResponse.getErrorMessage());
+                    }
+                    currentItems = itemsResponse.getData();
 
                     return true; // Trả về true nếu mọi thứ thành công
                 },
@@ -267,10 +282,14 @@ public class PaymentController extends BaseController implements Initializable {
         executeAsync(
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
-                    // 1. GỬI CẬP NHẬT LÊN SERVER
+                    // 1. GỬI CẬP NHẬT LÊN SERVER với ApiResponse handling
                     Payment updatedPayment = null;
                     try {
-                        updatedPayment = paymentService.updatePayment(currentPayment);
+                        ApiResponse<Payment> updateResponse = paymentService.updatePayment(currentPayment);
+                        if (!updateResponse.isSuccess()) {
+                            throw new RuntimeException("Không thể cập nhật payment: " + updateResponse.getErrorMessage());
+                        }
+                        updatedPayment = updateResponse.getData();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -279,13 +298,16 @@ public class PaymentController extends BaseController implements Initializable {
                         throw new RuntimeException("Không thể cập nhật thông tin thanh toán. Vui lòng thử lại.");
                     }
 
-                    // 2. Cập nhật trạng thái
-                    statusLogService.updatePaymentStatus(new PaymentStatusLog(
+                    // 2. Cập nhật trạng thái với ApiResponse handling
+                    ApiResponse<PaymentStatusLog> statusResponse = statusLogService.updatePaymentStatus(new PaymentStatusLog(
                             null,
                             currentPayment.getId(),
                             LocalDateTime.now(),
                             PaymentStatus.PAID)
                     );
+                    if (!statusResponse.isSuccess()) {
+                        throw new RuntimeException("Không thể cập nhật trạng thái: " + statusResponse.getErrorMessage());
+                    }
                 },
 
                 // --------- KHI THÀNH CÔNG (UI THREAD) ---------
