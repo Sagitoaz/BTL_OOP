@@ -18,6 +18,7 @@ public class Employee implements User {
     private String licenseNo;
     private String email;
     private String phone;
+    private String gender; // "male" hoặc "female"
     private boolean active;
     private LocalDateTime createdAt;
 
@@ -158,6 +159,14 @@ public class Employee implements User {
 
     public void setLicenseNo(String licenseNo) {
         this.licenseNo = licenseNo;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public LocalDateTime getCreatedAt() {
