@@ -77,14 +77,9 @@ public class PrescriptionController
                 try {
                     int id = Integer.parseInt(customerIdParam.get());
                     List<Prescription> prescriptions = prescriptionRepository.findByCustomerId(id);
+                    String jsonResponse = gson.toJson(prescriptions);
+                    return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
 
-                    if (!prescriptions.isEmpty()) {
-                        String jsonResponse = gson.toJson(prescriptions);
-                        return HttpResponse.of(200, "application/json", jsonResponse.getBytes(StandardCharsets.UTF_8));
-                    } else {
-                        return HttpResponse.of(404, "text/plain; charset=utf-8",
-                                "Prescription not found".getBytes(StandardCharsets.UTF_8));
-                    }
                 } catch (NumberFormatException e) {
                     return HttpResponse.of(400, "text/plain; charset=utf-8",
                             "Invalid ID format".getBytes(StandardCharsets.UTF_8));

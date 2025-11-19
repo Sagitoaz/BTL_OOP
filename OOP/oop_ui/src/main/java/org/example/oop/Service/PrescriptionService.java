@@ -148,6 +148,7 @@ public class PrescriptionService {
     }
     public void getPrescriptionByCustomer_idAsync(Consumer<List<Prescription>> onSuccess, Consumer<String> onError, int customer_id){
         String endpoint = CustomerAndPrescriptionConfig.GET_PRESCRIPTION_ENDPOINT+"?customer_id=" + customer_id;
+        System.out.println("🔍 Fetching prescriptions for customer_id " + customer_id + " from endpoint: " + endpoint);
         apiClient.getAsync(endpoint, response ->{
             if(response.isSuccess()){
                 try{
@@ -155,6 +156,8 @@ public class PrescriptionService {
                     List<Prescription> prescriptions;
                     if(responseData == null || responseData.trim().isEmpty() || responseData.equals("null")){
                         prescriptions = new ArrayList<>();
+                        System.out.println("📋 Loaded 0 prescriptions for customer_id " + customer_id);
+                        onSuccess.accept(prescriptions);
                     }
                     else{
                         Prescription[] prescriptionsArray = gson.fromJson(responseData, Prescription[].class);
@@ -173,6 +176,7 @@ public class PrescriptionService {
                 }
             }
             else{
+                System.err.println("❌ Error in getPrescriptionByCustomer_id: " + response.getErrorMessage());
                 onError.accept(response.getErrorMessage());
             }
         }, onError);

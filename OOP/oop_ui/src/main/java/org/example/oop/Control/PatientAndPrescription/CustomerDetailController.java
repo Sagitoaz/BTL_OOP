@@ -82,6 +82,7 @@ public class CustomerDetailController {
 
     private void setupTableColumns() {
         PrescriptionService prescriptionService = new PrescriptionService();
+        System.out.println("Loading prescriptions for customer ID: " + customerIdLabel.getText());
         prescriptionService.getPrescriptionByCustomer_idAsync( prescriptions -> {;
             prescriptionsTable.setItems(FXCollections.observableList(prescriptions));
 
