@@ -3,6 +3,7 @@ package org.miniboot.app;
 import org.miniboot.app.controllers.AppointmentController;
 import org.miniboot.app.controllers.AuthController;
 import org.miniboot.app.controllers.DoctorController;
+import org.miniboot.app.controllers.DoctorScheduleController;
 import org.miniboot.app.controllers.EmployeeController;
 import org.miniboot.app.controllers.Inventory.InventoryController;
 import org.miniboot.app.controllers.Inventory.StockMovementController;
@@ -13,6 +14,7 @@ import org.miniboot.app.controllers.payment.PaymentItemController;
 import org.miniboot.app.controllers.payment.PaymentStatusLogController;
 import org.miniboot.app.domain.repo.AppointmentRepository;
 import org.miniboot.app.domain.repo.DoctorRepository;
+import org.miniboot.app.domain.repo.DoctorScheduleRepository;
 import org.miniboot.app.domain.repo.Employee.PostgreSQLEmployeeRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLProductRepository;
 import org.miniboot.app.domain.repo.Inventory.PostgreSQLStockMovmentRepository;
@@ -60,12 +62,19 @@ public class ServerMain {
 
         CustomerRecordRepository customerRecordRepo = new PostgreSQLCustomerRecordRepository();
         PrescriptionRepository prescriptionRepository = new PostgreSQLPrescription();
+        DoctorScheduleRepository doctorScheduleRepo = new DoctorScheduleRepository();
 
         System.out.println("✅ Repositories initialized");
 
+        // Tạo services
+        org.miniboot.app.domain.service.ScheduleService scheduleService = 
+            new org.miniboot.app.domain.service.ScheduleService(doctorScheduleRepo, apptRepo);
+        
+        System.out.println("✅ Services initialized");
+
         // Tạo controllers
-        DoctorController dc = new DoctorController(doctorRepo, apptRepo);
-        AppointmentController ac = new AppointmentController(apptRepo);
+        DoctorController dc = new DoctorController(doctorRepo, apptRepo, doctorScheduleRepo);
+        AppointmentController ac = new AppointmentController(apptRepo, scheduleService);
         CustomerRecordController crc = new CustomerRecordController(customerRecordRepo);
         // 🔽 ADD: Payment controllers
         PaymentController pc = new PaymentController(paymentRepo, paymentStatusRepo);
@@ -105,6 +114,7 @@ public class ServerMain {
 
         DoctorController.mount(router, dc);
         AppointmentController.mount(router, ac);
+        DoctorScheduleController.mount(router, doctorScheduleRepo);
         InventoryController.mount(router, ic);
         StockMovementController.mount(router, smc); // ✅ Mount StockMovement routes
         // 🔽 ADD: Mount Payment routes

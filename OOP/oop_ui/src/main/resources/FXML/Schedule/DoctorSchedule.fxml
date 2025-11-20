@@ -52,8 +52,8 @@
          <HBox alignment="CENTER_LEFT" spacing="14.0" style="-fx-padding: 12 28 12 28; -fx-background-color: #f8f9fa;">
             <Label styleClass="form-label" text="Ngày:" />
             <DatePicker fx:id="datePicker" prefWidth="160.0" promptText="Chọn ngày" style="-fx-background-color: white; -fx-border-color: transparent; -fx-border-width: 0;" />
-            <ToggleButton fx:id="dayViewBtn" prefHeight="49.0" prefWidth="137.0" styleClass="btn-secondary" text="📅 Ngày" />
-            <ToggleButton fx:id="weekViewBtn" prefHeight="49.0" prefWidth="134.0" styleClass="btn-secondary" text="📆 Tuần" />
+            <ToggleButton fx:id="dayViewBtn" mnemonicParsing="false" onAction="#onDayView" prefHeight="49.0" prefWidth="137.0" styleClass="btn-secondary" text="📅 Ngày" />
+            <ToggleButton fx:id="weekViewBtn" mnemonicParsing="false" onAction="#onWeekView" prefHeight="49.0" prefWidth="134.0" styleClass="btn-secondary" text="📆 Tuần" />
             <Button fx:id="todayBtn" mnemonicParsing="false" onAction="#onToday" text="Hôm nay" />
             <Region HBox.hgrow="ALWAYS" />
             <TextField fx:id="searchField" prefWidth="200.0" promptText="🔍 Tìm kiếm..." />
@@ -112,7 +112,7 @@
                   <CheckBox fx:id="morningShiftChk" text="Ca sáng (8:00-12:00)" />
                   <CheckBox fx:id="afternoonShiftChk" text="Ca chiều (13:00-17:00)" />
                   <CheckBox fx:id="eveningShiftChk" text="Ca tối (17:00-20:00)" />
-                  <Button fx:id="applyShiftBtn" mnemonicParsing="false" onAction="#onApplyShift" styleClass="btn-success" text="Áp dụng" />
+                  <Label style="-fx-font-size: 11px; -fx-text-fill: #666; -fx-padding: 5 0 0 0;" text="💡 Nhấn 'Lưu' ở dưới để cập nhật lịch" wrapText="true" />
                </VBox>
 
                <Separator />
