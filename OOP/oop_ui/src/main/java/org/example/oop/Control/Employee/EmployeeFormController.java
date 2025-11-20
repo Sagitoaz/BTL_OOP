@@ -39,6 +39,8 @@ public class EmployeeFormController extends BaseController {
     @FXML
     private ComboBox<String> roleComboBox;
     @FXML
+    private ComboBox<String> genderComboBox;
+    @FXML
     private TextField licenseNoField;
     @FXML
     private TextField avatarField;
@@ -61,6 +63,10 @@ public class EmployeeFormController extends BaseController {
         cancelButton.setOnAction(event -> handleCancel());
         roleComboBox.getItems().setAll("doctor", "nurse");
         roleComboBox.setOnAction(e -> handleRoleChange());
+
+        // Initialize gender combobox with Vietnamese display values
+        genderComboBox.getItems().addAll("Nam", "Nữ", "Khác");
+
         loadLeftImage();
     }
 
@@ -92,6 +98,42 @@ public class EmployeeFormController extends BaseController {
         }
     }
 
+    /**
+     * Convert Vietnamese gender display to English database value
+     */
+    private String convertGenderToEnglish(String vietnameseGender) {
+        if (vietnameseGender == null) return null;
+
+        switch (vietnameseGender) {
+            case "Nam":
+                return "MALE";
+            case "Nữ":
+                return "FEMALE";
+            case "Khác":
+                return "OTHER";
+            default:
+                return vietnameseGender.toUpperCase();
+        }
+    }
+
+    /**
+     * Convert English database gender value to Vietnamese display
+     */
+    private String convertGenderToVietnamese(String englishGender) {
+        if (englishGender == null) return null;
+
+        switch (englishGender.toUpperCase()) {
+            case "MALE":
+                return "Nam";
+            case "FEMALE":
+                return "Nữ";
+            case "OTHER":
+                return "Khác";
+            default:
+                return englishGender;
+        }
+    }
+
     @FXML
     private void handleSave() {
         String username = usernameField.getText();
@@ -101,6 +143,7 @@ public class EmployeeFormController extends BaseController {
         String email = emailField.getText();
         String phone = phoneField.getText();
         String role = roleComboBox.getValue();
+        String genderVietnamese = genderComboBox.getValue();
         String licenseNo = licenseNoField.getText();
         String avatar = avatarField.getText();
         boolean isActive = activeCheckBox.isSelected();
@@ -109,6 +152,14 @@ public class EmployeeFormController extends BaseController {
             showError("Firstname, lastname và role là bắt buộc.");
             return;
         }
+
+        if (genderVietnamese == null || genderVietnamese.isBlank()) {
+            showError("Vui lòng chọn giới tính.");
+            return;
+        }
+
+        // Convert Vietnamese gender to English for database
+        String gender = convertGenderToEnglish(genderVietnamese);
 
         if (editingEmployee != null) {
             if ("doctor".equals(role) && (licenseNo == null || licenseNo.isBlank())) {
@@ -123,6 +174,7 @@ public class EmployeeFormController extends BaseController {
             updated.setEmail(email);
             updated.setPhone(phone);
             updated.setRole(role);
+            updated.setGender(gender);
             updated.setLicenseNo("doctor".equals(role) ? licenseNo : null);
             updated.setAvatar(avatar);
             updated.setActive(isActive);
@@ -132,7 +184,7 @@ public class EmployeeFormController extends BaseController {
                     return employeeService.updateEmployee(updated);
                 } catch (Exception e) {
                     System.err.println("Lỗi khi cập nhật nhân viên: " + e.getMessage());
-                    return null; // ✅ Return null instead of throwing RuntimeException
+                    return null;
                 }
             }, this::handleUpdateResponse, throwable -> {
                 Throwable real = throwable.getCause() != null ? throwable.getCause() : throwable;
@@ -172,6 +224,7 @@ public class EmployeeFormController extends BaseController {
         newEmployee.setEmail(email);
         newEmployee.setPhone(phone);
         newEmployee.setRole(role);
+        newEmployee.setGender(gender);
         newEmployee.setLicenseNo("doctor".equals(role) ? licenseNo : null);
         newEmployee.setAvatar(avatar);
         newEmployee.setActive(isActive);
@@ -221,6 +274,7 @@ public class EmployeeFormController extends BaseController {
         emailField.clear();
         phoneField.clear();
         roleComboBox.setValue(null);
+        genderComboBox.setValue(null);
         licenseNoField.clear();
         licenseNoField.setDisable(true);
         avatarField.clear();
@@ -291,3 +345,4 @@ public class EmployeeFormController extends BaseController {
         return phone != null && phone.length() == 10 && phone.matches("\\d+");
     }
 }
+

@@ -121,10 +121,10 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
      private Employee insert(Employee employee) {
           String sql = """
                         INSERT INTO employees (
-                            username, password, firstname, lastname,
+                            username, password, firstname, lastname, gender,
                             avatar, role, license_no, email, phone, is_active
                         )
-                        VALUES (?, ?, ?, ?, ?, ?::employee_role, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?::employee_role, ?, ?, ?, ?)
                         RETURNING id
                     """;
           try (Connection conn = dbConfig.getConnection();
@@ -148,29 +148,41 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                pstmt.setString(3, employee.getFirstname());
                pstmt.setString(4, employee.getLastname());
 
-               if (employee.getAvatar() != null && !employee.getAvatar().isBlank())
-                    pstmt.setString(5, employee.getAvatar());
+               // Gender - parameter 5 (ngay sau lastname theo đúng schema database)
+               if (employee.getGender() != null && !employee.getGender().isBlank())
+                    pstmt.setString(5, employee.getGender().toUpperCase());
                else
                     pstmt.setNull(5, java.sql.Types.VARCHAR);
 
-               pstmt.setString(6, roleLower);
-
-               if (employee.getLicenseNo() != null && !employee.getLicenseNo().isBlank())
-                    pstmt.setString(7, employee.getLicenseNo());
+               // Avatar - parameter 6
+               if (employee.getAvatar() != null && !employee.getAvatar().isBlank())
+                    pstmt.setString(6, employee.getAvatar());
                else
-                    pstmt.setNull(7, java.sql.Types.VARCHAR);
+                    pstmt.setNull(6, java.sql.Types.VARCHAR);
 
-               if (employee.getEmail() != null && !employee.getEmail().isBlank())
-                    pstmt.setString(8, employee.getEmail());
+               // Role - parameter 7
+               pstmt.setString(7, roleLower);
+
+               // License No - parameter 8
+               if (employee.getLicenseNo() != null && !employee.getLicenseNo().isBlank())
+                    pstmt.setString(8, employee.getLicenseNo());
                else
                     pstmt.setNull(8, java.sql.Types.VARCHAR);
 
-               if (employee.getPhone() != null && !employee.getPhone().isBlank())
-                    pstmt.setString(9, employee.getPhone());
+               // Email - parameter 9
+               if (employee.getEmail() != null && !employee.getEmail().isBlank())
+                    pstmt.setString(9, employee.getEmail());
                else
                     pstmt.setNull(9, java.sql.Types.VARCHAR);
 
-               pstmt.setBoolean(10, employee.isActive());
+               // Phone - parameter 10
+               if (employee.getPhone() != null && !employee.getPhone().isBlank())
+                    pstmt.setString(10, employee.getPhone());
+               else
+                    pstmt.setNull(10, java.sql.Types.VARCHAR);
+
+               // Active - parameter 11
+               pstmt.setBoolean(11, employee.isActive());
 
                try (ResultSet rs = pstmt.executeQuery()) {
                     if (rs.next())
@@ -197,6 +209,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                         SET
                             firstname = ?,
                             lastname = ?,
+                            gender = ?::gender_enum,
                             avatar = ?,
                             role = ?::employee_role,
                             license_no = ?,
@@ -216,30 +229,44 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                pstmt.setString(1, employee.getFirstname());
                pstmt.setString(2, employee.getLastname());
 
-               if (employee.getAvatar() != null && !employee.getAvatar().isBlank())
-                    pstmt.setString(3, employee.getAvatar());
+               // Gender - parameter 3
+               if (employee.getGender() != null && !employee.getGender().isBlank())
+                    pstmt.setString(3, employee.getGender().toUpperCase());
                else
                     pstmt.setNull(3, java.sql.Types.VARCHAR);
 
-               pstmt.setString(4, employee.getRole().toLowerCase());
-
-               if (employee.getLicenseNo() != null && !employee.getLicenseNo().isBlank())
-                    pstmt.setString(5, employee.getLicenseNo());
+               // Avatar - parameter 4
+               if (employee.getAvatar() != null && !employee.getAvatar().isBlank())
+                    pstmt.setString(4, employee.getAvatar());
                else
-                    pstmt.setNull(5, java.sql.Types.VARCHAR);
+                    pstmt.setNull(4, java.sql.Types.VARCHAR);
 
-               if (employee.getEmail() != null && !employee.getEmail().isBlank())
-                    pstmt.setString(6, employee.getEmail());
+               // Role - parameter 5
+               pstmt.setString(5, employee.getRole().toLowerCase());
+
+               // License No - parameter 6
+               if (employee.getLicenseNo() != null && !employee.getLicenseNo().isBlank())
+                    pstmt.setString(6, employee.getLicenseNo());
                else
                     pstmt.setNull(6, java.sql.Types.VARCHAR);
 
-               if (employee.getPhone() != null && !employee.getPhone().isBlank())
-                    pstmt.setString(7, employee.getPhone());
+               // Email - parameter 7
+               if (employee.getEmail() != null && !employee.getEmail().isBlank())
+                    pstmt.setString(7, employee.getEmail());
                else
                     pstmt.setNull(7, java.sql.Types.VARCHAR);
 
-               pstmt.setBoolean(8, employee.isActive());
-               pstmt.setInt(9, employee.getId());
+               // Phone - parameter 8
+               if (employee.getPhone() != null && !employee.getPhone().isBlank())
+                    pstmt.setString(8, employee.getPhone());
+               else
+                    pstmt.setNull(8, java.sql.Types.VARCHAR);
+
+               // Active - parameter 9
+               pstmt.setBoolean(9, employee.isActive());
+
+               // ID - parameter 10
+               pstmt.setInt(10, employee.getId());
 
                int rowsAffected = pstmt.executeUpdate();
                if (rowsAffected == 0) {

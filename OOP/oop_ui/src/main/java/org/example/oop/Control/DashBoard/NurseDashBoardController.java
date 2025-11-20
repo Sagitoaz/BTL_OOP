@@ -199,6 +199,22 @@ public class NurseDashBoardController extends BaseController {
                 SceneConfig.Titles.PRODUCT_CRUD);
     }
 
+    @FXML
+    private void handleAppointmentBookingButton() {
+        System.out.println("🔄 Nurse: Opening Appointment Booking...");
+        SafeNavigator.navigate(
+                SceneConfig.APPOINTMENT_BOOKING_FXML,
+                SceneConfig.Titles.APPOINTMENT_BOOKING);
+    }
+
+    @FXML
+    private void handleAppointmentManagement() {
+        System.out.println("🔄 Nurse: Opening Appointment Management...");
+        SafeNavigator.navigate(
+                SceneConfig.APPOINTMENT_MANAGEMENT_FXML,
+                SceneConfig.Titles.APPOINTMENT_MANAGEMENT);
+    }
+
     private boolean isGoingBackToLogin() {
         return true;
     }
