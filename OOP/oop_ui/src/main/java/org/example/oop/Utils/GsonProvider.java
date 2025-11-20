@@ -12,11 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.SerializedName;
 import org.miniboot.app.domain.models.Inventory.Enum.Category;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * GsonProvider - Tạo Gson instance với cấu hình sẵn
@@ -47,7 +44,7 @@ public class GsonProvider {
     public static Gson createGson() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME; // ✅ THÊM
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
 
         return new GsonBuilder()
                 // ✅ QUAN TRỌNG: Gson phải đọc cả snake_case và camelCase
@@ -55,11 +52,10 @@ public class GsonProvider {
                 // Nhưng Java field names là: priceRetail, qtyOnHand, priceCost, createdAt...
                 // Gson sẽ tự động map snake_case → camelCase
                 .setFieldNamingStrategy(f -> {
-                    // Ưu tiên đọc từ @JsonProperty annotation (nếu có)
-                    com.fasterxml.jackson.annotation.JsonProperty jsonProp = f.getAnnotation(
-                            com.fasterxml.jackson.annotation.JsonProperty.class);
-                    if (jsonProp != null && !jsonProp.value().isEmpty()) {
-                        return jsonProp.value(); // Trả về "price_retail", "qty_on_hand"...
+                    // Ưu tiên đọc từ @SerializedName annotation (nếu có)
+                    SerializedName serializedName = f.getAnnotation(SerializedName.class);
+                    if (serializedName != null && !serializedName.value().isEmpty()) {
+                        return serializedName.value(); // Trả về "price_retail", "qty_on_hand"...
                     }
                     // Fallback: giữ nguyên tên field
                     return f.getName();
@@ -101,22 +97,6 @@ public class GsonProvider {
                 .registerTypeAdapter(Category.class,
                         (JsonSerializer<Category>) (src, type, context) -> context
                                 .serialize(src.getCode()))
-
-                // LocalDateTime adapter
-                .registerTypeAdapter(LocalDateTime.class,
-                        (JsonDeserializer<LocalDateTime>) (json, type, context) ->
-                                LocalDateTime.parse(json.getAsString(), dateTimeFormatter))
-                .registerTypeAdapter(LocalDateTime.class,
-                        (JsonSerializer<LocalDateTime>) (src, type, context) ->
-                                context.serialize(src.format(dateTimeFormatter)))
-
-                // LocalDate adapter
-                .registerTypeAdapter(LocalDate.class,
-                        (JsonDeserializer<LocalDate>) (json, type, context) ->
-                                LocalDate.parse(json.getAsString(), dateFormatter))
-                .registerTypeAdapter(LocalDate.class,
-                        (JsonSerializer<LocalDate>) (src, type, context) ->
-                                context.serialize(src.format(dateFormatter)))
 
                 // ✅ LocalTime adapter - FIX CHO TIMESLOT
                 .registerTypeAdapter(LocalTime.class,

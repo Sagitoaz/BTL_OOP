@@ -170,6 +170,12 @@ public class HttpEmployeeService {
         } else if (code == 400) {
             System.err.println("Bad request: " + extractMessage(res.body(), "Dữ liệu không hợp lệ"));
             throw new Exception(extractMessage(res.body(), "Dữ liệu không hợp lệ"));
+        } else if (code == 422) {
+            System.err.println("Invalid data: " + extractMessage(res.body(), "Dữ liệu không hợp lệ"));
+            throw new Exception(extractMessage(res.body(), "Vai trò không hợp lệ. Chỉ được chọn 'doctor' hoặc 'nurse'"));
+        } else if (code == 500) {
+            System.err.println("Server error: " + extractMessage(res.body(), "Lỗi máy chủ"));
+            throw new Exception(extractMessage(res.body(), "Lỗi máy chủ khi tạo nhân viên. Vui lòng kiểm tra dữ liệu và thử lại."));
         }
         System.err.println("Failed to create employee: HTTP " + code + " body=" + res.body());
         throw new Exception("Failed to create employee: HTTP " + code + " body=" + res.body());
@@ -210,6 +216,12 @@ public class HttpEmployeeService {
         } else if (code == 400) {
             System.err.println("Bad request: " + extractMessage(res.body(), "Dữ liệu không hợp lệ"));
             throw new Exception(extractMessage(res.body(), "Dữ liệu không hợp lệ"));
+        } else if (code == 422) {
+            System.err.println("Invalid data: " + extractMessage(res.body(), "Dữ liệu không hợp lệ"));
+            throw new Exception(extractMessage(res.body(), "Vai trò không hợp lệ. Chỉ được chọn 'doctor' hoặc 'nurse'"));
+        } else if (code == 500) {
+            System.err.println("Server error: " + extractMessage(res.body(), "Lỗi máy chủ"));
+            throw new Exception(extractMessage(res.body(), "Lỗi máy chủ khi cập nhật nhân viên. Vui lòng kiểm tra dữ liệu và thử lại."));
         }
         System.err.println("Failed to update employee: HTTP " + code + " body=" + res.body());
         throw new Exception("Failed to update employee: HTTP " + code + " body=" + res.body());

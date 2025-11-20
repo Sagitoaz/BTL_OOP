@@ -11,15 +11,10 @@ module org.example.oop {
     requires java.desktop;
     requires java.net.http;
 
-    // ========== BCrypt & Jackson ==========
-    requires bcrypt;
-    requires com.fasterxml.jackson.annotation;
-
     // ========== Mini-boot Module ==========
     // NOTE: mini-boot is loaded as automatic module from classpath
-    // This avoids conflicts with shaded dependencies
+    // This includes all shaded dependencies (bcrypt, jackson, gson, etc.)
     requires mini.boot;
-    // Gson is available through mini.boot (shaded)
 
     // ========== Exports ==========
     exports org.example.oop;

@@ -1,9 +1,9 @@
 package org.miniboot.app.controllers;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
+import org.miniboot.app.auth.PasswordService;
 
 public class UserController {
     public static String hashPassword(String password) {
-        return BCrypt.withDefaults().hashToString(10, password.toCharArray());
+        return PasswordService.hashPasswordWithSalt(password);
     }
 }
