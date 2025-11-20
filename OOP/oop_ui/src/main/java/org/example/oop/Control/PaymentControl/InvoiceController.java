@@ -2,18 +2,21 @@ package org.example.oop.Control.PaymentControl;
 
 // Import BaseController
 
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+
 import org.example.oop.Control.BaseController;
-import org.example.oop.Service.*;
+import org.example.oop.Service.ApiProductService;
+import org.example.oop.Service.ApiStockMovementService;
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpPaymentItemService;
+import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Service.HttpPaymentStatusLogService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
@@ -25,13 +28,19 @@ import org.miniboot.app.domain.models.Payment.PaymentItem;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.models.Payment.PaymentStatusLog;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * Controller quản lý giao diện Hóa đơn.
@@ -49,7 +58,7 @@ public class InvoiceController extends BaseController implements Initializable {
     private HttpPaymentStatusLogService paymentStatusLogService;
     private CustomerRecordService customerService;
 
-    private List<Product> allProducts = new ArrayList<>();  // Lưu tất cả sản phẩm
+    private List<Product> allProducts = new ArrayList<>(); // Lưu tất cả sản phẩm
 
     // Biến tạm để lưu dữ liệu đang chọn
     private Product currentSelectedProduct;
@@ -98,6 +107,8 @@ public class InvoiceController extends BaseController implements Initializable {
     @FXML
     private Button btnPayInvoice;
     @FXML
+    private Button btnPaymentHistory;
+    @FXML
     private TableView<PaymentItem> tableItems;
     @FXML
     private TableColumn<PaymentItem, String> colName;
@@ -117,17 +128,35 @@ public class InvoiceController extends BaseController implements Initializable {
     private TextField txtTaxAmount;
     @FXML
     private TextField txtGrandTotal;
+
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
+
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
+    }
+
+    /**
+     * Handler để mở màn hình Lịch sử thanh toán
+     */
+    @FXML
+    private void handlePaymentHistory() {
+        try {
+            System.out.println("🔄 Opening Payment History...");
+            SceneManager.switchScene(SceneConfig.PAYMENT_HISTORY_FXML, SceneConfig.Titles.PAYMENT_HISTORY);
+        } catch (Exception e) {
+            System.err.println("❌ Error opening Payment History: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở màn hình Lịch sử thanh toán: " + e.getMessage());
+        }
     }
 
     @Override
@@ -171,9 +200,9 @@ public class InvoiceController extends BaseController implements Initializable {
                 (error) -> {
                     // Thất bại (chạy trên UI thread)
                     // Sử dụng showAlert từ BaseController
-                    showAlert(Alert.AlertType.ERROR, "Lỗi tải sản phẩm", "Không thể tải danh sách sản phẩm: " + error.getMessage());
-                }
-        );
+                    showAlert(Alert.AlertType.ERROR, "Lỗi tải sản phẩm",
+                            "Không thể tải danh sách sản phẩm: " + error.getMessage());
+                });
     }
 
     private void setupTableColumns() {
@@ -221,7 +250,8 @@ public class InvoiceController extends BaseController implements Initializable {
     }
 
     /**
-     * HÀM REFACTOR: Dùng runOnUIThread từ BaseController (thay vì Platform.runLater)
+     * HÀM REFACTOR: Dùng runOnUIThread từ BaseController (thay vì
+     * Platform.runLater)
      */
     @FXML
     private void handleFindCustomer() {
@@ -238,7 +268,8 @@ public class InvoiceController extends BaseController implements Initializable {
                     // Dùng runOnUIThread từ BaseController
                     runOnUIThread(() -> {
                         if (customers == null || customers.isEmpty()) {
-                            showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không có khách hàng nào với SĐT này.");
+                            showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy",
+                                    "Không có khách hàng nào với SĐT này.");
                             this.currentSelectedCustomer = null;
                             clearCustomerFields();
                         } else {
@@ -246,7 +277,8 @@ public class InvoiceController extends BaseController implements Initializable {
                             this.currentSelectedCustomer = foundCustomer;
                             txtCustomerName.setText(foundCustomer.getFullName());
                             txtCustomerAge.setText(String.valueOf(foundCustomer.getAge()));
-                            txtCustomerGender.setText(foundCustomer.getGender() != null ? foundCustomer.getGender().name() : "N/A");
+                            txtCustomerGender.setText(
+                                    foundCustomer.getGender() != null ? foundCustomer.getGender().name() : "N/A");
                             txtCustomerAddress.setText(foundCustomer.getAddress());
                         }
                         btnFindCustomer.setDisable(false);
@@ -260,8 +292,7 @@ public class InvoiceController extends BaseController implements Initializable {
                         clearCustomerFields();
                         btnFindCustomer.setDisable(false);
                     });
-                }
-        );
+                });
     }
 
     private void clearCustomerFields() {
@@ -294,7 +325,8 @@ public class InvoiceController extends BaseController implements Initializable {
                         txtProductType.setText(product.getCategory());
                         txtProductPrice.setText(String.valueOf(product.getPriceCost()));
                     } else {
-                        showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy", "Không tìm thấy sản phẩm với SKU này.");
+                        showAlert(Alert.AlertType.INFORMATION, "Không tìm thấy",
+                                "Không tìm thấy sản phẩm với SKU này.");
                         currentSelectedProduct = null;
                         txtProductName.clear();
                         txtProductType.clear();
@@ -306,8 +338,7 @@ public class InvoiceController extends BaseController implements Initializable {
                     // Thất bại (chạy trên UI thread)
                     showAlert(Alert.AlertType.ERROR, "Lỗi tìm sản phẩm", "Có lỗi xảy ra khi tìm kiếm sản phẩm.");
                     btnFindProduct.setDisable(false);
-                }
-        );
+                });
     }
 
     // Hàm tìm sản phẩm (giữ nguyên)
@@ -448,7 +479,8 @@ public class InvoiceController extends BaseController implements Initializable {
                 }, // Tác vụ nền
                 (savedPayment) -> {
                     // Thành công (chạy trên UI thread)
-                    showAlert(Alert.AlertType.INFORMATION, "Thành Công", "Đã lưu hóa đơn " + savedPayment.getCode() + " (Trạng thái: UNPAID).");
+                    showAlert(Alert.AlertType.INFORMATION, "Thành Công",
+                            "Đã lưu hóa đơn " + savedPayment.getCode() + " (Trạng thái: UNPAID).");
                     handleNewInvoice();
                     btnSaveInvoice.setDisable(false);
                     btnPayInvoice.setDisable(false);
@@ -459,8 +491,7 @@ public class InvoiceController extends BaseController implements Initializable {
                     error.printStackTrace();
                     btnSaveInvoice.setDisable(false);
                     btnPayInvoice.setDisable(false);
-                }
-        );
+                });
     }
 
     /**
@@ -507,10 +538,9 @@ public class InvoiceController extends BaseController implements Initializable {
 
                                     SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
 
-
-
                                 } catch (Exception ex) {
-                                    showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán", "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + ex.getMessage());
+                                    showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán",
+                                            "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + ex.getMessage());
                                     ex.printStackTrace();
                                     // Kích hoạt lại nút nếu mở cửa sổ lỗi
                                     btnSaveInvoice.setDisable(false);
@@ -519,11 +549,12 @@ public class InvoiceController extends BaseController implements Initializable {
                             },
                             (pendingError) -> {
                                 // 5. Thất bại Tác vụ 2 (chạy trên UI thread)
-                                showAlert(Alert.AlertType.ERROR, "Lỗi Cập Nhật Trạng Thái", "Đã lưu hóa đơn nhưng không thể cập nhật trạng thái PENDING: " + pendingError.getMessage());
+                                showAlert(Alert.AlertType.ERROR, "Lỗi Cập Nhật Trạng Thái",
+                                        "Đã lưu hóa đơn nhưng không thể cập nhật trạng thái PENDING: "
+                                                + pendingError.getMessage());
                                 btnSaveInvoice.setDisable(false);
                                 btnPayInvoice.setDisable(false);
-                            }
-                    );
+                            });
                 },
                 (saveError) -> {
                     // 6. Thất bại Tác vụ 1 (chạy trên UI thread)
@@ -531,8 +562,7 @@ public class InvoiceController extends BaseController implements Initializable {
                     saveError.printStackTrace();
                     btnSaveInvoice.setDisable(false);
                     btnPayInvoice.setDisable(false);
-                }
-        );
+                });
     }
 
     private void updateTotals() {
@@ -541,7 +571,8 @@ public class InvoiceController extends BaseController implements Initializable {
         int discount = 0;
         try {
             discount = Integer.parseInt(txtDiscountAmount.getText());
-        } catch (NumberFormatException e) { /* Bỏ qua */ }
+        } catch (NumberFormatException e) {
+            /* Bỏ qua */ }
 
         int tax = 0;
         int grandTotal = subtotal - discount + tax;
@@ -578,4 +609,3 @@ public class InvoiceController extends BaseController implements Initializable {
         }
     }
 }
-

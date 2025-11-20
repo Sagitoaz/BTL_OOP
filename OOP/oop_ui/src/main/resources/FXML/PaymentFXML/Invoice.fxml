@@ -40,6 +40,7 @@
                   <Font size="14.0" />
                </font></Label>
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnPaymentHistory" mnemonicParsing="false" onAction="#handlePaymentHistory" prefHeight="49.0" prefWidth="160.0" styleClass="btn-info" text="📜 Lịch sử TT" textAlignment="CENTER" wrapText="true" />
                 <Button fx:id="btnNewInvoice" mnemonicParsing="false" prefHeight="49.0" prefWidth="135.0" styleClass="btn-success" text="➕ Mới" textAlignment="CENTER" wrapText="true" />
                 <Button fx:id="btnSaveInvoice" mnemonicParsing="false" prefHeight="49.0" prefWidth="133.0" styleClass="btn-success" text="💾 Lưu" textAlignment="CENTER" wrapText="true" />
                 <Button fx:id="btnPayInvoice" mnemonicParsing="false" prefHeight="38.0" prefWidth="141.0" styleClass="btn-search" text="💰 Thanh toán" textAlignment="CENTER" wrapText="true" />

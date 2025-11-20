@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Control.SessionStorage;
 import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
@@ -22,12 +23,16 @@ public class HttpPaymentService {
 
     public HttpPaymentService() {
         this(ApiConfig.getBaseUrl());
+        // Auto-load JWT token from SessionStorage
+        this.jwtToken = SessionStorage.getJwtToken();
     }
 
     public HttpPaymentService(String baseUrl) {
         this.baseUrl = baseUrl;
         this.httpClient = HttpClient.newHttpClient();
         this.gson = GsonProvider.getGson();
+        // Auto-load JWT token from SessionStorage
+        this.jwtToken = SessionStorage.getJwtToken();
     }
 
     /**
@@ -256,10 +261,20 @@ public class HttpPaymentService {
         HttpResponse<String> response = httpClient.send(request,
                 HttpResponse.BodyHandlers.ofString());
 
+        System.out.println("📥 Response code: " + response.statusCode());
+
         if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(),
+            String responseBody = response.body();
+            System.out.println("📦 Response body length: " + responseBody.length() + " chars");
+            System.out.println("📦 Response preview: "
+                    + (responseBody.length() > 200 ? responseBody.substring(0, 200) + "..." : responseBody));
+
+            List<PaymentWithStatus> result = gson.fromJson(responseBody,
                     new TypeToken<List<PaymentWithStatus>>() {
                     }.getType());
+
+            System.out.println("✅ Parsed " + (result != null ? result.size() : 0) + " payments");
+            return result;
         } else if (response.statusCode() == 401) {
             throw new Exception("401: Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
         } else if (response.statusCode() == 429) {
