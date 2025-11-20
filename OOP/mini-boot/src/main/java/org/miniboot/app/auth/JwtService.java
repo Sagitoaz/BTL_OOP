@@ -41,13 +41,22 @@ public class JwtService {
      */
     public static String validateTokenAndGetUserId(String token) {
         try {
+            System.out.println("🔍 [JwtService] Validating token...");
+            System.out.println("🔍 [JwtService] Expected issuer: " + AuthConstants.JWT_ISSUER);
+            System.out.println("🔍 [JwtService] Expected audience: " + AuthConstants.JWT_AUDIENCE);
+            
             DecodedJWT jwt = JWT.require(algorithm)
                     .withIssuer(AuthConstants.JWT_ISSUER)
                     .withAudience(AuthConstants.JWT_AUDIENCE)
                     .build()
                     .verify(token);
-            return jwt.getSubject();
+            
+            String userId = jwt.getSubject();
+            System.out.println("✅ [JwtService] Token valid! UserId: " + userId);
+            return userId;
         } catch (JWTVerificationException e) {
+            System.out.println("❌ [JwtService] Validation failed: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

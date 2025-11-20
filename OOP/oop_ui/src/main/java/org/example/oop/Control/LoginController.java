@@ -237,6 +237,9 @@ public class LoginController {
                 // Store JWT token
                 String jwtToken = loginResult.getAccessToken();
                 SessionStorage.setJwtToken(jwtToken);
+                System.out.println("🔑 [LoginController] JWT stored in SessionStorage");
+                System.out.println("🔑 [LoginController] Token (first 30 chars): " + 
+                    (jwtToken != null && jwtToken.length() > 30 ? jwtToken.substring(0, 30) + "..." : jwtToken));
                 LOGGER.info("JWT token obtained and stored");
 
                 // Step 2: Also call session-based login for backward compatibility

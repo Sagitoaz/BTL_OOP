@@ -2,261 +2,426 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.example.oop.Utils.ApiConfig;
+import javafx.application.Platform;
+import org.example.oop.Utils.ApiClient;
+import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
-import org.miniboot.app.util.GsonProvider;
+import org.miniboot.app.util.PaymentConfig;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Consumer;
 
+/**
+ * 🌐 PAYMENT ITEM SERVICE - PaymentItem API Integration
+ *
+ * Service layer làm cầu nối giữa Frontend và Backend API cho PaymentItem operations
+ * Theo pattern của CustomerRecordService với:
+ * - Singleton pattern
+ * - ApiResponse wrapper cho type safety
+ * - Sync và Async methods
+ * - JavaFX Platform threading
+ * - Error handling chuẩn
+ * - JSON serialization/deserialization
+ * - Automatic JWT authentication via ApiClient
+ */
 public class HttpPaymentItemService {
 
-    private final String baseUrl;
-    private final HttpClient httpClient;
+    private final ApiClient apiClient;
     private final Gson gson;
 
-    public HttpPaymentItemService() {
-        this(ApiConfig.getBaseUrl());
+    // Singleton instance
+    private static HttpPaymentItemService instance;
+
+    private HttpPaymentItemService() {
+        this.apiClient = ApiClient.getInstance();
+        this.gson = GsonProvider.createGson();
     }
 
-    public HttpPaymentItemService(String baseUrl) {
-        this.baseUrl = baseUrl;
-        this.httpClient = HttpClient.newHttpClient();
-        this.gson = GsonProvider.getGson();
+    public static synchronized HttpPaymentItemService getInstance() {
+        if (instance == null) {
+            instance = new HttpPaymentItemService();
+        }
+        return instance;
     }
+
+    // ================================
+    // SYNCHRONOUS METHODS (ĐỒNG BỘ)
+    // ================================
 
     /**
-     * GET /payment-items
-     * Lấy tất cả PaymentItem hoặc theo paymentId hoặc id
+     * GET /paymentItems - Lấy tất cả payment items (Sync)
      */
-    public List<PaymentItem> getAllPaymentItems(Optional<Integer> paymentId, Optional<Integer> id) {
-        try {
-            String url = baseUrl + "/payment-items";
-            if (paymentId.isPresent()) {
-                url += "?paymentId=" + paymentId.get();
-            } else if (id.isPresent()) {
-                url += "?id=" + id.get();
-            } else {
-                throw new IllegalArgumentException("At least one query parameter is required: paymentId or id");
+    public ApiResponse<List<PaymentItem>> getAllPaymentItems() {
+        ApiResponse<String> response = apiClient.get(PaymentConfig.GET_PAYMENT_ITEM_ENDPOINT);
+
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải danh sách mục thanh toán")) {
+                return ApiResponse.error("Empty or invalid response");
             }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .GET()
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), new TypeToken<List<PaymentItem>>() {
-                }.getType());
-            } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                return List.of();
+            try {
+                List<PaymentItem> items = gson.fromJson(response.getData(),
+                        new TypeToken<List<PaymentItem>>() {}.getType());
+                return ApiResponse.success(items, response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payment items list");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
             }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return List.of();
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải danh sách mục thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
-     * POST /payment-items
-     * Tạo mới PaymentItem
+     * GET /paymentItems?paymentId={id} - Lấy payment items theo payment ID (Sync)
      */
-    public PaymentItem createPaymentItem(PaymentItem paymentItem) {
-        try {
-            String jsonBody = gson.toJson(paymentItem);
-            System.out.println("📤 Sending JSON: " + jsonBody); // Debug
+    public ApiResponse<List<PaymentItem>> getPaymentItemsByPaymentId(int paymentId) {
+        String endpoint = PaymentConfig.GET_PAYMENT_ITEM_ENDPOINT + "?paymentId=" + paymentId;
+        ApiResponse<String> response = apiClient.get(endpoint);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payment-items"))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 201 || response.statusCode() == 200) {
-                return gson.fromJson(response.body(), PaymentItem.class);
-            } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                return null;
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải mục thanh toán")) {
+                return ApiResponse.error("Empty or invalid response");
             }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return null;
+
+            try {
+                List<PaymentItem> items = gson.fromJson(response.getData(),
+                        new TypeToken<List<PaymentItem>>() {}.getType());
+                return ApiResponse.success(items, response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payment items by payment ID");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
+            }
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải mục thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
         }
     }
 
     /**
-     * PUT /payment-items
-     * Cập nhật PaymentItem theo ID
+     * POST /paymentItems - Tạo payment item mới (Sync)
      */
-    public PaymentItem updatePaymentItem(PaymentItem paymentItem) {
+    public ApiResponse<PaymentItem> createPaymentItem(PaymentItem item) {
         try {
-            String jsonBody = gson.toJson(paymentItem);
-            System.out.println("📤 Sending JSON: " + jsonBody); // Debug
+            String jsonBody = gson.toJson(item);
+            ApiResponse<String> response = apiClient.post(PaymentConfig.POST_PAYMENT_ITEM_ENDPOINT, jsonBody);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payment-items"))
-                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
+            if (response.isSuccess()) {
+                if (!ErrorHandler.validateResponse(response.getData(), "Tạo mục thanh toán mới")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), PaymentItem.class);
+                try {
+                    PaymentItem createdItem = gson.fromJson(response.getData(), PaymentItem.class);
+                    return ApiResponse.success(createdItem, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse created payment item");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
             } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * PUT /payment-items/replace
-     * Thay thế toàn bộ PaymentItem của một Payment
-     */
-    public List<PaymentItem> replaceAllPaymentItems(int paymentId, List<PaymentItem> items) {
-        try {
-            String jsonBody = gson.toJson(new ReplaceBody(paymentId, items));
-            System.out.println("📤 Sending JSON: " + jsonBody); // Debug
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payment-items/replace"))
-                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                return gson.fromJson(response.body(), new TypeToken<List<PaymentItem>>() {
-                }.getType());
-            } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                return List.of();
-            }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return List.of();
-        }
-    }
-
-    /**
-     * DELETE /payment-items
-     * Xóa một hoặc nhiều PaymentItem theo ID hoặc paymentId
-     */
-    public boolean deletePaymentItems(Optional<Integer> id, Optional<Integer> paymentId) {
-        try {
-            String url = baseUrl + "/payment-items";
-            if (id.isPresent()) {
-                url += "?id=" + id.get();
-            } else if (paymentId.isPresent()) {
-                url += "?paymentId=" + paymentId.get();
-            } else {
-                throw new IllegalArgumentException("At least one query parameter is required: id or paymentId");
-            }
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .DELETE()
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            return response.statusCode() == 200;
-        } catch (IOException | InterruptedException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * POST /payment-items
-     * Gửi theo định dạng batch (wrapper object) mà server mong đợi,
-     * TÁI SỬ DỤNG class 'ReplaceBody' đã có.
-     */
-    public List<PaymentItem> saveAllPaymentItems(List<PaymentItem> paymentItems) {
-        if (paymentItems == null || paymentItems.isEmpty()) {
-            return List.of();
-        }
-
-        try {
-            // 1. LẤY paymentId (bạn đã set trong InvoiceController)
-            // (Bạn cần thêm getPaymentId() vào model PaymentItem)
-            int paymentId = paymentItems.get(0).getPaymentId();
-            if (paymentId <= 0) {
-                throw new IllegalArgumentException("Payment ID chưa được gán cho các items.");
-            }
-
-            // 2. TẠO WRAPPER OBJECT BẰNG 'ReplaceBody'
-            // Server mong đợi: record SaveAllBody(Integer paymentId, List<PaymentItem> items)
-            // Cấu trúc này khớp 100% với 'ReplaceBody'
-            var saveBody = new ReplaceBody(paymentId, paymentItems);
-
-            // 3. Chuyển DTO (wrapper) thành JSON
-            // Kết quả sẽ là: {"paymentId": 123, "items": [...]}
-            String jsonBody = gson.toJson(saveBody);
-            System.out.println("📤 Sending JSON (Batch Wrapper): " + jsonBody);
-
-            // 4. Gửi yêu cầu POST đến đúng URL
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/payment-items")) //
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // 5. Server trả về 201 (Created)
-            if (response.statusCode() == 201) {
-                return gson.fromJson(response.body(), new TypeToken<List<PaymentItem>>() {
-                }.getType());
-            } else {
-                System.err.println("❌ HTTP Error: " + response.statusCode());
-                System.err.println("Response Body: " + response.body());
-                return List.of();
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tạo mục thanh toán mới");
+                return ApiResponse.error(response.getErrorMessage());
             }
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
-            return List.of();
+            ErrorHandler.handleJsonParseError(e, "Serialize payment item");
+            return ApiResponse.error("JSON serialization error: " + e.getMessage());
         }
     }
 
-    // DTO cho replace
-    public static class ReplaceBody {
-        public int paymentId;
-        public List<PaymentItem> items;
-
-        public ReplaceBody(int paymentId, List<PaymentItem> items) {
-            this.paymentId = paymentId;
-            this.items = items;
+    /**
+     * PUT /paymentItems - Cập nhật payment item (Sync)
+     */
+    public ApiResponse<PaymentItem> updatePaymentItem(PaymentItem item) {
+        if (item.getId() <= 0) {
+            return ApiResponse.error("PaymentItem ID is required for update");
         }
 
-        public int getPaymentId() {
-            return paymentId;
-        }
+        try {
+            String jsonBody = gson.toJson(item);
+            ApiResponse<String> response = apiClient.put(PaymentConfig.PUT_PAYMENT_ITEM_ENDPOINT, jsonBody);
 
-        public List<PaymentItem> getItems() {
-            return items;
+            if (response.isSuccess()) {
+                if (!ErrorHandler.validateResponse(response.getData(), "Cập nhật mục thanh toán")) {
+                    return ApiResponse.error("Empty or invalid response");
+                }
+
+                try {
+                    PaymentItem updatedItem = gson.fromJson(response.getData(), PaymentItem.class);
+                    return ApiResponse.success(updatedItem, response.getStatusCode());
+                } catch (Exception e) {
+                    ErrorHandler.handleJsonParseError(e, "Parse updated payment item");
+                    return ApiResponse.error("JSON parse error: " + e.getMessage());
+                }
+            } else {
+                ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể cập nhật mục thanh toán");
+                return ApiResponse.error(response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize payment item");
+            return ApiResponse.error("JSON serialization error: " + e.getMessage());
         }
     }
 
+    /**
+     * DELETE /paymentItems?id={id} - Xóa payment item (Sync)
+     */
+    public ApiResponse<Boolean> deletePaymentItem(int itemId) {
+        String endpoint = PaymentConfig.DELETE_PAYMENT_ITEM_ENDPOINT + "?id=" + itemId;
+        ApiResponse<String> response = apiClient.delete(endpoint);
+
+        if (response.isSuccess()) {
+            return ApiResponse.success(true, response.getStatusCode());
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể xóa mục thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
+        }
+    }
+
+    /**
+     * DELETE /paymentItems?paymentId={id} - Xóa tất cả payment items của một payment (Sync)
+     */
+    public ApiResponse<Boolean> deletePaymentItemsByPaymentId(int paymentId) {
+        String endpoint = PaymentConfig.DELETE_PAYMENT_ITEM_ENDPOINT + "?paymentId=" + paymentId;
+        ApiResponse<String> response = apiClient.delete(endpoint);
+
+        if (response.isSuccess()) {
+            return ApiResponse.success(true, response.getStatusCode());
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể xóa các mục thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
+        }
+    }
+
+    /**
+     * Batch save - Xóa hết và tạo mới (Sync)
+     * Dùng cho trường hợp cập nhật toàn bộ danh sách items
+     * OLD API compatibility: returns List<PaymentItem> directly (wrapped in ApiResponse)
+     */
+    public ApiResponse<List<PaymentItem>> saveAllPaymentItems(List<PaymentItem> items) {
+        if (items == null || items.isEmpty()) {
+            return ApiResponse.error("Items list is empty");
+        }
+
+        // Get paymentId from first item
+        int paymentId = items.get(0).getPaymentId();
+        if (paymentId <= 0) {
+            return ApiResponse.error("PaymentId is required for all items");
+        }
+
+        // ✅ NEW LOGIC: Check if items already exist before deleting
+        // If payment is new (no existing items), skip delete step
+        ApiResponse<List<PaymentItem>> existingItemsResponse = getPaymentItemsByPaymentId(paymentId);
+        boolean hasExistingItems = existingItemsResponse.isSuccess() && 
+                                   existingItemsResponse.getData() != null && 
+                                   !existingItemsResponse.getData().isEmpty();
+
+        // Step 1: Delete existing items (only if they exist)
+        if (hasExistingItems) {
+            ApiResponse<Boolean> deleteResponse = deletePaymentItemsByPaymentId(paymentId);
+            if (!deleteResponse.isSuccess()) {
+                return ApiResponse.error("Failed to delete existing items: " + deleteResponse.getErrorMessage());
+            }
+        }
+
+        // Step 2: Create new items
+        List<PaymentItem> createdItems = new ArrayList<>();
+        for (PaymentItem item : items) {
+            item.setPaymentId(paymentId); // Ensure paymentId is set
+            ApiResponse<PaymentItem> createResponse = createPaymentItem(item);
+            if (createResponse.isSuccess()) {
+                createdItems.add(createResponse.getData());
+            } else {
+                return ApiResponse.error("Failed to create item: " + createResponse.getErrorMessage());
+            }
+        }
+
+        return ApiResponse.success(createdItems, 200);
+    }
+
+    /**
+     * Batch save with explicit paymentId - Xóa hết và tạo mới (Sync)
+     */
+    public ApiResponse<List<PaymentItem>> saveAllPaymentItems(int paymentId, List<PaymentItem> items) {
+        // ✅ NEW LOGIC: Check if items already exist before deleting
+        ApiResponse<List<PaymentItem>> existingItemsResponse = getPaymentItemsByPaymentId(paymentId);
+        boolean hasExistingItems = existingItemsResponse.isSuccess() && 
+                                   existingItemsResponse.getData() != null && 
+                                   !existingItemsResponse.getData().isEmpty();
+
+        // Step 1: Delete existing items (only if they exist)
+        if (hasExistingItems) {
+            ApiResponse<Boolean> deleteResponse = deletePaymentItemsByPaymentId(paymentId);
+            if (!deleteResponse.isSuccess()) {
+                return ApiResponse.error("Failed to delete existing items: " + deleteResponse.getErrorMessage());
+            }
+        }
+
+        // Step 2: Create new items
+        List<PaymentItem> createdItems = new ArrayList<>();
+        for (PaymentItem item : items) {
+            item.setPaymentId(paymentId); // Ensure paymentId is set
+            ApiResponse<PaymentItem> createResponse = createPaymentItem(item);
+            if (createResponse.isSuccess()) {
+                createdItems.add(createResponse.getData());
+            } else {
+                return ApiResponse.error("Failed to create item: " + createResponse.getErrorMessage());
+            }
+        }
+
+        return ApiResponse.success(createdItems, 200);
+    }
+
+    // ================================
+    // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
+    // ================================
+
+    /**
+     * ASYNC - GET /paymentItems - Lấy tất cả payment items (Async)
+     */
+    public void getAllPaymentItemsAsync(Consumer<List<PaymentItem>> onSuccess, Consumer<String> onError) {
+        apiClient.getAsync(PaymentConfig.GET_PAYMENT_ITEM_ENDPOINT,
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<PaymentItem> items;
+
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
+                                items = new ArrayList<>();
+                            } else {
+                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {}.getType());
+                                if (items == null) {
+                                    items = new ArrayList<>();
+                                }
+                            }
+
+                            onSuccess.accept(items);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse payment items list (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                "Không thể tải danh sách mục thanh toán");
+                        onError.accept(response.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tải danh sách mục thanh toán (async)");
+                    onError.accept(error);
+                });
+    }
+
+    /**
+     * ASYNC - GET /paymentItems?paymentId={id} - Lấy payment items theo payment ID (Async)
+     */
+    public void getPaymentItemsByPaymentIdAsync(int paymentId, Consumer<List<PaymentItem>> onSuccess,
+            Consumer<String> onError) {
+        String endpoint = PaymentConfig.GET_PAYMENT_ITEM_ENDPOINT + "?paymentId=" + paymentId;
+        apiClient.getAsync(endpoint,
+                response -> {
+                    if (response.isSuccess()) {
+                        try {
+                            String responseData = response.getData();
+                            List<PaymentItem> items;
+
+                            if (responseData == null || responseData.trim().isEmpty()
+                                    || "null".equals(responseData.trim())) {
+                                items = new ArrayList<>();
+                            } else {
+                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {}.getType());
+                                if (items == null) {
+                                    items = new ArrayList<>();
+                                }
+                            }
+
+                            onSuccess.accept(items);
+                        } catch (Exception e) {
+                            ErrorHandler.handleJsonParseError(e, "Parse payment items by payment ID (async)");
+                            onError.accept("JSON parse error: " + e.getMessage());
+                        }
+                    } else {
+                        ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải mục thanh toán");
+                        onError.accept(response.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Tải mục thanh toán (async)");
+                    onError.accept(error);
+                });
+    }
+
+    /**
+     * ASYNC - Batch save payment items (Async)
+     */
+    public void saveAllPaymentItemsAsync(int paymentId, List<PaymentItem> items,
+            Consumer<List<PaymentItem>> onSuccess, Consumer<String> onError) {
+        // Delete existing items first
+        String deleteEndpoint = PaymentConfig.DELETE_PAYMENT_ITEM_ENDPOINT + "?paymentId=" + paymentId;
+        apiClient.deleteAsync(deleteEndpoint,
+                deleteResponse -> {
+                    if (deleteResponse.isSuccess()) {
+                        // Then create new items
+                        List<PaymentItem> createdItems = new ArrayList<>();
+                        createItemsRecursively(items, 0, paymentId, createdItems, onSuccess, onError);
+                    } else {
+                        ErrorHandler.showUserFriendlyError(deleteResponse.getStatusCode(),
+                                "Không thể xóa các mục thanh toán cũ");
+                        onError.accept("Failed to delete existing items: " + deleteResponse.getErrorMessage());
+                    }
+                },
+                error -> {
+                    ErrorHandler.handleConnectionError(new Exception(error), "Xóa các mục thanh toán cũ (async)");
+                    onError.accept("Failed to delete existing items: " + error);
+                });
+    }
+
+    /**
+     * Helper method to create items recursively (for async batch creation)
+     */
+    private void createItemsRecursively(List<PaymentItem> items, int index, int paymentId,
+            List<PaymentItem> createdItems, Consumer<List<PaymentItem>> onSuccess, Consumer<String> onError) {
+        if (index >= items.size()) {
+            // All items created successfully
+            onSuccess.accept(createdItems);
+            return;
+        }
+
+        PaymentItem item = items.get(index);
+        item.setPaymentId(paymentId);
+
+        try {
+            String jsonBody = gson.toJson(item);
+            apiClient.postAsync(PaymentConfig.POST_PAYMENT_ITEM_ENDPOINT, jsonBody,
+                    response -> {
+                        if (response.isSuccess()) {
+                            try {
+                                PaymentItem createdItem = gson.fromJson(response.getData(), PaymentItem.class);
+                                createdItems.add(createdItem);
+                                // Create next item
+                                createItemsRecursively(items, index + 1, paymentId, createdItems, onSuccess, onError);
+                            } catch (Exception e) {
+                                ErrorHandler.handleJsonParseError(e, "Parse created payment item (async)");
+                                onError.accept("JSON parse error: " + e.getMessage());
+                            }
+                        } else {
+                            ErrorHandler.showUserFriendlyError(response.getStatusCode(),
+                                    "Không thể tạo mục thanh toán");
+                            onError.accept("Failed to create item: " + response.getErrorMessage());
+                        }
+                    },
+                    error -> {
+                        ErrorHandler.handleConnectionError(new Exception(error), "Tạo mục thanh toán (async)");
+                        onError.accept("Failed to create item: " + error);
+                    });
+        } catch (Exception e) {
+            ErrorHandler.handleJsonParseError(e, "Serialize payment item (async)");
+            Platform.runLater(() -> onError.accept("JSON serialization error: " + e.getMessage()));
+        }
+    }
 }

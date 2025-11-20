@@ -142,6 +142,9 @@ public class AuthService {
 
         // Generate JWT token
         String token = JwtService.generateToken(username);
+        System.out.println("🔑 [AuthService] Generated JWT for user: " + username);
+        System.out.println("🔑 [AuthService] Token (first 30 chars): " + 
+            (token.length() > 30 ? token.substring(0, 30) + "..." : token));
 
         LOGGER.info("Authentication successful: " + username + " (" + user.role + ")");
         return token;

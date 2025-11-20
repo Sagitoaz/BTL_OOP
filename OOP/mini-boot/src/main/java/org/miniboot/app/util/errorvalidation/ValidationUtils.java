@@ -47,25 +47,31 @@ public class ValidationUtils {
 
         // Check if Authorization header exists
         if (authHeader == null || authHeader.isEmpty()) {
+            System.out.println("⚠️ [Backend] Missing Authorization header");
             return error(401, "UNAUTHORIZED",
                     "Authorization header is required");
         }
 
         // Check if it's a Bearer token
         if (!authHeader.startsWith("Bearer ")) {
+            System.out.println("⚠️ [Backend] Wrong format: " + authHeader);
             return error(401, "UNAUTHORIZED",
                     "Authorization header must use Bearer scheme");
         }
 
         // Extract token (remove "Bearer " prefix)
         String token = authHeader.substring(7);
+        System.out.println("🔑 [Backend] Received token: " + 
+            (token.length() > 20 ? token.substring(0, 20) + "..." : token));
         
         // Validate token with JwtService
         String userId = JwtService.validateTokenAndGetUserId(token);
         if (userId == null) {
+            System.out.println("❌ [Backend] Token validation FAILED");
             return error(401, "UNAUTHORIZED",
                     "Invalid or expired JWT token");
         }
+        System.out.println("✅ [Backend] Token valid, userId: " + userId);
 
         // Token is valid, store userId in request context for later use
         req.setAttribute("userId", userId);
