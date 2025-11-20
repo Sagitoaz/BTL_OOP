@@ -270,16 +270,6 @@ public class AdminDashBoardController extends BaseController {
     }
 
     @FXML
-    private void handleOpenPrescriptions() {
-        System.out.println("🔄 Admin: Opening Prescriptions (via Customer Hub)...");
-        // Navigate to CustomerHub where Admin can view prescription list
-        // and double-click on any prescription to edit it
-        SafeNavigator.navigate(
-                SceneConfig.CUSTOMER_HUB_FXML,
-                SceneConfig.Titles.CUSTOMER_HUB);
-    }
-
-    @FXML
     private void handleOpenProfile() {
         System.out.println("🔄 Admin: Opening Profile...");
 
