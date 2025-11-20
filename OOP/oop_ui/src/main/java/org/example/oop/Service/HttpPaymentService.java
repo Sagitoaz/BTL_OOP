@@ -9,7 +9,8 @@ import org.example.oop.Utils.ErrorHandler;
 import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
-import org.miniboot.app.util.PaymentConfig;
+// import org.miniboot.app.util.PaymentConfig; // TODO: PaymentConfig class not found
+import org.example.oop.Utils.PaymentConfig; // Temporary workaround
 
 import java.util.ArrayList;
 import java.util.List;

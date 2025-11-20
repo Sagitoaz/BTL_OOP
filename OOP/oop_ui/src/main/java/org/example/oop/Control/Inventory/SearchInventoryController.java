@@ -26,6 +26,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 public class SearchInventoryController extends BaseController implements Initializable {
      @FXML
@@ -106,22 +107,34 @@ public class SearchInventoryController extends BaseController implements Initial
      private ProgressIndicator loadingIndicator;
      @FXML
      private Label countLabel;
+
+     // Loading status indicator fields
+     @FXML
+     private HBox loadingStatusContainer;
+     @FXML
+     private ProgressIndicator statusProgressIndicator;
+     @FXML
+     private Label loadingStatusLabel;
+
      @FXML
      private final ApiProductService productService = new ApiProductService();
      private final ObservableList<Product> masterData = FXCollections.observableArrayList();
      private FilteredList<Product> filteredData;
-    @FXML
-    private void handleBackButton(){
-        SceneManager.goBack();
-    }
-    @FXML
-    private void handleForwardButton(){
-        SceneManager.goForward();
-    }
-    @FXML
-    private void handleReloadButton(){
-        SceneManager.reloadCurrentScene();
-    }
+
+     @FXML
+     private void handleBackButton() {
+          SceneManager.goBack();
+     }
+
+     @FXML
+     private void handleForwardButton() {
+          SceneManager.goForward();
+     }
+
+     @FXML
+     private void handleReloadButton() {
+          SceneManager.reloadCurrentScene();
+     }
 
      @Override
      public void initialize(URL url, ResourceBundle rb) {
@@ -200,6 +213,7 @@ public class SearchInventoryController extends BaseController implements Initial
 
      private void loadDataAsync() {
           showLoading(true);
+          showLoadingStatus("⏳ Đang tải dữ liệu sản phẩm...");
           updateMessage("🔄 Đang tải dữ liệu...");
           executeAsync(
                     // Background: Load all products
@@ -220,11 +234,13 @@ public class SearchInventoryController extends BaseController implements Initial
                          applyFilter();
 
                          showLoading(false);
+                         showSuccessStatus("✅ Đã tải thành công " + loadedProducts.size() + " sản phẩm!");
                          updateMessage("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
                          updateCountLabel();
                     },
                     error -> {
                          showLoading(false);
+                         showErrorStatus("❌ Lỗi: " + error.getMessage());
                          updateMessage("❌ Lỗi tải dữ liệu: " + error.getMessage());
                     });
      }
@@ -454,6 +470,85 @@ public class SearchInventoryController extends BaseController implements Initial
                               messageLabel.setText("Tìm thấy " + count + " sản phẩm");
                          }
                     }
+               }
+          });
+     }
+
+     // ==================== LOADING STATUS HELPERS ====================
+
+     private void showLoadingStatus(String message) {
+          runOnUIThread(() -> {
+               if (loadingStatusContainer != null) {
+                    loadingStatusContainer.setVisible(true);
+                    loadingStatusContainer.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(14,165,233,0.1); -fx-background-radius: 8px; -fx-border-color: #0EA5E9; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+               if (statusProgressIndicator != null) {
+                    statusProgressIndicator.setVisible(true);
+               }
+               if (loadingStatusLabel != null) {
+                    loadingStatusLabel.setText(message);
+                    loadingStatusLabel.setStyle("-fx-text-fill: #0EA5E9; -fx-font-weight: 600; -fx-font-size: 13px;");
+               }
+          });
+     }
+
+     private void showSuccessStatus(String message) {
+          runOnUIThread(() -> {
+               if (statusProgressIndicator != null) {
+                    statusProgressIndicator.setVisible(false);
+               }
+               if (loadingStatusLabel != null) {
+                    loadingStatusLabel.setText(message);
+                    loadingStatusLabel.setStyle("-fx-text-fill: #10B981; -fx-font-weight: 700; -fx-font-size: 13px;");
+               }
+               if (loadingStatusContainer != null) {
+                    loadingStatusContainer.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(16,185,129,0.1); -fx-background-radius: 8px; -fx-border-color: #10B981; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+
+               // Auto-hide after 2 seconds
+               new Thread(() -> {
+                    try {
+                         Thread.sleep(2000);
+                         hideLoadingStatus();
+                    } catch (InterruptedException e) {
+                         Thread.currentThread().interrupt();
+                    }
+               }).start();
+          });
+     }
+
+     private void showErrorStatus(String message) {
+          runOnUIThread(() -> {
+               if (statusProgressIndicator != null) {
+                    statusProgressIndicator.setVisible(false);
+               }
+               if (loadingStatusLabel != null) {
+                    loadingStatusLabel.setText(message);
+                    loadingStatusLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: 700; -fx-font-size: 13px;");
+               }
+               if (loadingStatusContainer != null) {
+                    loadingStatusContainer.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(239,68,68,0.1); -fx-background-radius: 8px; -fx-border-color: #EF4444; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+
+               // Auto-hide after 3 seconds
+               new Thread(() -> {
+                    try {
+                         Thread.sleep(3000);
+                         hideLoadingStatus();
+                    } catch (InterruptedException e) {
+                         Thread.currentThread().interrupt();
+                    }
+               }).start();
+          });
+     }
+
+     private void hideLoadingStatus() {
+          runOnUIThread(() -> {
+               if (loadingStatusContainer != null) {
+                    loadingStatusContainer.setVisible(false);
                }
           });
      }

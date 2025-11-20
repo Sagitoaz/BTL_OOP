@@ -1,23 +1,26 @@
 package org.example.oop.Service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import javafx.application.Platform;
-import org.example.oop.Utils.ApiClient;
-import org.example.oop.Utils.ApiResponse;
-import org.example.oop.Utils.ErrorHandler;
-import org.example.oop.Utils.GsonProvider;
-import org.miniboot.app.domain.models.Payment.PaymentStatusLog;
-import org.miniboot.app.util.PaymentConfig;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.example.oop.Utils.ApiClient;
+import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.GsonProvider;
+import org.example.oop.Utils.PaymentConfig;
+import org.miniboot.app.domain.models.Payment.PaymentStatusLog; // Temporary workaround
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import javafx.application.Platform;
+
 /**
  * 🌐 PAYMENT STATUS LOG SERVICE - PaymentStatusLog API Integration
  * <p>
- * Service layer làm cầu nối giữa Frontend và Backend API cho PaymentStatusLog operations
+ * Service layer làm cầu nối giữa Frontend và Backend API cho PaymentStatusLog
+ * operations
  * Theo pattern của CustomerRecordService với:
  * - Singleton pattern
  * - ApiResponse wrapper cho type safety
@@ -77,7 +80,8 @@ public class HttpPaymentStatusLogService {
     }
 
     /**
-     * GET /paymentStatusLogs?paymentId={id} - Lấy status logs theo payment ID (Sync)
+     * GET /paymentStatusLogs?paymentId={id} - Lấy status logs theo payment ID
+     * (Sync)
      */
     public ApiResponse<List<PaymentStatusLog>> getPaymentStatusLogsByPaymentId(int paymentId) {
         String endpoint = PaymentConfig.GET_PAYMENT_STATUS_LOG_ENDPOINT + "?paymentId=" + paymentId;
@@ -119,12 +123,14 @@ public class HttpPaymentStatusLogService {
             try {
                 // Backend returns: { "paymentId": 123, "status": "PENDING" }
                 // We need to parse and create PaymentStatusLog
-                com.google.gson.JsonObject jsonObj = gson.fromJson(response.getData(), com.google.gson.JsonObject.class);
-                
+                com.google.gson.JsonObject jsonObj = gson.fromJson(response.getData(),
+                        com.google.gson.JsonObject.class);
+
                 PaymentStatusLog log = new PaymentStatusLog();
                 log.setPaymentId(jsonObj.get("paymentId").getAsInt());
-                log.setStatus(org.miniboot.app.domain.models.Payment.PaymentStatus.valueOf(jsonObj.get("status").getAsString()));
-                
+                log.setStatus(org.miniboot.app.domain.models.Payment.PaymentStatus
+                        .valueOf(jsonObj.get("status").getAsString()));
+
                 return ApiResponse.success(log, response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse current payment status");
@@ -144,10 +150,10 @@ public class HttpPaymentStatusLogService {
     public ApiResponse<PaymentStatusLog> createPaymentStatusLog(PaymentStatusLog log) {
         try {
             // ✅ Create request body matching backend format
-            String jsonBody = String.format("{\"paymentId\":%d,\"status\":\"%s\"}", 
-                                          log.getPaymentId(), 
-                                          log.getStatus().name());
-            
+            String jsonBody = String.format("{\"paymentId\":%d,\"status\":\"%s\"}",
+                    log.getPaymentId(),
+                    log.getStatus().name());
+
             ApiResponse<String> response = apiClient.post(PaymentConfig.POST_PAYMENT_STATUS_LOG_ENDPOINT, jsonBody);
 
             if (response.isSuccess()) {
@@ -157,12 +163,14 @@ public class HttpPaymentStatusLogService {
 
                 try {
                     // Backend returns: { "paymentId": 123, "status": "PENDING" }
-                    com.google.gson.JsonObject jsonObj = gson.fromJson(response.getData(), com.google.gson.JsonObject.class);
-                    
+                    com.google.gson.JsonObject jsonObj = gson.fromJson(response.getData(),
+                            com.google.gson.JsonObject.class);
+
                     PaymentStatusLog createdLog = new PaymentStatusLog();
                     createdLog.setPaymentId(jsonObj.get("paymentId").getAsInt());
-                    createdLog.setStatus(org.miniboot.app.domain.models.Payment.PaymentStatus.valueOf(jsonObj.get("status").getAsString()));
-                    
+                    createdLog.setStatus(org.miniboot.app.domain.models.Payment.PaymentStatus
+                            .valueOf(jsonObj.get("status").getAsString()));
+
                     return ApiResponse.success(createdLog, response.getStatusCode());
                 } catch (Exception e) {
                     ErrorHandler.handleJsonParseError(e, "Parse created payment status log");
@@ -225,7 +233,8 @@ public class HttpPaymentStatusLogService {
      * Note: Backend PaymentStatusLog chỉ có: id, paymentId, changedAt, status
      * KHÔNG có changedBy hay notes
      */
-    public ApiResponse<PaymentStatusLog> updatePaymentStatus(int paymentId, org.miniboot.app.domain.models.Payment.PaymentStatus newStatus) {
+    public ApiResponse<PaymentStatusLog> updatePaymentStatus(int paymentId,
+            org.miniboot.app.domain.models.Payment.PaymentStatus newStatus) {
         PaymentStatusLog log = new PaymentStatusLog();
         log.setPaymentId(paymentId);
         log.setStatus(newStatus);
@@ -278,10 +287,11 @@ public class HttpPaymentStatusLogService {
     }
 
     /**
-     * ASYNC - GET /paymentStatusLogs?paymentId={id} - Lấy logs theo payment ID (Async)
+     * ASYNC - GET /paymentStatusLogs?paymentId={id} - Lấy logs theo payment ID
+     * (Async)
      */
     public void getPaymentStatusLogsByPaymentIdAsync(int paymentId, Consumer<List<PaymentStatusLog>> onSuccess,
-                                                     Consumer<String> onError) {
+            Consumer<String> onError) {
         String endpoint = PaymentConfig.GET_PAYMENT_STATUS_LOG_ENDPOINT + "?paymentId=" + paymentId;
         apiClient.getAsync(endpoint,
                 response -> {
@@ -326,7 +336,7 @@ public class HttpPaymentStatusLogService {
      * KHÔNG có changedBy hay notes
      */
     public void updatePaymentStatusAsync(int paymentId, org.miniboot.app.domain.models.Payment.PaymentStatus newStatus,
-                                         Consumer<PaymentStatusLog> onSuccess, Consumer<String> onError) {
+            Consumer<PaymentStatusLog> onSuccess, Consumer<String> onError) {
         PaymentStatusLog log = new PaymentStatusLog();
         log.setPaymentId(paymentId);
         log.setStatus(newStatus);

@@ -102,7 +102,8 @@ public class EmployeeFormController extends BaseController {
      * Convert Vietnamese gender display to English database value
      */
     private String convertGenderToEnglish(String vietnameseGender) {
-        if (vietnameseGender == null) return null;
+        if (vietnameseGender == null)
+            return null;
 
         switch (vietnameseGender) {
             case "Nam":
@@ -120,7 +121,8 @@ public class EmployeeFormController extends BaseController {
      * Convert English database gender value to Vietnamese display
      */
     private String convertGenderToVietnamese(String englishGender) {
-        if (englishGender == null) return null;
+        if (englishGender == null)
+            return null;
 
         switch (englishGender.toUpperCase()) {
             case "MALE":
@@ -174,7 +176,8 @@ public class EmployeeFormController extends BaseController {
             updated.setEmail(email);
             updated.setPhone(phone);
             updated.setRole(role);
-            updated.setGender(gender);
+            // TODO: Employee class doesn't have setGender() method
+            // updated.setGender(gender);
             updated.setLicenseNo("doctor".equals(role) ? licenseNo : null);
             updated.setAvatar(avatar);
             updated.setActive(isActive);
@@ -224,7 +227,8 @@ public class EmployeeFormController extends BaseController {
         newEmployee.setEmail(email);
         newEmployee.setPhone(phone);
         newEmployee.setRole(role);
-        newEmployee.setGender(gender);
+        // TODO: Employee class doesn't have setGender() method
+        // newEmployee.setGender(gender);
         newEmployee.setLicenseNo("doctor".equals(role) ? licenseNo : null);
         newEmployee.setAvatar(avatar);
         newEmployee.setActive(isActive);
@@ -345,4 +349,3 @@ public class EmployeeFormController extends BaseController {
         return phone != null && phone.length() == 10 && phone.matches("\\d+");
     }
 }
-

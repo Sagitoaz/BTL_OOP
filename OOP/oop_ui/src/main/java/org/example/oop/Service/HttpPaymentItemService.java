@@ -1,23 +1,26 @@
 package org.example.oop.Service;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import javafx.application.Platform;
-import org.example.oop.Utils.ApiClient;
-import org.example.oop.Utils.ApiResponse;
-import org.example.oop.Utils.ErrorHandler;
-import org.example.oop.Utils.GsonProvider;
-import org.miniboot.app.domain.models.Payment.PaymentItem;
-import org.miniboot.app.util.PaymentConfig;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.example.oop.Utils.ApiClient;
+import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.ErrorHandler;
+import org.example.oop.Utils.GsonProvider;
+import org.example.oop.Utils.PaymentConfig;
+import org.miniboot.app.domain.models.Payment.PaymentItem; // Temporary workaround
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import javafx.application.Platform;
+
 /**
  * 🌐 PAYMENT ITEM SERVICE - PaymentItem API Integration
  *
- * Service layer làm cầu nối giữa Frontend và Backend API cho PaymentItem operations
+ * Service layer làm cầu nối giữa Frontend và Backend API cho PaymentItem
+ * operations
  * Theo pattern của CustomerRecordService với:
  * - Singleton pattern
  * - ApiResponse wrapper cho type safety
@@ -64,7 +67,8 @@ public class HttpPaymentItemService {
 
             try {
                 List<PaymentItem> items = gson.fromJson(response.getData(),
-                        new TypeToken<List<PaymentItem>>() {}.getType());
+                        new TypeToken<List<PaymentItem>>() {
+                        }.getType());
                 return ApiResponse.success(items, response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse payment items list");
@@ -90,7 +94,8 @@ public class HttpPaymentItemService {
 
             try {
                 List<PaymentItem> items = gson.fromJson(response.getData(),
-                        new TypeToken<List<PaymentItem>>() {}.getType());
+                        new TypeToken<List<PaymentItem>>() {
+                        }.getType());
                 return ApiResponse.success(items, response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse payment items by payment ID");
@@ -182,7 +187,8 @@ public class HttpPaymentItemService {
     }
 
     /**
-     * DELETE /paymentItems?paymentId={id} - Xóa tất cả payment items của một payment (Sync)
+     * DELETE /paymentItems?paymentId={id} - Xóa tất cả payment items của một
+     * payment (Sync)
      */
     public ApiResponse<Boolean> deletePaymentItemsByPaymentId(int paymentId) {
         String endpoint = PaymentConfig.DELETE_PAYMENT_ITEM_ENDPOINT + "?paymentId=" + paymentId;
@@ -199,7 +205,8 @@ public class HttpPaymentItemService {
     /**
      * Batch save - Xóa hết và tạo mới (Sync)
      * Dùng cho trường hợp cập nhật toàn bộ danh sách items
-     * OLD API compatibility: returns List<PaymentItem> directly (wrapped in ApiResponse)
+     * OLD API compatibility: returns List<PaymentItem> directly (wrapped in
+     * ApiResponse)
      */
     public ApiResponse<List<PaymentItem>> saveAllPaymentItems(List<PaymentItem> items) {
         if (items == null || items.isEmpty()) {
@@ -215,9 +222,9 @@ public class HttpPaymentItemService {
         // ✅ NEW LOGIC: Check if items already exist before deleting
         // If payment is new (no existing items), skip delete step
         ApiResponse<List<PaymentItem>> existingItemsResponse = getPaymentItemsByPaymentId(paymentId);
-        boolean hasExistingItems = existingItemsResponse.isSuccess() && 
-                                   existingItemsResponse.getData() != null && 
-                                   !existingItemsResponse.getData().isEmpty();
+        boolean hasExistingItems = existingItemsResponse.isSuccess() &&
+                existingItemsResponse.getData() != null &&
+                !existingItemsResponse.getData().isEmpty();
 
         // Step 1: Delete existing items (only if they exist)
         if (hasExistingItems) {
@@ -248,9 +255,9 @@ public class HttpPaymentItemService {
     public ApiResponse<List<PaymentItem>> saveAllPaymentItems(int paymentId, List<PaymentItem> items) {
         // ✅ NEW LOGIC: Check if items already exist before deleting
         ApiResponse<List<PaymentItem>> existingItemsResponse = getPaymentItemsByPaymentId(paymentId);
-        boolean hasExistingItems = existingItemsResponse.isSuccess() && 
-                                   existingItemsResponse.getData() != null && 
-                                   !existingItemsResponse.getData().isEmpty();
+        boolean hasExistingItems = existingItemsResponse.isSuccess() &&
+                existingItemsResponse.getData() != null &&
+                !existingItemsResponse.getData().isEmpty();
 
         // Step 1: Delete existing items (only if they exist)
         if (hasExistingItems) {
@@ -294,7 +301,8 @@ public class HttpPaymentItemService {
                                     || "null".equals(responseData.trim())) {
                                 items = new ArrayList<>();
                             } else {
-                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {}.getType());
+                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {
+                                }.getType());
                                 if (items == null) {
                                     items = new ArrayList<>();
                                 }
@@ -318,7 +326,8 @@ public class HttpPaymentItemService {
     }
 
     /**
-     * ASYNC - GET /paymentItems?paymentId={id} - Lấy payment items theo payment ID (Async)
+     * ASYNC - GET /paymentItems?paymentId={id} - Lấy payment items theo payment ID
+     * (Async)
      */
     public void getPaymentItemsByPaymentIdAsync(int paymentId, Consumer<List<PaymentItem>> onSuccess,
             Consumer<String> onError) {
@@ -334,7 +343,8 @@ public class HttpPaymentItemService {
                                     || "null".equals(responseData.trim())) {
                                 items = new ArrayList<>();
                             } else {
-                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {}.getType());
+                                items = gson.fromJson(responseData, new TypeToken<List<PaymentItem>>() {
+                                }.getType());
                                 if (items == null) {
                                     items = new ArrayList<>();
                                 }

@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
@@ -37,15 +38,18 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
-public class AppointmentBookingController implements Initializable {
+public class AppointmentBookingController extends BaseController implements Initializable {
     // Service để gọi API
     private HttpAppointmentService appointmentService;
     private HttpDoctorService doctorService;
@@ -120,6 +124,14 @@ public class AppointmentBookingController implements Initializable {
     @FXML
     private TextArea txtPatientNotes;
 
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -130,7 +142,8 @@ public class AppointmentBookingController implements Initializable {
         System.out.println("AppointmentBookingController initialized");
 
         // Khởi tạo services with token
-        String token = SessionStorage.getJwtToken();;
+        String token = SessionStorage.getJwtToken();
+        ;
         appointmentService = new HttpAppointmentService(org.example.oop.Utils.ApiConfig.getBaseUrl(), token);
         doctorService = new HttpDoctorService();
         customerService = CustomerRecordService.getInstance();
@@ -634,6 +647,9 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void loadDoctors() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách bác sĩ...");
+
         Task<List<Doctor>> task = new Task<>() {
             @Override
             protected List<Doctor> call() throws Exception {
@@ -652,9 +668,13 @@ public class AppointmentBookingController implements Initializable {
             }
 
             System.out.println("✅ Đã tải " + doctors.size() + " bác sĩ");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + doctors.size() + " bác sĩ");
         });
 
         task.setOnFailed(e -> {
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách bác sĩ");
             showAlert("Không thể tải danh sách bác sĩ. Kiểm tra server.");
         });
 
@@ -663,6 +683,8 @@ public class AppointmentBookingController implements Initializable {
 
     private void loadDoctorAgenda(int doctorId, LocalDate date) {
         System.out.println("🔍 DEBUG loadDoctorAgenda: doctorId=" + doctorId + ", date=" + date);
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải lịch bác sĩ...");
 
         Task<List<Appointment>> task = new Task<>() {
             @Override
@@ -681,10 +703,14 @@ public class AppointmentBookingController implements Initializable {
             loadCustomerNamesForAppointments(appointments);
 
             System.out.println("Lịch bác sĩ: " + appointments.size() + " lịch hẹn");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + appointments.size() + " lịch hẹn");
         });
 
         task.setOnFailed(e -> {
             System.out.println("Lỗi load lịch: " + task.getException().getMessage());
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Lỗi load lịch bác sĩ");
         });
 
         new Thread(task).start();
@@ -722,6 +748,9 @@ public class AppointmentBookingController implements Initializable {
     }
 
     private void loadAvailableSlots(int doctorId, LocalDate date) {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải khả dụng...");
+
         Task<List<TimeSlot>> task = new Task<>() {
             @Override
             protected List<TimeSlot> call() throws Exception {
@@ -736,9 +765,12 @@ public class AppointmentBookingController implements Initializable {
 
             long availableCount = slots.stream().filter(TimeSlot::isAvailable).count();
             System.out.println("Tìm thấy " + availableCount + " slot trống / " + slots.size() + " slots");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Có " + availableCount + " slot trống");
         });
 
         task.setOnFailed(e -> {
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel, "❌ Lỗi tải slots");
             showAlert("Lỗi tải slots: " + task.getException().getMessage());
         });
 

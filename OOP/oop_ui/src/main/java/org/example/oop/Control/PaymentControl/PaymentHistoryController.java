@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpPaymentService;
 import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneManager;
@@ -24,12 +25,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
-public class PaymentHistoryController implements Initializable {
+public class PaymentHistoryController extends BaseController implements Initializable {
     private final HttpPaymentService paymentService;
     private final ObservableList<PaymentWithStatus> paymentsWithStatus;
 
@@ -64,6 +68,14 @@ public class PaymentHistoryController implements Initializable {
     private TableColumn<PaymentWithStatus, String> colStaff;
     @FXML
     private TableColumn<PaymentWithStatus, String> colNote;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     public PaymentHistoryController() {
         this.paymentService = HttpPaymentService.getInstance();
@@ -268,6 +280,8 @@ public class PaymentHistoryController implements Initializable {
 
     private void loadPayments() {
         System.out.println("⏳ Đang tải lịch sử thanh toán...");
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải lịch sử thanh toán...");
 
         try {
             ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
@@ -309,15 +323,20 @@ public class PaymentHistoryController implements Initializable {
             paymentsWithStatus.addAll(allPayments);
 
             System.out.println("✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
 
         } catch (Exception e) {
             System.err.println("❌ Exception khi tải lịch sử thanh toán: " + e.getMessage());
             e.printStackTrace();
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Lỗi tải lịch sử thanh toán");
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi khi tải lịch sử thanh toán: " + e.getMessage());
         }
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
+    @Override
+    protected void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);

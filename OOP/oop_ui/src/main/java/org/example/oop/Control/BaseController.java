@@ -8,6 +8,9 @@ import org.example.oop.Utils.LoadingManager;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 
 public abstract class BaseController {
@@ -387,5 +390,115 @@ public abstract class BaseController {
                Consumer<T> onSuccess) {
 
           executeWithLoading(container, loadingMessage, taskSupplier, onSuccess, this::handleError);
+     }
+
+     // ==================== LOADING STATUS HELPERS ====================
+
+     /**
+      * Show loading status indicator on navigation bar
+      * 
+      * @param container         Loading status container (HBox)
+      * @param progressIndicator Progress spinner
+      * @param label             Status label
+      * @param message           Loading message
+      */
+     protected void showLoadingStatus(HBox container, ProgressIndicator progressIndicator, Label label,
+               String message) {
+          runOnUIThread(() -> {
+               if (container != null) {
+                    container.setVisible(true);
+                    container.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(14,165,233,0.1); -fx-background-radius: 8px; -fx-border-color: #0EA5E9; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+               if (progressIndicator != null) {
+                    progressIndicator.setVisible(true);
+               }
+               if (label != null) {
+                    label.setText(message);
+                    label.setStyle("-fx-text-fill: #0EA5E9; -fx-font-weight: 600; -fx-font-size: 13px;");
+               }
+          });
+     }
+
+     /**
+      * Show success status indicator on navigation bar
+      * 
+      * @param container         Loading status container (HBox)
+      * @param progressIndicator Progress spinner
+      * @param label             Status label
+      * @param message           Success message
+      */
+     protected void showSuccessStatus(HBox container, ProgressIndicator progressIndicator, Label label,
+               String message) {
+          runOnUIThread(() -> {
+               if (progressIndicator != null) {
+                    progressIndicator.setVisible(false);
+               }
+               if (label != null) {
+                    label.setText(message);
+                    label.setStyle("-fx-text-fill: #10B981; -fx-font-weight: 700; -fx-font-size: 13px;");
+               }
+               if (container != null) {
+                    container.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(16,185,129,0.1); -fx-background-radius: 8px; -fx-border-color: #10B981; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+
+               // Auto-hide after 2 seconds
+               new Thread(() -> {
+                    try {
+                         Thread.sleep(2000);
+                         hideLoadingStatus(container);
+                    } catch (InterruptedException e) {
+                         Thread.currentThread().interrupt();
+                    }
+               }).start();
+          });
+     }
+
+     /**
+      * Show error status indicator on navigation bar
+      * 
+      * @param container         Loading status container (HBox)
+      * @param progressIndicator Progress spinner
+      * @param label             Status label
+      * @param message           Error message
+      */
+     protected void showErrorStatus(HBox container, ProgressIndicator progressIndicator, Label label, String message) {
+          runOnUIThread(() -> {
+               if (progressIndicator != null) {
+                    progressIndicator.setVisible(false);
+               }
+               if (label != null) {
+                    label.setText(message);
+                    label.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: 700; -fx-font-size: 13px;");
+               }
+               if (container != null) {
+                    container.setStyle(
+                              "-fx-padding: 5px 15px; -fx-background-color: rgba(239,68,68,0.1); -fx-background-radius: 8px; -fx-border-color: #EF4444; -fx-border-width: 1px; -fx-border-radius: 8px;");
+               }
+
+               // Auto-hide after 3 seconds
+               new Thread(() -> {
+                    try {
+                         Thread.sleep(3000);
+                         hideLoadingStatus(container);
+                    } catch (InterruptedException e) {
+                         Thread.currentThread().interrupt();
+                    }
+               }).start();
+          });
+     }
+
+     /**
+      * Hide loading status indicator
+      * 
+      * @param container Loading status container (HBox)
+      */
+     protected void hideLoadingStatus(HBox container) {
+          runOnUIThread(() -> {
+               if (container != null) {
+                    container.setVisible(false);
+               }
+          });
      }
 }

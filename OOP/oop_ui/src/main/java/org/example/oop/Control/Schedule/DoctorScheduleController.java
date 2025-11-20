@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.example.oop.Control.BaseController;
 import static org.example.oop.Control.Schedule.CalendarController.TOTAL_HOURS;
 import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.HttpAppointmentService;
@@ -46,16 +47,18 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class DoctorScheduleController implements Initializable {
+public class DoctorScheduleController extends BaseController implements Initializable {
 
     private static class WorkingSchedule {
         Set<DayOfWeek> workingDays = new HashSet<>();
@@ -177,6 +180,14 @@ public class DoctorScheduleController implements Initializable {
     private Button undoBtn;
     @FXML
     private Button redoBtn;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     @FXML
     private void handleBackButton() {
@@ -381,6 +392,9 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private void loadInitialData() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách bác sĩ...");
+
         // Load danh sách bác sĩ
         Task<List<Doctor>> loadDoctorsTask = new Task<>() {
             @Override
@@ -412,12 +426,16 @@ public class DoctorScheduleController implements Initializable {
                 }
 
                 // Load appointments của bác sĩ này
+                showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                        "✅ Đã tải " + doctors.size() + " bác sĩ");
                 loadAppointments();
             }
         });
 
         loadDoctorsTask.setOnFailed(e -> {
             System.err.println("❌ Failed to load doctors");
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách bác sĩ");
             showError("Lỗi", "Không thể tải danh sách bác sĩ");
         });
 
@@ -461,6 +479,9 @@ public class DoctorScheduleController implements Initializable {
         if (currentDoctor == null)
             return;
 
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải lịch hẹn...");
+
         Task<List<Appointment>> task = new Task<>() {
             @Override
             protected List<Appointment> call() {
@@ -487,6 +508,8 @@ public class DoctorScheduleController implements Initializable {
             List<Appointment> appointments = task.getValue();
             appointmentList.setAll(appointments);
             System.out.println("✅ Loaded " + appointments.size() + " appointments");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + appointments.size() + " lịch hẹn");
 
             // Vẽ lại schedule
             renderSchedule();
@@ -497,6 +520,8 @@ public class DoctorScheduleController implements Initializable {
 
         task.setOnFailed(e -> {
             System.err.println("❌ Failed to load appointments");
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải lịch hẹn");
             showError("Lỗi", "Không thể tải danh sách lịch hẹn");
         });
 

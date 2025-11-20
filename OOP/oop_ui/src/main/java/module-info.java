@@ -20,22 +20,10 @@ module org.example.oop {
     // This avoids conflicts with shaded dependencies
     requires mini.boot;
     // Gson is available through mini.boot (shaded)
-
-    // ========== Exports ==========
-    exports org.example.oop;
-    exports org.example.oop.Control;
-    exports org.example.oop.Control.Employee;
-    exports org.example.oop.Control.Schedule;
-    exports org.example.oop.Control.DashBoard;
-    exports org.example.oop.Control.PatientAndPrescription;
-    exports org.example.oop.Control.Inventory;
-    exports org.example.oop.Control.PaymentControl;
-    exports org.example.oop.Model;
-    exports org.example.oop.Service;
-    exports org.example.oop.Utils;
-    exports org.example.oop.config;
+    requires com.google.gson;
 
     // ========== Opens for JavaFX FXML ==========
+    exports org.example.oop to javafx.graphics;
     opens org.example.oop to javafx.fxml;
     opens org.example.oop.Control to javafx.fxml;
     opens org.example.oop.Control.Employee to javafx.fxml;
@@ -45,5 +33,4 @@ module org.example.oop {
     opens org.example.oop.Control.Inventory to javafx.fxml;
     opens org.example.oop.Control.PaymentControl to javafx.fxml;
     opens org.example.oop.Model to javafx.fxml;
-    opens org.example.oop.Utils to javafx.fxml;
 }

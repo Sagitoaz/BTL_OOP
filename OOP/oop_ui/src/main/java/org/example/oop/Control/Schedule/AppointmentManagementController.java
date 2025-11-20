@@ -6,15 +6,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.*;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.AppointmentStatus;
+import org.miniboot.app.domain.models.AppointmentType;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.models.UserRole;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -24,8 +35,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -34,15 +43,15 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
 
-public class AppointmentManagementController implements Initializable {
+public class AppointmentManagementController extends BaseController implements Initializable {
     // Services
     private HttpAppointmentService appointmentService;
     private HttpDoctorService doctorService;
@@ -53,7 +62,7 @@ public class AppointmentManagementController implements Initializable {
     private ObservableList<Doctor> doctorList;
     private Appointment selectedAppointment;
     private Appointment originalAppointment; // Để revert changes
-    
+
     // Customer name cache để hiển thị trong table
     private Map<Integer, String> customerNameCache = new HashMap<>();
 
@@ -71,59 +80,106 @@ public class AppointmentManagementController implements Initializable {
     private String searchKeyword;
 
     // Top filter controls
-    @FXML private DatePicker fromDatePicker;
-    @FXML private DatePicker toDatePicker;
-    @FXML private ComboBox<String> doctorFilter;
-    @FXML private ComboBox<String> roomFilter;
-    @FXML private ComboBox<String> statusFilter;
-    @FXML private TextField qSearch;
-    @FXML private Button applyFilterBtn;
-    @FXML private Button resetFilterBtn;
-    @FXML private Button createBtn;
-    @FXML private Button confirmBtn;
-    @FXML private Button cancelBtn;
-    @FXML private MenuButton moreActionsBtn;
+    @FXML
+    private DatePicker fromDatePicker;
+    @FXML
+    private DatePicker toDatePicker;
+    @FXML
+    private ComboBox<String> doctorFilter;
+    @FXML
+    private ComboBox<String> roomFilter;
+    @FXML
+    private ComboBox<String> statusFilter;
+    @FXML
+    private TextField qSearch;
+    @FXML
+    private Button applyFilterBtn;
+    @FXML
+    private Button resetFilterBtn;
+    @FXML
+    private Button createBtn;
+    @FXML
+    private Button confirmBtn;
+    @FXML
+    private Button cancelBtn;
+    @FXML
+    private MenuButton moreActionsBtn;
 
     // Table
-    @FXML private TableView<Appointment> appointmentTable;
-    @FXML private Button refreshBtn;
+    @FXML
+    private TableView<Appointment> appointmentTable;
+    @FXML
+    private Button refreshBtn;
 
     // Detail panel
-    @FXML private TextField txtId;
-    @FXML private DatePicker datePicker;
-    @FXML private TextField startTimeField;
-    @FXML private TextField endTimeField;
-    @FXML private TextField patientField;
-    @FXML private Button choosePatientBtn;
-    @FXML private ComboBox<String> doctorCombo;
-    @FXML private ComboBox<String> serviceCombo;
-    @FXML private ComboBox<String> roomCombo;
-    @FXML private ComboBox<String> statusCombo;
-    @FXML private TextArea noteArea;
-    @FXML private Button saveBtn;
-    @FXML private Button revertBtn;
-    @FXML private Button deleteBtn;
+    @FXML
+    private TextField txtId;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private TextField startTimeField;
+    @FXML
+    private TextField endTimeField;
+    @FXML
+    private TextField patientField;
+    @FXML
+    private Button choosePatientBtn;
+    @FXML
+    private ComboBox<String> doctorCombo;
+    @FXML
+    private ComboBox<String> serviceCombo;
+    @FXML
+    private ComboBox<String> roomCombo;
+    @FXML
+    private ComboBox<String> statusCombo;
+    @FXML
+    private TextArea noteArea;
+    @FXML
+    private Button saveBtn;
+    @FXML
+    private Button revertBtn;
+    @FXML
+    private Button deleteBtn;
 
     // Timeline tab
-    @FXML private ListView<String> timelineList;
-    @FXML private Button sendSmsBtn;
-    @FXML private Button sendEmailBtn;
+    @FXML
+    private ListView<String> timelineList;
+    @FXML
+    private Button sendSmsBtn;
+    @FXML
+    private Button sendEmailBtn;
 
     // Extra notes tab
-    @FXML private TextArea extraNoteArea;
-    @FXML private Button saveNoteBtn;
+    @FXML
+    private TextArea extraNoteArea;
+    @FXML
+    private Button saveNoteBtn;
 
     // Pagination
-    @FXML private Label lblSummary;
-    @FXML private Button firstPageBtn;
-    @FXML private Button prevPageBtn;
-    @FXML private Label lblPage;
-    @FXML private Button nextPageBtn;
-    @FXML private Button lastPageBtn;
-    
+    @FXML
+    private Label lblSummary;
+    @FXML
+    private Button firstPageBtn;
+    @FXML
+    private Button prevPageBtn;
+    @FXML
+    private Label lblPage;
+    @FXML
+    private Button nextPageBtn;
+    @FXML
+    private Button lastPageBtn;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        if((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN){
+        if ((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN) {
             createBtn.setDisable(true);
         }
         System.out.println("AppointmentManagementController initialized");
@@ -153,19 +209,20 @@ public class AppointmentManagementController implements Initializable {
     }
 
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         System.out.println("🔙 Back button clicked");
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
 
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         System.out.println("🔄 Reloading Appointment Booking view");
-        //SceneManager.reloadScene();
+        // SceneManager.reloadScene();
         SceneManager.reloadCurrentScene();
     }
 
@@ -371,14 +428,13 @@ public class AppointmentManagementController implements Initializable {
 
             Runnable runnable = () -> {
                 System.out.println("✅ CustomerHub closed");
-                Object controllerObj = ((FXMLLoader)SceneManager.getSceneData("fxmlLoader") ).getController();
+                Object controllerObj = ((FXMLLoader) SceneManager.getSceneData("fxmlLoader")).getController();
                 System.out.println("🔍 Retrieved controller: " + controllerObj);
                 // Kiểm tra controller type (để tránh ClassCastException)
                 if (controllerObj != null) {
                     try {
                         // Dùng reflection để gọi getSelectedCustomer()
-                        Method getSelectedMethod =
-                                controllerObj.getClass().getMethod("getSelectedCustomer");
+                        Method getSelectedMethod = controllerObj.getClass().getMethod("getSelectedCustomer");
                         Customer selectedCustomer = (Customer) getSelectedMethod.invoke(controllerObj);
 
                         if (selectedCustomer != null) {
@@ -388,11 +444,11 @@ public class AppointmentManagementController implements Initializable {
                             System.out.println("⚠️ No customer selected");
                         }
                     } catch (Exception ex) {
-                        System.err.println("⚠️ Could not get selected customer (reflection failed): " + ex.getMessage());
+                        System.err
+                                .println("⚠️ Could not get selected customer (reflection failed): " + ex.getMessage());
                         // Fallback: Show manual input dialog
                         showManualCustomerIdDialog();
-                    }
-                    finally {
+                    } finally {
                         // Clear temporary data
                         SceneManager.removeSceneData("fxmlLoader");
                         SceneManager.removeSceneData("isModal");
@@ -405,14 +461,13 @@ public class AppointmentManagementController implements Initializable {
             SceneManager.setSceneData("isModal", true);
             SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
 
-
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
             e.printStackTrace();
             showAlert("Không thể mở màn hình chọn bệnh nhân.\n" + e.getMessage());
         }
     }
-    
+
     /**
      * Fallback method: Show manual input dialog nếu auto-selection fail
      */
@@ -421,7 +476,7 @@ public class AppointmentManagementController implements Initializable {
         dialog.setTitle("Chọn bệnh nhân");
         dialog.setHeaderText("Nhập ID bệnh nhân đã chọn trong CustomerHub:");
         dialog.setContentText("Customer ID:");
-        
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(id -> {
             try {
@@ -432,30 +487,30 @@ public class AppointmentManagementController implements Initializable {
             }
         });
     }
-    
+
     /**
      * Load customer info và update vào form
      */
     private void loadCustomerAndUpdate(int customerId) {
         System.out.println("🔍 Loading customer #" + customerId);
-        
+
         Task<Customer> task = new Task<>() {
             @Override
             protected Customer call() {
                 // Search by ID (convert to string)
                 var response = customerService.searchCustomers(String.valueOf(customerId), null, null, null);
-                
+
                 if (response.isSuccess() && response.getData() != null && !response.getData().isEmpty()) {
                     // Find customer with exact ID match
                     return response.getData().stream()
-                        .filter(c -> c.getId() == customerId)
-                        .findFirst()
-                        .orElse(null);
+                            .filter(c -> c.getId() == customerId)
+                            .findFirst()
+                            .orElse(null);
                 }
                 return null;
             }
         };
-        
+
         task.setOnSucceeded(evt -> {
             Customer customer = task.getValue();
             if (customer != null) {
@@ -464,29 +519,29 @@ public class AppointmentManagementController implements Initializable {
                 showAlert("Không tìm thấy bệnh nhân với ID: " + customerId);
             }
         });
-        
+
         task.setOnFailed(evt -> {
             showAlert("Lỗi khi tải thông tin bệnh nhân:\n" + task.getException().getMessage());
         });
-        
+
         new Thread(task).start();
     }
-    
+
     /**
      * Update patient field với customer info
      */
     private void updatePatientField(Customer customer) {
         if (selectedAppointment != null) {
             selectedAppointment.setCustomerId(customer.getId());
-            
+
             // Update patient field với format: "Tên (ID: #123)"
-            String patientInfo = String.format("%s (ID: #%d)", 
-                customer.getFullName(), 
-                customer.getId());
+            String patientInfo = String.format("%s (ID: #%d)",
+                    customer.getFullName(),
+                    customer.getId());
             patientField.setText(patientInfo);
-            
+
             System.out.println("✅ Patient updated: " + customer.getFullName() + " (ID: " + customer.getId() + ")");
-            
+
             // Show success message
             showAlert("Đã chọn bệnh nhân: " + customer.getFullName());
         } else {
@@ -505,14 +560,14 @@ public class AppointmentManagementController implements Initializable {
             showAlert("Vui lòng chọn lịch hẹn để gửi email");
             return;
         }
-        
+
         // Get customer info
         int customerId = selectedAppointment.getCustomerId();
         String customerName = customerNameCache.get(customerId);
         if (customerName == null) {
             customerName = "Bệnh nhân #" + customerId;
         }
-        
+
         // Get doctor info
         int doctorId = selectedAppointment.getDoctorId();
         Doctor doctor = doctorList.stream()
@@ -520,53 +575,49 @@ public class AppointmentManagementController implements Initializable {
                 .findFirst()
                 .orElse(null);
         String doctorName = doctor != null ? doctor.getFullName() : "Bác sĩ #" + doctorId;
-        
+
         // Mock email address (thực tế cần load từ customer data)
         String email = "patient@example.com"; // TODO: Get from customer
-        
+
         // Email subject
         String subject = "Nhắc lịch khám - ABC Eye Clinic";
-        
+
         // Email body
         String body = String.format(
-            "Kính gửi %s,\n\n" +
-            "Đây là email nhắc lịch khám của quý khách tại ABC Eye Clinic:\n\n" +
-            "📋 Mã lịch hẹn: #%d\n" +
-            "👤 Bệnh nhân: %s\n" +
-            "👨‍⚕️ Bác sĩ: %s\n" +
-            "📅 Ngày khám: %s\n" +
-            "🕐 Giờ khám: %s - %s\n" +
-            "📍 Địa điểm: ABC Eye Clinic\n" +
-            "📌 Trạng thái: %s\n\n" +
-            "Ghi chú: %s\n\n" +
-            "Vui lòng đến đúng giờ để được phục vụ tốt nhất.\n" +
-            "Nếu cần hủy hoặc đổi lịch, vui lòng liên hệ: (024) 1234-5678\n\n" +
-            "Trân trọng,\n" +
-            "ABC Eye Clinic\n" +
-            "Website: www.abceyeclinic.vn\n" +
-            "Hotline: (024) 1234-5678",
-            customerName,
-            selectedAppointment.getId(),
-            customerName,
-            doctorName,
-            selectedAppointment.getStartTime().toLocalDate().format(
-                DateTimeFormatter.ofPattern("dd/MM/yyyy")
-            ),
-            selectedAppointment.getStartTime().toLocalTime().format(
-                DateTimeFormatter.ofPattern("HH:mm")
-            ),
-            selectedAppointment.getEndTime().toLocalTime().format(
-                DateTimeFormatter.ofPattern("HH:mm")
-            ),
-            selectedAppointment.getStatus().toString(),
-            selectedAppointment.getNotes() != null ? selectedAppointment.getNotes() : "(Không có)"
-        );
-        
+                "Kính gửi %s,\n\n" +
+                        "Đây là email nhắc lịch khám của quý khách tại ABC Eye Clinic:\n\n" +
+                        "📋 Mã lịch hẹn: #%d\n" +
+                        "👤 Bệnh nhân: %s\n" +
+                        "👨‍⚕️ Bác sĩ: %s\n" +
+                        "📅 Ngày khám: %s\n" +
+                        "🕐 Giờ khám: %s - %s\n" +
+                        "📍 Địa điểm: ABC Eye Clinic\n" +
+                        "📌 Trạng thái: %s\n\n" +
+                        "Ghi chú: %s\n\n" +
+                        "Vui lòng đến đúng giờ để được phục vụ tốt nhất.\n" +
+                        "Nếu cần hủy hoặc đổi lịch, vui lòng liên hệ: (024) 1234-5678\n\n" +
+                        "Trân trọng,\n" +
+                        "ABC Eye Clinic\n" +
+                        "Website: www.abceyeclinic.vn\n" +
+                        "Hotline: (024) 1234-5678",
+                customerName,
+                selectedAppointment.getId(),
+                customerName,
+                doctorName,
+                selectedAppointment.getStartTime().toLocalDate().format(
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                selectedAppointment.getStartTime().toLocalTime().format(
+                        DateTimeFormatter.ofPattern("HH:mm")),
+                selectedAppointment.getEndTime().toLocalTime().format(
+                        DateTimeFormatter.ofPattern("HH:mm")),
+                selectedAppointment.getStatus().toString(),
+                selectedAppointment.getNotes() != null ? selectedAppointment.getNotes() : "(Không có)");
+
         // Show confirmation dialog with email preview
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Xác nhận gửi Email");
         confirmDialog.setHeaderText("Gửi email nhắc lịch đến: " + email);
-        
+
         // Create TextArea for email preview
         TextArea previewArea = new TextArea();
         previewArea.setText("Subject: " + subject + "\n\n" + body);
@@ -574,23 +625,22 @@ public class AppointmentManagementController implements Initializable {
         previewArea.setEditable(false);
         previewArea.setPrefRowCount(20);
         previewArea.setPrefColumnCount(60);
-        
+
         confirmDialog.getDialogPane().setContent(previewArea);
         confirmDialog.getDialogPane().setPrefWidth(700);
-        
+
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             // TODO: Actual Email API call here
             // Tạm thời mock success
-            
+
             showAlert("✅ Đã gửi email thành công đến:\n" + email);
-            
+
             // Add to timeline
             String timestamp = LocalDateTime.now().format(
-                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-            );
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
             timelineList.getItems().add("📧 Đã gửi email lúc: " + timestamp);
-            
+
             System.out.println("✅ Email sent to " + email + " for appointment #" + selectedAppointment.getId());
         } else {
             System.out.println("⚠️ Email sending cancelled by user");
@@ -603,70 +653,69 @@ public class AppointmentManagementController implements Initializable {
             showAlert("Vui lòng chọn lịch hẹn để thêm ghi chú");
             return;
         }
-        
+
         String extraNote = extraNoteArea.getText();
-        
+
         if (extraNote == null || extraNote.trim().isEmpty()) {
             showAlert("Vui lòng nhập ghi chú trước khi lưu");
             return;
         }
-        
+
         // Append to existing notes với timestamp
         String currentNotes = selectedAppointment.getNotes();
         String timestamp = LocalDateTime.now().format(
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-        );
-        
+                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
         String newNotes;
         if (currentNotes == null || currentNotes.trim().isEmpty()) {
             newNotes = "--- Ghi chú thêm (" + timestamp + ") ---\n" + extraNote.trim();
         } else {
             newNotes = currentNotes + "\n\n--- Ghi chú thêm (" + timestamp + ") ---\n" + extraNote.trim();
         }
-        
+
         selectedAppointment.setNotes(newNotes);
-        
+
         // Update to database
         System.out.println("💾 Saving extra note for appointment #" + selectedAppointment.getId());
-        
+
         Task<Appointment> task = new Task<>() {
             @Override
             protected Appointment call() {
                 return appointmentService.update(selectedAppointment);
             }
         };
-        
+
         task.setOnSucceeded(evt -> {
             Appointment updated = task.getValue();
             if (updated != null) {
                 // Update main note area trong Details tab
                 noteArea.setText(updated.getNotes());
-                
+
                 // Clear extra note area
                 extraNoteArea.clear();
-                
+
                 // Add to timeline
                 timelineList.getItems().add("📝 Thêm ghi chú lúc: " + timestamp);
-                
+
                 // Update selectedAppointment reference
                 selectedAppointment.setNotes(updated.getNotes());
-                
+
                 // Refresh table để cập nhật note column
                 appointmentTable.refresh();
-                
+
                 showAlert("✅ Đã lưu ghi chú thành công");
-                
+
                 System.out.println("✅ Extra note saved successfully");
             } else {
                 showAlert("❌ Lưu ghi chú thất bại");
             }
         });
-        
+
         task.setOnFailed(evt -> {
             System.err.println("❌ Error saving note: " + task.getException().getMessage());
             showAlert("Lỗi khi lưu ghi chú:\n" + task.getException().getMessage());
         });
-        
+
         new Thread(task).start();
     }
 
@@ -699,28 +748,27 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void setupAppointmentTable() {
-        TableColumn<Appointment, String> colId =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(0);
-        TableColumn<Appointment, String> colTime =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(1);
-        TableColumn<Appointment, String> colDate =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(2);
-        TableColumn<Appointment, String> colPatient =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(3);
-        TableColumn<Appointment, String> colDoctor =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(4);
-        TableColumn<Appointment, String> colService =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(5);
-        TableColumn<Appointment, String> colRoom =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(6);
-        TableColumn<Appointment, String> colStatus =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(7);
-        TableColumn<Appointment, String> colNote =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(8);
+        TableColumn<Appointment, String> colId = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(0);
+        TableColumn<Appointment, String> colTime = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(1);
+        TableColumn<Appointment, String> colDate = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(2);
+        TableColumn<Appointment, String> colPatient = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(3);
+        TableColumn<Appointment, String> colDoctor = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(4);
+        TableColumn<Appointment, String> colService = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(5);
+        TableColumn<Appointment, String> colRoom = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(6);
+        TableColumn<Appointment, String> colStatus = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(7);
+        TableColumn<Appointment, String> colNote = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(8);
 
         // Set cell value factories
-        colId.setCellValueFactory(cellData ->
-                new SimpleStringProperty(String.valueOf(cellData.getValue().getId())));
+        colId.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getId())));
 
         colTime.setCellValueFactory(cellData -> {
             Appointment apt = cellData.getValue();
@@ -728,8 +776,8 @@ public class AppointmentManagementController implements Initializable {
             return new SimpleStringProperty(time);
         });
 
-        colDate.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStartTime().toLocalDate().toString()));
+        colDate.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getStartTime().toLocalDate().toString()));
 
         colPatient.setCellValueFactory(cellData -> {
             int customerId = cellData.getValue().getCustomerId();
@@ -752,14 +800,12 @@ public class AppointmentManagementController implements Initializable {
             return new SimpleStringProperty(doctor != null ? doctor.getFullName() : "Bác sĩ #" + doctorId);
         });
 
-        colService.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getAppointmentType().toString()));
+        colService.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getAppointmentType().toString()));
 
-        colRoom.setCellValueFactory(cellData ->
-                new SimpleStringProperty("-")); // Không có room
+        colRoom.setCellValueFactory(cellData -> new SimpleStringProperty("-")); // Không có room
 
-        colStatus.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStatus().toString()));
+        colStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus().toString()));
 
         colNote.setCellValueFactory(cellData -> {
             String notes = cellData.getValue().getNotes();
@@ -781,11 +827,11 @@ public class AppointmentManagementController implements Initializable {
         // Status filter ComboBox
         statusFilter.setItems(FXCollections.observableArrayList(
                 "Tất cả",
-                "SCHEDULED",    // Đã đặt
-                "CONFIRMED",    // Đã xác nhận
-                "COMPLETED",    // Hoàn thành
-                "CANCELLED",    // Đã hủy
-                "NO_SHOW"       // Không đến
+                "SCHEDULED", // Đã đặt
+                "CONFIRMED", // Đã xác nhận
+                "COMPLETED", // Hoàn thành
+                "CANCELLED", // Đã hủy
+                "NO_SHOW" // Không đến
         ));
         statusFilter.setValue("Tất cả");
 
@@ -809,15 +855,14 @@ public class AppointmentManagementController implements Initializable {
                 "CONFIRMED",
                 "COMPLETED",
                 "CANCELLED",
-                "NO_SHOW"
-        ));
+                "NO_SHOW"));
 
         // Service/AppointmentType ComboBox
         serviceCombo.setItems(FXCollections.observableArrayList(
-                "VISIT",      // Khám
-                "CHECKUP",    // Tái khám
-                "FOLLOWUP",   // Theo dõi
-                "SURGERY"     // Phẫu thuật
+                "VISIT", // Khám
+                "CHECKUP", // Tái khám
+                "FOLLOWUP", // Theo dõi
+                "SURGERY" // Phẫu thuật
         ));
 
         // Doctor ComboBox
@@ -839,6 +884,9 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void loadDoctors() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách bác sĩ...");
+
         Task<List<Doctor>> task = new Task<>() {
             @Override
             protected List<Doctor> call() throws Exception {
@@ -863,10 +911,14 @@ public class AppointmentManagementController implements Initializable {
             }
 
             System.out.println("✅ Loaded " + doctors.size() + " doctors");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + doctors.size() + " bác sĩ");
         });
 
         task.setOnFailed(e -> {
             System.err.println("❌ Error loading doctors: " + task.getException().getMessage());
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách bác sĩ");
             showAlert("Không thể tải danh sách bác sĩ");
         });
 
@@ -874,6 +926,9 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void loadAppointments() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách lịch hẹn...");
+
         Task<List<Appointment>> task = new Task<>() {
             @Override
             protected List<Appointment> call() throws Exception {
@@ -901,7 +956,7 @@ public class AppointmentManagementController implements Initializable {
                 String search = qSearch.getText();
 
                 // Call API với filters
-                if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
                     Customer customer = SceneManager.getSceneData("accountData");
                     int customerId = customer.getId();
                     return appointmentService.getAppointmentsFiltered(
@@ -910,17 +965,15 @@ public class AppointmentManagementController implements Initializable {
                             status,
                             fromDate,
                             toDate,
-                            search
-                    );
+                            search);
                 }
                 return appointmentService.getAppointmentsFiltered(
                         doctorId,
-                        null,  // customerId (chưa có UI filter cho customer)
+                        null, // customerId (chưa có UI filter cho customer)
                         status,
                         fromDate,
                         toDate,
-                        search
-                );
+                        search);
             }
         };
 
@@ -933,13 +986,17 @@ public class AppointmentManagementController implements Initializable {
             lblSummary.setText("Tổng: " + totalAppointments + " lịch hẹn");
 
             System.out.println("✅ Loaded " + appointments.size() + " appointments");
-            
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + appointments.size() + " lịch hẹn");
+
             // ✅ Load customer names cho tất cả appointments
             loadCustomerNamesForAppointments(appointments);
         });
 
         task.setOnFailed(e -> {
             System.err.println("❌ Error loading appointments: " + task.getException().getMessage());
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách lịch hẹn");
             showAlert("Không thể tải danh sách lịch hẹn");
         });
 
@@ -956,7 +1013,7 @@ public class AppointmentManagementController implements Initializable {
         datePicker.setValue(appointment.getStartTime().toLocalDate());
         startTimeField.setText(appointment.getStartTime().toLocalTime().toString());
         endTimeField.setText(appointment.getEndTime().toLocalTime().toString());
-        
+
         // Load customer name (check cache first)
         int customerId = appointment.getCustomerId();
         if (customerNameCache.containsKey(customerId)) {
@@ -1016,7 +1073,7 @@ public class AppointmentManagementController implements Initializable {
         }
         timelineList.getItems().add("📋 Trạng thái: " + appointment.getStatus());
     }
-    
+
     /**
      * Load customer names cho tất cả appointments trong list
      */
@@ -1029,20 +1086,20 @@ public class AppointmentManagementController implements Initializable {
                 customerIdsToLoad.add(customerId);
             }
         }
-        
+
         if (customerIdsToLoad.isEmpty()) {
             System.out.println("✅ All customer names already cached");
             return;
         }
-        
+
         System.out.println("🔍 Loading " + customerIdsToLoad.size() + " customer names...");
-        
+
         // Load từng customer async (có thể optimize bằng batch API sau)
         for (Integer customerId : customerIdsToLoad) {
             loadCustomerNameAsync(customerId);
         }
     }
-    
+
     /**
      * Load customer name async và cache
      */
@@ -1052,52 +1109,53 @@ public class AppointmentManagementController implements Initializable {
             protected Customer call() {
                 // Search by ID
                 var response = customerService.searchCustomers(String.valueOf(customerId), null, null, null);
-                
+
                 if (response.isSuccess() && response.getData() != null && !response.getData().isEmpty()) {
                     return response.getData().stream()
-                        .filter(c -> c.getId() == customerId)
-                        .findFirst()
-                        .orElse(null);
+                            .filter(c -> c.getId() == customerId)
+                            .findFirst()
+                            .orElse(null);
                 }
                 return null;
             }
         };
-        
+
         task.setOnSucceeded(evt -> {
             Customer customer = task.getValue();
             if (customer != null) {
                 // Cache name
                 customerNameCache.put(customerId, customer.getFullName());
-                
+
                 // Update patientField nếu vẫn đang show customer này
                 if (selectedAppointment != null && selectedAppointment.getCustomerId() == customerId) {
                     patientField.setText(customer.getFullName() + " (ID: #" + customerId + ")");
                 }
-                
+
                 // Refresh table để cập nhật customer name
                 appointmentTable.refresh();
-                
+
                 System.out.println("✅ Loaded customer name: " + customer.getFullName() + " (ID: " + customerId + ")");
             }
         });
-        
+
         task.setOnFailed(evt -> {
             System.err.println("❌ Failed to load customer #" + customerId);
         });
-        
+
         new Thread(task).start();
     }
+
     @FXML
-    private void onCreatePrescription(){
+    private void onCreatePrescription() {
         if (selectedAppointment == null) {
             showAlert("Vui lòng chọn lịch hẹn trước khi tạo đơn khám");
             return;
         }
-        if(patientField.getText().contains("Đang tải") || patientField.getText() == null){
+        if (patientField.getText().contains("Đang tải") || patientField.getText() == null) {
             showAlert("Vui lòng đợi tải thông tin bệnh nhân hoàn tất");
             return;
         }
-        if(doctorCombo.getValue() == null){
+        if (doctorCombo.getValue() == null) {
             showAlert("Vui lòng chọn bác sĩ cho lịch hẹn");
             return;
         }
@@ -1105,14 +1163,14 @@ public class AppointmentManagementController implements Initializable {
         SceneManager.setSceneData("nameCustomer", patientField.getText());
         SceneManager.setSceneData("doctor", doctorCombo.getValue());
 
-        SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
-            // Callback sau khi đóng Prescription Editor
-            SceneManager.removeSceneData("appointment");
-            SceneManager.removeSceneData("nameCustomer");
-            SceneManager.removeSceneData("doctor");
-            System.out.println("✅ Prescription Editor closed");
-        });
-
+        SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR,
+                () -> {
+                    // Callback sau khi đóng Prescription Editor
+                    SceneManager.removeSceneData("appointment");
+                    SceneManager.removeSceneData("nameCustomer");
+                    SceneManager.removeSceneData("doctor");
+                    System.out.println("✅ Prescription Editor closed");
+                });
 
     }
 

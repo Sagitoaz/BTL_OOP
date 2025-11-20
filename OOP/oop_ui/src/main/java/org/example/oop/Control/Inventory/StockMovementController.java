@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.example.oop.Control.BaseController;
+import org.example.oop.Service.ApiProductService;
+import org.example.oop.Service.ApiStockMovementService;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.domain.models.Inventory.StockMovement;
-import org.example.oop.Service.ApiProductService;
-import org.example.oop.Service.ApiStockMovementService;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,16 +22,27 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 
 public class StockMovementController extends BaseController {
 
      // ===== Header & Filter Section =====
      @FXML
      private Label statsLabel;
+
+     // ==================== LOADING STATUS ====================
+     @FXML
+     private HBox loadingStatusContainer;
+     @FXML
+     private ProgressIndicator statusProgressIndicator;
+     @FXML
+     private Label loadingStatusLabel;
+
      @FXML
      private ComboBox<String> filterProductBox;
      @FXML
@@ -133,18 +144,20 @@ public class StockMovementController extends BaseController {
      private StockMovement editingMovement = null;
      private Integer selectedProductId = null;
 
-    @FXML
-    private void handleBackButton(){
-        SceneManager.goBack();
-    }
-    @FXML
-    private void handleForwardButton(){
-        SceneManager.goForward();
-    }
-    @FXML
-    private void handleReloadButton(){
-        SceneManager.reloadCurrentScene();
-    }
+     @FXML
+     private void handleBackButton() {
+          SceneManager.goBack();
+     }
+
+     @FXML
+     private void handleForwardButton() {
+          SceneManager.goForward();
+     }
+
+     @FXML
+     private void handleReloadButton() {
+          SceneManager.reloadCurrentScene();
+     }
 
      // ====================================================================
      // INITIALIZATION
@@ -356,6 +369,8 @@ public class StockMovementController extends BaseController {
           if (statusLabel != null) {
                statusLabel.setText("🔄 Đang tải dữ liệu...");
           }
+          showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "⏳ Đang tải dữ liệu xuất nhập kho...");
 
           executeAsync(
                     // Background task
@@ -376,6 +391,8 @@ public class StockMovementController extends BaseController {
                          if (statusLabel != null) {
                               statusLabel.setText("✅ Đã tải " + movements.size() + " movements");
                          }
+                         showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                   "✅ Tải thành công " + movements.size() + " phiếu!");
                          System.out.println("✅ Loaded " + movements.size() + " stock movements");
 
                          // 🐛 DEBUG: In ra movement đầu tiên để kiểm tra
@@ -394,6 +411,8 @@ public class StockMovementController extends BaseController {
                          if (statusLabel != null) {
                               statusLabel.setText("❌ Lỗi: " + error.getMessage());
                          }
+                         showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                   "❌ Lỗi: " + error.getMessage());
                     });
      }
 

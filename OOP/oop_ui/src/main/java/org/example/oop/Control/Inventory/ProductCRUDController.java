@@ -7,6 +7,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Utils.SceneConfig;
@@ -99,6 +100,14 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Label lastUpdateLabel;
 
+     // ==================== LOADING STATUS ====================
+     @FXML
+     private HBox loadingStatusContainer;
+     @FXML
+     private ProgressIndicator statusProgressIndicator;
+     @FXML
+     private Label loadingStatusLabel;
+
      // ==================== DATA & SERVICES ====================
 
      private final ApiProductService productService = new ApiProductService();
@@ -109,9 +118,9 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
      @Override
      public void initialize(URL url, ResourceBundle rb) {
-         if(SceneManager.getSceneData("role") != UserRole.ADMIN){
-             addNewButton.setDisable(true);
-         }
+          if (SceneManager.getSceneData("role") != UserRole.ADMIN) {
+               addNewButton.setDisable(true);
+          }
           setupTable();
           setupFilters();
           setupFormBoxes();
@@ -207,18 +216,21 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      private void setupLoadingIndicator() {
           // loadingIndicator removed from FXML - no action needed
      }
-    @FXML
-    private void handleBackButton(){
-        SceneManager.goBack();
-    }
-    @FXML
-    private void handleForwardButton(){
-        SceneManager.goForward();
-    }
-    @FXML
-    private void handleReloadButton(){
-        SceneManager.reloadCurrentScene();
-    }
+
+     @FXML
+     private void handleBackButton() {
+          SceneManager.goBack();
+     }
+
+     @FXML
+     private void handleForwardButton() {
+          SceneManager.goForward();
+     }
+
+     @FXML
+     private void handleReloadButton() {
+          SceneManager.reloadCurrentScene();
+     }
      // ==================== ASYNC DATA LOADING ====================
 
      /**
@@ -228,6 +240,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           showLoading(true);
           disableButtons(true);
           updateStatus("🔄 Đang tải danh sách sản phẩm...");
+          showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "⏳ Đang tải dữ liệu sản phẩm...");
 
           executeAsync(
                     // Background task: Gọi API
@@ -246,6 +260,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          showLoading(false);
                          disableButtons(false);
                          updateStatus("✅ Đã tải " + loadedProducts.size() + " sản phẩm");
+                         showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                   "✅ Tải thành công " + loadedProducts.size() + " sản phẩm!");
                          updateStatistics(loadedProducts);
                          System.out.println("✅ Loaded " + loadedProducts.size() + " products from API");
                     },
@@ -255,6 +271,8 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          showLoading(false);
                          disableButtons(false);
                          updateStatus("❌ Lỗi tải dữ liệu: " + error.getMessage());
+                         showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                   "❌ Lỗi: " + error.getMessage());
                          showError("Không thể tải danh sách sản phẩm.\n\n" + error.getMessage());
                     });
      }
@@ -309,121 +327,121 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          disableButtons(false);
                     },
 
-                  // Error - with detailed parsing
-                  error -> {
-                      showLoading(false);
-                      disableButtons(false);
+                    // Error - with detailed parsing
+                    error -> {
+                         showLoading(false);
+                         disableButtons(false);
 
-                      ErrorInfo errorInfo = parseError(error);
+                         ErrorInfo errorInfo = parseError(error);
 
-                      // Display user-friendly message based on error code
-                      String title;
-                      String message;
+                         // Display user-friendly message based on error code
+                         String title;
+                         String message;
 
-                      switch (errorInfo.statusCode) {
-                          case 401: // Unauthorized
-                              title = "❌ Chưa xác thực";
-                              message = "Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Đăng nhập lại\n" +
-                                      "- Kiểm tra token xác thực\n" +
-                                      "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
-                              break;
+                         switch (errorInfo.statusCode) {
+                              case 401: // Unauthorized
+                                   title = "❌ Chưa xác thực";
+                                   message = "Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Đăng nhập lại\n" +
+                                             "- Kiểm tra token xác thực\n" +
+                                             "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                   break;
 
-                          case 403: // Forbidden
-                              title = "❌ Không có quyền truy cập";
-                              message = "Bạn không có quyền thực hiện thao tác này.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Liên hệ quản trị viên để được cấp quyền\n" +
-                                      "- Kiểm tra lại vai trò của bạn trong hệ thống";
-                              break;
+                              case 403: // Forbidden
+                                   title = "❌ Không có quyền truy cập";
+                                   message = "Bạn không có quyền thực hiện thao tác này.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Liên hệ quản trị viên để được cấp quyền\n" +
+                                             "- Kiểm tra lại vai trò của bạn trong hệ thống";
+                                   break;
 
-                          case 415: // Unsupported Media Type
-                              title = "❌ Định dạng không được hỗ trợ";
-                              message = "Dữ liệu gửi lên không đúng định dạng yêu cầu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Đây là lỗi kỹ thuật. Vui lòng liên hệ IT.";
-                              break;
+                              case 415: // Unsupported Media Type
+                                   title = "❌ Định dạng không được hỗ trợ";
+                                   message = "Dữ liệu gửi lên không đúng định dạng yêu cầu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Đây là lỗi kỹ thuật. Vui lòng liên hệ IT.";
+                                   break;
 
-                          case 429: // Too Many Requests
-                              title = "❌ Quá nhiều yêu cầu";
-                              message = "Bạn đã gửi quá nhiều yêu cầu trong thời gian ngắn.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Chờ 1 phút trước khi thử lại\n" +
-                                      "- Tránh spam các thao tác";
-                              break;
-                              
-                          case 409: // Conflict
-                              title = "❌ Dữ liệu bị trùng lặp";
-                              message = "SKU đã tồn tại trong hệ thống.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
-                              break;
+                              case 429: // Too Many Requests
+                                   title = "❌ Quá nhiều yêu cầu";
+                                   message = "Bạn đã gửi quá nhiều yêu cầu trong thời gian ngắn.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Chờ 1 phút trước khi thử lại\n" +
+                                             "- Tránh spam các thao tác";
+                                   break;
 
-                          case 422: // Validation Failed
-                              title = "❌ Dữ liệu không hợp lệ";
-                              message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra:\n" +
-                                      "- Số lượng phải >= 0\n" +
-                                      "- Giá cost và retail phải >= 0\n" +
-                                      "- Giá retail nên >= giá cost";
-                              break;
+                              case 409: // Conflict
+                                   title = "❌ Dữ liệu bị trùng lặp";
+                                   message = "SKU đã tồn tại trong hệ thống.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
+                                   break;
 
-                          case 400: // Bad Request
-                              title = "❌ Yêu cầu không hợp lệ";
-                              message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra tất cả các trường bắt buộc.";
-                              break;
+                              case 422: // Validation Failed
+                                   title = "❌ Dữ liệu không hợp lệ";
+                                   message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra:\n" +
+                                             "- Số lượng phải >= 0\n" +
+                                             "- Giá cost và retail phải >= 0\n" +
+                                             "- Giá retail nên >= giá cost";
+                                   break;
 
-                          case 404: // Not Found
-                              title = "❌ Sản phẩm không tồn tại";
-                              message = "Sản phẩm không tồn tại.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra lại thông tin sản phẩm.";
-                              break;
+                              case 400: // Bad Request
+                                   title = "❌ Yêu cầu không hợp lệ";
+                                   message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra tất cả các trường bắt buộc.";
+                                   break;
 
-                          case 503: // Service Unavailable
-                              title = "❌ Máy chủ không khả dụng";
-                              message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Kiểm tra kết nối mạng\n" +
-                                      "- Thử lại sau 1-2 phút\n" +
-                                      "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
-                              break;
+                              case 404: // Not Found
+                                   title = "❌ Sản phẩm không tồn tại";
+                                   message = "Sản phẩm không tồn tại.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra lại thông tin sản phẩm.";
+                                   break;
 
-                          case 504: // Gateway Timeout
-                              title = "❌ Hết thời gian chờ";
-                              message = "Máy chủ xử lý quá lâu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Thử lại ngay\n" +
-                                      "- Kiểm tra tốc độ mạng\n" +
-                                      "- Liên hệ IT nếu lỗi lặp lại";
-                              break;
+                              case 503: // Service Unavailable
+                                   title = "❌ Máy chủ không khả dụng";
+                                   message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Kiểm tra kết nối mạng\n" +
+                                             "- Thử lại sau 1-2 phút\n" +
+                                             "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                   break;
 
-                          case 500: // Internal Server Error
-                              title = "❌ Lỗi máy chủ";
-                              message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng liên hệ quản trị viên.";
-                              break;
+                              case 504: // Gateway Timeout
+                                   title = "❌ Hết thời gian chờ";
+                                   message = "Máy chủ xử lý quá lâu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Thử lại ngay\n" +
+                                             "- Kiểm tra tốc độ mạng\n" +
+                                             "- Liên hệ IT nếu lỗi lặp lại";
+                                   break;
 
-                          default:
-                              title = "❌ Lỗi không xác định";
-                              message = "Không thể tạo sản phẩm.\n\n" +
-                                      "Mã lỗi: " + errorInfo.statusCode + "\n" +
-                                      "Chi tiết: " + errorInfo.message;
-                      }
+                              case 500: // Internal Server Error
+                                   title = "❌ Lỗi máy chủ";
+                                   message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng liên hệ quản trị viên.";
+                                   break;
 
-                      updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
-                      showError(title + "\n\n" + message);
-                  });
+                              default:
+                                   title = "❌ Lỗi không xác định";
+                                   message = "Không thể tạo sản phẩm.\n\n" +
+                                             "Mã lỗi: " + errorInfo.statusCode + "\n" +
+                                             "Chi tiết: " + errorInfo.message;
+                         }
+
+                         updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
+                         showError(title + "\n\n" + message);
+                    });
      }
 
      private void updateProductAsync() {
@@ -470,86 +488,86 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          disableButtons(false);
                     },
 
-                  // Error - with detailed parsing
-                  error -> {
-                      showLoading(false);
-                      disableButtons(false);
+                    // Error - with detailed parsing
+                    error -> {
+                         showLoading(false);
+                         disableButtons(false);
 
-                      ErrorInfo errorInfo = parseError(error);
+                         ErrorInfo errorInfo = parseError(error);
 
-                      // Display user-friendly message based on error code
-                      String title;
-                      String message;
+                         // Display user-friendly message based on error code
+                         String title;
+                         String message;
 
-                      switch (errorInfo.statusCode) {
-                          case 409: // Conflict
-                              title = "❌ Dữ liệu bị trùng lặp";
-                              message = "SKU đã tồn tại trong hệ thống.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
-                              break;
+                         switch (errorInfo.statusCode) {
+                              case 409: // Conflict
+                                   title = "❌ Dữ liệu bị trùng lặp";
+                                   message = "SKU đã tồn tại trong hệ thống.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
+                                   break;
 
-                          case 422: // Validation Failed
-                              title = "❌ Dữ liệu không hợp lệ";
-                              message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra:\n" +
-                                      "- Số lượng phải >= 0\n" +
-                                      "- Giá cost và retail phải >= 0\n" +
-                                      "- Giá retail nên >= giá cost";
-                              break;
+                              case 422: // Validation Failed
+                                   title = "❌ Dữ liệu không hợp lệ";
+                                   message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra:\n" +
+                                             "- Số lượng phải >= 0\n" +
+                                             "- Giá cost và retail phải >= 0\n" +
+                                             "- Giá retail nên >= giá cost";
+                                   break;
 
-                          case 400: // Bad Request
-                              title = "❌ Yêu cầu không hợp lệ";
-                              message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra tất cả các trường bắt buộc.";
-                              break;
+                              case 400: // Bad Request
+                                   title = "❌ Yêu cầu không hợp lệ";
+                                   message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra tất cả các trường bắt buộc.";
+                                   break;
 
-                          case 503: // Service Unavailable
-                              title = "❌ Máy chủ không khả dụng";
-                              message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Kiểm tra kết nối mạng\n" +
-                                      "- Thử lại sau 1-2 phút\n" +
-                                      "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
-                              break;
+                              case 503: // Service Unavailable
+                                   title = "❌ Máy chủ không khả dụng";
+                                   message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Kiểm tra kết nối mạng\n" +
+                                             "- Thử lại sau 1-2 phút\n" +
+                                             "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                   break;
 
-                          case 504: // Gateway Timeout
-                              title = "❌ Hết thời gian chờ";
-                              message = "Máy chủ xử lý quá lâu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Thử lại ngay\n" +
-                                      "- Kiểm tra tốc độ mạng\n" +
-                                      "- Liên hệ IT nếu lỗi lặp lại";
-                              break;
+                              case 504: // Gateway Timeout
+                                   title = "❌ Hết thời gian chờ";
+                                   message = "Máy chủ xử lý quá lâu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Thử lại ngay\n" +
+                                             "- Kiểm tra tốc độ mạng\n" +
+                                             "- Liên hệ IT nếu lỗi lặp lại";
+                                   break;
 
-                          case 500: // Internal Server Error
-                              title = "❌ Lỗi máy chủ";
-                              message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng liên hệ quản trị viên.";
-                              break;
-                          
-                          case 404: // Not Found
-                              title = "❌ Sản phẩm không tồn tại";
-                              message = "Sản phẩm không tồn tại .\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra lại thông tin sản phẩm.";
-                              break;
-                              
-                          default:
-                              title = "❌ Lỗi không xác định";
-                              message = "Không thể tạo sản phẩm.\n\n" +
-                                      "Mã lỗi: " + errorInfo.statusCode + "\n" +
-                                      "Chi tiết: " + errorInfo.message;
-                      }
+                              case 500: // Internal Server Error
+                                   title = "❌ Lỗi máy chủ";
+                                   message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng liên hệ quản trị viên.";
+                                   break;
 
-                      updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
-                      showError(title + "\n\n" + message);
-                  });
+                              case 404: // Not Found
+                                   title = "❌ Sản phẩm không tồn tại";
+                                   message = "Sản phẩm không tồn tại .\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra lại thông tin sản phẩm.";
+                                   break;
+
+                              default:
+                                   title = "❌ Lỗi không xác định";
+                                   message = "Không thể tạo sản phẩm.\n\n" +
+                                             "Mã lỗi: " + errorInfo.statusCode + "\n" +
+                                             "Chi tiết: " + errorInfo.message;
+                         }
+
+                         updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
+                         showError(title + "\n\n" + message);
+                    });
      }
 
      @FXML
@@ -598,130 +616,131 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
                          disableButtons(false);
                     },
 
-                  // Error - with detailed parsing
-                  error -> {
-                      showLoading(false);
-                      disableButtons(false);
+                    // Error - with detailed parsing
+                    error -> {
+                         showLoading(false);
+                         disableButtons(false);
 
-                      ErrorInfo errorInfo = parseError(error);
+                         ErrorInfo errorInfo = parseError(error);
 
-                      // Display user-friendly message based on error code
-                      String title;
-                      String message;
+                         // Display user-friendly message based on error code
+                         String title;
+                         String message;
 
-                      switch (errorInfo.statusCode) {
-                          case 401: // Unauthorized
-                              title = "❌ Chưa xác thực";
-                              message = "Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Đăng nhập lại\n" +
-                                      "- Kiểm tra token xác thực\n" +
-                                      "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
-                              break;
+                         switch (errorInfo.statusCode) {
+                              case 401: // Unauthorized
+                                   title = "❌ Chưa xác thực";
+                                   message = "Bạn chưa đăng nhập hoặc phiên đăng nhập đã hết hạn.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Đăng nhập lại\n" +
+                                             "- Kiểm tra token xác thực\n" +
+                                             "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                   break;
 
-                          case 403: // Forbidden
-                              title = "❌ Không có quyền truy cập";
-                              message = "Bạn không có quyền thực hiện thao tác này.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Liên hệ quản trị viên để được cấp quyền\n" +
-                                      "- Kiểm tra lại vai trò của bạn trong hệ thống";
-                              break;
+                              case 403: // Forbidden
+                                   title = "❌ Không có quyền truy cập";
+                                   message = "Bạn không có quyền thực hiện thao tác này.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Liên hệ quản trị viên để được cấp quyền\n" +
+                                             "- Kiểm tra lại vai trò của bạn trong hệ thống";
+                                   break;
 
-                          case 415: // Unsupported Media Type
-                              title = "❌ Định dạng không được hỗ trợ";
-                              message = "Dữ liệu gửi lên không đúng định dạng yêu cầu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Đây là lỗi kỹ thuật. Vui lòng liên hệ IT.";
-                              break;
+                              case 415: // Unsupported Media Type
+                                   title = "❌ Định dạng không được hỗ trợ";
+                                   message = "Dữ liệu gửi lên không đúng định dạng yêu cầu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Đây là lỗi kỹ thuật. Vui lòng liên hệ IT.";
+                                   break;
 
-                          case 429: // Too Many Requests
-                              title = "❌ Quá nhiều yêu cầu";
-                              message = "Bạn đã gửi quá nhiều yêu cầu trong thời gian ngắn.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Chờ 1 phút trước khi thử lại\n" +
-                                      "- Tránh spam các thao tác";
-                              break;
-                              
-                          case 409: // Conflict
-                              title = "❌ Dữ liệu bị trùng lặp";
-                              message = "SKU đã tồn tại trong hệ thống.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
-                              break;
+                              case 429: // Too Many Requests
+                                   title = "❌ Quá nhiều yêu cầu";
+                                   message = "Bạn đã gửi quá nhiều yêu cầu trong thời gian ngắn.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Chờ 1 phút trước khi thử lại\n" +
+                                             "- Tránh spam các thao tác";
+                                   break;
 
-                          case 422: // Validation Failed
-                              title = "❌ Dữ liệu không hợp lệ";
-                              message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra:\n" +
-                                      "- Số lượng phải >= 0\n" +
-                                      "- Giá cost và retail phải >= 0\n" +
-                                      "- Giá retail nên >= giá cost";
-                              break;
+                              case 409: // Conflict
+                                   title = "❌ Dữ liệu bị trùng lặp";
+                                   message = "SKU đã tồn tại trong hệ thống.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng sử dụng SKU khác hoặc cập nhật sản phẩm hiện có.";
+                                   break;
 
-                          case 400: // Bad Request
-                              title = "❌ Yêu cầu không hợp lệ";
-                              message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra tất cả các trường bắt buộc.";
-                              break;
+                              case 422: // Validation Failed
+                                   title = "❌ Dữ liệu không hợp lệ";
+                                   message = "Dữ liệu vi phạm quy tắc nghiệp vụ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra:\n" +
+                                             "- Số lượng phải >= 0\n" +
+                                             "- Giá cost và retail phải >= 0\n" +
+                                             "- Giá retail nên >= giá cost";
+                                   break;
 
-                          case 404: // Not Found
-                              title = "❌ Sản phẩm không tồn tại";
-                              message = "Sản phẩm không tồn tại.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng kiểm tra lại thông tin sản phẩm.";
-                              break;
+                              case 400: // Bad Request
+                                   title = "❌ Yêu cầu không hợp lệ";
+                                   message = "Dữ liệu gửi lên không đúng định dạng.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra tất cả các trường bắt buộc.";
+                                   break;
 
-                          case 503: // Service Unavailable
-                              title = "❌ Máy chủ không khả dụng";
-                              message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Kiểm tra kết nối mạng\n" +
-                                      "- Thử lại sau 1-2 phút\n" +
-                                      "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
-                              break;
+                              case 404: // Not Found
+                                   title = "❌ Sản phẩm không tồn tại";
+                                   message = "Sản phẩm không tồn tại.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng kiểm tra lại thông tin sản phẩm.";
+                                   break;
 
-                          case 504: // Gateway Timeout
-                              title = "❌ Hết thời gian chờ";
-                              message = "Máy chủ xử lý quá lâu.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng:\n" +
-                                      "- Thử lại ngay\n" +
-                                      "- Kiểm tra tốc độ mạng\n" +
-                                      "- Liên hệ IT nếu lỗi lặp lại";
-                              break;
+                              case 503: // Service Unavailable
+                                   title = "❌ Máy chủ không khả dụng";
+                                   message = "Không thể kết nối đến cơ sở dữ liệu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Kiểm tra kết nối mạng\n" +
+                                             "- Thử lại sau 1-2 phút\n" +
+                                             "- Liên hệ quản trị viên nếu vấn đề vẫn tiếp diễn";
+                                   break;
 
-                          case 500: // Internal Server Error
-                              title = "❌ Lỗi máy chủ";
-                              message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
-                                      "Chi tiết: " + errorInfo.message + "\n\n" +
-                                      "Vui lòng liên hệ quản trị viên.";
-                              break;
+                              case 504: // Gateway Timeout
+                                   title = "❌ Hết thời gian chờ";
+                                   message = "Máy chủ xử lý quá lâu.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng:\n" +
+                                             "- Thử lại ngay\n" +
+                                             "- Kiểm tra tốc độ mạng\n" +
+                                             "- Liên hệ IT nếu lỗi lặp lại";
+                                   break;
 
-                          default:
-                              title = "❌ Lỗi không xác định";
-                              message = "Không thể cập nhật sản phẩm.\n\n" +
-                                      "Mã lỗi: " + errorInfo.statusCode + "\n" +
-                                      "Chi tiết: " + errorInfo.message;
-                      }
+                              case 500: // Internal Server Error
+                                   title = "❌ Lỗi máy chủ";
+                                   message = "Đã xảy ra lỗi không mong muốn trên máy chủ.\n\n" +
+                                             "Chi tiết: " + errorInfo.message + "\n\n" +
+                                             "Vui lòng liên hệ quản trị viên.";
+                                   break;
 
-                      updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
-                      showError(title + "\n\n" + message);
-                  });
+                              default:
+                                   title = "❌ Lỗi không xác định";
+                                   message = "Không thể cập nhật sản phẩm.\n\n" +
+                                             "Mã lỗi: " + errorInfo.statusCode + "\n" +
+                                             "Chi tiết: " + errorInfo.message;
+                         }
+
+                         updateStatus("❌ " + errorInfo.errorCode + ": " + errorInfo.message);
+                         showError(title + "\n\n" + message);
+                    });
      }
 
      @FXML
      private void onClear() {
           clearForm();
      }
+
      @FXML
-     private void onAddInventory(){
-            SceneManager.openModalWindow(SceneConfig.ADD_INVENTORY_VIEW_FXML, SceneConfig.Titles.ADD_INVENTORY, null);
+     private void onAddInventory() {
+          SceneManager.openModalWindow(SceneConfig.ADD_INVENTORY_VIEW_FXML, SceneConfig.Titles.ADD_INVENTORY, null);
      }
 
      @FXML
@@ -989,75 +1008,75 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           }
      }
 
-    /**
-     * Parse error message from Exception
-     * Extract JSON error response if available
-     */
-    private ErrorInfo parseError(Throwable error) {
-        String rawMessage = error.getMessage();
-        if (rawMessage == null) {
-            return new ErrorInfo(0, "UNKNOWN_ERROR", "Unknown error occurred");
-        }
+     /**
+      * Parse error message from Exception
+      * Extract JSON error response if available
+      */
+     private ErrorInfo parseError(Throwable error) {
+          String rawMessage = error.getMessage();
+          if (rawMessage == null) {
+               return new ErrorInfo(0, "UNKNOWN_ERROR", "Unknown error occurred");
+          }
 
-        // Try to extract HTTP status code
-        int statusCode = 0;
-        if (rawMessage.matches(".*\\b(\\d{3})\\b.*")) {
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b(\\d{3})\\b");
-            java.util.regex.Matcher matcher = pattern.matcher(rawMessage);
-            if (matcher.find()) {
-                statusCode = Integer.parseInt(matcher.group(1));
-            }
-        }
+          // Try to extract HTTP status code
+          int statusCode = 0;
+          if (rawMessage.matches(".*\\b(\\d{3})\\b.*")) {
+               java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\b(\\d{3})\\b");
+               java.util.regex.Matcher matcher = pattern.matcher(rawMessage);
+               if (matcher.find()) {
+                    statusCode = Integer.parseInt(matcher.group(1));
+               }
+          }
 
-        // Try to extract JSON message
-        String errorCode = "ERROR";
-        String message = rawMessage;
+          // Try to extract JSON message
+          String errorCode = "ERROR";
+          String message = rawMessage;
 
-        try {
-            // Check if response contains JSON
-            int jsonStart = rawMessage.indexOf("{");
-            int jsonEnd = rawMessage.lastIndexOf("}");
+          try {
+               // Check if response contains JSON
+               int jsonStart = rawMessage.indexOf("{");
+               int jsonEnd = rawMessage.lastIndexOf("}");
 
-            if (jsonStart >= 0 && jsonEnd > jsonStart) {
-                String json = rawMessage.substring(jsonStart, jsonEnd + 1);
+               if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                    String json = rawMessage.substring(jsonStart, jsonEnd + 1);
 
-                // Simple JSON parsing (without external library)
-                if (json.contains("\"error\":")) {
-                    int errorStart = json.indexOf("\"error\":\"") + 9;
-                    int errorEnd = json.indexOf("\"", errorStart);
-                    if (errorEnd > errorStart) {
-                        errorCode = json.substring(errorStart, errorEnd);
+                    // Simple JSON parsing (without external library)
+                    if (json.contains("\"error\":")) {
+                         int errorStart = json.indexOf("\"error\":\"") + 9;
+                         int errorEnd = json.indexOf("\"", errorStart);
+                         if (errorEnd > errorStart) {
+                              errorCode = json.substring(errorStart, errorEnd);
+                         }
                     }
-                }
 
-                if (json.contains("\"message\":")) {
-                    int msgStart = json.indexOf("\"message\":\"") + 11;
-                    int msgEnd = json.indexOf("\"", msgStart);
-                    if (msgEnd > msgStart) {
-                        message = json.substring(msgStart, msgEnd);
+                    if (json.contains("\"message\":")) {
+                         int msgStart = json.indexOf("\"message\":\"") + 11;
+                         int msgEnd = json.indexOf("\"", msgStart);
+                         if (msgEnd > msgStart) {
+                              message = json.substring(msgStart, msgEnd);
+                         }
                     }
-                }
-            }
-        } catch (Exception e) {
-            // JSON parsing failed, use raw message
-            System.err.println("⚠️ Failed to parse error JSON: " + e.getMessage());
-        }
+               }
+          } catch (Exception e) {
+               // JSON parsing failed, use raw message
+               System.err.println("⚠️ Failed to parse error JSON: " + e.getMessage());
+          }
 
-        return new ErrorInfo(statusCode, errorCode, message);
-    }
+          return new ErrorInfo(statusCode, errorCode, message);
+     }
 
-    /**
-     * Inner class to hold parsed error information
-     */
-    private static class ErrorInfo {
-        final int statusCode;
-        final String errorCode;
-        final String message;
+     /**
+      * Inner class to hold parsed error information
+      */
+     private static class ErrorInfo {
+          final int statusCode;
+          final String errorCode;
+          final String message;
 
-        ErrorInfo(int statusCode, String errorCode, String message) {
-            this.statusCode = statusCode;
-            this.errorCode = errorCode;
-            this.message = message;
-        }
-    }
+          ErrorInfo(int statusCode, String errorCode, String message) {
+               this.statusCode = statusCode;
+               this.errorCode = errorCode;
+               this.message = message;
+          }
+     }
 }
