@@ -1,11 +1,12 @@
 package org.example.oop;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
+import java.io.IOException;
+
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 
-import java.io.IOException;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 public class Main extends Application {
     public static void main(String[] args) {
@@ -16,7 +17,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         SceneManager.setPrimaryStage(stage);
         SceneManager.clearCache();
-        SceneManager.clearSceneData();  
+        SceneManager.clearSceneData();
         SceneManager.switchScene(SceneConfig.LOGIN_FXML, SceneConfig.Titles.LOGIN);
     }
 }
