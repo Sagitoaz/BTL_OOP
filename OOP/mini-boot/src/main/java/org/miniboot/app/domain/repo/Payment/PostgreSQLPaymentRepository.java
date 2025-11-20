@@ -31,8 +31,8 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 """;
 
         try (Connection conn = dbConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 payments.add(mapResultSetToPayment(rs));
@@ -57,11 +57,12 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 """;
 
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) return Optional.of(mapResultSetToPayment(rs));
+                if (rs.next())
+                    return Optional.of(mapResultSetToPayment(rs));
             }
         } catch (SQLException e) {
             System.err.println("❌ Error finding payment by id: " + e.getMessage());
@@ -73,14 +74,15 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
     @Override
     public Payment savePayment(Payment payment) {
         LocalDateTime now = LocalDateTime.now();
-        if (payment.getIssuedAt() == null) payment.setIssuedAt(now);
-        if (payment.getCreatedAt() == null) payment.setCreatedAt(now);
+        if (payment.getIssuedAt() == null)
+            payment.setIssuedAt(now);
+        if (payment.getCreatedAt() == null)
+            payment.setCreatedAt(now);
 
         Integer id = payment.getId();
-        boolean isInsert = (id == null || id == 0);  // tránh NPE
+        boolean isInsert = (id == null || id == 0); // tránh NPE
         return isInsert ? insert(payment) : update(payment);
     }
-
 
     private Payment insert(Payment p) {
         final String sql = """
@@ -92,11 +94,13 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 RETURNING id;
                 """;
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, p.getCode());
-            if (p.getCustomerId() == 0) ps.setNull(2, Types.INTEGER);
-            else ps.setInt(2, p.getCustomerId());
+            if (p.getCustomerId() == 0)
+                ps.setNull(2, Types.INTEGER);
+            else
+                ps.setInt(2, p.getCustomerId());
             ps.setInt(3, p.getCashierId());
             ps.setTimestamp(4, Timestamp.valueOf(p.getIssuedAt()));
             ps.setInt(5, p.getSubtotal());
@@ -104,16 +108,21 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
             ps.setInt(7, p.getTaxTotal());
             ps.setInt(8, p.getRounding());
             ps.setInt(9, p.getGrandTotal());
-            if (p.getPaymentMethod() == null) ps.setNull(10, Types.OTHER, "payment_method");
-            else ps.setString(10, p.getPaymentMethod().getCode());
+            if (p.getPaymentMethod() == null)
+                ps.setNull(10, Types.OTHER, "payment_method");
+            else
+                ps.setString(10, p.getPaymentMethod().getCode());
             // ✅ Handle amountPaid as nullable Integer
-            if (p.getAmountPaid() == null) ps.setNull(11, Types.INTEGER);
-            else ps.setInt(11, p.getAmountPaid());
+            if (p.getAmountPaid() == null)
+                ps.setNull(11, Types.INTEGER);
+            else
+                ps.setInt(11, p.getAmountPaid());
             ps.setString(12, p.getNote());
             ps.setTimestamp(13, Timestamp.valueOf(p.getCreatedAt()));
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) p.setId(rs.getInt(1)); // lấy id tự tăng
+                if (rs.next())
+                    p.setId(rs.getInt(1)); // lấy id tự tăng
             }
             return p;
         } catch (SQLException e) {
@@ -121,7 +130,6 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
             return null;
         }
     }
-
 
     private Payment update(Payment p) {
         if (p.getId() == null || p.getId() == 0)
@@ -135,11 +143,13 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 WHERE id = ?
                 """;
         try (Connection conn = dbConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, p.getCode());
-            if (p.getCustomerId() == 0) ps.setNull(2, Types.INTEGER);
-            else ps.setInt(2, p.getCustomerId());
+            if (p.getCustomerId() == 0)
+                ps.setNull(2, Types.INTEGER);
+            else
+                ps.setInt(2, p.getCustomerId());
             ps.setInt(3, p.getCashierId());
             ps.setTimestamp(4, Timestamp.valueOf(p.getIssuedAt()));
             ps.setInt(5, p.getSubtotal());
@@ -147,23 +157,27 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
             ps.setInt(7, p.getTaxTotal());
             ps.setInt(8, p.getRounding());
             ps.setInt(9, p.getGrandTotal());
-            if (p.getPaymentMethod() == null) ps.setNull(10, Types.OTHER, "payment_method");
-            else ps.setString(10, p.getPaymentMethod().getCode());
+            if (p.getPaymentMethod() == null)
+                ps.setNull(10, Types.OTHER, "payment_method");
+            else
+                ps.setString(10, p.getPaymentMethod().getCode());
             // ✅ Handle amountPaid as nullable Integer
-            if (p.getAmountPaid() == null) ps.setNull(11, Types.INTEGER);
-            else ps.setInt(11, p.getAmountPaid());
+            if (p.getAmountPaid() == null)
+                ps.setNull(11, Types.INTEGER);
+            else
+                ps.setInt(11, p.getAmountPaid());
             ps.setString(12, p.getNote());
             ps.setInt(13, p.getId());
 
             int rows = ps.executeUpdate();
-            if (rows == 0) return null;
+            if (rows == 0)
+                return null;
             return p;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
-
 
     /**
      * Lấy tất cả các Payment cùng với trạng thái PaymentStatus hiện tại.
@@ -181,6 +195,7 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                     SELECT
                         payment_id,
                         status,
+                        changed_at,
                         ROW_NUMBER() OVER(PARTITION BY payment_id ORDER BY changed_at DESC) as rn
                     FROM
                         payment_status_log
@@ -189,20 +204,18 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                     p.id, p.code, p.customer_id, p.cashier_id, p.issued_at,
                     p.subtotal, p.discount, p.tax_total, p.rounding, p.grand_total,
                     p.payment_method, p.amount_paid, p.note, p.created_at,
-                    rs.status, psl.changed_at AS status_updated_at  -- Lấy status và thời gian cập nhật từ bảng đã xếp hạng
+                    rs.status, rs.changed_at AS status_updated_at  -- Lấy status và thời gian cập nhật từ RankedStatus
                 FROM
                     payments p
                 LEFT JOIN
                     RankedStatus rs ON p.id = rs.payment_id AND rs.rn = 1 -- Chỉ join với status mới nhất
-                LEFT JOIN
-                    payment_status_log psl ON p.id = psl.payment_id AND psl.rn = 1 -- Lấy thời gian cập nhật status
                 ORDER BY
                     p.created_at DESC
                 """;
 
         try (Connection conn = dbConfig.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 // Lấy Payment
@@ -242,7 +255,8 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
         p.setCashierId(rs.getInt("cashier_id"));
 
         Timestamp issuedAt = rs.getTimestamp("issued_at");
-        if (issuedAt != null) p.setIssuedAt(issuedAt.toLocalDateTime());
+        if (issuedAt != null)
+            p.setIssuedAt(issuedAt.toLocalDateTime());
 
         p.setSubtotal(rs.getInt("subtotal"));
         p.setDiscount(rs.getInt("discount"));
@@ -251,15 +265,17 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
         p.setGrandTotal(rs.getInt("grand_total"));
 
         String method = rs.getString("payment_method");
-        if (method != null) p.setPaymentMethod(PaymentMethod.fromCode(method));
+        if (method != null)
+            p.setPaymentMethod(PaymentMethod.fromCode(method));
 
         // ✅ Handle amountPaid as nullable Integer when reading from DB
         Integer amountPaid = (Integer) rs.getObject("amount_paid");
-        p.setAmountPaid(amountPaid);  // Set null if not paid yet
+        p.setAmountPaid(amountPaid); // Set null if not paid yet
         p.setNote(rs.getString("note"));
 
         Timestamp createdAt = rs.getTimestamp("created_at");
-        if (createdAt != null) p.setCreatedAt(createdAt.toLocalDateTime());
+        if (createdAt != null)
+            p.setCreatedAt(createdAt.toLocalDateTime());
         return p;
     }
 

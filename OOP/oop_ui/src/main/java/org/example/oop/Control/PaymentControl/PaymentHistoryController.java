@@ -73,6 +73,10 @@ public class PaymentHistoryController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("🔵 PaymentHistoryController: Initializing...");
+
+        // Khởi tạo TableView với ObservableList trước
+        tablePayments.setItems(paymentsWithStatus);
+
         setupTableColumns();
         setupFilters();
         loadPayments(); // Tải dữ liệu ngay khi khởi tạo controller
@@ -264,29 +268,61 @@ public class PaymentHistoryController implements Initializable {
 
     private void loadPayments() {
         System.out.println("⏳ Đang tải lịch sử thanh toán...");
-        
-        ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
-        
-        if (!response.isSuccess()) {
-            System.err.println("❌ Lỗi tải lịch sử thanh toán: " + response.getErrorMessage());
-            return;
-        }
-        
-        List<PaymentWithStatus> allPayments = response.getData();
-        
-        if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
-            int customerId = ((Customer)SceneManager.getSceneData("accountData")).getId();
-            System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
-            for(PaymentWithStatus p : allPayments){
-                System.out.println("💰 Payment ID: " + p.getPayment().getId() + ", Customer ID: " + p.getPayment().getCustomerId());
+
+        try {
+            ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
+
+            if (!response.isSuccess()) {
+                System.err.println("❌ Lỗi tải lịch sử thanh toán: " + response.getErrorMessage());
+                showAlert(Alert.AlertType.ERROR, "Lỗi",
+                        "Không thể tải lịch sử thanh toán: " + response.getErrorMessage());
+                return;
             }
-            allPayments = allPayments.stream()
-                    .filter(p -> p.getPayment().getCustomerId() == customerId)
-                    .toList();
+
+            List<PaymentWithStatus> allPayments = response.getData();
+
+            if (allPayments == null) {
+                System.err.println("❌ Dữ liệu trả về null");
+                allPayments = List.of();
+            }
+
+            System.out.println("📊 Tổng số hóa đơn: " + allPayments.size());
+
+            // Lọc theo role nếu là customer
+            if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
+                Object accountData = SceneManager.getSceneData("accountData");
+                if (accountData instanceof Customer) {
+                    int customerId = ((Customer) accountData).getId();
+                    System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
+
+                    allPayments = allPayments.stream()
+                            .filter(p -> p.getPayment() != null && p.getPayment().getCustomerId() == customerId)
+                            .toList();
+
+                    System.out.println("📊 Số hóa đơn sau khi lọc: " + allPayments.size());
+                }
+            }
+
+            // Lưu lại toàn bộ danh sách và cập nhật bảng
+            allPaymentsWithStatus = allPayments;
+            paymentsWithStatus.clear();
+            paymentsWithStatus.addAll(allPayments);
+
+            System.out.println("✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
+
+        } catch (Exception e) {
+            System.err.println("❌ Exception khi tải lịch sử thanh toán: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi khi tải lịch sử thanh toán: " + e.getMessage());
         }
-        allPaymentsWithStatus = allPayments; // Lưu lại toàn bộ danh sách
-        paymentsWithStatus.setAll(allPayments);
-        tablePayments.setItems(paymentsWithStatus);
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void showPaymentDetails(Payment payment) {
