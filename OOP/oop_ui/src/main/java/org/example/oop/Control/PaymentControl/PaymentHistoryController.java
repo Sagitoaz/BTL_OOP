@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Service.HttpPaymentStatusLogService;
 import org.example.oop.Utils.ApiResponse;
+import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
 import org.miniboot.app.domain.models.Payment.Payment;
@@ -22,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableCell;
@@ -31,6 +34,7 @@ import javafx.scene.control.TextField;
 
 public class PaymentHistoryController implements Initializable {
     private final HttpPaymentService paymentService;
+    private final HttpPaymentStatusLogService statusLogService;
     private final ObservableList<PaymentWithStatus> paymentsWithStatus;
 
     // Dữ liệu tải về từ API sẽ được lưu trữ ở đây
@@ -67,6 +71,7 @@ public class PaymentHistoryController implements Initializable {
 
     public PaymentHistoryController() {
         this.paymentService = HttpPaymentService.getInstance();
+        this.statusLogService = HttpPaymentStatusLogService.getInstance();
         this.paymentsWithStatus = FXCollections.observableArrayList();
     }
 
@@ -224,10 +229,130 @@ public class PaymentHistoryController implements Initializable {
         tablePayments.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 PaymentWithStatus selected = tablePayments.getSelectionModel().getSelectedItem();
-                if (selected != null)
-                    showPaymentDetails(selected.getPayment());
+                if (selected != null) {
+                    handlePaymentClick(selected);
+                }
             }
         });
+    }
+
+    /**
+     * Xử lý khi click vào payment
+     * - Nếu status là UNPAID: hiện dialog chọn Hủy hóa đơn hoặc Thanh toán
+     * - Nếu status là PENDING: hiện dialog chọn Hủy hóa đơn hoặc Thanh toán
+     * - Các status khác: xem chi tiết (tương lai)
+     */
+    private void handlePaymentClick(PaymentWithStatus paymentWithStatus) {
+        Payment payment = paymentWithStatus.getPayment();
+        PaymentStatus status = paymentWithStatus.getStatus();
+
+        if (status == PaymentStatus.UNPAID || status == PaymentStatus.PENDING) {
+            showPaymentActionDialog(payment, status);
+        } else {
+            // TODO: Xem chi tiết payment cho các status khác
+            showPaymentDetails(payment);
+        }
+    }
+
+    /**
+     * Hiển thị dialog cho payment chưa thanh toán hoặc đang chờ xử lý
+     * Cho phép chọn: Hủy hóa đơn hoặc Thanh toán
+     */
+    private void showPaymentActionDialog(Payment payment, PaymentStatus currentStatus) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        
+        // Tùy chỉnh tiêu đề dựa vào trạng thái
+        if (currentStatus == PaymentStatus.UNPAID) {
+            alert.setTitle("Thanh toán chưa hoàn tất");
+        } else if (currentStatus == PaymentStatus.PENDING) {
+            alert.setTitle("Đang chờ thanh toán");
+        }
+        
+        alert.setHeaderText("Hóa đơn: " + payment.getCode());
+        alert.setContentText("Vui lòng chọn hành động:");
+
+        ButtonType btnPay = new ButtonType("Thanh toán");
+        ButtonType btnCancelInvoice = new ButtonType("Hủy hóa đơn");
+        ButtonType btnClose = new ButtonType("Đóng", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(btnPay, btnCancelInvoice, btnClose);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == btnCancelInvoice) {
+                // Hủy hóa đơn - cập nhật status thành CANCELLED
+                handleCancelPayment(payment);
+            } else if (response == btnPay) {
+                // Chuyển sang scene thanh toán (và cập nhật status nếu cần)
+                handleGoToPayment(payment, currentStatus);
+            }
+        });
+    }
+
+    /**
+     * Hủy thanh toán - cập nhật status thành CANCELLED
+     */
+    private void handleCancelPayment(Payment payment) {
+        try {
+            System.out.println("🔄 Đang hủy thanh toán: " + payment.getCode());
+            
+            // Gọi API để cập nhật status thành CANCELLED
+            ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response = 
+                statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.CANCELLED);
+
+            if (response.isSuccess()) {
+                System.out.println("✅ Đã hủy thanh toán thành công");
+                showAlert(Alert.AlertType.INFORMATION, "Thành công", 
+                         "Đã hủy thanh toán " + payment.getCode());
+                
+                // Reload lại danh sách
+                loadPayments();
+            } else {
+                System.err.println("❌ Lỗi khi hủy thanh toán: " + response.getErrorMessage());
+                showAlert(Alert.AlertType.ERROR, "Lỗi", 
+                         "Không thể hủy thanh toán: " + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Exception khi hủy thanh toán: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", 
+                     "Lỗi khi hủy thanh toán: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Chuyển sang scene thanh toán
+     * Nếu payment đang ở status UNPAID, sẽ cập nhật thành PENDING trước
+     */
+    private void handleGoToPayment(Payment payment, PaymentStatus currentStatus) {
+        try {
+            System.out.println("🔄 Chuyển sang scene thanh toán cho: " + payment.getCode() + " (ID: " + payment.getId() + ")");
+            
+            // Nếu payment đang UNPAID, cập nhật sang PENDING trước khi thanh toán
+            if (currentStatus == PaymentStatus.UNPAID) {
+                System.out.println("📝 Cập nhật status từ UNPAID sang PENDING...");
+                ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response = 
+                    statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.PENDING);
+
+                if (!response.isSuccess()) {
+                    System.err.println("❌ Lỗi khi cập nhật status: " + response.getErrorMessage());
+                    showAlert(Alert.AlertType.ERROR, "Lỗi", 
+                             "Không thể cập nhật trạng thái thanh toán: " + response.getErrorMessage());
+                    return;
+                }
+                System.out.println("✅ Đã cập nhật status sang PENDING");
+            }
+            
+            // Lưu payment ID vào SceneData (dưới dạng String)
+            SceneManager.setSceneData("savedPaymentId", String.valueOf(payment.getId()));
+            
+            // Chuyển scene
+            SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi khi chuyển scene: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", 
+                     "Không thể chuyển sang trang thanh toán: " + e.getMessage());
+        }
     }
 
     private void searchPayments() {
