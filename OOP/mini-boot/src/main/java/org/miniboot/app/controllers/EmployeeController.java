@@ -334,6 +334,19 @@ public class EmployeeController {
                                              "Invalid role. Must be: doctor, nurse, admin, or receptionist");
                               }
                               employee.setRole(newRole);
+                    // Validate and update gender if provided (422 - Unprocessable Entity)
+                    if (data.containsKey("gender")) {
+                         String newGender = getStr.apply("gender");
+                         if (newGender != null) {
+                              String genderUpper = newGender.toUpperCase();
+                              if (!genderUpper.equals("MALE") && !genderUpper.equals("FEMALE") && !genderUpper.equals("OTHER")) {
+                                   return ValidationUtils.error(422, "INVALID_GENDER",
+                                             "Invalid gender. Must be: MALE, FEMALE, or OTHER");
+                              }
+                              employee.setGender(newGender);
+                         }
+                    }
+
                               // Nếu đổi sang doctor thì bắt buộc licenseNo
                               if ("doctor".equalsIgnoreCase(newRole)) {
                                    String lic = data.containsKey("licenseNo") ? getStr.apply("licenseNo")

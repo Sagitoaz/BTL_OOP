@@ -241,7 +241,13 @@ public class ChangePasswordController extends BaseController {
                     error -> {
                          btnSave.setDisable(false);
                          btnCancel.setDisable(false);
-                         String message = error.getMessage();
+
+                         // Unwrap the actual error message
+                         Throwable actualError = error.getCause() != null ? error.getCause() : error;
+                         String message = actualError.getMessage();
+
+                         System.err.println("❌ Password change error: " + message);
+
                          if (message != null && message.contains("không đúng")) {
                               showErrorLabel("Mật khẩu hiện tại không đúng");
                               tfCurrent.requestFocus();

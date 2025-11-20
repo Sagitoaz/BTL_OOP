@@ -262,36 +262,18 @@ public class AuthServiceWrapper {
                         "Tài khoản đang đăng nhập: " + loggedInUsername + "\n" +
                         "Tài khoản bạn đang cố đổi: " + username);
             }
-            Method findByUsernameMethod = authServiceInstance.getClass().getMethod("findByUsername", String.class);
-            Optional<?> userOpt = (Optional<?>) findByUsernameMethod.invoke(authServiceInstance, username);
-            if (!userOpt.isPresent()) {
-                LOGGER.warning("✗ User not found: " + username);
-                throw new RuntimeException("Không tìm thấy tài khoản");
-            }
-            Object userRecord = userOpt.get();
-            int userId = (int) userRecord.getClass().getField("id").get(userRecord);
-            String role = (String) userRecord.getClass().getField("role").get(userRecord);
-            String storedPassword = (String) userRecord.getClass().getField("password").get(userRecord);
-            boolean active = (boolean) userRecord.getClass().getField("active").get(userRecord);
-            if (!active) {
-                LOGGER.warning("✗ Account inactive: " + username);
-                throw new RuntimeException("Tài khoản đã bị vô hiệu hóa");
-            }
-            if (!verifyPassword(currentPassword, storedPassword)) {
-                LOGGER.warning("✗ Current password incorrect for: " + username);
-                throw new RuntimeException("Mật khẩu hiện tại không đúng");
-            }
-            String hashedPassword = hashPasswordWithSalt(newPassword);
-            Method updatePasswordMethod = authServiceInstance.getClass().getMethod(
-                    "updatePassword", int.class, String.class, String.class);
-            boolean success = (boolean) updatePasswordMethod.invoke(
-                    authServiceInstance, userId, role, hashedPassword);
+
+            Method changePasswordMethod = authServiceInstance.getClass().getMethod(
+                    "changePassword", String.class, String.class, String.class);
+            boolean success = (boolean) changePasswordMethod.invoke(
+                    authServiceInstance, username, currentPassword, newPassword);
+
             if (success) {
-                LOGGER.info("✓ Password changed successfully for: " + username + " [" + role + "]");
+                LOGGER.info("✓ Password changed successfully for: " + username);
                 return true;
             } else {
-                LOGGER.warning("✗ Password update failed in database for: " + username);
-                throw new RuntimeException("Cập nhật mật khẩu thất bại");
+                LOGGER.warning("✗ Password change failed for: " + username);
+                throw new RuntimeException("Đổi mật khẩu thất bại");
             }
         } catch (RuntimeException e) {
             throw e;

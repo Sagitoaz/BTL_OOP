@@ -118,11 +118,19 @@
                                             <Label fx:id="phoneError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
                                         </VBox>
 
+                                        <!-- Gender -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                            <Label styleClass="form-label" text="Giới tính *" />
+                                            <ComboBox fx:id="genderComboBox" maxWidth="Infinity" promptText="Chọn giới tính" styleClass="combo-rounded" />
+                                            <Label fx:id="genderError" managed="false" style="-fx-text-fill: #e74c3c; -fx-font-size: 11px;" text="" visible="false" />
+                                        </VBox>
+
                                         <columnConstraints>
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                                             <ColumnConstraints hgrow="ALWAYS" percentWidth="50" />
                                         </columnConstraints>
                                         <rowConstraints>
+                                            <RowConstraints />
                                             <RowConstraints />
                                             <RowConstraints />
                                         </rowConstraints>
@@ -207,4 +215,3 @@
     </bottom>
 
 </BorderPane>
-
