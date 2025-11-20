@@ -303,8 +303,31 @@ public class DoctorScheduleController implements Initializable {
             if (userRole != null) {
                 // ✅ CHỈ ADMIN mới có quyền chỉnh sửa lịch làm việc
                 // EMPLOYEE (bác sĩ) CHỈ có quyền XEM lịch của mình
+                // CUSTOMER có quyền XEM lịch của TẤT CẢ bác sĩ (để đặt lịch)
                 isAdmin = userRole.equalsIgnoreCase("ADMIN");
+                boolean isCustomer = userRole.equalsIgnoreCase("CUSTOMER");
+                boolean isEmployee = userRole.equalsIgnoreCase("EMPLOYEE");
+                
                 System.out.println("🔐 User role: " + userRole + " | Can edit schedule: " + isAdmin);
+                
+                // ✅ ComboBox visibility:
+                // - ADMIN: Visible (can edit any doctor's schedule)
+                // - CUSTOMER: Visible (can view any doctor's schedule to book appointments)
+                // - EMPLOYEE (Doctor): Hidden (can only view own schedule)
+                boolean canSelectAnyDoctor = isAdmin || isCustomer;
+                
+                if (cboDoctorSelect != null) {
+                    cboDoctorSelect.setVisible(canSelectAnyDoctor);
+                    cboDoctorSelect.setManaged(canSelectAnyDoctor);
+                    
+                    if (isAdmin) {
+                        System.out.println("�‍💼 ADMIN: Can select and edit any doctor's schedule");
+                    } else if (isCustomer) {
+                        System.out.println("👤 CUSTOMER: Can select and view any doctor's schedule (read-only)");
+                    } else if (isEmployee) {
+                        System.out.println("👨‍⚕️ DOCTOR: Can only view own schedule (read-only)");
+                    }
+                }
             } else {
                 // Nếu không có session, mặc định là view-only
                 isAdmin = false;
@@ -316,14 +339,6 @@ public class DoctorScheduleController implements Initializable {
         }
 
         boolean canEdit = isAdmin;
-
-        // ✅ Ẩn ComboBox chọn bác sĩ nếu là DOCTOR (chỉ xem lịch của mình)
-        // ADMIN mới được chọn xem lịch của tất cả bác sĩ
-        if (cboDoctorSelect != null) {
-            cboDoctorSelect.setVisible(canEdit);
-            cboDoctorSelect.setManaged(canEdit); // Không chiếm chỗ khi ẩn
-            System.out.println("🔍 Doctor selector: " + (canEdit ? "Visible (Admin can select any doctor)" : "Hidden (Doctor can only view own schedule)"));
-        }
 
         // Disable các controls nếu không phải admin
         if (mondayChk != null)
@@ -427,11 +442,13 @@ public class DoctorScheduleController implements Initializable {
         int loggedInUserId = SessionStorage.getCurrentUserId();
         String userRole = SessionStorage.getCurrentUserRole();
         boolean isAdminUser = userRole != null && userRole.equalsIgnoreCase("ADMIN");
+        boolean isCustomerUser = userRole != null && userRole.equalsIgnoreCase("CUSTOMER");
         
         System.out.println("🔐 Session info:");
         System.out.println("   - User ID: " + loggedInUserId);
         System.out.println("   - Role: " + userRole);
         System.out.println("   - Is Admin: " + isAdminUser);
+        System.out.println("   - Is Customer: " + isCustomerUser);
         System.out.println("   - Username: " + SessionStorage.getCurrentUsername());
         
         // Load danh sách bác sĩ
@@ -453,13 +470,17 @@ public class DoctorScheduleController implements Initializable {
             }
 
             // ✅ Nếu là DOCTOR: Chỉ lấy bác sĩ của chính mình
-            // ✅ Nếu là ADMIN: Lấy tất cả bác sĩ
+            // ✅ Nếu là ADMIN hoặc CUSTOMER: Lấy tất cả bác sĩ
             List<Doctor> filteredDoctors;
-            if (isAdminUser) {
+            if (isAdminUser || isCustomerUser) {
                 filteredDoctors = doctors;
-                System.out.println("👨‍💼 ADMIN: Can view all " + doctors.size() + " doctors");
+                if (isAdminUser) {
+                    System.out.println("👨‍💼 ADMIN: Can view all " + doctors.size() + " doctors");
+                } else {
+                    System.out.println("👤 CUSTOMER: Can view all " + doctors.size() + " doctors (to book appointments)");
+                }
             } else {
-                // DOCTOR: Chỉ lấy bác sĩ có ID = loggedInUserId
+                // DOCTOR (EMPLOYEE): Chỉ lấy bác sĩ có ID = loggedInUserId
                 filteredDoctors = doctors.stream()
                     .filter(d -> d.getId() == loggedInUserId)
                     .collect(Collectors.toList());
@@ -468,8 +489,8 @@ public class DoctorScheduleController implements Initializable {
             
             doctorList.setAll(filteredDoctors);
 
-            // ✅ Populate ComboBox với tên bác sĩ (chỉ hiển thị nếu là Admin)
-            if (cboDoctorSelect != null && isAdminUser) {
+            // ✅ Populate ComboBox với tên bác sĩ (Admin và Customer đều thấy)
+            if (cboDoctorSelect != null && (isAdminUser || isCustomerUser)) {
                 cboDoctorSelect.getItems().clear();
                 for (Doctor d : filteredDoctors) {
                     cboDoctorSelect.getItems().add(d.getFullName());
@@ -479,11 +500,27 @@ public class DoctorScheduleController implements Initializable {
 
             if (!filteredDoctors.isEmpty()) {
                 // ✅ DOCTOR: Tự động chọn bác sĩ chính mình
-                // ✅ ADMIN: Tìm bác sĩ đầu tiên hoặc theo loggedInUserId nếu có
+                // ✅ ADMIN/CUSTOMER: Chọn bác sĩ đầu tiên (hoặc từ SceneData nếu navigate từ AppointmentBooking)
+                Doctor selectedDoctorFromNav = SceneManager.getSceneData("selectedDoctor");
                 Doctor loggedInDoctor = null;
-                System.out.println("🔍 Searching for doctor with ID=" + loggedInUserId + "...");
                 
-                if (loggedInUserId > 0) {
+                System.out.println("🔍 Searching for doctor...");
+                System.out.println("   - From navigation: " + (selectedDoctorFromNav != null ? selectedDoctorFromNav.getFullName() : "null"));
+                System.out.println("   - Logged in user ID: " + loggedInUserId);
+                
+                // Ưu tiên: selectedDoctor từ navigation (khi customer chọn từ booking)
+                if (selectedDoctorFromNav != null) {
+                    for (Doctor d : filteredDoctors) {
+                        if (d.getId() == selectedDoctorFromNav.getId()) {
+                            currentDoctor = d;
+                            System.out.println("✅ Using doctor from navigation: " + d.getFullName());
+                            break;
+                        }
+                    }
+                }
+                
+                // Nếu không có từ navigation, tìm theo loggedInUserId
+                if (currentDoctor == null && loggedInUserId > 0) {
                     for (Doctor d : filteredDoctors) {
                         if (d.getId() == loggedInUserId) {
                             loggedInDoctor = d;
@@ -491,17 +528,22 @@ public class DoctorScheduleController implements Initializable {
                             break;
                         }
                     }
+                    currentDoctor = loggedInDoctor;
                 }
                 
-                // Nếu không tìm thấy → chọn bác sĩ đầu tiên
-                currentDoctor = (loggedInDoctor != null) ? loggedInDoctor : filteredDoctors.get(0);
+                // Fallback: Chọn bác sĩ đầu tiên
+                if (currentDoctor == null) {
+                    currentDoctor = filteredDoctors.get(0);
+                    System.out.println("✅ Using first doctor: " + currentDoctor.getFullName());
+                }
+                
                 System.out.println("🎯 SELECTED DOCTOR:");
                 System.out.println("   - ID: " + currentDoctor.getId());
                 System.out.println("   - Name: " + currentDoctor.getFullName());
                 System.out.println("   - License: " + currentDoctor.getLicenseNo());
 
-                // ✅ Set ComboBox selection (chỉ nếu visible cho Admin)
-                if (cboDoctorSelect != null && isAdminUser) {
+                // ✅ Set ComboBox selection (nếu visible cho Admin/Customer)
+                if (cboDoctorSelect != null && (isAdminUser || isCustomerUser)) {
                     cboDoctorSelect.getSelectionModel().select(currentDoctor.getFullName());
                     System.out.println("✅ ComboBox selection set to: " + currentDoctor.getFullName());
                 }

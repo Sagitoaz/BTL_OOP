@@ -73,7 +73,7 @@ public class ServerMain {
         System.out.println("✅ Services initialized");
 
         // Tạo controllers
-        DoctorController dc = new DoctorController(doctorRepo, apptRepo);
+        DoctorController dc = new DoctorController(doctorRepo, apptRepo, doctorScheduleRepo);
         AppointmentController ac = new AppointmentController(apptRepo, scheduleService);
         CustomerRecordController crc = new CustomerRecordController(customerRecordRepo);
         // 🔽 ADD: Payment controllers
