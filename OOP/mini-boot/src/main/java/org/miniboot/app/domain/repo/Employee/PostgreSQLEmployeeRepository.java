@@ -123,7 +123,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                             username, password, firstname, lastname, gender,
                             avatar, role, license_no, email, phone, is_active
                         )
-                        VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?::employee_role, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?::gender_emp, ?, ?::employee_role, ?, ?, ?, ?)
                         RETURNING id
                     """;
           try (Connection conn = dbConfig.getConnection();
@@ -209,7 +209,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                         SET
                             firstname = ?,
                             lastname = ?,
-                            gender = ?::gender_enum,
+                            gender = ?::gender_emp,
                             avatar = ?,
                             role = ?::employee_role,
                             license_no = ?,
@@ -229,9 +229,9 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                pstmt.setString(1, employee.getFirstname());
                pstmt.setString(2, employee.getLastname());
 
-               // Gender - parameter 3
+               // Gender - parameter 3 - ✅ FIX: Removed ::gender_enum cast (enum doesn't exist in DB)
                if (employee.getGender() != null && !employee.getGender().isBlank())
-                    pstmt.setString(3, employee.getGender().toUpperCase());
+                    pstmt.setString(3, employee.getGender());
                else
                     pstmt.setNull(3, java.sql.Types.VARCHAR);
 
