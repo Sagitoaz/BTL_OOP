@@ -144,6 +144,13 @@
                                     <Button maxWidth="Infinity" onAction="#handleOpenStockMovement" style="-fx-background-color: linear-gradient(to right, #14B8A6, #0D9488); -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(20,184,166,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="Mở" />
                                 </VBox>
 
+                                <VBox spacing="15" style="-fx-background-color: linear-gradient(to bottom right, #FFFFFF, #FDF4FF); -fx-background-radius: 18px; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(168,85,247,0.25), 20, 0, 0, 8); -fx-border-color: #E9D5FF; -fx-border-width: 2px; -fx-border-radius: 18px; -fx-cursor: hand;" styleClass="function-card" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                    <Label style="-fx-font-size: 52px; -fx-effect: dropshadow(gaussian, rgba(168,85,247,0.3), 10, 0, 0, 3);" text="💊" />
+                                    <Label style="-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #A855F7; -fx-padding: 5px 0;" text="Quản lý đơn thuốc" />
+                                    <Label prefHeight="36.0" style="-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-wrap-text: true; -fx-line-spacing: 2px;" text="Xem và chỉnh sửa đơn thuốc bệnh nhân" wrapText="true" />
+                                    <Button maxWidth="Infinity" onAction="#handleOpenPrescriptions" style="-fx-background-color: linear-gradient(to right, #A855F7, #9333EA); -fx-text-fill: white; -fx-background-radius: 10px; -fx-padding: 12px; -fx-font-weight: 600; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(168,85,247,0.4), 10, 0, 0, 4);" styleClass="btn-search" text="Mở" />
+                                </VBox>
+
                         <rowConstraints>
                            <RowConstraints />
                            <RowConstraints />

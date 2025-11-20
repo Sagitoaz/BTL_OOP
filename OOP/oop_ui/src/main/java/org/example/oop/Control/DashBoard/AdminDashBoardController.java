@@ -7,7 +7,6 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
-import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Admin;
 
 import javafx.application.Platform;
@@ -271,6 +270,16 @@ public class AdminDashBoardController extends BaseController {
     }
 
     @FXML
+    private void handleOpenPrescriptions() {
+        System.out.println("🔄 Admin: Opening Prescriptions (via Customer Hub)...");
+        // Navigate to CustomerHub where Admin can view prescription list
+        // and double-click on any prescription to edit it
+        SafeNavigator.navigate(
+                SceneConfig.CUSTOMER_HUB_FXML,
+                SceneConfig.Titles.CUSTOMER_HUB);
+    }
+
+    @FXML
     private void handleOpenProfile() {
         System.out.println("🔄 Admin: Opening Profile...");
 
@@ -350,10 +359,10 @@ public class AdminDashBoardController extends BaseController {
             SceneManager.clearSceneData();
             SceneManager.clearCache();
             SessionStorage.clear();
-            
+
             // Clear Login page from cache to force re-initialization
             SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
-            
+
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);
