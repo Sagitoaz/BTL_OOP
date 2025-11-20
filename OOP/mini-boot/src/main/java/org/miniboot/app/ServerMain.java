@@ -40,10 +40,7 @@ import org.miniboot.app.router.middleware.LoggingMiddleware;
 
 public class ServerMain {
     public static void main(String[] args) throws Exception {
-        // Load config trước để đọc PORT từ environment variables
         AppConfig.load();
-        
-        // Đọc port từ AppConfig (đã load env vars)
         int port = Integer.parseInt(AppConfig.HTTP_PORT);
         
         System.out.println("🚀 Starting mini-boot HTTP Server...");

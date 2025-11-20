@@ -13,7 +13,7 @@ public class ApiConfig {
      private static final String PROD_BASE_URL = "http://production-server:8080";
 
      // Current environment (change as needed)
-     private static final Environment CURRENT_ENV = Environment.DEVELOPMENT;
+     private static final Environment CURRENT_ENV = Environment.TESTING;
 
      // Timeout settings - sử dụng từ ApiConstants
      public static final int CONNECTION_TIMEOUT = ApiConstants.CONNECTION_TIMEOUT_SECONDS;
@@ -69,6 +69,7 @@ public class ApiConfig {
 
      // Doctors
      public static final String DOCTORS = "/doctors";
+     public static final String DOCTOR_SCHEDULES = "/doctor-schedules";
 
      // Appointments
      public static final String APPOINTMENTS = "/appointments";
