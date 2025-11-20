@@ -39,7 +39,7 @@
                     <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
                 </padding>
                 <children>
-                    <Label style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 2, 0, 0, 1);" styleClass="page-title" text="📦 QUẢN LÝ SẢN PHẨM" />
+                    <Label style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 2, 0, 0, 1);" styleClass="page-title" text="📦 CHỈNH SỬA THÔNG TIN SẢN PHẨM" />
                     <Region HBox.hgrow="ALWAYS" />
                    <Button fx:id="deleteButton" onAction="#onDelete" styleClass="btn-danger" text="🗑 Xóa">
                        <tooltip>
@@ -217,21 +217,6 @@
                                                 </GridPane>
 
                                                 <Separator />
-
-                                                <HBox alignment="CENTER" spacing="12">
-                                                    <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefWidth="120" styleClass="btn-success" text="💾 Lưu">
-                                                        <tooltip><Tooltip text="Lưu thay đổi" /></tooltip>
-                                                    </Button>
-                                                    <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="180.0" styleClass="btn-secondary" text="🔄 Làm mới">
-                                                        <tooltip><Tooltip text="Xóa tất cả trường">
-                                                <font>
-                                                   <Font size="10.0" />
-                                                </font></Tooltip></tooltip>
-                                          <font>
-                                             <Font size="10.0" />
-                                          </font>
-                                                    </Button>
-                                                </HBox>
                                             </children>
                                         </VBox>
                                     </content>
@@ -267,6 +252,26 @@
                                 </VBox>
                             </content>
                         </TitledPane>
+
+                              <HBox alignment="CENTER" focusTraversable="true" spacing="12">
+                                  <Button fx:id="saveButton" defaultButton="true" onAction="#onSave" prefHeight="50.0" prefWidth="152.0" styleClass="btn-success" text="💾 Lưu">
+                                      <tooltip>
+                           <Tooltip text="Lưu thay đổi" />
+                        </tooltip>
+                                  </Button>
+                                  <Button fx:id="clearButton" cancelButton="true" onAction="#onClear" prefWidth="180.0" styleClass="btn-secondary" text="🔄 Làm mới">
+                                      <tooltip>
+                           <Tooltip text="Xóa tất cả trường">
+                              <font>
+                                 <Font size="10.0" />
+                              </font>
+                           </Tooltip>
+                        </tooltip>
+                        <font>
+                           <Font size="10.0" />
+                        </font>
+                                  </Button>
+                              </HBox>
                     </VBox>
                <rowConstraints>
                   <RowConstraints />
@@ -284,4 +289,3 @@
     </bottom>
 
 </BorderPane>
-

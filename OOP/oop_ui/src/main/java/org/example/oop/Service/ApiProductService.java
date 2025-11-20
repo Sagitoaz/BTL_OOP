@@ -2,6 +2,7 @@ package org.example.oop.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.example.oop.Control.SessionStorage;
 import org.example.oop.Utils.ApiConfig;
 import org.miniboot.app.domain.models.Inventory.Product;
 import org.miniboot.app.util.GsonProvider;
@@ -35,6 +36,13 @@ public class ApiProductService {
                         .openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
+                
+                // Add JWT token for authentication
+                String token = SessionStorage.getJwtToken();
+                if (token != null && !token.isEmpty()) {
+                    conn.setRequestProperty("Authorization", "Bearer " + token);
+                }
+                
                 conn.setConnectTimeout(CONNECT_TIMEOUT); // 30 seconds
                 conn.setReadTimeout(READ_TIMEOUT); // 60 seconds
 
@@ -93,6 +101,13 @@ public class ApiProductService {
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
+        
+        // Add JWT token
+        String token = SessionStorage.getJwtToken();
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
+        
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
 
@@ -119,6 +134,13 @@ public class ApiProductService {
                 .openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/json");
+        
+        // Add JWT token
+        String token = SessionStorage.getJwtToken();
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
+        
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
 
@@ -142,6 +164,13 @@ public class ApiProductService {
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
+        
+        // Add JWT token
+        String token = SessionStorage.getJwtToken();
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
+        
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
@@ -206,6 +235,13 @@ public class ApiProductService {
         conn.setRequestMethod("PUT");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
+        
+        // Add JWT token
+        String token = SessionStorage.getJwtToken();
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
+        
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setDoOutput(true);
@@ -237,6 +273,13 @@ public class ApiProductService {
         HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/products?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("DELETE");
+
+        // Add JWT token
+        String token = SessionStorage.getJwtToken();
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
+        }
+
         conn.setConnectTimeout(CONNECT_TIMEOUT);
         conn.setReadTimeout(READ_TIMEOUT);
 
