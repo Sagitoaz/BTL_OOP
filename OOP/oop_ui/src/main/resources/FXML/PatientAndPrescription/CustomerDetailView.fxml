@@ -50,7 +50,7 @@
 
                     <!-- Quick Actions -->
                     <VBox alignment="CENTER_RIGHT" spacing="10">
-                        <Button fx:id="editCustomerButton" mnemonicParsing="false" onAction="#handleEditCustomer" prefHeight="48.0" prefWidth="163.0" text="✏️ Chỉnh sửa" />
+                        <Button fx:id="editCustomerButton" mnemonicParsing="false" onAction="#handleEditCustomer" prefHeight="48.0" prefWidth="163.0" styleClass="btn-primary" text="✏️ Chỉnh sửa" />
                         <Button fx:id="changePasswordButton" mnemonicParsing="false" onAction="#handleChangePassword" prefHeight="48.0" prefWidth="163.0" styleClass="export-button" text="🔑 Đổi mật khẩu" />
                     </VBox>
                 </HBox>
@@ -179,4 +179,3 @@
     </bottom>
 
 </BorderPane>
-
