@@ -158,6 +158,73 @@ public class DoctorScheduleRepository {
     }
     
     /**
+     * ✅ BATCH DELETE: Xóa tất cả lịch làm việc của bác sĩ (1 query duy nhất)
+     * Sử dụng khi update lịch làm việc để tránh N+1 query problem
+     */
+    public int deleteByDoctorId(int doctorId) throws SQLException {
+        String sql = "DELETE FROM doctor_schedules WHERE doctor_id = ?";
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, doctorId);
+            int affected = stmt.executeUpdate();
+            
+            System.out.println("🗑️ Batch deleted " + affected + " schedules for doctor #" + doctorId);
+            return affected;
+        }
+    }
+    
+    /**
+     * ✅ BATCH INSERT: Tạo nhiều lịch làm việc cùng lúc (1 query với VALUES multiple rows)
+     * Tối ưu hiệu suất khi tạo lịch làm việc mới
+     */
+    public List<DoctorSchedule> insertBatch(List<DoctorSchedule> schedules) throws SQLException {
+        if (schedules == null || schedules.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // Build SQL with multiple VALUES clauses
+        StringBuilder sql = new StringBuilder(
+            "INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, is_active, created_at, updated_at) VALUES ");
+        
+        for (int i = 0; i < schedules.size(); i++) {
+            if (i > 0) sql.append(", ");
+            sql.append("(?, ?::day_of_week_enum, ?, ?, ?, ?, ?)");
+        }
+        sql.append(" RETURNING id");
+        
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+            
+            LocalDateTime now = LocalDateTime.now();
+            int paramIndex = 1;
+            
+            for (DoctorSchedule schedule : schedules) {
+                stmt.setInt(paramIndex++, schedule.getDoctorId());
+                stmt.setString(paramIndex++, schedule.getDayOfWeek().name());
+                stmt.setTime(paramIndex++, Time.valueOf(schedule.getStartTime()));
+                stmt.setTime(paramIndex++, Time.valueOf(schedule.getEndTime()));
+                stmt.setBoolean(paramIndex++, schedule.isActive());
+                stmt.setTimestamp(paramIndex++, Timestamp.valueOf(now));
+                stmt.setTimestamp(paramIndex++, Timestamp.valueOf(now));
+            }
+            
+            ResultSet rs = stmt.executeQuery();
+            int index = 0;
+            while (rs.next() && index < schedules.size()) {
+                schedules.get(index).setId(rs.getInt("id"));
+                schedules.get(index).setCreatedAt(now);
+                schedules.get(index).setUpdatedAt(now);
+                index++;
+            }
+            
+            System.out.println("✅ Batch inserted " + schedules.size() + " schedules");
+            return schedules;
+        }
+    }
+    
+    /**
      * Lấy lịch làm việc theo ID
      */
     public Optional<DoctorSchedule> findById(int id) throws SQLException {

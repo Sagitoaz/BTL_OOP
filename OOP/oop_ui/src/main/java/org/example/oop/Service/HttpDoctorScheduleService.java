@@ -166,6 +166,71 @@ public class HttpDoctorScheduleService {
     }
     
     /**
+     * ✅ DELETE /doctor-schedules/batch?doctorId=X
+     * XÓA TẤT CẢ lịch làm việc của bác sĩ trong 1 request (Batch Delete)
+     * Tối ưu hiệu suất: 1 request thay vì N requests
+     */
+    public int deleteAllSchedulesByDoctor(int doctorId) throws Exception {
+        String url = "/doctor-schedules/batch?doctorId=" + doctorId;
+        
+        HttpRequest request = reqBuilder(url)
+                .DELETE()
+                .header("Accept", "application/json")
+                .build();
+        
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        if (response.statusCode() == 200) {
+            // Parse response to get deleted count
+            JsonObject result = gson.fromJson(response.body(), JsonObject.class);
+            int deletedCount = result.has("deletedCount") ? result.get("deletedCount").getAsInt() : 0;
+            System.out.println("✅ Batch deleted " + deletedCount + " schedules for doctor #" + doctorId);
+            return deletedCount;
+        } else {
+            String errorMsg = extractErrorMessage(response.body());
+            throw new Exception("Failed to batch delete schedules: " + errorMsg);
+        }
+    }
+    
+    /**
+     * ✅ POST /doctor-schedules/batch
+     * TẠO NHIỀU lịch làm việc cùng lúc trong 1 request (Batch Insert)
+     * Tối ưu hiệu suất: 1 request thay vì N requests
+     */
+    public List<DoctorSchedule> createSchedulesBatch(List<DoctorSchedule> schedules) throws Exception {
+        if (schedules == null || schedules.isEmpty()) {
+            throw new IllegalArgumentException("Schedules list cannot be null or empty");
+        }
+        
+        String jsonBody = gson.toJson(schedules);
+        
+        HttpRequest request = reqBuilder("/doctor-schedules/batch")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .build();
+        
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        if (response.statusCode() == 201 || response.statusCode() == 200) {
+            // Parse response to get created schedules
+            JsonObject result = gson.fromJson(response.body(), JsonObject.class);
+            if (result.has("schedules")) {
+                List<DoctorSchedule> created = gson.fromJson(
+                    result.get("schedules"), 
+                    new TypeToken<List<DoctorSchedule>>(){}.getType()
+                );
+                System.out.println("✅ Batch created " + created.size() + " schedules");
+                return created;
+            }
+            return schedules; // Fallback if no schedules in response
+        } else {
+            String errorMsg = extractErrorMessage(response.body());
+            throw new Exception("Failed to batch create schedules: " + errorMsg);
+        }
+    }
+    
+    /**
      * Helper: Extract error message from JSON response
      */
     private String extractErrorMessage(String json) {

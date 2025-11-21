@@ -8,6 +8,7 @@ import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
 import org.miniboot.app.util.ExtractHelper;
 import org.miniboot.app.util.Json;
+import java.util.Arrays;
 import org.miniboot.app.util.errorvalidation.ValidationUtils;
 import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
 import org.miniboot.app.util.errorvalidation.RateLimiter;
@@ -48,7 +49,11 @@ public class DoctorScheduleController {
         router.put("/doctor-schedules", controller.updateSchedule());
         router.delete("/doctor-schedules", controller.deleteSchedule());
         
-        System.out.println("✅ Mounted DoctorScheduleController with 4 endpoints");
+        // ✅ NEW: Batch operations for performance
+        router.delete("/doctor-schedules/batch", controller.batchDeleteByDoctor());
+        router.post("/doctor-schedules/batch", controller.batchCreateSchedules());
+        
+        System.out.println("✅ Mounted DoctorScheduleController with 6 endpoints (includes 2 batch endpoints)");
     }
     
     /**
@@ -289,6 +294,113 @@ public class DoctorScheduleController {
                 } else {
                     return ValidationUtils.error(500, "DELETE_FAILED", "Failed to delete schedule");
                 }
+                
+            } catch (Exception e) {
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
+        };
+    }
+    
+    /**
+     * ✅ DELETE /doctor-schedules/batch?doctorId=X
+     * Xóa TẤT CẢ lịch làm việc của bác sĩ trong 1 query (Batch Delete)
+     * Sử dụng khi update lịch làm việc để tối ưu hiệu suất
+     */
+    private Function<HttpRequest, HttpResponse> batchDeleteByDoctor() {
+        return (HttpRequest req) -> {
+            // Rate limiting
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // JWT và Role validation (chỉ ADMIN)
+            HttpResponse jwtError = ValidationUtils.validateJWT(req);
+            if (jwtError != null) return jwtError;
+            
+            HttpResponse roleError = ValidationUtils.validateRole(req, "ADMIN");
+            if (roleError != null) return roleError;
+            
+            try {
+                // Get doctorId from query
+                Map<String, List<String>> query = req.query;
+                Optional<Integer> doctorIdOpt = ExtractHelper.extractInt(query, "doctorId");
+                
+                if (doctorIdOpt.isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST", "doctorId parameter is required");
+                }
+                
+                int doctorId = doctorIdOpt.get();
+                
+                // Batch delete all schedules of this doctor
+                int deletedCount = repository.deleteByDoctorId(doctorId);
+                
+                return Json.ok(Map.of(
+                    "message", "Batch delete successful",
+                    "doctorId", doctorId,
+                    "deletedCount", deletedCount
+                ));
+                
+            } catch (Exception e) {
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
+        };
+    }
+    
+    /**
+     * ✅ POST /doctor-schedules/batch
+     * Tạo NHIỀU lịch làm việc cùng lúc trong 1 query (Batch Insert)
+     * Body: JSON array of DoctorSchedule objects
+     * Tối ưu hiệu suất khi tạo lịch làm việc mới
+     */
+    private Function<HttpRequest, HttpResponse> batchCreateSchedules() {
+        return (HttpRequest req) -> {
+            // Rate limiting
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // Standard validations
+            HttpResponse validationError = ValidationUtils.validateStandardRequest(req, "application/json", "ADMIN");
+            if (validationError != null) return validationError;
+            
+            try {
+                // Parse array of schedules from body
+                DoctorSchedule[] schedulesArray = Json.fromBytes(req.body, DoctorSchedule[].class);
+                
+                if (schedulesArray == null || schedulesArray.length == 0) {
+                    return ValidationUtils.error(400, "BAD_REQUEST", "schedules array is required and cannot be empty");
+                }
+                
+                List<DoctorSchedule> schedules = Arrays.asList(schedulesArray);
+                
+                // Validate each schedule
+                for (int i = 0; i < schedules.size(); i++) {
+                    DoctorSchedule schedule = schedules.get(i);
+                    
+                    if (schedule.getDoctorId() == 0) {
+                        return ValidationUtils.error(400, "BAD_REQUEST", "doctorId is required for schedule at index " + i);
+                    }
+                    if (schedule.getDayOfWeek() == null) {
+                        return ValidationUtils.error(400, "BAD_REQUEST", "dayOfWeek is required for schedule at index " + i);
+                    }
+                    if (schedule.getStartTime() == null) {
+                        return ValidationUtils.error(400, "BAD_REQUEST", "startTime is required for schedule at index " + i);
+                    }
+                    if (schedule.getEndTime() == null) {
+                        return ValidationUtils.error(400, "BAD_REQUEST", "endTime is required for schedule at index " + i);
+                    }
+                    if (!schedule.getStartTime().isBefore(schedule.getEndTime())) {
+                        return ValidationUtils.error(422, "INVALID_TIME_RANGE",
+                            "startTime must be before endTime for schedule at index " + i);
+                    }
+                }
+                
+                // Batch insert all schedules
+                List<DoctorSchedule> savedSchedules = repository.insertBatch(schedules);
+                
+                return Json.created(Map.of(
+                    "message", "Batch insert successful",
+                    "count", savedSchedules.size(),
+                    "schedules", savedSchedules
+                ));
                 
             } catch (Exception e) {
                 return DatabaseErrorHandler.handleDatabaseException(e);

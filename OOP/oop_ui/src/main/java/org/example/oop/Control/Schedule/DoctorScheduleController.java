@@ -1459,19 +1459,22 @@ public class DoctorScheduleController implements Initializable {
                 .collect(Collectors.joining(", ")));
         System.out.println("✅ Shifts: " + String.join(", ", shifts));
 
-        // Gọi API backend để lưu vào database
+        // ✅ OPTIMIZED: Gọi API backend với BATCH operations (2 requests thay vì 42+ requests)
         Task<Void> saveTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // Xóa tất cả schedule cũ của bác sĩ này
-                List<org.miniboot.app.domain.models.DoctorSchedule> existing = scheduleService
-                        .getDoctorSchedules(currentDoctor.getId());
-
-                for (org.miniboot.app.domain.models.DoctorSchedule old : existing) {
-                    scheduleService.deleteSchedule(old.getId());
-                }
-
-                // Tạo schedule mới cho mỗi ngày và shift
+                System.out.println("🚀 Starting BATCH save operation for doctor #" + currentDoctor.getId());
+                long startTime = System.currentTimeMillis();
+                
+                // ✅ STEP 1: Batch delete all existing schedules (1 request)
+                System.out.println("🗑️ Step 1/2: Batch deleting all existing schedules...");
+                int deletedCount = scheduleService.deleteAllSchedulesByDoctor(currentDoctor.getId());
+                System.out.println("   ✅ Deleted " + deletedCount + " schedules");
+                
+                // ✅ STEP 2: Prepare all new schedules
+                System.out.println("📝 Step 2/2: Preparing new schedules...");
+                List<org.miniboot.app.domain.models.DoctorSchedule> newSchedules = new java.util.ArrayList<>();
+                
                 for (java.time.DayOfWeek day : workingDays) {
                     for (String shift : shifts) {
                         org.miniboot.app.domain.models.DoctorSchedule newSchedule = new org.miniboot.app.domain.models.DoctorSchedule();
@@ -1495,9 +1498,20 @@ public class DoctorScheduleController implements Initializable {
                         }
 
                         newSchedule.setActive(true);
-                        scheduleService.createSchedule(newSchedule);
+                        newSchedules.add(newSchedule);
                     }
                 }
+                
+                // ✅ STEP 3: Batch insert all schedules (1 request)
+                System.out.println("   📦 Batch inserting " + newSchedules.size() + " schedules...");
+                List<org.miniboot.app.domain.models.DoctorSchedule> created = scheduleService.createSchedulesBatch(newSchedules);
+                
+                long endTime = System.currentTimeMillis();
+                long duration = endTime - startTime;
+                System.out.println("🎉 BATCH SAVE COMPLETED in " + duration + "ms");
+                System.out.println("   ✅ Created " + created.size() + " schedules");
+                System.out.println("   ⚡ Performance: 2 requests instead of " + (deletedCount + created.size()) + " requests");
+                System.out.println("   📊 Speed improvement: ~" + ((deletedCount + created.size()) / 2) + "x faster!");
 
                 return null;
             }
