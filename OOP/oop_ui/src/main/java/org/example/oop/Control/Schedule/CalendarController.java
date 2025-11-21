@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneManager;
@@ -32,8 +33,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
@@ -47,7 +50,7 @@ import javafx.scene.layout.VBox;
  * - Chọn bác sĩ để xem lịch
  * - Navigate tuần trước/sau
  */
-public class CalendarController implements Initializable {
+public class CalendarController extends BaseController implements Initializable {
 
     // SERVICES
     private HttpAppointmentService appointmentService;
@@ -98,6 +101,14 @@ public class CalendarController implements Initializable {
     private Button forwardButton;
     @FXML
     private Button reloadButton;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     // INITIALIZATION
 
@@ -232,6 +243,9 @@ public class CalendarController implements Initializable {
     }
 
     private void loadDoctors() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách bác sĩ...");
+
         Task<List<Doctor>> task = new Task<>() {
             @Override
             protected List<Doctor> call() {
@@ -251,18 +265,24 @@ public class CalendarController implements Initializable {
                 if (!doctorList.isEmpty()) {
                     doctorComboBox.getSelectionModel().selectFirst();
                     selectedDoctor = doctorList.get(0);
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Đã tải " + doctorList.size() + " bác sĩ");
                     loadAppointments();
                 }
             } else {
                 // Nếu chưa có ComboBox, chọn doctor đầu tiên
                 if (!doctorList.isEmpty()) {
                     selectedDoctor = doctorList.get(0);
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Đã tải " + doctorList.size() + " bác sĩ");
                     loadAppointments();
                 }
             }
         });
 
         task.setOnFailed(e -> {
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách bác sĩ");
             showError("Lỗi", "Không thể tải danh sách bác sĩ");
         });
 
@@ -272,6 +292,9 @@ public class CalendarController implements Initializable {
     private void loadAppointments() {
         if (selectedDoctor == null)
             return;
+
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải lịch hẹn...");
 
         LocalDate weekEnd = currentWeekStart.plusDays(6);
         System.out.println(
@@ -289,6 +312,8 @@ public class CalendarController implements Initializable {
         task.setOnSucceeded(e -> {
             appointmentList = task.getValue();
             System.out.println("✅ Loaded " + appointmentList.size() + " appointments");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + appointmentList.size() + " lịch hẹn");
 
             // Update week range label
             updateWeekRangeLabel();
@@ -298,6 +323,8 @@ public class CalendarController implements Initializable {
         });
 
         task.setOnFailed(e -> {
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải lịch hẹn");
             showError("Lỗi", "Không thể tải danh sách lịch hẹn");
         });
 

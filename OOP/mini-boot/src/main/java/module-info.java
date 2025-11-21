@@ -26,6 +26,7 @@ module mini.boot {
     exports org.miniboot.app.domain.repo.Inventory;
     exports org.miniboot.app.domain.repo.Payment;
     exports org.miniboot.app.domain.repo.PatientAndPrescription;
+    exports org.miniboot.app.domain.service;
     exports org.miniboot.app.config;
     exports org.miniboot.app.http;
     exports org.miniboot.app.router;

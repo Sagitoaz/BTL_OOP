@@ -199,9 +199,10 @@ public class DoctorDashBoardController extends BaseController {
     @FXML
     private void openSchedule() {
         System.out.println("🔄 Doctor: Opening Schedule...");
+        System.out.println("📋 Navigating to DoctorSchedule (with working hours feature)");
         SafeNavigator.navigate(
-                SceneConfig.CALENDAR_FXML,
-                SceneConfig.Titles.CALENDAR);
+                SceneConfig.DOCTOR_SCHEDULE_FXML,
+                SceneConfig.Titles.DOCTOR_SCHEDULE);
     }
 
     @FXML

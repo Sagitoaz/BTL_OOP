@@ -6,6 +6,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -21,6 +22,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
 <BorderPane prefHeight="800.0" prefWidth="1280.0" styleClass="main-container" stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/financial-report.css,@../../css/navigation.css,@../../css/global-styles.css,@../../css/tables.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.oop.Control.Schedule.AppointmentBookingController">
 
    <!-- TOP: Header -->
@@ -31,6 +34,12 @@
             <Button fx:id="backButton" onAction="#handleBackButton" styleClass="nav-button nav-back-button" text="◀ Quay lại" />
             <Button fx:id="forwardButton" onAction="#handleForwardButton" styleClass="nav-button nav-forward-button" text="Tiến ▶" />
             <Button fx:id="reloadButton" onAction="#handleReloadButton" styleClass="nav-button nav-reload-button" text="⟳ Tải lại" />
+            
+            <!-- Loading Status Indicator -->
+            <HBox fx:id="loadingStatusContainer" alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 5px 15px; -fx-background-color: rgba(14,165,233,0.1); -fx-background-radius: 8px; -fx-border-color: #0EA5E9; -fx-border-width: 1px; -fx-border-radius: 8px;" visible="false">
+                <ProgressIndicator fx:id="statusProgressIndicator" prefHeight="20.0" prefWidth="20.0" style="-fx-progress-color: #0EA5E9;" />
+                <Label fx:id="loadingStatusLabel" style="-fx-text-fill: #0EA5E9; -fx-font-weight: 600; -fx-font-size: 13px;" text="⏳ Đang tải dữ liệu..." />
+            </HBox>
          </HBox>
 
          <!-- Header with gradient -->
@@ -145,7 +154,18 @@
 
                   <Separator />
 
-                  <ListView fx:id="lvwDayAgenda" styleClass="financial-table" VBox.vgrow="ALWAYS" />
+                  <!-- Calendar view with working hours -->
+                  <HBox spacing="8.0" VBox.vgrow="ALWAYS">
+                     <!-- Time labels on the left -->
+                     <ScrollPane fx:id="timeLabelsScrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="NEVER" prefWidth="60.0">
+                        <VBox fx:id="timeLabelsBox" />
+                     </ScrollPane>
+                     
+                     <!-- Schedule pane on the right -->
+                     <ScrollPane fx:id="scheduleScrollPane" fitToHeight="true" fitToWidth="true" HBox.hgrow="ALWAYS">
+                        <AnchorPane fx:id="schedulePane" minHeight="540.0" minWidth="600.0" />
+                     </ScrollPane>
+                  </HBox>
                </VBox>
             </Tab>
             <!-- Tab 1: Chọn bệnh nhân -->

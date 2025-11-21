@@ -14,6 +14,7 @@ import org.miniboot.app.config.HttpConstants;
 import org.miniboot.app.domain.models.Appointment;
 import org.miniboot.app.domain.models.AppointmentStatus;
 import org.miniboot.app.domain.repo.AppointmentRepository;
+import org.miniboot.app.domain.service.ScheduleService;
 import org.miniboot.app.http.HttpRequest;
 import org.miniboot.app.http.HttpResponse;
 import org.miniboot.app.router.Router;
@@ -25,13 +26,15 @@ import org.miniboot.app.util.errorvalidation.RateLimiter;
 
 public class AppointmentController {
     private final AppointmentRepository appointmentRepository;
+    private final ScheduleService scheduleService;
 
     // Idempotency cache for appointment booking
     private static final ConcurrentHashMap<String, CachedAppointment> idempotencyCache = new ConcurrentHashMap<>();
     private static final long CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-    public AppointmentController(AppointmentRepository appointmentRepository) {
+    public AppointmentController(AppointmentRepository appointmentRepository, ScheduleService scheduleService) {
         this.appointmentRepository = appointmentRepository;
+        this.scheduleService = scheduleService;
     }
 
     // Inner class for caching idempotent appointment results
@@ -53,6 +56,7 @@ public class AppointmentController {
 
     public static void mount(Router router, AppointmentController ac) {
         router.get("/appointments", ac.getAppointments());
+        router.get("/appointments/available-slots", ac.getAvailableSlots());
         router.post("/appointments", ac.createAppointment());
         router.put("/appointments", ac.updateAppointment());
         router.delete("/appointments", ac.deleteAppointment());
@@ -171,9 +175,25 @@ public class AppointmentController {
                             "Start time must be before end time");
                 }
 
-                // TODO: Check working hours (422)
+                // Check working hours - Bác sĩ có làm việc trong khung giờ này không?
+                try {
+                    boolean isWithinWorkingHours = scheduleService.isWithinWorkingHours(
+                        appointment.getDoctorId(), 
+                        appointment.getStartTime(), 
+                        appointment.getEndTime()
+                    );
+                    
+                    if (!isWithinWorkingHours) {
+                        java.time.DayOfWeek dayOfWeek = appointment.getStartTime().getDayOfWeek();
+                        return ValidationUtils.error(422, "OUTSIDE_WORKING_HOURS",
+                            "Doctor is not working at this time on " + dayOfWeek + 
+                            ". Please check doctor's schedule and choose an available time slot.");
+                    }
+                } catch (Exception e) {
+                    return DatabaseErrorHandler.handleDatabaseException(e);
+                }
+
                 // TODO: Check patient không có appointment trùng giờ (422)
-                // TODO: Check không rơi vào ngày nghỉ (422)
 
                 // Step 8: Save appointment
                 Appointment saved;
@@ -260,6 +280,74 @@ public class AppointmentController {
 
             // 4. Không có gì -> trả về tất cả (backward compatible)
             return Json.ok(appointmentRepository.findAll());
+        };
+    }
+
+    /**
+     * GET /appointments/available-slots?doctorId=X&date=YYYY-MM-DD
+     * Lấy danh sách time slots available cho việc đặt lịch
+     */
+    public Function<HttpRequest, HttpResponse> getAvailableSlots() {
+        return (HttpRequest req) -> {
+            // Rate limiting
+            HttpResponse rateLimitError = RateLimiter.checkRateLimit(req);
+            if (rateLimitError != null) return rateLimitError;
+            
+            // JWT validation
+            HttpResponse jwtError = ValidationUtils.validateJWT(req);
+            if (jwtError != null) return jwtError;
+            
+            try {
+                Map<String, List<String>> query = req.query;
+                
+                // Validate required parameters
+                Optional<Integer> doctorIdOpt = ExtractHelper.extractInt(query, "doctorId");
+                Optional<String> dateStrOpt = ExtractHelper.extractFirst(query, "date");
+                
+                if (doctorIdOpt.isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                        "doctorId parameter is required");
+                }
+                if (dateStrOpt.isEmpty()) {
+                    return ValidationUtils.error(400, "BAD_REQUEST",
+                        "date parameter is required (format: YYYY-MM-DD)");
+                }
+                
+                int doctorId = doctorIdOpt.get();
+                String dateStr = dateStrOpt.get();
+                
+                // Parse date
+                java.time.LocalDate date;
+                try {
+                    date = java.time.LocalDate.parse(dateStr);
+                } catch (Exception e) {
+                    return ValidationUtils.error(400, "INVALID_DATE_FORMAT",
+                        "Invalid date format. Expected: YYYY-MM-DD");
+                }
+                
+                // Check if date is in the past
+                if (date.isBefore(java.time.LocalDate.now())) {
+                    return ValidationUtils.error(422, "PAST_DATE",
+                        "Cannot book appointments for past dates");
+                }
+                
+                // Get available slots from ScheduleService
+                List<org.miniboot.app.domain.models.TimeSlot> availableSlots = 
+                    scheduleService.getAvailableSlots(doctorId, date);
+                
+                if (availableSlots.isEmpty()) {
+                    // Check if doctor is not working on this day
+                    if (!scheduleService.isDoctorWorking(doctorId, date)) {
+                        return ValidationUtils.error(422, "DOCTOR_NOT_WORKING",
+                            "Doctor is not working on " + date + " (" + date.getDayOfWeek() + ")");
+                    }
+                }
+                
+                return Json.ok(availableSlots);
+                
+            } catch (Exception e) {
+                return DatabaseErrorHandler.handleDatabaseException(e);
+            }
         };
     }
 

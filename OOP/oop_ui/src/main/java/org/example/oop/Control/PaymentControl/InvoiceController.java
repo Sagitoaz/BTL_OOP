@@ -11,7 +11,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.example.oop.Control.BaseController;
-import org.example.oop.Service.*;
+import org.example.oop.Service.ApiProductService;
+import org.example.oop.Service.ApiStockMovementService;
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Service.HttpPaymentItemService;
+import org.example.oop.Service.HttpPaymentService;
+import org.example.oop.Service.HttpPaymentStatusLogService;
 import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
@@ -32,11 +37,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 
 /**
  * Controller quản lý giao diện Hóa đơn.
@@ -53,6 +61,14 @@ public class InvoiceController extends BaseController implements Initializable {
     private ApiStockMovementService stockMovementService;
     private HttpPaymentStatusLogService paymentStatusLogService;
     private CustomerRecordService customerService;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     private List<Product> allProducts = new ArrayList<>(); // Lưu tất cả sản phẩm
 
@@ -178,6 +194,8 @@ public class InvoiceController extends BaseController implements Initializable {
      */
     private void loadAllProductsAsync() {
         btnFindProduct.setDisable(true); // Vô hiệu hóa nút trong khi tải
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách sản phẩm...");
 
         executeAsync(
                 () -> {
@@ -192,9 +210,13 @@ public class InvoiceController extends BaseController implements Initializable {
                     allProducts = loadedProducts;
                     System.out.println("Loaded all products (async): " + allProducts.size());
                     btnFindProduct.setDisable(false); // Kích hoạt lại nút
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Tải thành công " + allProducts.size() + " sản phẩm!");
                 },
                 (error) -> {
                     // Thất bại (chạy trên UI thread)
+                    showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "❌ Lỗi: " + error.getMessage());
                     // Sử dụng showAlert từ BaseController
                     showAlert(Alert.AlertType.ERROR, "Lỗi tải sản phẩm",
                             "Không thể tải danh sách sản phẩm: " + error.getMessage());
@@ -453,7 +475,7 @@ public class InvoiceController extends BaseController implements Initializable {
         PaymentStatusLog unpaidLog = new PaymentStatusLog();
         unpaidLog.setPaymentId(savedPaymentId);
         unpaidLog.setStatus(PaymentStatus.UNPAID);
-        
+
         ApiResponse<PaymentStatusLog> statusResponse = paymentStatusLogService.updatePaymentStatus(unpaidLog);
         if (!statusResponse.isSuccess()) {
             throw new Exception("Không thể tạo status log: " + statusResponse.getErrorMessage());
@@ -535,10 +557,12 @@ public class InvoiceController extends BaseController implements Initializable {
                                 PaymentStatusLog pendingLog = new PaymentStatusLog();
                                 pendingLog.setPaymentId(savedPayment.getId());
                                 pendingLog.setStatus(PaymentStatus.PENDING);
-                                
-                                ApiResponse<PaymentStatusLog> response = paymentStatusLogService.updatePaymentStatus(pendingLog);
+
+                                ApiResponse<PaymentStatusLog> response = paymentStatusLogService
+                                        .updatePaymentStatus(pendingLog);
                                 if (!response.isSuccess()) {
-                                    throw new RuntimeException("Không thể cập nhật status PENDING: " + response.getErrorMessage());
+                                    throw new RuntimeException(
+                                            "Không thể cập nhật status PENDING: " + response.getErrorMessage());
                                 }
                                 return null; // Không cần trả về gì
                             },

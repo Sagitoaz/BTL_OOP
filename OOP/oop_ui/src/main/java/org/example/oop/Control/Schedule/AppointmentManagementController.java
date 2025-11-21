@@ -6,16 +6,27 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
 
+import org.example.oop.Control.BaseController;
 import org.example.oop.Control.SessionStorage;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Service.HttpAppointmentService;
 import org.example.oop.Service.HttpDoctorService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.*;
+import org.miniboot.app.domain.models.Appointment;
+import org.miniboot.app.domain.models.AppointmentStatus;
+import org.miniboot.app.domain.models.AppointmentType;
 import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.Doctor;
+import org.miniboot.app.domain.models.UserRole;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -25,8 +36,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -35,15 +44,15 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
 
-public class AppointmentManagementController implements Initializable {
+public class AppointmentManagementController extends BaseController implements Initializable {
     // Services
     private HttpAppointmentService appointmentService;
     private HttpDoctorService doctorService;
@@ -72,55 +81,104 @@ public class AppointmentManagementController implements Initializable {
     private String searchKeyword;
 
     // Top filter controls
-    @FXML private DatePicker fromDatePicker;
-    @FXML private DatePicker toDatePicker;
-    @FXML private ComboBox<String> doctorFilter;
-    @FXML private ComboBox<String> roomFilter;
-    @FXML private ComboBox<String> statusFilter;
-    @FXML private TextField qSearch;
-    @FXML private Button applyFilterBtn;
-    @FXML private Button resetFilterBtn;
-    @FXML private Button createBtn;
-    @FXML private Button confirmBtn;
-    @FXML private Button cancelBtn;
-    @FXML private MenuButton moreActionsBtn;
+    @FXML
+    private DatePicker fromDatePicker;
+    @FXML
+    private DatePicker toDatePicker;
+    @FXML
+    private ComboBox<String> doctorFilter;
+    @FXML
+    private ComboBox<String> roomFilter;
+    @FXML
+    private ComboBox<String> statusFilter;
+    @FXML
+    private TextField qSearch;
+    @FXML
+    private Button applyFilterBtn;
+    @FXML
+    private Button resetFilterBtn;
+    @FXML
+    private Button createBtn;
+    @FXML
+    private Button confirmBtn;
+    @FXML
+    private Button cancelBtn;
+    @FXML
+    private MenuButton moreActionsBtn;
 
     // Table
-    @FXML private TableView<Appointment> appointmentTable;
-    @FXML private Button refreshBtn;
+    @FXML
+    private TableView<Appointment> appointmentTable;
+    @FXML
+    private Button refreshBtn;
 
     // Detail panel
-    @FXML private TextField txtId;
-    @FXML private DatePicker datePicker;
-    @FXML private TextField startTimeField;
-    @FXML private TextField endTimeField;
-    @FXML private TextField patientField;
-    @FXML private Button choosePatientBtn;
-    @FXML private ComboBox<String> doctorCombo;
-    @FXML private ComboBox<String> serviceCombo;
-    @FXML private ComboBox<String> roomCombo;
-    @FXML private ComboBox<String> statusCombo;
-    @FXML private TextArea noteArea;
-    @FXML private Button saveBtn;
-    @FXML private Button revertBtn;
-    @FXML private Button deleteBtn;
+    @FXML
+    private TextField txtId;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private TextField startTimeField;
+    @FXML
+    private TextField endTimeField;
+    @FXML
+    private TextField patientField;
+    @FXML
+    private Button choosePatientBtn;
+    @FXML
+    private ComboBox<String> doctorCombo;
+    @FXML
+    private ComboBox<String> serviceCombo;
+    @FXML
+    private ComboBox<String> roomCombo;
+    @FXML
+    private ComboBox<String> statusCombo;
+    @FXML
+    private TextArea noteArea;
+    @FXML
+    private Button saveBtn;
+    @FXML
+    private Button revertBtn;
+    @FXML
+    private Button deleteBtn;
 
     // Timeline tab
-    @FXML private ListView<String> timelineList;
-    @FXML private Button sendSmsBtn;
-    @FXML private Button sendEmailBtn;
+    @FXML
+    private ListView<String> timelineList;
+    @FXML
+    private Button sendSmsBtn;
+    @FXML
+    private Button sendEmailBtn;
 
     // Extra notes tab
-    @FXML private TextArea extraNoteArea;
-    @FXML private Button saveNoteBtn;
+    @FXML
+    private TextArea extraNoteArea;
+    @FXML
+    private Button saveNoteBtn;
 
     // Pagination
-    @FXML private Label lblSummary;
-    @FXML private Button firstPageBtn;
-    @FXML private Button prevPageBtn;
-    @FXML private Label lblPage;
-    @FXML private Button nextPageBtn;
-    @FXML private Button lastPageBtn;
+    @FXML
+    private Label lblSummary;
+    @FXML
+    private Button firstPageBtn;
+    @FXML
+    private Button prevPageBtn;
+    @FXML
+    private Label lblPage;
+    @FXML
+    private Button nextPageBtn;
+    @FXML
+    private Button lastPageBtn;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
+
+
 
     @FXML private Button createPrescriptionBtn;
 
@@ -168,19 +226,20 @@ public class AppointmentManagementController implements Initializable {
     }
 
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         System.out.println("🔙 Back button clicked");
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
 
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         System.out.println("🔄 Reloading Appointment Booking view");
-        //SceneManager.reloadScene();
+        // SceneManager.reloadScene();
         SceneManager.reloadCurrentScene();
     }
 
@@ -386,14 +445,13 @@ public class AppointmentManagementController implements Initializable {
 
             Runnable runnable = () -> {
                 System.out.println("✅ CustomerHub closed");
-                Object controllerObj = ((FXMLLoader)SceneManager.getSceneData("fxmlLoader") ).getController();
+                Object controllerObj = ((FXMLLoader) SceneManager.getSceneData("fxmlLoader")).getController();
                 System.out.println("🔍 Retrieved controller: " + controllerObj);
                 // Kiểm tra controller type (để tránh ClassCastException)
                 if (controllerObj != null) {
                     try {
                         // Dùng reflection để gọi getSelectedCustomer()
-                        Method getSelectedMethod =
-                                controllerObj.getClass().getMethod("getSelectedCustomer");
+                        Method getSelectedMethod = controllerObj.getClass().getMethod("getSelectedCustomer");
                         Customer selectedCustomer = (Customer) getSelectedMethod.invoke(controllerObj);
 
                         if (selectedCustomer != null) {
@@ -403,11 +461,11 @@ public class AppointmentManagementController implements Initializable {
                             System.out.println("⚠️ No customer selected");
                         }
                     } catch (Exception ex) {
-                        System.err.println("⚠️ Could not get selected customer (reflection failed): " + ex.getMessage());
+                        System.err
+                                .println("⚠️ Could not get selected customer (reflection failed): " + ex.getMessage());
                         // Fallback: Show manual input dialog
                         showManualCustomerIdDialog();
-                    }
-                    finally {
+                    } finally {
                         // Clear temporary data
                         SceneManager.removeSceneData("fxmlLoader");
                         SceneManager.removeSceneData("isModal");
@@ -419,7 +477,6 @@ public class AppointmentManagementController implements Initializable {
             };
             SceneManager.setSceneData("isModal", true);
             SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
-
 
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
@@ -714,28 +771,27 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void setupAppointmentTable() {
-        TableColumn<Appointment, String> colId =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(0);
-        TableColumn<Appointment, String> colTime =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(1);
-        TableColumn<Appointment, String> colDate =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(2);
-        TableColumn<Appointment, String> colPatient =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(3);
-        TableColumn<Appointment, String> colDoctor =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(4);
-        TableColumn<Appointment, String> colService =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(5);
-        TableColumn<Appointment, String> colRoom =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(6);
-        TableColumn<Appointment, String> colStatus =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(7);
-        TableColumn<Appointment, String> colNote =
-                (TableColumn<Appointment, String>) appointmentTable.getColumns().get(8);
+        TableColumn<Appointment, String> colId = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(0);
+        TableColumn<Appointment, String> colTime = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(1);
+        TableColumn<Appointment, String> colDate = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(2);
+        TableColumn<Appointment, String> colPatient = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(3);
+        TableColumn<Appointment, String> colDoctor = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(4);
+        TableColumn<Appointment, String> colService = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(5);
+        TableColumn<Appointment, String> colRoom = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(6);
+        TableColumn<Appointment, String> colStatus = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(7);
+        TableColumn<Appointment, String> colNote = (TableColumn<Appointment, String>) appointmentTable.getColumns()
+                .get(8);
 
         // Set cell value factories
-        colId.setCellValueFactory(cellData ->
-                new SimpleStringProperty(String.valueOf(cellData.getValue().getId())));
+        colId.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getId())));
 
         colTime.setCellValueFactory(cellData -> {
             Appointment apt = cellData.getValue();
@@ -743,8 +799,8 @@ public class AppointmentManagementController implements Initializable {
             return new SimpleStringProperty(time);
         });
 
-        colDate.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStartTime().toLocalDate().toString()));
+        colDate.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getStartTime().toLocalDate().toString()));
 
         colPatient.setCellValueFactory(cellData -> {
             int customerId = cellData.getValue().getCustomerId();
@@ -767,14 +823,12 @@ public class AppointmentManagementController implements Initializable {
             return new SimpleStringProperty(doctor != null ? doctor.getFullName() : "Bác sĩ #" + doctorId);
         });
 
-        colService.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getAppointmentType().toString()));
+        colService.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().getAppointmentType().toString()));
 
-        colRoom.setCellValueFactory(cellData ->
-                new SimpleStringProperty("-")); // Không có room
+        colRoom.setCellValueFactory(cellData -> new SimpleStringProperty("-")); // Không có room
 
-        colStatus.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().getStatus().toString()));
+        colStatus.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus().toString()));
 
         colNote.setCellValueFactory(cellData -> {
             String notes = cellData.getValue().getNotes();
@@ -796,11 +850,11 @@ public class AppointmentManagementController implements Initializable {
         // Status filter ComboBox
         statusFilter.setItems(FXCollections.observableArrayList(
                 "Tất cả",
-                "SCHEDULED",    // Đã đặt
-                "CONFIRMED",    // Đã xác nhận
-                "COMPLETED",    // Hoàn thành
-                "CANCELLED",    // Đã hủy
-                "NO_SHOW"       // Không đến
+                "SCHEDULED", // Đã đặt
+                "CONFIRMED", // Đã xác nhận
+                "COMPLETED", // Hoàn thành
+                "CANCELLED", // Đã hủy
+                "NO_SHOW" // Không đến
         ));
         statusFilter.setValue("Tất cả");
 
@@ -824,15 +878,14 @@ public class AppointmentManagementController implements Initializable {
                 "CONFIRMED",
                 "COMPLETED",
                 "CANCELLED",
-                "NO_SHOW"
-        ));
+                "NO_SHOW"));
 
         // Service/AppointmentType ComboBox
         serviceCombo.setItems(FXCollections.observableArrayList(
-                "VISIT",      // Khám
-                "CHECKUP",    // Tái khám
-                "FOLLOWUP",   // Theo dõi
-                "SURGERY"     // Phẫu thuật
+                "VISIT", // Khám
+                "CHECKUP", // Tái khám
+                "FOLLOWUP", // Theo dõi
+                "SURGERY" // Phẫu thuật
         ));
 
         // Doctor ComboBox
@@ -854,6 +907,9 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void loadDoctors() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách bác sĩ...");
+
         Task<List<Doctor>> task = new Task<>() {
             @Override
             protected List<Doctor> call() throws Exception {
@@ -878,10 +934,14 @@ public class AppointmentManagementController implements Initializable {
             }
 
             System.out.println("✅ Loaded " + doctors.size() + " doctors");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + doctors.size() + " bác sĩ");
         });
 
         task.setOnFailed(e -> {
             System.err.println("❌ Error loading doctors: " + task.getException().getMessage());
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách bác sĩ");
             showAlert("Không thể tải danh sách bác sĩ");
         });
 
@@ -889,6 +949,9 @@ public class AppointmentManagementController implements Initializable {
     }
 
     private void loadAppointments() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải danh sách lịch hẹn...");
+
         Task<List<Appointment>> task = new Task<>() {
             @Override
             protected List<Appointment> call() throws Exception {
@@ -916,7 +979,7 @@ public class AppointmentManagementController implements Initializable {
                 String search = qSearch.getText();
 
                 // Call API với filters
-                if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+                if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
                     Customer customer = SceneManager.getSceneData("accountData");
                     int customerId = customer.getId();
                     return appointmentService.getAppointmentsFiltered(
@@ -925,17 +988,15 @@ public class AppointmentManagementController implements Initializable {
                             status,
                             fromDate,
                             toDate,
-                            search
-                    );
+                            search);
                 }
                 return appointmentService.getAppointmentsFiltered(
                         doctorId,
-                        null,  // customerId (chưa có UI filter cho customer)
+                        null, // customerId (chưa có UI filter cho customer)
                         status,
                         fromDate,
                         toDate,
-                        search
-                );
+                        search);
             }
         };
 
@@ -948,6 +1009,8 @@ public class AppointmentManagementController implements Initializable {
             lblSummary.setText("Tổng: " + totalAppointments + " lịch hẹn");
 
             System.out.println("✅ Loaded " + appointments.size() + " appointments");
+            showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "✅ Đã tải " + appointments.size() + " lịch hẹn");
 
             // ✅ Load customer names cho tất cả appointments
             loadCustomerNamesForAppointments(appointments);
@@ -955,6 +1018,8 @@ public class AppointmentManagementController implements Initializable {
 
         task.setOnFailed(e -> {
             System.err.println("❌ Error loading appointments: " + task.getException().getMessage());
+            showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                    "❌ Không thể tải danh sách lịch hẹn");
             showAlert("Không thể tải danh sách lịch hẹn");
         });
 
@@ -971,7 +1036,7 @@ public class AppointmentManagementController implements Initializable {
         datePicker.setValue(appointment.getStartTime().toLocalDate());
         startTimeField.setText(appointment.getStartTime().toLocalTime().toString());
         endTimeField.setText(appointment.getEndTime().toLocalTime().toString());
-
+        
         // Load customer name (check cache first)
         int customerId = appointment.getCustomerId();
         if (customerNameCache.containsKey(customerId)) {
@@ -1102,17 +1167,18 @@ public class AppointmentManagementController implements Initializable {
 
         new Thread(task).start();
     }
+
     @FXML
-    private void onCreatePrescription(){
+    private void onCreatePrescription() {
         if (selectedAppointment == null) {
             showAlert("Vui lòng chọn lịch hẹn trước khi tạo đơn khám");
             return;
         }
-        if(patientField.getText().contains("Đang tải") || patientField.getText() == null){
+        if (patientField.getText().contains("Đang tải") || patientField.getText() == null) {
             showAlert("Vui lòng đợi tải thông tin bệnh nhân hoàn tất");
             return;
         }
-        if(doctorCombo.getValue() == null){
+        if (doctorCombo.getValue() == null) {
             showAlert("Vui lòng chọn bác sĩ cho lịch hẹn");
             return;
         }
@@ -1120,13 +1186,14 @@ public class AppointmentManagementController implements Initializable {
         SceneManager.setSceneData("nameCustomer", patientField.getText());
         SceneManager.setSceneData("doctor", doctorCombo.getValue());
 
-        SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
-            // Callback sau khi đóng Prescription Editor
-            SceneManager.removeSceneData("appointment");
-            SceneManager.removeSceneData("nameCustomer");
-            SceneManager.removeSceneData("doctor");
-            System.out.println("✅ Prescription Editor closed");
-        });
+        SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR,
+                () -> {
+                    // Callback sau khi đóng Prescription Editor
+                    SceneManager.removeSceneData("appointment");
+                    SceneManager.removeSceneData("nameCustomer");
+                    SceneManager.removeSceneData("doctor");
+                    System.out.println("✅ Prescription Editor closed");
+                });
 
 
     }

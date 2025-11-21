@@ -7,7 +7,6 @@ import org.example.oop.Utils.SafeNavigator;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.example.oop.Utils.SessionValidator;
-import org.example.oop.Utils.LoadingOverlay;
 import org.miniboot.app.domain.models.Admin;
 
 import javafx.application.Platform;
@@ -350,10 +349,10 @@ public class AdminDashBoardController extends BaseController {
             SceneManager.clearSceneData();
             SceneManager.clearCache();
             SessionStorage.clear();
-            
+
             // Clear Login page from cache to force re-initialization
             SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
-            
+
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);

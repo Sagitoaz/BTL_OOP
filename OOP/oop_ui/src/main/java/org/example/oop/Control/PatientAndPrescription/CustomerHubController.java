@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import org.example.oop.Service.CustomerRecordService;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
@@ -27,10 +28,11 @@ import org.miniboot.app.domain.models.CustomerAndPrescription.Prescription;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import org.miniboot.app.domain.models.UserRole;
+import org.example.oop.Control.BaseController;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CustomerHubController implements Initializable {
+public class CustomerHubController extends BaseController implements Initializable {
 
     private List<Customer> allCustomers = new ArrayList<>(); // ✅ Khởi tạo để tránh NullPointerException
     @FXML
@@ -48,6 +50,14 @@ public class CustomerHubController implements Initializable {
 
     @FXML
     private TableView<Prescription> examHistoryTable;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     private ObservableList<Prescription> prescriptionRecordsList;
 
@@ -109,10 +119,10 @@ public class CustomerHubController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        if((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN){
+        if ((UserRole) SceneManager.getSceneData("role") != UserRole.ADMIN) {
             editCustomerButton.setDisable(true);
         }
-        if(SceneManager.getSceneData("isModal") != null){
+        if (SceneManager.getSceneData("isModal") != null) {
             backButton.setDisable(true);
             forwardButton.setDisable(true);
             SceneManager.removeSceneData("isModal");
@@ -151,49 +161,55 @@ public class CustomerHubController implements Initializable {
             }
         });
         examHistoryTable.setOnMouseClicked(event -> {
-            if(event.getClickCount() == 2){
+            if (event.getClickCount() == 2) {
 
                 Prescription selectedPrescription = examHistoryTable.getSelectionModel().getSelectedItem();
-                if(selectedPrescription != null){
+                if (selectedPrescription != null) {
 
                     SceneManager.removeSceneData("prescription");
                     SceneManager.removeSceneData("nameCustomer");
                     SceneManager.setSceneData("prescription", selectedPrescription);
                     SceneManager.setSceneData("nameCustomer", customerNameLabel.getText());
-                    SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML, SceneConfig.Titles.PRESCRIPTION_EDITOR, ()->{
-                        // Reload prescriptions after closing editor
-                        SceneManager.removeSceneData("prescription");
-                        SceneManager.removeSceneData("nameCustomer");
-                        if(SceneManager.getSceneData("updatedPrescription") != null){
-                            Prescription updatedPrescription = (Prescription) SceneManager.getSceneData("updatedPrescription");
-                            // Cập nhật lại trong bảng
-                            int index = prescriptionRecordsList.indexOf(selectedPrescription);
-                            if(index >=0 ){
-                                prescriptionRecordsList.set(index, updatedPrescription);
-                            }
-                            SceneManager.removeSceneData("updatedPrescription");
+                    SceneManager.openModalWindow(SceneConfig.PRESCRIPTION_EDITOR_FXML,
+                            SceneConfig.Titles.PRESCRIPTION_EDITOR, () -> {
+                                // Reload prescriptions after closing editor
+                                SceneManager.removeSceneData("prescription");
+                                SceneManager.removeSceneData("nameCustomer");
+                                if (SceneManager.getSceneData("updatedPrescription") != null) {
+                                    Prescription updatedPrescription = (Prescription) SceneManager
+                                            .getSceneData("updatedPrescription");
+                                    // Cập nhật lại trong bảng
+                                    int index = prescriptionRecordsList.indexOf(selectedPrescription);
+                                    if (index >= 0) {
+                                        prescriptionRecordsList.set(index, updatedPrescription);
+                                    }
+                                    SceneManager.removeSceneData("updatedPrescription");
 
-                        }
-                    });
+                                }
+                            });
                 }
             }
         });
     }
+
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
+
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
     }
-    
+
     /**
      * Enable selection mode - khi đóng dialog sẽ trả về selected customer
+     * 
      * @param callback Function sẽ được gọi với selected customer
      */
     public void setSelectionMode(Consumer<Customer> callback) {
@@ -201,7 +217,7 @@ public class CustomerHubController implements Initializable {
         this.onCustomerSelectedCallback = callback;
         System.out.println("✅ CustomerHub: Selection mode enabled");
     }
-    
+
     /**
      * Get selected customer (for manual retrieval)
      */
@@ -220,16 +236,14 @@ public class CustomerHubController implements Initializable {
             }
         });
 
-        appointmentIdCollumn.setCellValueFactory(cellData ->
-            new SimpleIntegerProperty(cellData.getValue().getAppointmentId()).asObject());
+        appointmentIdCollumn.setCellValueFactory(
+                cellData -> new SimpleIntegerProperty(cellData.getValue().getAppointmentId()).asObject());
 
-        chiefComplaintCollumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getChiefComplaint() != null ?
-                cellData.getValue().getChiefComplaint() : ""));
+        chiefComplaintCollumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().getChiefComplaint() != null ? cellData.getValue().getChiefComplaint() : ""));
 
-        diagnosisCollumn.setCellValueFactory(cellData ->
-            new SimpleStringProperty(cellData.getValue().getDiagnosis() != null ?
-                cellData.getValue().getDiagnosis() : ""));
+        diagnosisCollumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().getDiagnosis() != null ? cellData.getValue().getDiagnosis() : ""));
 
         // Set items cho table
         examHistoryTable.setItems(prescriptionRecordsList);
@@ -238,28 +252,34 @@ public class CustomerHubController implements Initializable {
     private void setCurrentListCustomer() {
         customerListView.setItems(customerRecordsList);
     }
+
     private void loadCustomerData() {
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải dữ liệu bệnh nhân...");
         CustomerRecordService.getInstance().getAllCustomersAsync(
-            customers -> {
-                // SUCCESS callback - chạy trong UI Thread
-                customerRecordsList.clear();
-                allCustomers = customers;
-                customerRecordsList.addAll(customers);
-                setCurrentListCustomer();
+                customers -> {
+                    // SUCCESS callback - chạy trong UI Thread
+                    customerRecordsList.clear();
+                    allCustomers = customers;
+                    customerRecordsList.addAll(customers);
+                    setCurrentListCustomer();
 
-                // ✅ Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
-                isInitializing = false;
+                    // ✅ Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
+                    isInitializing = false;
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Tải thành công " + customers.size() + " bệnh nhân!");
 
-                System.out.println("✅ Loaded " + customers.size() + " customers - Ready for user interaction");
-            },
-            error -> {
-                // ERROR callback - handle error gracefully
-                System.err.println("❌ Error loading customers: " + error);
-                isInitializing = false; // ✅ Vẫn set false ngay cả khi lỗi
-                // Có thể show alert nếu cần
-                showErrorAlert("Lỗi tải dữ liệu", error);
-            }
-        );
+                    System.out.println("✅ Loaded " + customers.size() + " customers - Ready for user interaction");
+                },
+                error -> {
+                    // ERROR callback - handle error gracefully
+                    System.err.println("❌ Error loading customers: " + error);
+                    isInitializing = false; // ✅ Vẫn set false ngay cả khi lỗi
+                    showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "❌ Lỗi: " + error);
+                    // Có thể show alert nếu cần
+                    showErrorAlert("Lỗi tải dữ liệu", error);
+                });
     }
 
     private void loadPrescriptionsForCustomer(Customer customer) {
@@ -273,10 +293,10 @@ public class CustomerHubController implements Initializable {
             prescriptionRecordsList.clear();
             return;
         }
-        if(cachedPrescriptions.containsKey(customer.getId())){
+        if (cachedPrescriptions.containsKey(customer.getId())) {
             prescriptionRecordsList.clear();
             prescriptionRecordsList.addAll(cachedPrescriptions.get(customer.getId()));
-            if(prescriptionRecordsList.size() > MAX_CACHE_SIZE){
+            if (prescriptionRecordsList.size() > MAX_CACHE_SIZE) {
                 // Simple cache eviction: remove oldest entry
                 Integer firstKey = cachedPrescriptions.keySet().iterator().next();
                 cachedPrescriptions.remove(firstKey);
@@ -293,17 +313,17 @@ public class CustomerHubController implements Initializable {
                     return;
                 }
 
-                List<Prescription> prescriptions = prescriptionService.getPrescriptionByCustomer_id(customer.getId()).getData();
+                List<Prescription> prescriptions = prescriptionService.getPrescriptionByCustomer_id(customer.getId())
+                        .getData();
 
                 // Check if task was cancelled before updating UI
                 if (!Thread.currentThread().isInterrupted() && !currentPrescriptionTask.isCancelled()) {
                     Platform.runLater(() -> {
                         prescriptionRecordsList.clear();
-                        if(prescriptions != null){
+                        if (prescriptions != null) {
                             prescriptionRecordsList.addAll(prescriptions);
                             cachedPrescriptions.put(customer.getId(), prescriptions);
-                        }
-                        else{
+                        } else {
                             cachedPrescriptions.put(customer.getId(), new ArrayList<>());
                         }
 
@@ -320,7 +340,6 @@ public class CustomerHubController implements Initializable {
         });
     }
 
-
     @FXML
     private void applyFilters(ActionEvent event) {
         String search = searchField.getText();
@@ -336,28 +355,28 @@ public class CustomerHubController implements Initializable {
             if (search != null && !search.isEmpty()) {
                 String lowerSearch = search.toLowerCase();
                 if (!(customer.getFirstname().toLowerCase().contains(lowerSearch) ||
-                      customer.getLastname().toLowerCase().contains(lowerSearch) ||
-                      (customer.getPhone() != null && customer.getPhone().equalsIgnoreCase(lowerSearch)))) {
+                        customer.getLastname().toLowerCase().contains(lowerSearch) ||
+                        (customer.getPhone() != null && customer.getPhone().equalsIgnoreCase(lowerSearch)))) {
                     matches = false;
-                    try{
+                    try {
                         Integer searchId = Integer.parseInt(search);
-                        if(customer.getId() != searchId){
+                        if (customer.getId() != searchId) {
                             matches = false;
                         } else {
                             matches = true;
                         }
-                    } catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         // Ignore parse error
                     }
                 }
             }
-            if(gender != null && customer.getGender() != gender){
+            if (gender != null && customer.getGender() != gender) {
                 matches = false;
             }
-            if(dobFrom != null && (customer.getDob() == null || customer.getDob().isBefore(dobFrom))){
+            if (dobFrom != null && (customer.getDob() == null || customer.getDob().isBefore(dobFrom))) {
                 matches = false;
             }
-            if(dobTo != null && (customer.getDob() == null || customer.getDob().isAfter(dobTo))) {
+            if (dobTo != null && (customer.getDob() == null || customer.getDob().isAfter(dobTo))) {
                 matches = false;
             }
             if (matches) {
@@ -366,7 +385,6 @@ public class CustomerHubController implements Initializable {
         }
         setCurrentListCustomer();
     }
-
 
     @FXML
     private void resetFilters(ActionEvent event) {
@@ -388,12 +406,13 @@ public class CustomerHubController implements Initializable {
     private void setCurrentCustomer(Customer pr) {
         // Store selected customer for callback
         this.selectedCustomerForCallback = pr;
-        
+
         // Trigger callback nếu đang ở selection mode
         if (selectionMode && pr != null && onCustomerSelectedCallback != null) {
-            System.out.println("✅ Customer selected in selection mode: " + pr.getFullName() + " (ID: " + pr.getId() + ")");
+            System.out.println(
+                    "✅ Customer selected in selection mode: " + pr.getFullName() + " (ID: " + pr.getId() + ")");
         }
-        
+
         if (pr == null) {
             customerNameLabel.setText("[CHỌN BỆNH NHÂN]");
             customerIdValueLabel.setText("...");
@@ -420,49 +439,44 @@ public class CustomerHubController implements Initializable {
             notesArea.setText(pr.getNote() != null ? pr.getNote() : "");
         }
     }
+
     @FXML
-    private void onAddCustomerButton(){
+    private void onAddCustomerButton() {
 
-            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
+        SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
+        if (SceneManager.getSceneData("newCustomer") != null) {
+            Customer newCustomer = (Customer) SceneManager.getSceneData("newCustomer");
+            customerRecordsList.add(newCustomer);
+            setCurrentListCustomer();
+            SceneManager.removeSceneData("newCustomer");
 
-
-            if(SceneManager.getSceneData("newCustomer")!= null){
-                Customer newCustomer = (Customer) SceneManager.getSceneData("newCustomer");
-                customerRecordsList.add(newCustomer);
-                setCurrentListCustomer();
-                SceneManager.removeSceneData("newCustomer");
-
-            }
+        }
 
     }
 
     @FXML
     private void handleEditCustomer(ActionEvent event) {
 
-            if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
-                showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi Chỉnh sửa bệnh nhân");
-                return;
-            }
-            Customer selectedCustomer = customerListView.getSelectionModel().getSelectedItem();
-            SceneManager.removeSceneData("selectedCustomer");
-             SceneManager.setSceneData("selectedCustomer", selectedCustomer);
-            SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
+        if (customerNameLabel.getText().equalsIgnoreCase("[CHỌN BỆNH NHÂN]")) {
+            showErrorAlert("Cảnh báo", "Vui lòng chọn bệnh nhân trước khi Chỉnh sửa bệnh nhân");
+            return;
+        }
+        Customer selectedCustomer = customerListView.getSelectionModel().getSelectedItem();
+        SceneManager.removeSceneData("selectedCustomer");
+        SceneManager.setSceneData("selectedCustomer", selectedCustomer);
+        SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
 
-
-
-            if(SceneManager.getSceneData("updatedCustomer")!= null){
-                int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
-                Customer updatedPatient = (Customer) SceneManager.getSceneData("updatedCustomer");
-                setCurrentCustomer(updatedPatient);
-                customerRecordsList.set(selectedIndex, updatedPatient);
-                setCurrentListCustomer();
-                SceneManager.removeSceneData("updatedCustomer");
-            }
+        if (SceneManager.getSceneData("updatedCustomer") != null) {
+            int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
+            Customer updatedPatient = (Customer) SceneManager.getSceneData("updatedCustomer");
+            setCurrentCustomer(updatedPatient);
+            customerRecordsList.set(selectedIndex, updatedPatient);
+            setCurrentListCustomer();
+            SceneManager.removeSceneData("updatedCustomer");
+        }
 
     }
-
-
 
     public static void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);

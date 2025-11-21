@@ -144,12 +144,20 @@ public class HttpAppointmentService {
             String jsonBody = gson.toJson(appointment);
             System.out.println("Sending JSON: " + jsonBody);
 
-            HttpRequest request = requestBuilder(baseUrl + "/appointments")
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/appointments"))
                     .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
+                    .header("Accept", "application/json");
+            
+            // ✅ Add Authorization header if token exists
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                requestBuilder.header("Authorization", "Bearer " + bearerToken);
+                System.out.println("✅ Added Authorization header to create appointment request");
+            }
+            
+            HttpRequest request = requestBuilder.build();
+
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
 
@@ -175,7 +183,7 @@ public class HttpAppointmentService {
         try {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
 
-            HttpRequest request = requestBuilder(url)
+            HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
@@ -260,7 +268,7 @@ public class HttpAppointmentService {
             System.out.println("🔍 Calling API: " + url);
 
             // Execute request
-            HttpRequest request = requestBuilder(url.toString())
+            HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url.toString()))
                     .GET()
                     .header("Accept", "application/json")
@@ -294,7 +302,7 @@ public class HttpAppointmentService {
             String url = String.format("%s/appointments?doctorId=%d&fromDate=%s&toDate=%s",
                     baseUrl, doctorId, fromDate.toString(), toDate.toString());
 
-            HttpRequest request = requestBuilder(url)
+            HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .GET()
                     .header("Accept", "application/json")
@@ -328,12 +336,18 @@ public class HttpAppointmentService {
             String jsonBody = gson.toJson(appointment);
             System.out.println("📤 Updating appointment: " + jsonBody);
 
-            HttpRequest request = requestBuilder(baseUrl+ "/appointments")
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/appointments"))
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .build();
+                    .header("Accept", "application/json");
+            
+            // ✅ Add Authorization header if token exists
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                requestBuilder.header("Authorization", "Bearer " + bearerToken);
+            }
+            
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());
@@ -362,10 +376,16 @@ public class HttpAppointmentService {
             String url = String.format("%s/appointments?id=%d", baseUrl, id);
             System.out.println("📤 Deleting appointment: " + id);
 
-            HttpRequest request = requestBuilder(url)
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .DELETE()
-                    .build();
+                    .DELETE();
+            
+            // ✅ Add Authorization header if token exists
+            if (bearerToken != null && !bearerToken.isEmpty()) {
+                requestBuilder.header("Authorization", "Bearer " + bearerToken);
+            }
+            
+            HttpRequest request = requestBuilder.build();
 
             HttpResponse<String> response = httpClient.send(request,
                     HttpResponse.BodyHandlers.ofString());

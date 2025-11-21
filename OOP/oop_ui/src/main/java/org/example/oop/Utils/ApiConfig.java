@@ -69,6 +69,7 @@ public class ApiConfig {
 
      // Doctors
      public static final String DOCTORS = "/doctors";
+     public static final String DOCTOR_SCHEDULES = "/doctor-schedules";
 
      // Appointments
      public static final String APPOINTMENTS = "/appointments";

@@ -27,12 +27,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 public class EmployeeManagementController extends BaseController implements Initializable {
@@ -95,6 +97,15 @@ public class EmployeeManagementController extends BaseController implements Init
     // ====== Delete Button ======
     @FXML
     private Button deleteButton;
+
+    // ==================== LOADING STATUS ====================
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
+
     private FilteredList<Employee> filtered;
     private SortedList<Employee> sorted;
 
@@ -214,6 +225,8 @@ public class EmployeeManagementController extends BaseController implements Init
 
     private void loadEmployees() {
         statusLabel.setText("Đang tải dữ liệu...");
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải nhân viên...");
         executeAsync(
                 () -> {
                     try {
@@ -228,6 +241,8 @@ public class EmployeeManagementController extends BaseController implements Init
                     applyFilters();
                     updateCounters((List<Employee>) list);
                     statusLabel.setText("Đã tải " + list.size() + " bản ghi");
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Đã tải " + list.size() + " nhân viên");
                 });
     }
 
