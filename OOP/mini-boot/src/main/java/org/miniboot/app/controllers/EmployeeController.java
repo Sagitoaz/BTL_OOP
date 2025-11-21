@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.miniboot.app.auth.PasswordService;
 import org.miniboot.app.domain.models.Employee;
 import org.miniboot.app.domain.repo.Employee.PostgreSQLEmployeeRepository;
 import org.miniboot.app.http.HttpRequest;
@@ -15,7 +16,6 @@ import org.miniboot.app.util.Json;
 import org.miniboot.app.util.errorvalidation.ValidationUtils;
 import org.miniboot.app.util.errorvalidation.DatabaseErrorHandler;
 import org.miniboot.app.util.errorvalidation.RateLimiter;
-
 public class EmployeeController {
      private final PostgreSQLEmployeeRepository repository;
 
@@ -145,10 +145,9 @@ public class EmployeeController {
 
                     // Validate role (422 - Unprocessable Entity)
                     String roleLower = role.toLowerCase();
-                    if (!roleLower.equals("doctor") && !roleLower.equals("nurse") &&
-                              !roleLower.equals("admin") && !roleLower.equals("receptionist")) {
+                    if (!roleLower.equals("doctor") && !roleLower.equals("nurse")) {
                          return ValidationUtils.error(422, "INVALID_ROLE",
-                                   "Invalid role. Must be: doctor, nurse, admin, or receptionist");
+                                   "Invalid role. Must be: doctor or nurse");
                     }
 
                     // Check duplicate username (409 Conflict)
@@ -207,6 +206,12 @@ public class EmployeeController {
                     employee.setPhone(phone);
                     employee.setAvatar((String) data.get("avatar"));
                     employee.setActive(data.containsKey("active") ? (Boolean) data.get("active") : true);
+
+                    // Set gender from request body
+                    String gender = (String) data.get("gender");
+                    if (gender != null && !gender.trim().isEmpty()) {
+                         employee.setGender(gender);
+                    }
 
                     // Save to database
                     Employee saved;
@@ -328,10 +333,9 @@ public class EmployeeController {
                          String newRole = getStr.apply("role");
                          if (newRole != null) {
                               String roleLower = newRole.toLowerCase();
-                              if (!roleLower.equals("doctor") && !roleLower.equals("nurse") &&
-                                        !roleLower.equals("admin") && !roleLower.equals("receptionist")) {
+                              if (!roleLower.equals("doctor") && !roleLower.equals("nurse")) {
                                    return ValidationUtils.error(422, "INVALID_ROLE",
-                                             "Invalid role. Must be: doctor, nurse, admin, or receptionist");
+                                             "Invalid role. Must be: doctor or nurse");
                               }
                               employee.setRole(newRole);
                     // Validate and update gender if provided (422 - Unprocessable Entity)

@@ -6,7 +6,6 @@ import org.example.oop.Control.BaseController;
 import org.example.oop.Service.HttpEmployeeService;
 import org.miniboot.app.domain.models.Employee;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -218,10 +217,9 @@ public class EmployeeFormController extends BaseController {
             return;
         }
 
-        String hashedPassword = BCrypt.withDefaults().hashToString(12, password.toCharArray());
         Employee newEmployee = new Employee();
         newEmployee.setUsername(username);
-        newEmployee.setPassword(hashedPassword);
+        newEmployee.setPassword(password); // Backend will handle hashing
         newEmployee.setFirstname(firstname);
         newEmployee.setLastname(lastname);
         newEmployee.setEmail(email);

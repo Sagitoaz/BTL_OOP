@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.miniboot.app.auth.PasswordService;
 import org.miniboot.app.config.DatabaseConfig;
 import org.miniboot.app.domain.models.Employee;
-
-import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class PostgreSQLEmployeeRepository implements EmployeeRepository {
 
@@ -124,7 +123,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                             username, password, firstname, lastname, gender,
                             avatar, role, license_no, email, phone, is_active
                         )
-                        VALUES (?, ?, ?, ?, ?::gender_enum, ?, ?::employee_role, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?::gender_emp, ?, ?::employee_role, ?, ?, ?, ?)
                         RETURNING id
                     """;
           try (Connection conn = dbConfig.getConnection();
@@ -141,14 +140,15 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                     requireNonBlank(employee.getLicenseNo(), "license_no (bắt buộc với bác sĩ)");
                }
 
-               String hashedPassword = hashPassword(employee.getPassword());
+               // ✅ Hash password using SHA-256 with salt (same format as signup)
+               String hashedPassword = PasswordService.hashPasswordWithSalt(employee.getPassword());
 
                pstmt.setString(1, employee.getUsername());
                pstmt.setString(2, hashedPassword);
                pstmt.setString(3, employee.getFirstname());
                pstmt.setString(4, employee.getLastname());
 
-               // Gender - parameter 5 (ngay sau lastname theo đúng schema database)
+               // Gender - parameter 5
                if (employee.getGender() != null && !employee.getGender().isBlank())
                     pstmt.setString(5, employee.getGender().toUpperCase());
                else
@@ -209,7 +209,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                         SET
                             firstname = ?,
                             lastname = ?,
-                            gender = ?::gender_enum,
+                            gender = ?::gender_emp,
                             avatar = ?,
                             role = ?::employee_role,
                             license_no = ?,
@@ -229,9 +229,9 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                pstmt.setString(1, employee.getFirstname());
                pstmt.setString(2, employee.getLastname());
 
-               // Gender - parameter 3
+               // Gender - parameter 3 - ✅ FIX: Removed ::gender_enum cast (enum doesn't exist in DB)
                if (employee.getGender() != null && !employee.getGender().isBlank())
-                    pstmt.setString(3, employee.getGender().toUpperCase());
+                    pstmt.setString(3, employee.getGender());
                else
                     pstmt.setNull(3, java.sql.Types.VARCHAR);
 
@@ -359,6 +359,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
           emp.setUsername(rs.getString("username"));
           emp.setFirstname(rs.getString("firstname"));
           emp.setLastname(rs.getString("lastname"));
+          emp.setGender(rs.getString("gender"));
           emp.setAvatar(rs.getString("avatar"));
           emp.setRole(rs.getString("role"));
           emp.setLicenseNo(rs.getString("license_no"));
@@ -370,11 +371,6 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                emp.setCreatedAt(timestamp.toLocalDateTime());
           }
           return emp;
-     }
-
-     /** PASSWORD HASHING */
-     private String hashPassword(String plainPassword) {
-          return BCrypt.withDefaults().hashToString(10, plainPassword.toCharArray());
      }
 
      /** CHANGE PASSWORD */
@@ -397,3 +393,4 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
           return false;
      }
 }
+

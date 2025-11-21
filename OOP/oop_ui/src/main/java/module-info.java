@@ -11,19 +11,28 @@ module org.example.oop {
     requires java.desktop;
     requires java.net.http;
 
-    // ========== BCrypt & Jackson ==========
-    requires bcrypt;
-    requires com.fasterxml.jackson.annotation;
-
     // ========== Mini-boot Module ==========
     // NOTE: mini-boot is loaded as automatic module from classpath
-    // This avoids conflicts with shaded dependencies
+    // This includes all shaded dependencies (bcrypt, jackson, gson, etc.)
     requires mini.boot;
+
+    // ========== Exports ==========
+    exports org.example.oop;
+    exports org.example.oop.Control;
+    exports org.example.oop.Control.Employee;
+    exports org.example.oop.Control.Schedule;
+    exports org.example.oop.Control.DashBoard;
+    exports org.example.oop.Control.PatientAndPrescription;
+    exports org.example.oop.Control.Inventory;
+    exports org.example.oop.Control.PaymentControl;
+    exports org.example.oop.Model;
+    exports org.example.oop.Service;
+    exports org.example.oop.Utils;
+    exports org.example.oop.config;
     // Gson is available through mini.boot (shaded)
     requires com.google.gson;
 
     // ========== Opens for JavaFX FXML ==========
-    exports org.example.oop to javafx.graphics;
     opens org.example.oop to javafx.fxml;
     opens org.example.oop.Control to javafx.fxml;
     opens org.example.oop.Control.Employee to javafx.fxml;
