@@ -191,6 +191,38 @@ public class UserDAO {
     }
 
     /**
+     * Dùng cho forgot password
+     */
+    public Optional<UserRecord> findCustomerByEmail(String email) throws SQLException {
+        String sql = "SELECT id, username, firstname, lastname, email, phone " +
+                    "FROM Customers WHERE email = ?";
+
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                UserRecord record = new UserRecord();
+                record.id = rs.getInt("id");
+                record.username = rs.getString("username");
+                record.email = email;
+                record.role = "CUSTOMER";
+                record.fullName = rs.getString("firstname") + " " + rs.getString("lastname");
+                record.phone = rs.getString("phone");
+                record.active = true;
+                return Optional.of(record);
+            }
+
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Lưu customer mới vào database với đầy đủ thông tin
      */
     public boolean saveCustomer(String username, String hashedPassword, String firstname,
@@ -276,6 +308,32 @@ public class UserDAO {
 
             if (rows > 0) {
                 LOGGER.info("✓ Password updated for user ID: " + userId);
+                return true;
+            }
+
+        } catch (SQLException e) {
+            throw new SQLException(e);
+        }
+
+        return false;
+    }
+
+    /**
+     * Dùng cho forgot password
+     */
+    public boolean updateCustomerPassword(int customerId, String newHashedPassword) throws SQLException {
+        String sql = "UPDATE Customers SET password = ? WHERE id = ?";
+
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, newHashedPassword);
+            stmt.setInt(2, customerId);
+
+            int rows = stmt.executeUpdate();
+
+            if (rows > 0) {
+                LOGGER.info("✓ Customer password updated for ID: " + customerId);
                 return true;
             }
 

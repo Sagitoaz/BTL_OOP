@@ -177,6 +177,7 @@ public class ForgotPasswordController {
         String token = tokenField.getText().trim();
         String newPassword = newPasswordField.getText();
         String confirmPassword = confirmPasswordField.getText();
+        String email = emailField.getText().trim();
 
         // Validate
         if (token.isEmpty()) {
@@ -199,8 +200,8 @@ public class ForgotPasswordController {
             return;
         }
 
-        // Gọi AuthServiceWrapper để reset
-        boolean success = AuthServiceWrapper.resetPassword(token, newPassword);
+        // Gọi method MỚI: resetPasswordWithCode(email, code, newPassword)
+        boolean success = AuthServiceWrapper.resetPasswordWithCode(email, token, newPassword);
 
         if (success) {
             setSuccessMessage("✓ Đặt lại mật khẩu thành công!");
@@ -215,7 +216,7 @@ public class ForgotPasswordController {
             // Chuyển về Login
             backToLogin(event);
         } else {
-            setErrorMessage("Mã xác nhận không hợp lệ hoặc đã hết hạn");
+            setErrorMessage("Mã xác nhận không hợp lệ hoặc đã hết hạn (15 phút).\nVui lòng yêu cầu mã mới.");
         }
     }
 
@@ -232,4 +233,3 @@ public class ForgotPasswordController {
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 }
-

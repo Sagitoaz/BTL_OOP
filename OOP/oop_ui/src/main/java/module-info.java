@@ -29,8 +29,6 @@ module org.example.oop {
     exports org.example.oop.Service;
     exports org.example.oop.Utils;
     exports org.example.oop.config;
-    // Gson is available through mini.boot (shaded)
-    requires com.google.gson;
 
     // ========== Opens for JavaFX FXML ==========
     opens org.example.oop to javafx.fxml;

@@ -3,6 +3,7 @@ package org.miniboot.app.auth;
 import org.miniboot.app.dao.UserDAO;
 import org.miniboot.app.dao.UserDAO.UserRecord;
 
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -77,6 +78,7 @@ public class AuthService {
             return Optional.empty();
         }
     }
+
     public String findByUsername(String username) {
         try {
             // Tìm user từ DATABASE
@@ -94,6 +96,7 @@ public class AuthService {
             return null;
         }
     }
+
     public String updatePassword(int userId, String userType, String newHashedPassword) throws SQLException {
         try {
             boolean updated = userDAO.updatePassword(userId, userType, newHashedPassword);
@@ -115,11 +118,10 @@ public class AuthService {
      */
     public String authenticate(String username, String password) throws Exception {
         // Tìm user từ DATABASE
-        Optional<UserRecord> userOpt = Optional.empty();
-        try{
+        Optional<UserRecord> userOpt;
+        try {
             userOpt = userDAO.findByUsername(username);
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             // Exception khi kết nối DB
             throw new SQLException(e);
         }
@@ -143,7 +145,7 @@ public class AuthService {
         // Generate JWT token
         String token = JwtService.generateToken(username);
         System.out.println("🔑 [AuthService] Generated JWT for user: " + username);
-        System.out.println("🔑 [AuthService] Token (first 30 chars): " + 
+        System.out.println("🔑 [AuthService] Token (first 30 chars): " +
             (token.length() > 30 ? token.substring(0, 30) + "..." : token));
 
         LOGGER.info("Authentication successful: " + username + " (" + user.role + ")");
@@ -178,13 +180,11 @@ public class AuthService {
         sessionManager.invalidateSession(sessionId);
 
         // Xóa khỏi database
-        try{
+        try {
             userDAO.deleteSession(sessionId);
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
             throw new SQLException(e);
         }
-
 
         LOGGER.info("User logged out: sessionId=" + sessionId);
     }
@@ -208,78 +208,155 @@ public class AuthService {
     }
 
     /**
-     * Yêu cầu reset mật khẩu
-     * Tạo token và lưu vào database
+     * Yêu cầu reset mật khẩu cho CUSTOMER - Tạo mã xác nhận gửi qua email
+     * CHỈ TÌM TRONG BẢNG CUSTOMERS (tránh trùng email với Employee/Admin)
+     * TẠO MÃ XÁC NHẬN 6 SỐ VÀ GỬI QUA EMAIL
      */
     public String requestPasswordReset(String email) {
         try {
-            // Tìm user theo email từ DATABASE
-            Optional<UserRecord> userOpt = userDAO.findByEmail(email);
+            // CHỈ tìm trong bảng Customers (không tìm Employee/Admin)
+            Optional<UserRecord> customerOpt = userDAO.findCustomerByEmail(email);
 
-            if (userOpt.isEmpty()) {
-                LOGGER.warning("Password reset failed: Email not found - " + email);
+            if (customerOpt.isEmpty()) {
+                LOGGER.warning("Password reset failed: Customer email not found - " + email);
                 return null;
             }
 
-            UserRecord user = userOpt.get();
+            // Tạo mã xác nhận 6 số ngẫu nhiên (VD: 123456)
+            String verificationCode = generateVerificationCode();
 
-            // Tạo token ngẫu nhiên
-            String token = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            // Lưu mã xác nhận vào bộ nhớ tạm với thời gian hết hạn 15 phút
+            saveVerificationCode(email, verificationCode, 15);
 
-            // Lưu token vào DATABASE với thời gian hết hạn 15 phút
-            boolean saved = userDAO.savePasswordResetToken(token, user.id, user.role, 15);
+            LOGGER.info("✓ Verification code created for customer: " + email);
 
-            if (saved) {
-                LOGGER.info("Password reset token created for: " + email);
-                return token;
-            } else {
-                LOGGER.warning("Failed to save reset token");
-                return null;
-            }
+            // Trả về mã xác nhận để gửi qua email
+            return verificationCode;
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating reset token", e);
+            LOGGER.log(Level.SEVERE, "Error creating verification code", e);
             return null;
         }
     }
 
     /**
-     * Reset mật khẩu với token
-     * Validate token từ database và cập nhật password
+     * Xác thực mã và đổi mật khẩu mới
+     * @param email Email của customer
+     * @param verificationCode Mã xác nhận 6 số
+     * @param newPassword Mật khẩu mới
+     * @return true nếu thành công, false nếu thất bại
      */
-    public boolean resetPassword(String token, String newPassword) {
+    public boolean resetPasswordWithCode(String email, String verificationCode, String newPassword) {
         try {
-            // Validate token từ DATABASE
-            Optional<UserRecord> userOpt = userDAO.validateResetToken(token);
-
-            if (userOpt.isEmpty()) {
-                LOGGER.warning("Invalid or expired reset token: " + token);
+            // Kiểm tra mã xác nhận có hợp lệ không
+            if (!verifyVerificationCode(email, verificationCode)) {
+                LOGGER.warning("Invalid or expired verification code for: " + email);
                 return false;
             }
 
-            UserRecord user = userOpt.get();
+            // Tìm customer theo email
+            Optional<UserRecord> customerOpt = userDAO.findCustomerByEmail(email);
+            if (customerOpt.isEmpty()) {
+                return false;
+            }
 
-            // Hash password mới với bcrypt
+            UserRecord customer = customerOpt.get();
+
+            // Hash và cập nhật mật khẩu mới
             String hashedPassword = PasswordService.hashPasswordWithSalt(newPassword);
-
-            // Cập nhật password trong DATABASE
-            boolean updated = userDAO.updatePassword(user.id, user.role, hashedPassword);
+            boolean updated = userDAO.updateCustomerPassword(customer.id, hashedPassword);
 
             if (updated) {
-                // Đánh dấu token đã sử dụng
-                userDAO.markTokenAsUsed(token);
-
-                LOGGER.info("Password reset successful for user ID: " + user.id);
+                // Xóa mã xác nhận sau khi dùng xong
+                removeVerificationCode(email);
+                LOGGER.info("✓ Password reset successful for customer: " + email);
                 return true;
-            } else {
-                LOGGER.warning("Failed to update password");
-                return false;
             }
 
+            return false;
+
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error resetting password", e);
+            LOGGER.log(Level.SEVERE, "Error resetting password with code", e);
             return false;
         }
+    }
+
+    /**
+     * Tạo mã xác nhận 6 số ngẫu nhiên
+     */
+    private String generateVerificationCode() {
+        SecureRandom random = new SecureRandom();
+        int code = 100000 + random.nextInt(900000); // Số từ 100000 đến 999999
+        return String.valueOf(code);
+    }
+
+    // ========== BỘ NHỚ TẠM LƯU MÃ XÁC NHẬN ==========
+    // Map<email, VerificationData>
+    private static final Map<String, VerificationData> verificationCodes = new HashMap<>();
+
+    private static class VerificationData {
+        String code;
+        long expiryTime; // timestamp khi hết hạn
+
+        VerificationData(String code, long expiryTime) {
+            this.code = code;
+            this.expiryTime = expiryTime;
+        }
+    }
+
+    /**
+     * Lưu mã xác nhận vào bộ nhớ tạm
+     */
+    private void saveVerificationCode(String email, String code, int expiryMinutes) {
+        long expiryTime = System.currentTimeMillis() + (expiryMinutes * 60 * 1000);
+        verificationCodes.put(email.toLowerCase(), new VerificationData(code, expiryTime));
+
+        LOGGER.info("Saved verification code for: " + email + " (expires in " + expiryMinutes + " minutes)");
+    }
+
+    /**
+     * Kiểm tra mã xác nhận có hợp lệ không
+     */
+    private boolean verifyVerificationCode(String email, String code) {
+        VerificationData data = verificationCodes.get(email.toLowerCase());
+
+        if (data == null) {
+            LOGGER.warning("No verification code found for: " + email);
+            return false;
+        }
+
+        // Kiểm tra hết hạn chưa
+        if (System.currentTimeMillis() > data.expiryTime) {
+            verificationCodes.remove(email.toLowerCase());
+            LOGGER.warning("Verification code expired for: " + email);
+            return false;
+        }
+
+        // Kiểm tra mã có đúng không
+        boolean valid = data.code.equals(code);
+        if (!valid) {
+            LOGGER.warning("Invalid verification code for: " + email);
+        }
+
+        return valid;
+    }
+
+    /**
+     * Xóa mã xác nhận sau khi dùng xong
+     */
+    private void removeVerificationCode(String email) {
+        verificationCodes.remove(email.toLowerCase());
+        LOGGER.info("Removed verification code for: " + email);
+    }
+
+    /**
+     * Reset mật khẩu với token
+     * DEPRECATED - Không dùng nữa
+     */
+    @Deprecated
+    public boolean resetPassword(String token, String newPassword) {
+        LOGGER.warning("resetPassword(token, password) is deprecated. Use resetPasswordWithCode(email, code, newPassword) instead.");
+        return false;
     }
 
     /**
@@ -375,3 +452,4 @@ public class AuthService {
         }
     }
 }
+

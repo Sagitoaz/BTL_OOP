@@ -190,7 +190,9 @@ public class AuthServiceWrapper {
 
     /**
      * Reset mật khẩu bằng token - gọi AuthService.resetPassword()
+     * @deprecated Use resetPasswordWithCode instead
      */
+    @Deprecated
     public static boolean resetPassword(String token, String newPassword) {
         try {
             LOGGER.info("Resetting password with token");
@@ -209,6 +211,36 @@ public class AuthServiceWrapper {
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Password reset failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Reset mật khẩu bằng mã xác nhận - gọi AuthService.resetPasswordWithCode()
+     * @param email Email của customer
+     * @param verificationCode Mã xác nhận 6 số
+     * @param newPassword Mật khẩu mới
+     * @return true nếu thành công, false nếu thất bại
+     */
+    public static boolean resetPasswordWithCode(String email, String verificationCode, String newPassword) {
+        try {
+            LOGGER.info("Resetting password with verification code for email: " + email);
+
+            // Gọi AuthService.resetPasswordWithCode(email, code, newPassword)
+            Method resetMethod = authServiceInstance.getClass().getMethod("resetPasswordWithCode",
+                String.class, String.class, String.class);
+            boolean success = (boolean) resetMethod.invoke(authServiceInstance, email, verificationCode, newPassword);
+
+            if (success) {
+                LOGGER.info("Password reset successful for email: " + email);
+            } else {
+                LOGGER.warning("Password reset failed - invalid or expired code for email: " + email);
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Password reset with code failed", e);
             return false;
         }
     }
