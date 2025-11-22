@@ -201,6 +201,39 @@ public class HttpPaymentService {
         }
     }
 
+    /**
+     * GET /payments/with-status?id={id} - Lấy 1 payment với trạng thái theo ID (Sync)
+     * ✅ TỐI ƯU: Gộp 2 requests (payment + status) thành 1 request duy nhất
+     */
+    public ApiResponse<PaymentWithStatus> getPaymentWithStatusById(int paymentId) {
+        String endpoint = PaymentConfig.GET_PAYMENT_WITH_STATUS_ENDPOINT + "?id=" + paymentId;
+        ApiResponse<String> response = apiClient.get(endpoint);
+
+        if (response.isSuccess()) {
+            if (!ErrorHandler.validateResponse(response.getData(), "Tải thông tin thanh toán")) {
+                return ApiResponse.error("Empty or invalid response");
+            }
+
+            try {
+                // Backend trả về array với 1 phần tử
+                List<PaymentWithStatus> payments = gson.fromJson(response.getData(),
+                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
+                
+                if (payments == null || payments.isEmpty()) {
+                    return ApiResponse.error("Payment not found with ID: " + paymentId);
+                }
+                
+                return ApiResponse.success(payments.get(0), response.getStatusCode());
+            } catch (Exception e) {
+                ErrorHandler.handleJsonParseError(e, "Parse payment with status by ID");
+                return ApiResponse.error("JSON parse error: " + e.getMessage());
+            }
+        } else {
+            ErrorHandler.showUserFriendlyError(response.getStatusCode(), "Không thể tải thông tin thanh toán");
+            return ApiResponse.error(response.getErrorMessage());
+        }
+    }
+
     // ================================
     // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
     // ================================

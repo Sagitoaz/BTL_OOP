@@ -154,31 +154,26 @@ public class PaymentController extends BaseController implements Initializable {
         // loadingSpinner.setVisible(true);
 
         // 5. BỌC CÁC LỆNH GỌI API TRONG executeAsync
+        // ✅ TỐI ƯU: Giảm từ 3 requests xuống còn 2 requests
+        // - Request 1: getPaymentWithStatusById() (gộp payment + status)
+        // - Request 2: getPaymentItemsByPaymentId()
         executeAsync(
                 // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
                 () -> {
-                    // 1. Lấy payment với ApiResponse handling
-                    Payment payment = null;
-                    try {
-                        ApiResponse<Payment> paymentResponse = paymentService.getPaymentById(id);
-                        if (!paymentResponse.isSuccess()) {
-                            throw new RuntimeException("Không thể lấy payment: " + paymentResponse.getErrorMessage());
-                        }
-                        payment = paymentResponse.getData();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                    // 1. ✅ Lấy payment + status trong 1 request duy nhất
+                    ApiResponse<PaymentWithStatus> paymentWithStatusResponse = paymentService.getPaymentWithStatusById(id);
+                    if (!paymentWithStatusResponse.isSuccess()) {
+                        throw new RuntimeException("Không thể lấy thông tin hóa đơn: " + paymentWithStatusResponse.getErrorMessage());
                     }
-                    if (payment == null) {
-                        // Ném lỗi để onError xử lý
+                    
+                    PaymentWithStatus paymentWithStatus = paymentWithStatusResponse.getData();
+                    if (paymentWithStatus == null) {
                         throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
                     }
 
-                    // 2. Lấy trạng thái với ApiResponse handling
-                    ApiResponse<PaymentStatusLog> statusResponse = statusLogService.getCurrentStatusById(payment.getId());
-                    if (!statusResponse.isSuccess()) {
-                        throw new RuntimeException("Không thể lấy trạng thái: " + statusResponse.getErrorMessage());
-                    }
-                    PaymentStatus status = statusResponse.getData().getStatus();
+                    // 2. Lấy payment và status từ object kết hợp
+                    Payment payment = paymentWithStatus.getPayment();
+                    PaymentStatus status = paymentWithStatus.getStatus();
 
                     // 3. Kiểm tra trạng thái
                     if (status == PaymentStatus.PAID) {
@@ -192,7 +187,7 @@ public class PaymentController extends BaseController implements Initializable {
                     // 4. Gán biến global (vẫn an toàn vì onSuccess sẽ đọc sau)
                     currentPayment = payment;
                     
-                    // Lấy items với ApiResponse handling
+                    // 5. Lấy items - chỉ còn 1 request riêng lẻ
                     ApiResponse<List<PaymentItem>> itemsResponse = itemService.getPaymentItemsByPaymentId(id);
                     if (!itemsResponse.isSuccess()) {
                         throw new RuntimeException("Không thể lấy items: " + itemsResponse.getErrorMessage());
