@@ -2,6 +2,8 @@ package org.example.oop.Control.Inventory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -581,19 +583,82 @@ public class StockMovementController extends BaseController {
      }
 
      /**
-      * Button: Export - Export data to Excel/CSV (placeholder)
+      * Button: Export - Export data to Excel
       */
      @FXML
      private void onExportButton() {
           System.out.println("📤 Export button clicked");
 
-          if (statusLabel != null) {
-               statusLabel.setText("⚠️ Export feature coming soon...");
-          }
+          try {
+               if (filteredMovements == null || filteredMovements.isEmpty()) {
+                    showWarning("Không có dữ liệu để xuất!");
+                    if (statusLabel != null) {
+                         statusLabel.setText("⚠️ Không có dữ liệu để xuất");
+                    }
+                    return;
+               }
 
-          // TODO: Implement export to Excel/CSV functionality
-          // For now, just show a message
-          System.out.println("Export functionality not yet implemented");
+               // Prepare headers
+               List<String> headers = Arrays.asList(
+                    "ID", "Sản phẩm", "Loại giao dịch", "Số lượng", 
+                    "Bảng tham chiếu", "ID tham chiếu", "Số lô", "Hạn sử dụng",
+                    "Serial No", "Thời gian", "Người thực hiện", "Ghi chú"
+               );
+
+               // Prepare data
+               List<List<Object>> data = new ArrayList<>();
+               for (StockMovement movement : filteredMovements) {
+                    // Get product name
+                    String productName = "";
+                    int productId = movement.getProductId();
+                    Product product = allProducts.stream()
+                         .filter(p -> p.getId() == productId)
+                         .findFirst()
+                         .orElse(null);
+                    if (product != null) {
+                         productName = product.getName();
+                    }
+
+                    List<Object> row = Arrays.asList(
+                         movement.getId(),
+                         productName,
+                         movement.getMoveType() != null ? movement.getMoveType() : "",
+                         movement.getQty(),
+                         movement.getRefTable() != null ? movement.getRefTable() : "",
+                         movement.getRefId() != null ? movement.getRefId() : "",
+                         movement.getBatchNo() != null ? movement.getBatchNo() : "",
+                         movement.getExpiryDate() != null ? movement.getExpiryDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "",
+                         movement.getSerialNo() != null ? movement.getSerialNo() : "",
+                         movement.getMovedAt() != null ? movement.getMovedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "",
+                         "NV" + movement.getMovedBy(),
+                         movement.getNote() != null ? movement.getNote() : ""
+                    );
+                    data.add(row);
+               }
+
+               // Generate filename and path
+               String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+               org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+               String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("LichSuXuatNhapKho");
+               String fullPath = directory + fileName;
+
+               // Export to Excel
+               org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Lịch sử xuất nhập kho", headers, data);
+
+               showSuccess("Đã xuất lịch sử xuất nhập kho ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+               
+               if (statusLabel != null) {
+                    statusLabel.setText("✅ Đã xuất " + filteredMovements.size() + " giao dịch");
+               }
+
+          } catch (Exception e) {
+               e.printStackTrace();
+               System.err.println("❌ Error exporting: " + e.getMessage());
+               showError("Lỗi xuất file: " + e.getMessage());
+               if (statusLabel != null) {
+                    statusLabel.setText("❌ Lỗi xuất file");
+               }
+          }
      }
 
      // ====================================================================

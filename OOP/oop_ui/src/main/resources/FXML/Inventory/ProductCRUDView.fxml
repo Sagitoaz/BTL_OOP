@@ -76,7 +76,6 @@
                     <Region HBox.hgrow="ALWAYS" />
 
                     <Button fx:id="exportButton" onAction="#onExport" styleClass="export-button" text="📊 Export" />
-                    <Button fx:id="importButton" onAction="#onImport" styleClass="btn-import" text="📥 Import" />
                 </children>
             </HBox>
         </VBox>

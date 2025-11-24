@@ -112,6 +112,8 @@ public class CustomerHubController extends BaseController implements Initializab
     private Button reloadButton;
     @FXML
     private Button editCustomerButton;
+    @FXML
+    private Button exportButton;
 
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
@@ -490,6 +492,57 @@ public class CustomerHubController extends BaseController implements Initializab
     public void cleanup() {
         if (currentPrescriptionTask != null && !currentPrescriptionTask.isDone()) {
             currentPrescriptionTask.cancel(true);
+        }
+    }
+    
+    @FXML
+    private void onExportButton() {
+        try {
+            if (customerRecordsList == null || customerRecordsList.isEmpty()) {
+                showWarning("Không có dữ liệu để xuất!");
+                return;
+            }
+            
+            // Prepare headers
+            java.util.List<String> headers = java.util.Arrays.asList(
+                "ID", "Họ tên", "Ngày sinh", "Giới tính", 
+                "Tuổi", "Địa chỉ", "Điện thoại", "Email", "Ghi chú"
+            );
+            
+            // Prepare data
+            java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
+            for (Customer customer : customerRecordsList) {
+                int age = customer.getDob() != null ? 
+                    java.time.Period.between(customer.getDob(), LocalDate.now()).getYears() : 0;
+                    
+                java.util.List<Object> row = java.util.Arrays.asList(
+                    customer.getId(),
+                    customer.getFullName(),
+                    customer.getDob() != null ? customer.getDob() : "",
+                    customer.getGender() != null ? customer.getGender().toString() : "",
+                    age,
+                    customer.getAddress() != null ? customer.getAddress() : "",
+                    customer.getPhone() != null ? customer.getPhone() : "",
+                    customer.getEmail() != null ? customer.getEmail() : "",
+                    customer.getNote() != null ? customer.getNote() : ""
+                );
+                data.add(row);
+            }
+            
+            // Generate filename and path
+            String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+            org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+            String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("DanhSachKhachHang");
+            String fullPath = directory + fileName;
+            
+            // Export to Excel
+            org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Danh sách khách hàng", headers, data);
+            
+            showSuccess("Đã xuất danh sách khách hàng ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Lỗi xuất file: " + e.getMessage());
         }
     }
 

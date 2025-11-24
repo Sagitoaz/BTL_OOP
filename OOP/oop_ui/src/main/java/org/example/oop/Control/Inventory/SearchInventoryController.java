@@ -295,7 +295,54 @@ public class SearchInventoryController extends BaseController implements Initial
 
      @FXML
      private void OnClickExportButton(javafx.event.ActionEvent event) {
-          showWarning("Chức năng export đang được phát triển");
+          try {
+               if (filteredData == null || filteredData.isEmpty()) {
+                    showWarning("Không có dữ liệu để xuất!");
+                    return;
+               }
+
+               // Prepare headers
+               java.util.List<String> headers = java.util.Arrays.asList(
+                    "ID", "SKU", "Tên sản phẩm", "Danh mục", "Số lượng", 
+                    "Đơn vị", "Giá bán", "Trạng thái", "Cập nhật lần cuối"
+               );
+
+               // Prepare data
+               java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
+               for (Product product : filteredData) {
+                    java.util.List<Object> row = java.util.Arrays.asList(
+                         product.getId(),
+                         product.getSku(),
+                         product.getName(),
+                         product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "",
+                         product.getQtyOnHand(),
+                         product.getUnit(),
+                         product.getPriceRetail(),
+                         product.isActive() ? "Hoạt động" : "Ngừng",
+                         product.getCreatedAt() != null ? product.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : ""
+                    );
+                    data.add(row);
+               }
+
+               // Generate filename and path
+               String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+               org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+               String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("TimKiemKho");
+               String fullPath = directory + fileName;
+
+               // Export to Excel
+               org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Kết quả tìm kiếm", headers, data);
+
+               showSuccess("Đã xuất kết quả tìm kiếm ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+               
+               if (messageLabel != null) {
+                    messageLabel.setText("✅ Đã xuất " + filteredData.size() + " sản phẩm");
+               }
+
+          } catch (Exception e) {
+               e.printStackTrace();
+               showError("Lỗi xuất file: " + e.getMessage());
+          }
      }
 
      // ==================== FILTER LOGIC ====================

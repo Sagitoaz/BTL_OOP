@@ -68,6 +68,8 @@ public class EmployeeManagementController extends BaseController implements Init
     private Button refreshButton;
     @FXML
     private Button addButton;
+    @FXML
+    private Button exportButton;
     // ====== Navigation Buttons ======
     @FXML
     private Button backButton;
@@ -382,5 +384,56 @@ public class EmployeeManagementController extends BaseController implements Init
     @FXML
     private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
+    }
+    
+    @FXML
+    private void handleExport() {
+        try {
+            if (filtered == null || filtered.isEmpty()) {
+                showWarning("Không có dữ liệu để xuất!");
+                return;
+            }
+            
+            // Prepare headers
+            java.util.List<String> headers = java.util.Arrays.asList(
+                "ID", "Tên đăng nhập", "Họ tên", "Vai trò", 
+                "Giấy phép", "Email", "Điện thoại", "Trạng thái"
+            );
+            
+            // Prepare data
+            java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
+            for (Employee employee : filtered) {
+                java.util.List<Object> row = java.util.Arrays.asList(
+                    employee.getId(),
+                    employee.getUsername(),
+                    employee.getFullName(),
+                    employee.getRole() != null ? employee.getRole().toString() : "",
+                    employee.getLicenseNo() != null ? employee.getLicenseNo() : "",
+                    employee.getEmail() != null ? employee.getEmail() : "",
+                    employee.getPhone() != null ? employee.getPhone() : "",
+                    employee.isActive() ? "Hoạt động" : "Không hoạt động"
+                );
+                data.add(row);
+            }
+            
+            // Generate filename and path
+            String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+            org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+            String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("DanhSachNhanVien");
+            String fullPath = directory + fileName;
+            
+            // Export to Excel
+            org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Danh sách nhân viên", headers, data);
+            
+            showSuccess("Đã xuất danh sách nhân viên ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+            
+            if (statusLabel != null) {
+                statusLabel.setText("✅ Đã xuất " + filtered.size() + " nhân viên");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Lỗi xuất file: " + e.getMessage());
+        }
     }
 }

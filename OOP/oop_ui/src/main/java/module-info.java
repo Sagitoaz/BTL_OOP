@@ -15,6 +15,11 @@ module org.example.oop {
     // NOTE: mini-boot is loaded as automatic module from classpath
     // This includes all shaded dependencies (bcrypt, jackson, gson, etc.)
     requires mini.boot;
+    requires kernel;
+    requires layout;
+    requires org.apache.poi.poi;
+    requires org.apache.poi.ooxml;
+    requires io;
 
     // ========== Exports ==========
     exports org.example.oop;

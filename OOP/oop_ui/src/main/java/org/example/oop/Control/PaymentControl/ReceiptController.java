@@ -8,7 +8,9 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Receipt;
+import org.example.oop.Utils.PDFExporter;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentItem;
@@ -17,9 +19,11 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class ReceiptController implements Initializable {
+public class ReceiptController extends BaseController implements Initializable {
     @FXML
     private Label lblReceiptNo;
     @FXML
@@ -109,7 +113,7 @@ public class ReceiptController implements Initializable {
         // Hiển thị thông tin chung
         lblReceiptNo.setText(receipt.getPayment().getCode());
         lblDate.setText(payment.getIssuedAt().toString());
-        lblCashier.setText(String.valueOf(payment.getCashierId())); // TODO: Get cashier name
+        lblCashier.setText(String.valueOf(payment.getCashierId()));
 
         lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
 
@@ -134,5 +138,33 @@ public class ReceiptController implements Initializable {
                 .ofPattern("dd/MM/yyyy HH:mm")
                 .withZone(ZoneId.systemDefault())
                 .format(dateTime);
+    }
+
+    @FXML
+    private void onExportPdf() {
+        if (receipt == null) {
+            showWarning("Không có dữ liệu\n" + "Không có hóa đơn để xuất PDF.");
+            return;
+        }
+
+        try {
+            Payment payment = receipt.getPayment();
+            
+            // Tạo tên file với mã hóa đơn
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String fileName = "HoaDon_" + payment.getCode() + "_" + timestamp;
+
+            // Xuất PDF với method mới (hỗ trợ tiếng Việt và format đẹp)
+            boolean success = PDFExporter.exportReceipt(payment, receipt.getItems(), fileName);
+            
+            if (success) {
+                showSuccess("Thành công\n" + "Đã xuất hóa đơn PDF thành công!");
+            } else {
+                showError("Lỗi\n" + "Không thể xuất hóa đơn PDF. Vui lòng thử lại.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Lỗi\n" + "Có lỗi xảy ra khi xuất PDF: " + e.getMessage());
+        }
     }
 }

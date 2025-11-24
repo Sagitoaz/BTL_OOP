@@ -82,8 +82,6 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Button exportButton;
      @FXML
-     private Button importButton;
-     @FXML
      private Button addNewButton;
 
      // ==================== LABELS ====================
@@ -759,14 +757,55 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
      @FXML
      private void onExport() {
-          // TODO: Implement export functionality
-          showWarning("Chức năng Export đang được phát triển!");
-     }
+          try {
+               if (filteredData == null || filteredData.isEmpty()) {
+                    showWarning("Không có dữ liệu để xuất!");
+                    return;
+               }
 
-     @FXML
-     private void onImport() {
-          // TODO: Implement import functionality
-          showWarning("Chức năng Import đang được phát triển!");
+               // Prepare headers
+               java.util.List<String> headers = java.util.Arrays.asList(
+                    "ID", "SKU", "Tên sản phẩm", "Danh mục", "Số lượng", 
+                    "Đơn vị", "Giá vốn", "Giá bán", "Trạng thái", "Ghi chú"
+               );
+
+               // Prepare data
+               java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
+               for (Product product : filteredData) {
+                    java.util.List<Object> row = java.util.Arrays.asList(
+                         product.getId(),
+                         product.getSku(),
+                         product.getName(),
+                         product.getCategoryEnum() != null ? product.getCategoryEnum().getDisplayName() : "",
+                         product.getQtyOnHand(),
+                         product.getUnit(),
+                         product.getPriceCost(),
+                         product.getPriceRetail(),
+                         product.isActive() ? "Hoạt động" : "Ngừng",
+                         product.getNote() != null ? product.getNote() : ""
+                    );
+                    data.add(row);
+               }
+
+               // Generate filename and path
+               String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+               org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+               String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("DanhSachSanPham");
+               String fullPath = directory + fileName;
+
+               // Export to Excel
+               org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Sản phẩm", headers, data);
+
+               showSuccess("Đã xuất danh sách sản phẩm ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+               
+               if (statusLabel != null) {
+                    statusLabel.setText("✅ Đã xuất " + filteredData.size() + " sản phẩm");
+               }
+
+          } catch (Exception e) {
+               e.printStackTrace();
+               showError("Lỗi xuất file: " + e.getMessage());
+          }
      }
 
      // ==================== FILTER LOGIC ====================

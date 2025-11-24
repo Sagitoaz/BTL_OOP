@@ -57,6 +57,8 @@ public class PaymentHistoryController implements Initializable {
     @FXML
     private DatePicker dpFrom, dpTo;
     @FXML
+    private Button btnExport;
+    @FXML
     private TableView<PaymentWithStatus> tablePayments;
     @FXML
     private TableColumn<PaymentWithStatus, String> colPaymentId;
@@ -531,5 +533,57 @@ public class PaymentHistoryController implements Initializable {
 
     private void showPaymentDetails(Payment payment) {
         // TODO: Sẽ thêm chức năng xem chi tiết sau
+    }
+    
+    @FXML
+    private void onExport() {
+        try {
+            if (paymentsWithStatus == null || paymentsWithStatus.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Không có dữ liệu", "Không có dữ liệu để xuất!");
+                return;
+            }
+            
+            // Prepare headers
+            java.util.List<String> headers = java.util.Arrays.asList(
+                "Mã phiếu", "Mã HĐ", "Ngày giờ", "Khách hàng", 
+                "Phương thức", "Số tiền", "Trạng thái", "Nhân viên", "Ghi chú"
+            );
+            
+            // Prepare data
+            java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
+            for (PaymentWithStatus pws : paymentsWithStatus) {
+                Payment payment = pws.getPayment();
+                if (payment == null) continue;
+                
+                java.util.List<Object> row = java.util.Arrays.asList(
+                    payment.getCode() != null ? payment.getCode() : "",
+                    payment.getCode() != null ? payment.getCode() : "",
+                    payment.getIssuedAt() != null ? payment.getIssuedAt() : "",
+                    payment.getCustomerId() != null ? "KH" + payment.getCustomerId() : "",
+                    payment.getPaymentMethod() != null ? payment.getPaymentMethod().toString() : "",
+                    payment.getGrandTotal(),
+                    pws.getStatus() != null ? pws.getStatus().toString() : "",
+                    "NV" + payment.getCashierId(),
+                    payment.getNote() != null ? payment.getNote() : ""
+                );
+                data.add(row);
+            }
+            
+            // Generate filename and path
+            String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
+            org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
+            String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("LichSuThanhToan");
+            String fullPath = directory + fileName;
+            
+            // Export to Excel
+            org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Lịch sử thanh toán", headers, data);
+            
+            showAlert(Alert.AlertType.INFORMATION, "Xuất file thành công!", 
+                "Đã xuất lịch sử thanh toán ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi xuất file: " + e.getMessage());
+        }
     }
 }

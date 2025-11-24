@@ -114,6 +114,7 @@
                 <Region HBox.hgrow="ALWAYS" />
 
                 <!-- Action Buttons -->
+                <Button fx:id="exportButton" onAction="#handleExport" styleClass="export-button" text="📊 Export" />
                 <Button fx:id="refreshButton" onAction="#handleRefresh" styleClass="btn-secondary" text="🔄 Làm mới" />
                 <Button fx:id="addButton" onAction="#handleAdd" styleClass="btn-success" text="➕ Thêm Nhân Viên" />
             </HBox>
