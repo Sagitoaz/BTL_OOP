@@ -218,7 +218,7 @@ public class PaymentController {
                             "Grand total must be greater than 0");
                 }
                 
-                // ✅ LOGIC MỚI: Chỉ validate paymentMethod và amountPaid khi đã thanh toán
+                // Chỉ validate paymentMethod và amountPaid khi đã thanh toán
                 // Cho phép tạo invoice với paymentMethod=null, amountPaid=null (trạng thái UNPAID)
                 if (payment.getAmountPaid() != null && payment.getAmountPaid() > 0) {
                     // Nếu đã có amountPaid > 0, thì phải có paymentMethod

@@ -93,14 +93,6 @@ public class ValidationUtils {
                     "User authentication required for this operation");
         }
 
-        // TODO: Implement role checking based on your User/Role system
-        // For now, we check if requiredRole is specified
-        // Example: Check if user has "ADMIN" or "MANAGER" role in database
-        
-        // Placeholder: Allow all authenticated users
-        // In production, query database: SELECT role FROM users WHERE id = userId
-        // Then compare with requiredRole
-        
         return null; // Valid for now (all authenticated users allowed)
     }
 

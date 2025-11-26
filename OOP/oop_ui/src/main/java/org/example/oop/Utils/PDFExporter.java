@@ -1,6 +1,7 @@
 package org.example.oop.Utils;
 
 import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
@@ -12,9 +13,11 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
@@ -24,6 +27,7 @@ import org.miniboot.app.domain.models.Payment.PaymentItem;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -274,7 +278,7 @@ public class PDFExporter {
             // Set page margins
             document.setMargins(40, 40, 40, 40);
             
-            // === HEADER - CLINIC INFO ===
+            //  HEADER - CLINIC INFO 
             Paragraph clinicName = new Paragraph("PHÒNG KHÁM MẮT")
                     .setFont(boldFont)
                     .setFontSize(24)
@@ -312,7 +316,7 @@ public class PDFExporter {
             LineSeparator separator1 = new LineSeparator(line1);
             document.add(separator1);
             
-            // === RECEIPT INFO - 2x2 Grid ===
+            //  RECEIPT INFO - 2x2 Grid 
             float[] columnWidths = {120, 180, 120, 180};
             Table infoTable = new Table(UnitValue.createPointArray(columnWidths));
             infoTable.setWidth(UnitValue.createPercentValue(100));
@@ -342,7 +346,7 @@ public class PDFExporter {
             LineSeparator separator2 = new LineSeparator(line2);
             document.add(separator2);
             
-            // === ITEMS TABLE ===
+            //  ITEMS TABLE 
             Paragraph itemsTitle = new Paragraph("CHI TIẾT HÓA ĐƠN")
                     .setFont(boldFont)
                     .setFontSize(15)
@@ -397,7 +401,7 @@ public class PDFExporter {
             separator3.setMarginBottom(15);
             document.add(separator3);
             
-            // === SUMMARY ===
+            //  SUMMARY 
             Table summaryTable = new Table(UnitValue.createPercentArray(new float[]{70, 30}));
             summaryTable.setWidth(UnitValue.createPercentValue(100));
             
@@ -436,7 +440,7 @@ public class PDFExporter {
             separator4.setMarginBottom(15);
             document.add(separator4);
             
-            // === FOOTER ===
+            //  FOOTER 
             Paragraph thanks = new Paragraph("XIN CẢM ƠN QUÝ KHÁCH!")
                     .setFont(boldFont)
                     .setFontSize(16)
@@ -454,7 +458,7 @@ public class PDFExporter {
                     .setMarginBottom(3);
             document.add(note1);
             
-            Paragraph note2 = new Paragraph("Quét mã QR để nhận tư vấn và hỗ trợ trực tuyến")
+            Paragraph note2 = new Paragraph("Quet ma QR de nhan tu van va ho tro truc tuyen")
                     .setFont(font)
                     .setFontSize(11)
                     .setTextAlignment(TextAlignment.CENTER)
@@ -462,7 +466,35 @@ public class PDFExporter {
                     .setMarginBottom(10);
             document.add(note2);
             
-            Paragraph farewell = new Paragraph("Hẹn gặp lại quý khách!")
+            // Add QR Code Image
+            try {
+                // Load QR code from resources
+                InputStream qrStream = PDFExporter.class.getResourceAsStream("/Image/qrcode.png");
+                if (qrStream != null) {
+                    byte[] qrBytes = qrStream.readAllBytes();
+                    Image qrImage = new Image(ImageDataFactory.create(qrBytes));
+                    qrImage.setWidth(120);
+                    qrImage.setHeight(120);
+                    qrImage.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                    qrImage.setMarginTop(10);
+                    qrImage.setMarginBottom(10);
+                    document.add(qrImage);
+                    
+                    Paragraph qrLabel = new Paragraph("Quet ma de thanh toan")
+                            .setFont(font)
+                            .setFontSize(11)
+                            .setTextAlignment(TextAlignment.CENTER)
+                            .setFontColor(new DeviceRgb(127, 140, 141))
+                            .setMarginBottom(10);
+                    document.add(qrLabel);
+                    qrStream.close();
+                }
+            } catch (Exception e) {
+                System.err.println("Could not load QR code image: " + e.getMessage());
+                // Continue without QR code if image not found
+            }
+            
+            Paragraph farewell = new Paragraph("Hen gap lai Quy khach!")
                     .setFont(font)
                     .setFontSize(10)
                     .setTextAlignment(TextAlignment.CENTER)

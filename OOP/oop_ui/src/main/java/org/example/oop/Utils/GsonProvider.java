@@ -18,11 +18,11 @@ import org.miniboot.app.domain.models.Inventory.Enum.Category;
 /**
  * GsonProvider - Tạo Gson instance với cấu hình sẵn
  * <p>
- * ✅ Tránh duplicate code khi tạo Gson
- * ✅ Centralized configuration cho tất cả services
- * ✅ Hỗ trợ LocalDate, LocalDateTime và Category ENUM
- * ❌ REMOVED: InventoryStatus (DB dùng boolean is_active)
- * ❌ COMMENTED: AppointmentType/Status (backend chưa có)
+ * Tránh duplicate code khi tạo Gson
+ * Centralized configuration cho tất cả services
+ * Hỗ trợ LocalDate, LocalDateTime và Category ENUM
+ * REMOVED: InventoryStatus (DB dùng boolean is_active)
+ * COMMENTED: AppointmentType/Status (backend chưa có)
  */
 public class GsonProvider {
 
@@ -47,7 +47,7 @@ public class GsonProvider {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_LOCAL_TIME;
 
         return new GsonBuilder()
-                // ✅ QUAN TRỌNG: Gson phải đọc cả snake_case và camelCase
+                // Gson phải đọc cả snake_case và camelCase
                 // Backend trả về: price_retail, qty_on_hand, price_cost, created_at...
                 // Nhưng Java field names là: priceRetail, qtyOnHand, priceCost, createdAt...
                 // Gson sẽ tự động map snake_case → camelCase
@@ -61,7 +61,7 @@ public class GsonProvider {
                     return f.getName();
                 })
 
-                // ✅ LocalDate adapter (cho expiry_date trong Product)
+                // LocalDate adapter (cho expiry_date trong Product)
                 .registerTypeAdapter(LocalDate.class,
                         (JsonDeserializer<LocalDate>) (json, type, context) -> {
                             if (json.isJsonNull())
@@ -75,7 +75,7 @@ public class GsonProvider {
                             return context.serialize(src.format(dateFormatter));
                         })
 
-                // ✅ LocalDateTime adapter
+                // LocalDateTime adapter
                 .registerTypeAdapter(LocalDateTime.class,
                         (JsonDeserializer<LocalDateTime>) (json, type, context) -> {
                             if (json.isJsonNull())
@@ -90,7 +90,7 @@ public class GsonProvider {
                             return context.serialize(src.format(dateTimeFormatter));
                         })
 
-                // ✅ Category ENUM adapter (Inventory module)
+                // Category ENUM adapter (Inventory module)
                 .registerTypeAdapter(Category.class,
                         (JsonDeserializer<Category>) (json, type, context) -> Category
                                 .fromCode(json.getAsString()))
@@ -98,7 +98,7 @@ public class GsonProvider {
                         (JsonSerializer<Category>) (src, type, context) -> context
                                 .serialize(src.getCode()))
 
-                // ✅ LocalTime adapter - FIX CHO TIMESLOT
+                // LocalTime adapter - FIX CHO TIMESLOT
                 .registerTypeAdapter(LocalTime.class,
                         (JsonDeserializer<LocalTime>) (json, type, context) ->
                                 LocalTime.parse(json.getAsString(), timeFormatter))

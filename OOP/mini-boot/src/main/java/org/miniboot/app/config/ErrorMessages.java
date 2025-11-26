@@ -10,7 +10,7 @@ public final class ErrorMessages {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    // ========== GENERAL ERRORS ==========
+    // GENERAL ERRORS 
     public static final String ERROR_GENERAL = "An error occurred";
     public static final String ERROR_INTERNAL_SERVER = "Internal server error";
     public static final String ERROR_SERVICE_UNAVAILABLE = "Service temporarily unavailable";
@@ -21,7 +21,7 @@ public final class ErrorMessages {
     public static final String ERROR_ALREADY_EXISTS = "Resource already exists";
     public static final String ERROR_OPERATION_FAILED = "Operation failed";
 
-    // ========== AUTHENTICATION ERRORS ==========
+    // AUTHENTICATION ERRORS 
     public static final String ERROR_UNAUTHORIZED = "Unauthorized access";
     public static final String ERROR_FORBIDDEN = "Access forbidden";
     public static final String ERROR_INVALID_CREDENTIALS = "Invalid username or password";
@@ -36,7 +36,7 @@ public final class ErrorMessages {
     public static final String ERROR_PASSWORD_MISMATCH = "Passwords do not match";
     public static final String ERROR_OLD_PASSWORD_INCORRECT = "Old password is incorrect";
 
-    // ========== DATABASE ERRORS ==========
+    // DATABASE ERRORS 
     public static final String ERROR_DB_CONNECTION = "Failed to connect to database";
     public static final String ERROR_DB_QUERY = "Failed to execute query";
     public static final String ERROR_DB_DRIVER = "Database driver not found";
@@ -45,7 +45,7 @@ public final class ErrorMessages {
     public static final String ERROR_DB_TIMEOUT = "Database operation timeout";
     public static final String ERROR_DB_TRANSACTION = "Transaction failed";
 
-    // ========== VALIDATION ERRORS ==========
+    // VALIDATION ERRORS 
     public static final String ERROR_VALIDATION = "Validation error";
     public static final String ERROR_INVALID_EMAIL = "Invalid email address";
     public static final String ERROR_INVALID_PHONE = "Invalid phone number";
@@ -57,22 +57,22 @@ public final class ErrorMessages {
     public static final String ERROR_VALUE_OUT_OF_RANGE = "Value is out of range: %s";
     public static final String ERROR_REQUIRED_FIELD = "Field is required: %s";
 
-    // ========== CUSTOMER ERRORS ==========
+    // CUSTOMER ERRORS 
     public static final String ERROR_CUSTOMER_NOT_FOUND = "Customer not found";
     public static final String ERROR_CUSTOMER_ALREADY_EXISTS = "Customer already exists";
     public static final String ERROR_INVALID_CUSTOMER_ID = "Invalid customer ID";
 
-    // ========== EMPLOYEE ERRORS ==========
+    // EMPLOYEE ERRORS 
     public static final String ERROR_EMPLOYEE_NOT_FOUND = "Employee not found";
     public static final String ERROR_EMPLOYEE_ALREADY_EXISTS = "Employee already exists";
     public static final String ERROR_INVALID_EMPLOYEE_ID = "Invalid employee ID";
 
-    // ========== DOCTOR ERRORS ==========
+    // DOCTOR ERRORS 
     public static final String ERROR_DOCTOR_NOT_FOUND = "Doctor not found";
     public static final String ERROR_DOCTOR_NOT_AVAILABLE = "Doctor is not available";
     public static final String ERROR_INVALID_DOCTOR_ID = "Invalid doctor ID";
 
-    // ========== APPOINTMENT ERRORS ==========
+    // APPOINTMENT ERRORS 
     public static final String ERROR_APPOINTMENT_NOT_FOUND = "Appointment not found";
     public static final String ERROR_APPOINTMENT_CONFLICT = "Appointment time conflict";
     public static final String ERROR_INVALID_APPOINTMENT_TIME = "Invalid appointment time";
@@ -80,12 +80,12 @@ public final class ErrorMessages {
     public static final String ERROR_APPOINTMENT_ALREADY_CANCELLED = "Appointment is already cancelled";
     public static final String ERROR_APPOINTMENT_CANNOT_CANCEL = "Cannot cancel appointment";
 
-    // ========== PRESCRIPTION ERRORS ==========
+    // PRESCRIPTION ERRORS 
     public static final String ERROR_PRESCRIPTION_NOT_FOUND = "Prescription not found";
     public static final String ERROR_INVALID_PRESCRIPTION_DATA = "Invalid prescription data";
     public static final String ERROR_PRESCRIPTION_EXPIRED = "Prescription has expired";
 
-    // ========== PRODUCT ERRORS ==========
+    // PRODUCT ERRORS 
     public static final String ERROR_PRODUCT_NOT_FOUND = "Product not found";
     public static final String ERROR_PRODUCT_ALREADY_EXISTS = "Product already exists";
     public static final String ERROR_INVALID_PRODUCT_ID = "Invalid product ID";
@@ -93,31 +93,31 @@ public final class ErrorMessages {
     public static final String ERROR_PRODUCT_OUT_OF_STOCK = "Product is out of stock";
     public static final String ERROR_INSUFFICIENT_STOCK = "Insufficient stock";
 
-    // ========== INVENTORY ERRORS ==========
+    // INVENTORY ERRORS 
     public static final String ERROR_INVENTORY_NOT_FOUND = "Inventory record not found";
     public static final String ERROR_INVALID_QUANTITY = "Invalid quantity";
     public static final String ERROR_NEGATIVE_QUANTITY = "Quantity cannot be negative";
 
-    // ========== PAYMENT ERRORS ==========
+    // PAYMENT ERRORS 
     public static final String ERROR_PAYMENT_NOT_FOUND = "Payment not found";
     public static final String ERROR_PAYMENT_ALREADY_COMPLETED = "Payment is already completed";
     public static final String ERROR_PAYMENT_FAILED = "Payment processing failed";
     public static final String ERROR_INVALID_PAYMENT_AMOUNT = "Invalid payment amount";
     public static final String ERROR_INVALID_PAYMENT_METHOD = "Invalid payment method";
 
-    // ========== FILE ERRORS ==========
+    // FILE ERRORS 
     public static final String ERROR_FILE_NOT_FOUND = "File not found";
     public static final String ERROR_FILE_READ = "Failed to read file";
     public static final String ERROR_FILE_WRITE = "Failed to write file";
     public static final String ERROR_FILE_DELETE = "Failed to delete file";
     public static final String ERROR_INVALID_FILE_FORMAT = "Invalid file format";
 
-    // ========== JSON ERRORS ==========
+    // JSON ERRORS 
     public static final String ERROR_JSON_PARSE = "Failed to parse JSON";
     public static final String ERROR_JSON_INVALID = "Invalid JSON format";
     public static final String ERROR_JSON_MISSING_FIELD = "Missing required JSON field: %s";
 
-    // ========== HTTP ERRORS ==========
+    // HTTP ERRORS 
     public static final String ERROR_METHOD_NOT_ALLOWED = "HTTP method not allowed";
     public static final String ERROR_PAYLOAD_TOO_LARGE = "Request payload too large";
     public static final String ERROR_UNSUPPORTED_MEDIA_TYPE = "Unsupported media type";

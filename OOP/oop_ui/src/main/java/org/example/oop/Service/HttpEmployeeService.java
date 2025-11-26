@@ -142,9 +142,6 @@ public class HttpEmployeeService {
             body.put("email", employee.getEmail());
         if (employee.getPhone() != null)
             body.put("phone", employee.getPhone());
-        // TODO: Employee class doesn't have getGender() method
-        // if (employee.getGender() != null)
-        //     body.put("gender", employee.getGender());
         if (employee.getAvatar() != null)
             body.put("avatar", employee.getAvatar());
         if (employee.getAvatar() != null)

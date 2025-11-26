@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 // Giả sử bạn có một enum PaymentMethod như sau:
 // enum PaymentMethod {
-//     CASH, CREDIT_CARD, BANK_TRANSFER
+// CASH, CREDIT_CARD, BANK_TRANSFER
 // }
 
 public class Payment {

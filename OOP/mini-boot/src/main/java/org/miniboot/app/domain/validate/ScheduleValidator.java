@@ -65,9 +65,6 @@ public class ScheduleValidator {
             return ValidationResult.error("Time slot is not available");
         }
 
-        // TODO: Check giờ làm việc của bác sĩ
-        // TODO: Check bệnh nhân có trùng lịch không
-
         return ValidationResult.success();
     }
 

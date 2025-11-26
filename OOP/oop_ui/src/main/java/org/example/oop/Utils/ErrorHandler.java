@@ -31,8 +31,6 @@ import javafx.scene.control.ButtonType;
  * }
  * </pre>
  * 
- * @author Person 4 - Error Handling & Service Layer Developer
- * @since 2025-11-02
  */
 public class ErrorHandler {
 

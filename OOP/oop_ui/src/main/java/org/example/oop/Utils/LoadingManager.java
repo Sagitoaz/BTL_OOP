@@ -37,25 +37,17 @@ import java.util.function.Consumer;
  *     task.cancel();
  * });
  * </pre>
- * 
- * @author PERSON 4 - Error Handling & Service Layer Developer
- * @version 1.0
- * @since Ngày 5 (28/10/2024)
  */
 public class LoadingManager {
 
-    // ================================
     // CONSTANTS
-    // ================================
 
     private static final String DEFAULT_MESSAGE = "Đang tải...";
     private static final String DEFAULT_CANCEL_TEXT = "Hủy";
     private static final double OVERLAY_OPACITY = 0.7;
     private static final double BLUR_RADIUS = 5.0;
 
-    // ================================
     // STATE MANAGEMENT
-    // ================================
 
     /**
      * Map để track loading overlays cho từng container
@@ -71,9 +63,7 @@ public class LoadingManager {
      */
     private static final Map<StackPane, Runnable> cancelActions = new ConcurrentHashMap<>();
 
-    // ================================
     // PUBLIC API - BASIC LOADING
-    // ================================
 
     /**
      * Hiển thị loading overlay với message mặc định
@@ -186,9 +176,7 @@ public class LoadingManager {
         return activeOverlays.containsKey(container);
     }
 
-    // ================================
     // PUBLIC API - ADVANCED LOADING WITH TASK
-    // ================================
 
     /**
      * Execute task với loading indicator
@@ -250,9 +238,7 @@ public class LoadingManager {
         thread.start();
     }
 
-    // ================================
     // PRIVATE HELPERS - UI CREATION
-    // ================================
 
     /**
      * Tạo loading overlay UI
@@ -333,9 +319,7 @@ public class LoadingManager {
         }
     }
 
-    // ================================
     // UTILITY METHODS
-    // ================================
 
     /**
      * Hide tất cả loading overlays (cleanup)
@@ -364,9 +348,7 @@ public class LoadingManager {
         });
     }
 
-    // ================================
     // CONVENIENCE METHODS
-    // ================================
 
     /**
      * Show loading với Vietnamese message templates

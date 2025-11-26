@@ -3,7 +3,7 @@ package org.example.oop.Utils;
 import org.example.oop.config.ApiConstants;
 
 /**
- * 🔧 API CONFIGURATION - NGÀY 8 FRONTEND INTEGRATION
+ * API CONFIGURATION
  * Centralized configuration for API endpoints and settings
  */
 public class ApiConfig {
@@ -13,7 +13,7 @@ public class ApiConfig {
      private static final String PROD_BASE_URL = "http://production-server:8080";
 
      // Current environment (change as needed)
-     private static final Environment CURRENT_ENV = Environment.TESTING;
+     private static final Environment CURRENT_ENV = Environment.DEVELOPMENT;
 
      // Timeout settings - sử dụng từ ApiConstants
      public static final int CONNECTION_TIMEOUT = ApiConstants.CONNECTION_TIMEOUT_SECONDS;
@@ -31,9 +31,7 @@ public class ApiConfig {
           DEVELOPMENT, PRODUCTION, TESTING
      }
 
-     // ================================
      // URL METHODS
-     // ================================
 
      /**
       * Get base URL based on current environment
@@ -50,9 +48,7 @@ public class ApiConfig {
           }
      }
 
-     // ================================
      // API ENDPOINTS
-     // ================================
 
      // Authentication
      public static final String AUTH_LOGIN = "/auth/login";

@@ -99,7 +99,7 @@ public class DoctorScheduleController implements Initializable {
     private boolean isAdmin = false; // Role: true = Admin (edit), false = Doctor (view only) - will be set from
                                      // session
 
-    // ✅ Cache working schedules để vẽ nhanh mà không cần gọi API mỗi lần
+    //Cache working schedules để vẽ nhanh mà không cần gọi API mỗi lần
     private List<DoctorSchedule> cachedWorkingSchedules = new ArrayList<>();
 
     // CONSTANTS
@@ -170,9 +170,9 @@ public class DoctorScheduleController implements Initializable {
     @FXML
     private VBox timeLabelsBox; // Time labels container
     @FXML
-    private ScrollPane scheduleScrollPane; // ✅ Main schedule scroll pane
+    private ScrollPane scheduleScrollPane; //Main schedule scroll pane
     @FXML
-    private ScrollPane timeLabelsScrollPane; // ✅ ScrollPane for time labels
+    private ScrollPane timeLabelsScrollPane; //ScrollPane for time labels
     @FXML
     private AnchorPane schedulePane;
 
@@ -227,7 +227,7 @@ public class DoctorScheduleController implements Initializable {
 
         // 3. Set ngày mặc định = hôm nay
         selectedDate = LocalDate.now();
-        weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // ✅ Init weekStart
+        weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); //Init weekStart
         datePicker.setValue(selectedDate);
 
         // 4. Setup ToggleGroup cho Day/Week view
@@ -236,13 +236,13 @@ public class DoctorScheduleController implements Initializable {
         weekViewBtn.setToggleGroup(viewGroup);
         dayViewBtn.setSelected(true); // Mặc định Day View
 
-        // 5. ✅ Sinh time labels (8:00, 8:30, ..., 20:00)
+        // 5. Sinh time labels (8:00, 8:30, ..., 20:00)
         generateTimeLabels();
 
-        // 6. ✅ Đồng bộ scroll giữa time labels và schedule
+        // 6. Đồng bộ scroll giữa time labels và schedule
         syncScrollPanes();
 
-        // 7. ✅ Setup phân quyền (TODO: lấy từ session user)
+        // 7. Setup phân quyền
         setupPermissions();
 
         // 8. Setup listeners
@@ -266,7 +266,7 @@ public class DoctorScheduleController implements Initializable {
         double totalHeight = totalHours * PIXELS_PER_HOUR;
         timeLabelsBox.setPrefHeight(totalHeight);
         timeLabelsBox.setMinHeight(totalHeight);
-        timeLabelsBox.setMaxHeight(totalHeight); // ✅ Prevent overflow
+        timeLabelsBox.setMaxHeight(totalHeight); //Prevent overflow
 
         System.out.println("✅ TimeLabels: totalHeight = " + totalHeight + "px (" + totalHours + " hours)");
 
@@ -283,7 +283,7 @@ public class DoctorScheduleController implements Initializable {
         }
     }
 
-    // ✅ Sync vertical scroll between time labels and schedule pane
+    //Sync vertical scroll between time labels and schedule pane
     private void syncScrollPanes() {
         if (scheduleScrollPane != null && timeLabelsScrollPane != null) {
             // Khi scheduleScrollPane scroll, time labels cũng scroll theo
@@ -301,7 +301,7 @@ public class DoctorScheduleController implements Initializable {
             String userRole = SessionStorage.getCurrentUserRole();
 
             if (userRole != null) {
-                // ✅ CHỈ ADMIN mới có quyền chỉnh sửa lịch làm việc
+                //CHỈ ADMIN mới có quyền chỉnh sửa lịch làm việc
                 // EMPLOYEE (bác sĩ) CHỈ có quyền XEM lịch của mình
                 // CUSTOMER có quyền XEM lịch của TẤT CẢ bác sĩ (để đặt lịch)
                 isAdmin = userRole.equalsIgnoreCase("ADMIN");
@@ -310,7 +310,7 @@ public class DoctorScheduleController implements Initializable {
 
                 System.out.println("🔐 User role: " + userRole + " | Can edit schedule: " + isAdmin);
 
-                // ✅ ComboBox visibility:
+                //ComboBox visibility:
                 // - ADMIN: Visible (can edit any doctor's schedule)
                 // - CUSTOMER: Visible (can view any doctor's schedule to book appointments)
                 // - EMPLOYEE (Doctor): Hidden (can only view own schedule)
@@ -393,7 +393,7 @@ public class DoctorScheduleController implements Initializable {
                             .findFirst()
                             .orElse(null);
 
-                    // ✅ Chỉ reload nếu thực sự đổi doctor (tránh duplicate call khi init)
+                    //Chỉ reload nếu thực sự đổi doctor (tránh duplicate call khi init)
                     if (newDoctor != null && newDoctor != previousDoctor) {
                         currentDoctor = newDoctor;
                         System.out.println("✅ Switched from doctor: " +
@@ -410,7 +410,7 @@ public class DoctorScheduleController implements Initializable {
         datePicker.valueProperty().addListener((obs, oldDate, newDate) -> {
             if (newDate != null) {
                 selectedDate = newDate;
-                // ✅ Update weekStart khi đổi ngày
+                //Update weekStart khi đổi ngày
                 weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 refreshScheduleView();
             }
@@ -437,10 +437,10 @@ public class DoctorScheduleController implements Initializable {
     private void loadInitialData() {
         System.out.println("🔄 ============ LOAD INITIAL DATA START ============");
 
-        // ✅ Show loading ngay từ đầu
+        //Show loading ngay từ đầu
         showLoading();
 
-        // ✅ Lấy user ID từ session (bác sĩ đang login)
+        //Lấy user ID từ session (bác sĩ đang login)
         int loggedInUserId = SessionStorage.getCurrentUserId();
         String userRole = SessionStorage.getCurrentUserRole();
         boolean isAdminUser = userRole != null && userRole.equalsIgnoreCase("ADMIN");
@@ -471,8 +471,8 @@ public class DoctorScheduleController implements Initializable {
                 System.out.println("   [" + i + "] ID=" + d.getId() + ", Name=" + d.getFullName());
             }
 
-            // ✅ Nếu là DOCTOR: Chỉ lấy bác sĩ của chính mình
-            // ✅ Nếu là ADMIN hoặc CUSTOMER: Lấy tất cả bác sĩ
+            //Nếu là DOCTOR: Chỉ lấy bác sĩ của chính mình
+            //Nếu là ADMIN hoặc CUSTOMER: Lấy tất cả bác sĩ
             List<Doctor> filteredDoctors;
             if (isAdminUser || isCustomerUser) {
                 filteredDoctors = doctors;
@@ -493,7 +493,7 @@ public class DoctorScheduleController implements Initializable {
 
             doctorList.setAll(filteredDoctors);
 
-            // ✅ Populate ComboBox với tên bác sĩ (Admin và Customer đều thấy)
+            //Populate ComboBox với tên bác sĩ (Admin và Customer đều thấy)
             if (cboDoctorSelect != null && (isAdminUser || isCustomerUser)) {
                 cboDoctorSelect.getItems().clear();
                 for (Doctor d : filteredDoctors) {
@@ -503,8 +503,8 @@ public class DoctorScheduleController implements Initializable {
             }
 
             if (!filteredDoctors.isEmpty()) {
-                // ✅ DOCTOR: Tự động chọn bác sĩ chính mình
-                // ✅ ADMIN/CUSTOMER: Chọn bác sĩ đầu tiên (hoặc từ SceneData nếu navigate từ
+                //DOCTOR: Tự động chọn bác sĩ chính mình
+                //ADMIN/CUSTOMER: Chọn bác sĩ đầu tiên (hoặc từ SceneData nếu navigate từ
                 // AppointmentBooking)
                 Doctor selectedDoctorFromNav = SceneManager.getSceneData("selectedDoctor");
                 Doctor loggedInDoctor = null;
@@ -548,14 +548,14 @@ public class DoctorScheduleController implements Initializable {
                 System.out.println("   - Name: " + currentDoctor.getFullName());
                 System.out.println("   - License: " + currentDoctor.getLicenseNo());
 
-                // ✅ Set ComboBox selection (nếu visible cho Admin/Customer)
+                //Set ComboBox selection (nếu visible cho Admin/Customer)
                 if (cboDoctorSelect != null && (isAdminUser || isCustomerUser)) {
                     cboDoctorSelect.getSelectionModel().select(currentDoctor.getFullName());
                     System.out.println("✅ ComboBox selection set to: " + currentDoctor.getFullName());
                 }
 
                 System.out.println("📅 Starting to load doctor data in sequence...");
-                // ✅ Load working schedule trước (quan trọng!)
+                //Load working schedule trước (quan trọng!)
                 // Sau khi load xong sẽ tự động load appointments
                 loadDoctorSchedule();
             } else {
@@ -644,7 +644,7 @@ public class DoctorScheduleController implements Initializable {
                         ", Active=" + s.isActive());
             }
 
-            // ✅ Cache schedules để vẽ calendar
+            //Cache schedules để vẽ calendar
             cachedWorkingSchedules.clear();
             cachedWorkingSchedules.addAll(schedules);
             System.out.println("✅ Cached " + cachedWorkingSchedules.size() + " schedules");
@@ -723,11 +723,11 @@ public class DoctorScheduleController implements Initializable {
             System.out.println("✅ Shifts: " + shifts);
 
             System.out.println("🎨 Calling renderSchedule() to draw working hours...");
-            // ✅ Vẽ lại schedule để hiển thị working hours
+            //Vẽ lại schedule để hiển thị working hours
             renderSchedule();
 
             System.out.println("📅 Now loading appointments...");
-            // ✅ Sau khi load working schedule xong, load appointments
+            //Sau khi load working schedule xong, load appointments
             loadAppointments();
         });
 
@@ -756,7 +756,7 @@ public class DoctorScheduleController implements Initializable {
         System.out.println("   - View mode: " + (isDayView ? "DAY" : "WEEK"));
         System.out.println("   - Selected date: " + selectedDate);
 
-        // ✅ Show loading
+        //Show loading
         showLoading();
 
         Task<List<Appointment>> task = new Task<>() {
@@ -808,7 +808,7 @@ public class DoctorScheduleController implements Initializable {
             // Check conflicts
             detectConflicts();
 
-            // ✅ Hide loading
+            //Hide loading
             hideLoading();
             System.out.println("✅ ============ LOAD APPOINTMENTS COMPLETE ============");
         });
@@ -819,7 +819,7 @@ public class DoctorScheduleController implements Initializable {
             e.getSource().getException().printStackTrace();
             showError("Lỗi", "Không thể tải danh sách lịch hẹn");
 
-            // ✅ Hide loading even on failure
+            //Hide loading even on failure
             hideLoading();
         });
 
@@ -827,7 +827,7 @@ public class DoctorScheduleController implements Initializable {
     }
 
     private void refreshScheduleView() {
-        // ✅ Vẽ lại ngay lập tức với data hiện tại
+        //Vẽ lại ngay lập tức với data hiện tại
         renderSchedule();
 
         // Sau đó load appointments mới (nếu cần)
@@ -846,7 +846,7 @@ public class DoctorScheduleController implements Initializable {
         // Clear existing content
         schedulePane.getChildren().clear();
 
-        // ✅ Ensure schedulePane không có layout issues
+        //Ensure schedulePane không có layout issues
         schedulePane.setLayoutX(0);
         schedulePane.setLayoutY(0);
 
@@ -1002,7 +1002,7 @@ public class DoctorScheduleController implements Initializable {
 
     /**
      * Vẽ working hours blocks (giờ làm việc của bác sĩ) dưới nền
-     * ✅ Sử dụng cached data, không gọi API (để tránh block UI thread)
+     * Sử dụng cached data, không gọi API (để tránh block UI thread)
      */
     private void drawWorkingHoursBackground(double contentWidth) {
         System.out.println("🎨 -------- drawWorkingHoursBackground() START --------");
@@ -1016,7 +1016,7 @@ public class DoctorScheduleController implements Initializable {
             return;
         }
 
-        // ✅ Sử dụng cached schedules thay vì gọi API
+        //Sử dụng cached schedules thay vì gọi API
         if (cachedWorkingSchedules.isEmpty()) {
             System.out.println(
                     "⚠️ No cached working schedules - database might be empty or loadDoctorSchedule() not called yet");
@@ -1068,7 +1068,7 @@ public class DoctorScheduleController implements Initializable {
             double endY = calculateYPosition(schedule.getEndTime());
             double height = endY - startY;
 
-            // ✅ Tạo working hours block với màu nổi bật hơn
+            //Tạo working hours block với màu nổi bật hơn
             Rectangle workingBlock = new Rectangle(xStart + 2, startY, width - 4, height);
 
             // Màu xanh lá nhạt để dễ phân biệt với appointments
@@ -1081,7 +1081,7 @@ public class DoctorScheduleController implements Initializable {
             // Thêm vào schedulePane TRƯỚC appointments (để appointments nằm trên)
             schedulePane.getChildren().add(0, workingBlock);
 
-            // ✅ Thêm label "GIỜ LÀM VIỆC" để dễ nhận biết
+            //Thêm label "GIỜ LÀM VIỆC" để dễ nhận biết
             if (height > 30) { // Chỉ hiện label nếu block đủ cao
                 Label workLabel = new Label("⏰ GIỜ LÀM VIỆC");
                 workLabel.setStyle("-fx-font-size: 10px; -fx-font-weight: bold; " +
@@ -1318,7 +1318,6 @@ public class DoctorScheduleController implements Initializable {
                         apt.getNotes().toLowerCase().contains(keyword.toLowerCase()))
                 .collect(Collectors.toList());
 
-        // TODO: Re-render chỉ filtered appointments
         System.out.println("🔍 Filtered: " + filtered.size() + " appointments");
     }
 
@@ -1374,26 +1373,6 @@ public class DoctorScheduleController implements Initializable {
             }
         }
     }
-
-    // ADD SCHEDULE
-
-    // @FXML
-    // private void onAddSchedule(ActionEvent event) {
-    // try {
-    // FXMLLoader loader = new FXMLLoader(
-    // getClass().getResource("/FXML/Schedule/AppointmentBooking.fxml")
-    // );
-    // Parent root = loader.load();
-    //
-    // Scene scene = addScheduleBtn.getScene();
-    // scene.setRoot(root);
-    //
-    // } catch (Exception e) {
-    // showInfo("Lỗi", e.getMessage());
-    // }
-    // }
-
-    // SAVE/EXPORT
 
     @FXML
     private void onSave(ActionEvent event) {
@@ -1459,19 +1438,19 @@ public class DoctorScheduleController implements Initializable {
                 .collect(Collectors.joining(", ")));
         System.out.println("✅ Shifts: " + String.join(", ", shifts));
 
-        // ✅ OPTIMIZED: Gọi API backend với BATCH operations (2 requests thay vì 42+ requests)
+        //OPTIMIZED: Gọi API backend với BATCH operations (2 requests thay vì 42+ requests)
         Task<Void> saveTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 System.out.println("🚀 Starting BATCH save operation for doctor #" + currentDoctor.getId());
                 long startTime = System.currentTimeMillis();
                 
-                // ✅ STEP 1: Batch delete all existing schedules (1 request)
+                //STEP 1: Batch delete all existing schedules (1 request)
                 System.out.println("🗑️ Step 1/2: Batch deleting all existing schedules...");
                 int deletedCount = scheduleService.deleteAllSchedulesByDoctor(currentDoctor.getId());
                 System.out.println("   ✅ Deleted " + deletedCount + " schedules");
                 
-                // ✅ STEP 2: Prepare all new schedules
+                //STEP 2: Prepare all new schedules
                 System.out.println("📝 Step 2/2: Preparing new schedules...");
                 List<org.miniboot.app.domain.models.DoctorSchedule> newSchedules = new java.util.ArrayList<>();
                 
@@ -1502,7 +1481,7 @@ public class DoctorScheduleController implements Initializable {
                     }
                 }
                 
-                // ✅ STEP 3: Batch insert all schedules (1 request)
+                //STEP 3: Batch insert all schedules (1 request)
                 System.out.println("   📦 Batch inserting " + newSchedules.size() + " schedules...");
                 List<org.miniboot.app.domain.models.DoctorSchedule> created = scheduleService.createSchedulesBatch(newSchedules);
                 
@@ -1523,7 +1502,7 @@ public class DoctorScheduleController implements Initializable {
                             "Ngày làm: " + workingDays.size() + " ngày/tuần\n" +
                             "Ca làm: " + shifts.size() + " ca/ngày");
 
-            // ✅ Reload working schedule để update cache và vẽ lại
+            //Reload working schedule để update cache và vẽ lại
             loadDoctorSchedule();
 
             // Refresh appointments
@@ -1649,10 +1628,6 @@ public class DoctorScheduleController implements Initializable {
             showInfo("Xuất file thành công",
                     "Đã xuất lịch làm việc ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
 
-            // TODO: Nếu cần PDF thực sự, dùng iText library:
-            // com.itextpdf:itextpdf:5.5.13.3
-            // hoặc Apache PDFBox
-
         } catch (Exception e) {
             System.err.println("❌ Error exporting schedule: " + e.getMessage());
             e.printStackTrace();
@@ -1710,7 +1685,6 @@ public class DoctorScheduleController implements Initializable {
     @FXML
     private void onUndo(ActionEvent event) {
         if (!undoStack.isEmpty()) {
-            // TODO: Implement undo logic
             showInfo("Hoàn tác", "Đã hoàn tác thao tác");
         }
     }
@@ -1718,7 +1692,6 @@ public class DoctorScheduleController implements Initializable {
     @FXML
     private void onRedo(ActionEvent event) {
         if (!redoStack.isEmpty()) {
-            // TODO: Implement redo logic
             showInfo("Làm lại", "Đã làm lại thao tác");
         }
     }

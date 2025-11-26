@@ -112,7 +112,7 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 ps.setNull(10, Types.OTHER, "payment_method");
             else
                 ps.setString(10, p.getPaymentMethod().getCode());
-            // ✅ Handle amountPaid as nullable Integer
+            // Handle amountPaid as nullable Integer
             if (p.getAmountPaid() == null)
                 ps.setNull(11, Types.INTEGER);
             else
@@ -161,7 +161,7 @@ public class PostgreSQLPaymentRepository implements PaymentRepository {
                 ps.setNull(10, Types.OTHER, "payment_method");
             else
                 ps.setString(10, p.getPaymentMethod().getCode());
-            // ✅ Handle amountPaid as nullable Integer
+            // Handle amountPaid as nullable Integer
             if (p.getAmountPaid() == null)
                 ps.setNull(11, Types.INTEGER);
             else

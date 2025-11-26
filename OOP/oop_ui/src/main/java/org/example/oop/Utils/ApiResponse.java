@@ -1,7 +1,7 @@
 package org.example.oop.Utils;
 
 /**
- * 📊 API RESPONSE WRAPPER - NGÀY 8 FRONTEND INTEGRATION
+ * API RESPONSE WRAPPER
  * Type-safe response wrapper for API calls with success/error handling
  */
 public class ApiResponse<T> {
@@ -18,9 +18,7 @@ public class ApiResponse<T> {
           this.statusCode = statusCode;
      }
 
-     // ================================
      // FACTORY METHODS
-     // ================================
 
      /**
       * Create successful response with data
@@ -50,9 +48,7 @@ public class ApiResponse<T> {
           return new ApiResponse<>(false, null, errorMessage, statusCode);
      }
 
-     // ================================
      // GETTERS
-     // ================================
 
      /**
       * Check if API call was successful
@@ -89,9 +85,7 @@ public class ApiResponse<T> {
           return statusCode;
      }
 
-     // ================================
      // UTILITY METHODS
-     // ================================
 
      /**
       * Get data or default value if error

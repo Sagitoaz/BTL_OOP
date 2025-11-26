@@ -16,49 +16,49 @@ import com.google.gson.annotations.SerializedName;
 public class StockMovement {
     private int id;
 
-    @JsonProperty("product_id") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "product_id", alternate = { "productId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("product_id") //  Jackson: Accept snake_case input
+    @SerializedName(value = "product_id", alternate = { "productId" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private int productId;
 
     private int qty; // >0 nhập, <0 xuất
 
-    @JsonProperty("move_type") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "move_type", alternate = { "moveType" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("move_type") //  Jackson: Accept snake_case input
+    @SerializedName(value = "move_type", alternate = { "moveType" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private MoveType moveType;
 
-    @JsonProperty("ref_table") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "ref_table", alternate = { "refTable" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("ref_table") //  Jackson: Accept snake_case input
+    @SerializedName(value = "ref_table", alternate = { "refTable" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private String refTable; // Bảng tham chiếu: Payments, PurchaseOrders, InventoryTransfers...
     @JsonProperty("ref_id")
-    @SerializedName(value = "ref_id", alternate = { "refId" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @SerializedName(value = "ref_id", alternate = { "refId" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private Integer refId; // ID của chứng từ nguồn
 
-    @JsonProperty("batch_no") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "batch_no", alternate = { "batchNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("batch_no") //  Jackson: Accept snake_case input
+    @SerializedName(value = "batch_no", alternate = { "batchNo" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private String batchNo; // Số lô
 
-    @JsonProperty("expiry_date") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("expiry_date") //  Jackson: Accept snake_case input
+    @SerializedName(value = "expiry_date", alternate = { "expiryDate" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDate expiryDate; // Hạn sử dụng
 
-    @JsonProperty("serial_no") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "serial_no", alternate = { "serialNo" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("serial_no") //  Jackson: Accept snake_case input
+    @SerializedName(value = "serial_no", alternate = { "serialNo" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private String serialNo; // Số serial (cho thiết bị y tế)
 
-    @JsonProperty("moved_at") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "moved_at", alternate = { "movedAt" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("moved_at") //  Jackson: Accept snake_case input
+    @SerializedName(value = "moved_at", alternate = { "movedAt" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private LocalDateTime movedAt;
 
-    @JsonProperty("moved_by") // ✅ Jackson: Accept snake_case input
-    @SerializedName(value = "moved_by", alternate = { "movedBy" }) // ✅ Gson: Hỗ trợ cả snake_case và camelCase
+    @JsonProperty("moved_by") //  Jackson: Accept snake_case input
+    @SerializedName(value = "moved_by", alternate = { "movedBy" }) //  Gson: Hỗ trợ cả snake_case và camelCase
     private int movedBy; // ID người thực hiện (int, not String)
 
     private String note = null;
 
     // ➕ Thêm field để hiển thị tên sản phẩm (không lưu vào DB)
-    @com.fasterxml.jackson.annotation.JsonProperty("product_name") // ✅ Jackson serialize
-    @SerializedName("product_name") // ✅ Gson compatibility
-    private String productName; // ⚠️ KHÔNG dùng transient - cần serialize to JSON!
+    @com.fasterxml.jackson.annotation.JsonProperty("product_name") //  Jackson serialize
+    @SerializedName("product_name") //  Gson compatibility
+    private String productName; //  KHÔNG dùng transient - cần serialize to JSON!
 
     // Constructors
     public StockMovement() {

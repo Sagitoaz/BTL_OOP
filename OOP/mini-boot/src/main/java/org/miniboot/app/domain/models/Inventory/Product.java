@@ -19,30 +19,30 @@ public class Product {
                              // DB)
     private String unit; // chiếc, hộp, dịch vụ...
 
-    @JsonProperty("price_cost") // ✅ Map JSON: priceCost → price_cost
+    @JsonProperty("price_cost") //  Map JSON: priceCost → price_cost
     private Integer priceCost; // Giá nhập (INT)
 
-    @JsonProperty("price_retail") // ✅ Map JSON: priceRetail → price_retail
+    @JsonProperty("price_retail") //  Map JSON: priceRetail → price_retail
     private Integer priceRetail; // Giá bán lẻ (INT)
 
-    @JsonProperty("is_active") // ✅ Map JSON: isActive → is_active (chú ý: getter là isActive())
+    @JsonProperty("is_active") //  Map JSON: isActive → is_active (chú ý: getter là isActive())
     private boolean isActive;
 
-    @JsonProperty("qty_on_hand") // ✅ Map JSON: qtyOnHand → qty_on_hand
+    @JsonProperty("qty_on_hand") //  Map JSON: qtyOnHand → qty_on_hand
     private int qtyOnHand; // Số lượng tồn kho
 
-    @JsonProperty("batch_no") // ✅ Map JSON: batchNo → batch_no
+    @JsonProperty("batch_no") //  Map JSON: batchNo → batch_no
     private String batchNo; // Số lô (NULL nếu không quản theo lô)
 
-    @JsonProperty("expiry_date") // ✅ Map JSON: expiryDate → expiry_date
+    @JsonProperty("expiry_date") //  Map JSON: expiryDate → expiry_date
     private LocalDate expiryDate; // Hạn sử dụng
 
-    @JsonProperty("serial_no") // ✅ Map JSON: serialNo → serial_no
+    @JsonProperty("serial_no") //  Map JSON: serialNo → serial_no
     private String serialNo; // Số serial
 
     private String note; // Ghi chú
 
-    @JsonProperty("created_at") // ✅ Map JSON: createdAt → created_at
+    @JsonProperty("created_at") //  Map JSON: createdAt → created_at
     private LocalDateTime createdAt;
 
     // Constructors

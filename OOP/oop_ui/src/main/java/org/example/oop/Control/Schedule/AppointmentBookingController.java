@@ -233,7 +233,7 @@ public class AppointmentBookingController implements Initializable {
         if (selectedDate != null) {
             loadDoctorAgenda(selectedDoctor.getId(), selectedDate);
             loadAvailableSlots(selectedDoctor.getId(), selectedDate);
-            loadAndDrawDoctorSchedule(); // ✅ Vẽ lịch làm việc trong tab "Lịch bác sĩ"
+            loadAndDrawDoctorSchedule(); //  Vẽ lịch làm việc trong tab "Lịch bác sĩ"
         }
     }
 
@@ -248,7 +248,7 @@ public class AppointmentBookingController implements Initializable {
         if (selectedDoctor != null) {
             loadDoctorAgenda(selectedDoctor.getId(), selectedDate);
             loadAvailableSlots(selectedDoctor.getId(), selectedDate);
-            loadAndDrawDoctorSchedule(); // ✅ Vẽ lịch làm việc trong tab "Lịch bác sĩ"
+            loadAndDrawDoctorSchedule(); //  Vẽ lịch làm việc trong tab "Lịch bác sĩ"
         }
     }
 
@@ -724,7 +724,7 @@ public class AppointmentBookingController implements Initializable {
 
             doctorAgenda.setAll(appointments);
 
-            // ✅ Load customer names cho các appointments
+            //  Load customer names cho các appointments
             loadCustomerNamesForAppointments(appointments);
 
             System.out.println("Lịch bác sĩ: " + appointments.size() + " lịch hẹn");

@@ -25,19 +25,19 @@ public class ApiStockMovementService {
     private static final int READ_TIMEOUT = 60000; // 60 seconds
     private static final int MAX_RETRIES = 3; // Retry 3 lần nếu timeout
 
-    // ✅ FIX: Đổi tên method và URL
+    // FIX: Đổi tên method và URL
     public List<StockMovement> getAllStockMovements() throws Exception {
         String url = BASE_URL + "/stock_movements";
         System.out.println("🔄 Fetching all stock movements from API...");
         System.out.println("🌐 URL: " + url);
 
-        // ✅ Retry mechanism cho mạng yếu
+        // Retry mechanism cho mạng yếu
         Exception lastException = null;
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 System.out.println("📡 Attempt " + attempt + "/" + MAX_RETRIES + "...");
 
-                // ✅ FIX URL: /stock_movements (đúng chính tả)
+                // FIX URL: /stock_movements (đúng chính tả)
                 HttpURLConnection conn = (HttpURLConnection) URI.create(url).toURL()
                         .openConnection();
                 conn.setRequestMethod("GET");
@@ -49,14 +49,14 @@ public class ApiStockMovementService {
                 String responseBody = readResponse(conn);
 
                 if (responseCode >= 200 && responseCode < 300) {
-                    // ✅ DEBUG: In ra JSON response
+                    // DEBUG: In ra JSON response
                     System.out.println("📦 Response Code: " + responseCode);
                     System.out.println("📦 Response Length: " + responseBody.length() + " bytes");
                     System.out.println("📦 JSON Response (first 500 chars): " +
                             (responseBody.length() > 500 ? responseBody.substring(0, 500) + "..."
                                     : responseBody));
 
-                    // ✅ Kiểm tra xem có phải products không
+                    // Kiểm tra xem có phải products không
                     if (responseBody.contains("\"sku\":")) {
                         System.err.println(
                                 "⚠️ WARNING: Response contains 'sku' field - this looks like PRODUCTS, not STOCK_MOVEMENTS!");
@@ -236,11 +236,11 @@ public class ApiStockMovementService {
         }
     }
 
-    // ✅ FIX: Đổi tên method và URL
+    // FIX: Đổi tên method và URL
     public boolean deleteStockMovement(int id) throws Exception {
         System.out.println("🔄 Deleting stock movement ID: " + id);
 
-        // ✅ FIX URL: /stock_movements (có 's')
+        // FIX URL: /stock_movements (có 's')
         HttpURLConnection conn = (HttpURLConnection) URI.create(BASE_URL + "/stock_movements?id=" + id).toURL()
                 .openConnection();
         conn.setRequestMethod("DELETE");
@@ -299,7 +299,7 @@ public class ApiStockMovementService {
         }
     }
 
-    // ➕ THÊM: Lấy thống kê movements
+    // Lấy thống kê movements
     public StockMovementStats getStats() throws Exception {
         System.out.println("🔄 Getting stock movement statistics...");
 
@@ -330,13 +330,13 @@ public class ApiStockMovementService {
         }
     }
 
-    // ➕ THÊM: Lấy movements theo product ID
+    // Lấy movements theo product ID
     public List<StockMovement> getMovementsByProductId(int productId) throws Exception {
         System.out.println("🔄 Getting movements for product ID: " + productId);
         return filterStockMovements(productId, null, null, null);
     }
 
-    // ➕ THÊM: Lấy movements theo move type
+    // Lấy movements theo move type
     public List<StockMovement> getMovementsByType(String moveType) throws Exception {
         System.out.println("🔄 Getting movements by type: " + moveType);
         return filterStockMovements(null, moveType, null, null);
@@ -359,7 +359,7 @@ public class ApiStockMovementService {
         return response.toString();
     }
 
-    // ➕ THÊM: Inner class cho statistics
+    // Inner class cho statistics
     public static class StockMovementStats {
         private final int total;
         private final int totalIn;

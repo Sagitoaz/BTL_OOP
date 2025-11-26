@@ -175,8 +175,6 @@ public class EmployeeFormController extends BaseController {
             updated.setEmail(email);
             updated.setPhone(phone);
             updated.setRole(role);
-            // TODO: Employee class doesn't have setGender() method
-            // updated.setGender(gender);
             updated.setLicenseNo("doctor".equals(role) ? licenseNo : null);
             updated.setAvatar(avatar);
             updated.setActive(isActive);
@@ -225,8 +223,6 @@ public class EmployeeFormController extends BaseController {
         newEmployee.setEmail(email);
         newEmployee.setPhone(phone);
         newEmployee.setRole(role);
-        // TODO: Employee class doesn't have setGender() method
-        // newEmployee.setGender(gender);
         newEmployee.setLicenseNo("doctor".equals(role) ? licenseNo : null);
         newEmployee.setAvatar(avatar);
         newEmployee.setActive(isActive);

@@ -24,7 +24,7 @@ public final class HttpRequestParser {
      * Phân tích cú pháp HTTP Request từ InputStream
      */
     public static HttpRequest parse(InputStream in) throws IOException {
-        // === BƯỚC 1: PARSE REQUEST LINE ===
+        //  BƯỚC 1: PARSE REQUEST LINE 
         // Request line có format: "METHOD /path HTTP/1.1"
         String requestLine = readLine(in);
         
@@ -41,7 +41,7 @@ public final class HttpRequestParser {
         String target = parts[1].trim();        // /path?query=value
         String httpVersion = parts[2].trim();   // HTTP/1.1
 
-        // === BƯỚC 2: PARSE HEADERS ===
+        //  BƯỚC 2: PARSE HEADERS 
         Map<String, String> headers = new LinkedHashMap<>();
         while (true) {
             String line = readLine(in);
@@ -57,7 +57,7 @@ public final class HttpRequestParser {
             headers.put(name, value);
         }
 
-        // === BƯỚC 3: PARSE BODY ===
+        //  BƯỚC 3: PARSE BODY 
         // Kiểm tra Transfer-Encoding - từ chối nếu không phải identity
         String te = getHeaderIgnoreCase(headers, "transfer-encoding");
         if (te != null && !te.isBlank() && !"identity".equalsIgnoreCase(te)) {
@@ -85,7 +85,7 @@ public final class HttpRequestParser {
         return new HttpRequest(method, target, httpVersion, headers, body);
     }
 
-    // === PHƯƠNG THỨC HELPER (HỖ TRỢ) ===
+    //  PHƯƠNG THỨC HELPER (HỖ TRỢ) 
 
     /**
      * Đọc một dòng từ InputStream cho đến khi gặp CRLF hoặc LF

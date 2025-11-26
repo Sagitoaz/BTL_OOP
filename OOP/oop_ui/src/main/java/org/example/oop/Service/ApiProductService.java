@@ -26,7 +26,7 @@ public class ApiProductService {
     public List<Product> getAllProducts() throws Exception {
         System.out.println("🔄 Fetching all products from API...");
 
-        // ✅ Retry mechanism cho mạng yếu
+        // Retry mechanism cho mạng yếu
         Exception lastException = null;
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
@@ -58,7 +58,7 @@ public class ApiProductService {
                     }.getType();
                     List<Product> products = gson.fromJson(responseBody, listType);
 
-                    // ✅ DEBUG: In ra sample product
+                    // DEBUG: In ra sample product
                     if (!products.isEmpty()) {
                         Product sample = products.get(0);
                         System.out.println("📦 Sample Product:");
@@ -226,7 +226,7 @@ public class ApiProductService {
     public Product updateProduct(Product product) throws Exception {
         System.out.println("🔄 Updating product ID: " + product.getId());
 
-        // 🔍 DEBUG: Check product data before sending
+        // DEBUG: Check product data before sending
         if (product.getId() <= 0) {
             throw new Exception("Product ID is missing or invalid: " + product.getId());
         }

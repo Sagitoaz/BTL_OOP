@@ -53,7 +53,7 @@ import javafx.scene.layout.HBox;
 // Bước 1: Kế thừa từ BaseController
 public class InvoiceController extends BaseController implements Initializable {
 
-    // --- Dữ liệu và Repository ---
+    //  Dữ liệu và Repository 
     private final ObservableList<PaymentItem> invoiceItems = FXCollections.observableArrayList();
     private ApiProductService productService;
     private HttpPaymentService paymentService;
@@ -62,7 +62,7 @@ public class InvoiceController extends BaseController implements Initializable {
     private HttpPaymentStatusLogService paymentStatusLogService;
     private CustomerRecordService customerService;
 
-    // ==================== LOADING STATUS ====================
+    //  LOADING STATUS 
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -76,7 +76,7 @@ public class InvoiceController extends BaseController implements Initializable {
     private Product currentSelectedProduct;
     private Customer currentSelectedCustomer;
 
-    // --- Các thành phần UI (@FXML) ---
+    //  Các thành phần UI (@FXML) 
     // (Tất cả các @FXML giữ nguyên)
     @FXML
     private TextField txtInvoiceCode;
@@ -430,7 +430,7 @@ public class InvoiceController extends BaseController implements Initializable {
         final Payment paymentToSave = createPaymentFromUI();
         final int cashierId = safeParseInt(txtCashier.getText());
 
-        // --- Logic này chạy trong LUỒNG NỀN ---
+        //  Logic này chạy trong LUỒNG NỀN 
 
         // 1. Lưu Payment với ApiResponse handling
         ApiResponse<Payment> paymentResponse = paymentService.create(paymentToSave);
@@ -632,7 +632,7 @@ public class InvoiceController extends BaseController implements Initializable {
         int tax = safeParseInt(txtTaxAmount.getText());
         int grandTotal = safeParseInt(txtGrandTotal.getText());
 
-        // ✅ Khi tạo invoice (chưa thanh toán): paymentMethod=null, amountPaid=null
+        //  Khi tạo invoice (chưa thanh toán): paymentMethod=null, amountPaid=null
         return new Payment(0, txtInvoiceCode.getText(), customerId, cashierId, issuedAt,
                 subtotal, discount, tax, 0, grandTotal,
                 null, null, txtInvoiceNote.getText(), LocalDateTime.now());

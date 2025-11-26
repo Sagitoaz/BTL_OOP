@@ -11,7 +11,7 @@ public final class HttpConstants {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    // ========== HTTP METHODS ==========
+    // HTTP METHODS 
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
     public static final String METHOD_PUT = "PUT";
@@ -20,12 +20,12 @@ public final class HttpConstants {
     public static final String METHOD_OPTIONS = "OPTIONS";
     public static final String METHOD_HEAD = "HEAD";
 
-    // ========== HTTP VERSIONS ==========
+    // HTTP VERSIONS 
     public static final String HTTP_VERSION_1_0 = "HTTP/1.0";
     public static final String HTTP_VERSION_1_1 = "HTTP/1.1";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
 
-    // ========== REQUEST HEADERS ==========
+    // REQUEST HEADERS 
     public static final String HEADER_AUTHORIZATION = "authorization";
     public static final String HEADER_CONTENT_TYPE = "content-type";
     public static final String HEADER_CONTENT_LENGTH = "content-length";
@@ -36,7 +36,7 @@ public final class HttpConstants {
     public static final String HEADER_COOKIE = "cookie";
     public static final String HEADER_REFERER = "referer";
 
-    // ========== RESPONSE HEADERS ==========
+    // RESPONSE HEADERS 
     public static final String HEADER_DATE = "date";
     public static final String HEADER_SERVER = "server";
     public static final String HEADER_LOCATION = "location";
@@ -45,7 +45,7 @@ public final class HttpConstants {
     public static final String HEADER_EXPIRES = "expires";
     public static final String HEADER_ETAG = "etag";
 
-    // ========== CORS HEADERS ==========
+    // CORS HEADERS 
     public static final String HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
     public static final String HEADER_ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
     public static final String HEADER_ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
@@ -53,7 +53,7 @@ public final class HttpConstants {
     public static final String HEADER_ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age";
     public static final String HEADER_ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 
-    // ========== CONTENT TYPES ==========
+    // CONTENT TYPES 
     public static final String CONTENT_TYPE_JSON = "application/json";
     public static final String CONTENT_TYPE_JSON_UTF8 = "application/json; charset=utf-8";
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
@@ -65,24 +65,24 @@ public final class HttpConstants {
     public static final String CONTENT_TYPE_XML = "application/xml";
     public static final String CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
 
-    // ========== CONNECTION VALUES ==========
+    // CONNECTION VALUES 
     public static final String CONNECTION_CLOSE = "close";
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
 
-    // ========== AUTHORIZATION TYPES ==========
+    // AUTHORIZATION TYPES 
     public static final String AUTH_TYPE_BEARER = "Bearer";
     public static final String AUTH_TYPE_BASIC = "Basic";
 
-    // ========== CHARSET ==========
+    // CHARSET 
     public static final String CHARSET_UTF8 = "UTF-8";
     public static final String CHARSET_ISO_8859_1 = "ISO-8859-1";
 
-    // ========== SERVER INFO ==========
+    // SERVER INFO 
     public static final String SERVER_NAME = "mini-boot";
     public static final String SERVER_VERSION = "1.0.0";
     public static final String SERVER_FULL_NAME = SERVER_NAME + "/" + SERVER_VERSION;
 
-    // ========== HTTP STATUS CODES ==========
+    // HTTP STATUS CODES 
     // 2xx Success
     public static final int STATUS_OK = 200;
     public static final int STATUS_CREATED = 201;
@@ -117,7 +117,7 @@ public final class HttpConstants {
     public static final int STATUS_SERVICE_UNAVAILABLE = 503;
     public static final int STATUS_GATEWAY_TIMEOUT = 504;
 
-    // ========== HTTP STATUS REASON PHRASES ==========
+    // HTTP STATUS REASON PHRASES 
     public static final String REASON_OK = "OK";
     public static final String REASON_CREATED = "Created";
     public static final String REASON_NO_CONTENT = "No Content";
@@ -134,7 +134,7 @@ public final class HttpConstants {
     public static final String REASON_NOT_IMPLEMENTED = "Not Implemented";
     public static final String REASON_SERVICE_UNAVAILABLE = "Service Unavailable";
 
-    // ========== COMMON VALUES ==========
+    // COMMON VALUES 
     public static final String WILDCARD = "*";
     public static final String CRLF = "\r\n";
     public static final String SPACE = " ";

@@ -19,9 +19,9 @@ import java.util.Optional;
 /**
  * HttpAppointmentService - Gọi mini-boot qua HTTP API
  * <p>
- * ✅ Dùng cho kiến trúc Client-Server
- * ✅ An toàn hơn (có thể thêm authentication)
- * ✅ Hỗ trợ nhiều client (Web, Mobile, Desktop)
+ * Dùng cho kiến trúc Client-Server
+ * An toàn hơn (có thể thêm authentication)
+ * Hỗ trợ nhiều client (Web, Mobile, Desktop)
  * <p>
  * Yêu cầu: ServerMain phải đang chạy trên http://localhost:8080
  */

@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController extends BaseController implements Initializable {
 
-    private List<Customer> allCustomers = new ArrayList<>(); // ✅ Khởi tạo để tránh NullPointerException
+    private List<Customer> allCustomers = new ArrayList<>(); //Khởi tạo để tránh NullPointerException
     @FXML
     private ListView<Customer> customerListView;
 
@@ -51,7 +51,7 @@ public class CustomerHubController extends BaseController implements Initializab
     @FXML
     private TableView<Prescription> examHistoryTable;
 
-    // ==================== LOADING STATUS ====================
+    //  LOADING STATUS 
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -117,7 +117,7 @@ public class CustomerHubController extends BaseController implements Initializab
 
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
-    private boolean isInitializing = true; // ✅ Flag để tránh load prescription khi khởi tạo
+    private boolean isInitializing = true; //Flag để tránh load prescription khi khởi tạo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -140,7 +140,7 @@ public class CustomerHubController extends BaseController implements Initializab
         // Setup listener cho selection - NHƯNG chỉ active sau khi load xong
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
-            // ✅ Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
+            //Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
             if (!isInitializing) {
                 loadPrescriptionsForCustomer(newValue);
             }
@@ -266,7 +266,7 @@ public class CustomerHubController extends BaseController implements Initializab
                     customerRecordsList.addAll(customers);
                     setCurrentListCustomer();
 
-                    // ✅ Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
+                    //Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
                     isInitializing = false;
                     showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
                             "✅ Tải thành công " + customers.size() + " bệnh nhân!");
@@ -276,7 +276,7 @@ public class CustomerHubController extends BaseController implements Initializab
                 error -> {
                     // ERROR callback - handle error gracefully
                     System.err.println("❌ Error loading customers: " + error);
-                    isInitializing = false; // ✅ Vẫn set false ngay cả khi lỗi
+                    isInitializing = false; //Vẫn set false ngay cả khi lỗi
                     showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
                             "❌ Lỗi: " + error);
                     // Có thể show alert nếu cần

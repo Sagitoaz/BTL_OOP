@@ -170,7 +170,7 @@ public class AppointmentManagementController extends BaseController implements I
     @FXML
     private Button lastPageBtn;
 
-    // ==================== LOADING STATUS ====================
+    //  LOADING STATUS 
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -568,7 +568,6 @@ public class AppointmentManagementController extends BaseController implements I
 
     @FXML
     private void onSendSms(ActionEvent event) {
-        // TODO: Implement send SMS logic
     }
 
     @FXML
@@ -594,7 +593,7 @@ public class AppointmentManagementController extends BaseController implements I
         String doctorName = doctor != null ? doctor.getFullName() : "Bác sĩ #" + doctorId;
 
         // Mock email address (thực tế cần load từ customer data)
-        String email = "patient@example.com"; // TODO: Get from customer
+        String email = "patient@example.com";
 
         // Email subject
         String subject = "Nhắc lịch khám - ABC Eye Clinic";
@@ -652,7 +651,6 @@ public class AppointmentManagementController extends BaseController implements I
 
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // TODO: Actual Email API call here
             // Tạm thời mock success
 
             showAlert("✅ Đã gửi email thành công đến:\n" + email);
@@ -982,21 +980,9 @@ public class AppointmentManagementController extends BaseController implements I
                 if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
                     Customer customer = SceneManager.getSceneData("accountData");
                     int customerId = customer.getId();
-                    return appointmentService.getAppointmentsFiltered(
-                            doctorId,
-                            customerId,
-                            status,
-                            fromDate,
-                            toDate,
-                            search);
+                    return appointmentService.getAppointmentsFiltered(doctorId, customerId, status, fromDate, toDate, search);
                 }
-                return appointmentService.getAppointmentsFiltered(
-                        doctorId,
-                        null, // customerId (chưa có UI filter cho customer)
-                        status,
-                        fromDate,
-                        toDate,
-                        search);
+                return appointmentService.getAppointmentsFiltered(doctorId, null, status, fromDate, toDate, search);
             }
         };
 
@@ -1012,7 +998,7 @@ public class AppointmentManagementController extends BaseController implements I
             showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
                     "✅ Đã tải " + appointments.size() + " lịch hẹn");
 
-            // ✅ Load customer names cho tất cả appointments
+            // Load customer names cho tất cả appointments
             loadCustomerNamesForAppointments(appointments);
         });
 

@@ -170,11 +170,7 @@ public class EmployeeController {
                          return DatabaseErrorHandler.handleDatabaseException(e);
                     }
 
-                    // Check duplicate phone if provided (409 Conflict)
                     String phone = (String) data.get("phone");
-                    if (phone != null && !phone.trim().isEmpty()) {
-                         // TODO: Add repository.findByPhone() check
-                    }
 
                     // Validate license_no for doctors
                     String licenseNo = (String) data.get("licenseNo");
@@ -384,9 +380,6 @@ public class EmployeeController {
                     // Check duplicate phone if provided (409 Conflict)
                     if (data.containsKey("phone")) {
                          String newPhone = getStr.apply("phone");
-                         if (newPhone != null && !newPhone.equals(employee.getPhone())) {
-                              // TODO: Add repository.findByPhone() check for conflict
-                         }
                          employee.setPhone(newPhone);
                     }
 

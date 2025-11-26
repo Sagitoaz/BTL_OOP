@@ -3,7 +3,7 @@ package org.example.oop.Utils;
 /**
  * Payment API Configuration
  * Định nghĩa các endpoint cho Payment API
- * ✅ ĐỒNG BỘ VỚI BACKEND - DO NOT CHANGE
+ * ĐỒNG BỘ VỚI BACKEND - DO NOT CHANGE
  */
 public class PaymentConfig {
     // Payment endpoints (backend: /payments)

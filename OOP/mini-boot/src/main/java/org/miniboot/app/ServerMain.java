@@ -48,10 +48,9 @@ public class ServerMain {
         System.out.println("🌍 Binding to: 0.0.0.0:" + port);
         System.out.println("📊 Using PostgreSQL repositories (Supabase)");
 
-        // Sử dụng PostgreSQL repositories thay vì InMemory
+        // Tạo repositories
         DoctorRepository doctorRepo = new PostgreSQLDoctorRepository();
         AppointmentRepository apptRepo = new PostgreSQLAppointmentRepository();
-        // 🔽 ADD: Payment repositories// 🔽 ADD: PaymentItem repository
         PaymentItemRepository paymentItemRepo = new PostgreSQLPaymentItemRepository();
 
         PaymentRepository paymentRepo = new PostgreSQLPaymentRepository();
@@ -73,17 +72,11 @@ public class ServerMain {
         DoctorController dc = new DoctorController(doctorRepo, apptRepo, doctorScheduleRepo);
         AppointmentController ac = new AppointmentController(apptRepo, scheduleService);
         CustomerRecordController crc = new CustomerRecordController(customerRecordRepo);
-        // 🔽 ADD: Payment controllers
         PaymentController pc = new PaymentController(paymentRepo, paymentStatusRepo);
         PaymentStatusLogController pslc = new PaymentStatusLogController(paymentStatusRepo);
-        //// 🔽 ADD: PaymentItem controller
         PaymentItemController pic = new PaymentItemController(paymentItemRepo);
-
-        // Inventory
         ProductRepository productRepo = new PostgreSQLProductRepository();
         InventoryController ic = new InventoryController(productRepo);
-
-        // Stock Movement
         PostgreSQLStockMovmentRepository stockMovementRepo = new PostgreSQLStockMovmentRepository();
         StockMovementController smc = new StockMovementController(stockMovementRepo);
         PrescriptionController prc = new PrescriptionController(prescriptionRepository);
@@ -113,18 +106,13 @@ public class ServerMain {
         AppointmentController.mount(router, ac);
         DoctorScheduleController.mount(router, doctorScheduleRepo);
         InventoryController.mount(router, ic);
-        StockMovementController.mount(router, smc); // ✅ Mount StockMovement routes
-        // 🔽 ADD: Mount Payment routes
+        StockMovementController.mount(router, smc);
         PaymentController.mount(router, pc);
         PaymentStatusLogController.mount(router, pslc);
-        // 🔽 ADD: Mount PaymentItem routes
         PaymentItemController.mount(router, pic);
-
         PrescriptionController.mount(router, prc);
-        // mount các controller
         AuthController.mount(router);
         CustomerRecordController.mount(router, crc);
-        // employees
         PostgreSQLEmployeeRepository employeeRepo = new PostgreSQLEmployeeRepository();
         EmployeeController.mount(router, employeeRepo);
 
@@ -146,13 +134,11 @@ public class ServerMain {
         System.out.println("   POST /stock_movements");
         System.out.println("   PUT  /stock_movements");
         System.out.println("   DELETE /stock_movements?id=...");
-        // 🔽 ADD: Payment endpoints in the list
         System.out.println("   GET  /payments");
         System.out.println("   POST /payments");
         System.out.println("   PUT  /payments");
         System.out.println("   GET  /payment-status?paymentId=...");
         System.out.println("   POST /payment-status");
-        // 🔽 ADD: PaymentItem endpoints in the list
         System.out.println("   GET    /payment-items");
         System.out.println("   POST   /payment-items");
         System.out.println("   PUT    /payment-items");

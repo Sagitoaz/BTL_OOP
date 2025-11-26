@@ -1,0 +1,175 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.admins (
+  id integer NOT NULL DEFAULT nextval('"Admins_id_seq"'::regclass),
+  username character varying NOT NULL UNIQUE,
+  password character varying NOT NULL,
+  email character varying UNIQUE,
+  is_active boolean DEFAULT true,
+  CONSTRAINT admins_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.appointments (
+  id integer NOT NULL DEFAULT nextval('"Appointments_id_seq"'::regclass),
+  customer_id integer NOT NULL,
+  doctor_id integer NOT NULL,
+  appointment_type USER-DEFINED NOT NULL DEFAULT 'visit'::appointment_type,
+  notes character varying,
+  start_time timestamp without time zone NOT NULL,
+  end_time timestamp without time zone NOT NULL,
+  status USER-DEFINED NOT NULL DEFAULT 'scheduled'::appointment_status,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp without time zone,
+  CONSTRAINT appointments_pkey PRIMARY KEY (id),
+  CONSTRAINT Appointments_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
+  CONSTRAINT Appointments_doctor_id_fkey FOREIGN KEY (doctor_id) REFERENCES public.employees(id)
+);
+CREATE TABLE public.customers (
+  id integer NOT NULL DEFAULT nextval('"Customers_id_seq"'::regclass),
+  username character varying NOT NULL UNIQUE,
+  password character varying NOT NULL,
+  firstname character varying NOT NULL,
+  lastname character varying NOT NULL,
+  phone character varying UNIQUE,
+  email character varying UNIQUE,
+  dob date,
+  gender character varying,
+  address character varying,
+  note character varying,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT customers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.doctor_schedules (
+  id integer NOT NULL DEFAULT nextval('doctor_schedules_id_seq'::regclass),
+  doctor_id integer NOT NULL,
+  day_of_week USER-DEFINED NOT NULL,
+  start_time time without time zone NOT NULL,
+  end_time time without time zone NOT NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT doctor_schedules_pkey PRIMARY KEY (id),
+  CONSTRAINT doctor_schedules_doctor_id_fkey FOREIGN KEY (doctor_id) REFERENCES public.employees(id)
+);
+CREATE TABLE public.employees (
+  id integer NOT NULL DEFAULT nextval('"Employees_id_seq"'::regclass),
+  username character varying NOT NULL UNIQUE,
+  password character varying NOT NULL,
+  firstname character varying NOT NULL,
+  lastname character varying NOT NULL,
+  avatar character varying,
+  role USER-DEFINED NOT NULL,
+  license_no character varying,
+  email character varying UNIQUE,
+  phone character varying,
+  is_active boolean DEFAULT true,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  gender USER-DEFINED,
+  CONSTRAINT employees_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.payment_items (
+  id integer NOT NULL DEFAULT nextval('"Payment_Items_id_seq"'::regclass),
+  product_id integer NOT NULL,
+  payment_id integer NOT NULL,
+  description character varying,
+  qty integer NOT NULL,
+  unit_price integer NOT NULL,
+  total_line integer NOT NULL,
+  CONSTRAINT payment_items_pkey PRIMARY KEY (id),
+  CONSTRAINT Payment_Items_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.payments(id)
+);
+CREATE TABLE public.payment_status_log (
+  id integer NOT NULL DEFAULT nextval('"Payment_Status_Log_id_seq"'::regclass),
+  payment_id integer NOT NULL,
+  changed_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  status USER-DEFINED NOT NULL,
+  CONSTRAINT payment_status_log_pkey PRIMARY KEY (id),
+  CONSTRAINT Payment_Status_Log_payment_id_fkey FOREIGN KEY (payment_id) REFERENCES public.payments(id)
+);
+CREATE TABLE public.payments (
+  id integer NOT NULL DEFAULT nextval('"Payments_id_seq"'::regclass),
+  code character varying UNIQUE,
+  customer_id integer,
+  cashier_id integer NOT NULL,
+  issued_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  subtotal integer NOT NULL DEFAULT 0,
+  discount integer NOT NULL DEFAULT 0,
+  tax_total integer NOT NULL DEFAULT 0,
+  rounding integer NOT NULL DEFAULT 0,
+  grand_total integer NOT NULL DEFAULT 0,
+  payment_method USER-DEFINED,
+  amount_paid integer,
+  note character varying,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT payments_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.prescriptions (
+  id integer NOT NULL DEFAULT nextval('spectacle_prescriptions_id_seq'::regclass),
+  appointment_id integer NOT NULL UNIQUE,
+  created_at date DEFAULT CURRENT_DATE,
+  updated_at date DEFAULT CURRENT_DATE,
+  chief_complaint text,
+  refraction_notes text,
+  sph_od numeric NOT NULL DEFAULT 0,
+  cyl_od numeric DEFAULT 0,
+  axis_od integer DEFAULT 0,
+  va_od character varying,
+  prism_od numeric DEFAULT 0,
+  base_od character varying CHECK (base_od::text = ANY (ARRAY['IN'::character varying, 'OUT'::character varying, 'UP'::character varying, 'DOWN'::character varying, 'NONE'::character varying]::text[])),
+  add_od numeric DEFAULT 0,
+  sph_os numeric NOT NULL DEFAULT 0,
+  cyl_os numeric DEFAULT 0,
+  axis_os integer DEFAULT 0,
+  va_os character varying,
+  prism_os numeric DEFAULT 0,
+  base_os character varying CHECK (base_os::text = ANY (ARRAY['IN'::character varying, 'OUT'::character varying, 'UP'::character varying, 'DOWN'::character varying, 'NONE'::character varying]::text[])),
+  add_os numeric DEFAULT 0,
+  pd numeric DEFAULT 0,
+  material character varying CHECK (material::text = ANY (ARRAY['CR_39'::character varying, 'TRIVEX'::character varying, 'POLYCARBONATE'::character varying, 'HIGH_INDEX_1_60'::character varying, 'HIGH_INDEX_1_67'::character varying, 'HIGH_INDEX_1_74'::character varying, 'OTHER'::character varying]::text[])),
+  notes text,
+  has_anti_reflective_coating boolean DEFAULT false,
+  has_blue_light_filter boolean DEFAULT false,
+  has_uv_protection boolean DEFAULT false,
+  is_photochromic boolean DEFAULT false,
+  diagnosis text,
+  plan text,
+  signed_at date,
+  signed_by integer DEFAULT 0,
+  lens_type character varying DEFAULT 'OTHER'::character varying CHECK (lens_type::text = ANY (ARRAY['SINGLE_VISION'::character varying, 'BIFOCAL'::character varying, 'PROGRESSIVE'::character varying, 'CONTACT'::character varying, 'OTHER'::character varying]::text[])),
+  customer_id integer NOT NULL DEFAULT 0,
+  CONSTRAINT prescriptions_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_appointment FOREIGN KEY (appointment_id) REFERENCES public.appointments(id)
+);
+CREATE TABLE public.products (
+  id integer NOT NULL DEFAULT nextval('"Products_id_seq"'::regclass),
+  sku character varying NOT NULL UNIQUE,
+  name character varying NOT NULL,
+  category USER-DEFINED NOT NULL,
+  unit character varying,
+  price_cost integer,
+  price_retail integer,
+  is_active boolean DEFAULT true,
+  qty_on_hand integer NOT NULL DEFAULT 0,
+  batch_no character varying,
+  expiry_date date,
+  serial_no character varying,
+  note character varying,
+  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT products_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.stock_movements (
+  id integer NOT NULL DEFAULT nextval('"Stock_Movements_id_seq"'::regclass),
+  product_id integer NOT NULL,
+  qty integer NOT NULL,
+  move_type USER-DEFINED NOT NULL,
+  ref_table character varying,
+  ref_id integer,
+  batch_no character varying,
+  expiry_date date,
+  serial_no character varying,
+  moved_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+  moved_by integer NOT NULL,
+  note text,
+  CONSTRAINT stock_movements_pkey PRIMARY KEY (id),
+  CONSTRAINT Stock_Movements_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);

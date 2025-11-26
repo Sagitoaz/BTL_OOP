@@ -1,0 +1,297 @@
+// Eye Clinic Management System - Database Schema
+// Generated from Supabase SQL
+// Use this at: https://dbdiagram.io/
+
+Project EyeClinicDB {
+  database_type: 'PostgreSQL'
+  Note: 'Eye Clinic Management System Database Schema'
+}
+
+// ========================================
+// USER MANAGEMENT TABLES
+// ========================================
+
+Table admins {
+  id integer [pk, increment, note: 'Primary key']
+  username varchar [not null, unique, note: 'Admin username']
+  password varchar [not null, note: 'Hashed password']
+  email varchar [unique, note: 'Admin email']
+  is_active boolean [default: true, note: 'Account status']
+  
+  Note: 'Administrator accounts with full system access'
+}
+
+Table employees {
+  id integer [pk, increment, note: 'Primary key']
+  username varchar [not null, unique, note: 'Employee username']
+  password varchar [not null, note: 'Hashed password']
+  firstname varchar [not null, note: 'First name']
+  lastname varchar [not null, note: 'Last name']
+  avatar varchar [note: 'Profile picture URL']
+  role varchar [not null, note: 'USER-DEFINED: employee role (DOCTOR, NURSE, CASHIER, etc)']
+  license_no varchar [note: 'Professional license number']
+  email varchar [unique, note: 'Employee email']
+  phone varchar [note: 'Contact phone']
+  gender varchar [note: 'USER-DEFINED: MALE, FEMALE, OTHER']
+  is_active boolean [default: true, note: 'Employment status']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  
+  Note: 'Employee/Staff accounts including doctors, nurses, cashiers'
+}
+
+Table customers {
+  id integer [pk, increment, note: 'Primary key']
+  username varchar [not null, unique, note: 'Customer username']
+  password varchar [not null, note: 'Hashed password']
+  firstname varchar [not null, note: 'First name']
+  lastname varchar [not null, note: 'Last name']
+  phone varchar [unique, note: 'Contact phone']
+  email varchar [unique, note: 'Customer email']
+  dob date [note: 'Date of birth']
+  gender varchar [note: 'MALE, FEMALE, OTHER']
+  address varchar [note: 'Home address']
+  note varchar [note: 'Additional notes']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  
+  Note: 'Patient/Customer accounts'
+}
+
+// ========================================
+// APPOINTMENT & SCHEDULE TABLES
+// ========================================
+
+Table appointments {
+  id integer [pk, increment, note: 'Primary key']
+  customer_id integer [not null, ref: > customers.id, note: 'FK to customers']
+  doctor_id integer [not null, ref: > employees.id, note: 'FK to employees (doctor)']
+  appointment_type varchar [not null, default: 'visit', note: 'USER-DEFINED: visit, followup, emergency']
+  notes varchar [note: 'Appointment notes']
+  start_time timestamp [not null, note: 'Appointment start time']
+  end_time timestamp [not null, note: 'Appointment end time']
+  status varchar [not null, default: 'scheduled', note: 'USER-DEFINED: scheduled, confirmed, completed, cancelled']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  updated_at timestamp [note: 'Last update time']
+  
+  Indexes {
+    customer_id
+    doctor_id
+    start_time
+    status
+  }
+  
+  Note: 'Patient appointments with doctors'
+}
+
+Table doctor_schedules {
+  id integer [pk, increment, note: 'Primary key']
+  doctor_id integer [not null, ref: > employees.id, note: 'FK to employees (doctor)']
+  day_of_week varchar [not null, note: 'USER-DEFINED: MONDAY, TUESDAY, etc']
+  start_time time [not null, note: 'Schedule start time']
+  end_time time [not null, note: 'Schedule end time']
+  is_active boolean [not null, default: true, note: 'Schedule active status']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Last update time']
+  
+  Indexes {
+    doctor_id
+    day_of_week
+  }
+  
+  Note: 'Doctor weekly schedule availability'
+}
+
+// ========================================
+// PRESCRIPTION TABLE
+// ========================================
+
+Table prescriptions {
+  id integer [pk, increment, note: 'Primary key']
+  appointment_id integer [not null, unique, ref: - appointments.id, note: 'FK to appointments (one-to-one)']
+  customer_id integer [not null, default: 0, note: 'Customer reference']
+  created_at date [default: `CURRENT_DATE`, note: 'Creation date']
+  updated_at date [default: `CURRENT_DATE`, note: 'Update date']
+  
+  // Clinical Information
+  chief_complaint text [note: 'Patient main complaint']
+  refraction_notes text [note: 'Refraction test notes']
+  diagnosis text [note: 'Doctor diagnosis']
+  plan text [note: 'Treatment plan']
+  
+  // Right Eye (OD - Oculus Dexter)
+  sph_od numeric [not null, default: 0, note: 'Sphere power right eye']
+  cyl_od numeric [default: 0, note: 'Cylinder power right eye']
+  axis_od integer [default: 0, note: 'Axis right eye (0-180)']
+  va_od varchar [note: 'Visual acuity right eye']
+  prism_od numeric [default: 0, note: 'Prism right eye']
+  base_od varchar [note: 'Prism base direction: IN, OUT, UP, DOWN, NONE']
+  add_od numeric [default: 0, note: 'Addition power right eye']
+  
+  // Left Eye (OS - Oculus Sinister)
+  sph_os numeric [not null, default: 0, note: 'Sphere power left eye']
+  cyl_os numeric [default: 0, note: 'Cylinder power left eye']
+  axis_os integer [default: 0, note: 'Axis left eye (0-180)']
+  va_os varchar [note: 'Visual acuity left eye']
+  prism_os numeric [default: 0, note: 'Prism left eye']
+  base_os varchar [note: 'Prism base direction: IN, OUT, UP, DOWN, NONE']
+  add_os numeric [default: 0, note: 'Addition power left eye']
+  
+  // Lens Specifications
+  pd numeric [default: 0, note: 'Pupillary distance']
+  lens_type varchar [default: 'OTHER', note: 'SINGLE_VISION, BIFOCAL, PROGRESSIVE, CONTACT, OTHER']
+  material varchar [note: 'CR_39, TRIVEX, POLYCARBONATE, HIGH_INDEX_1_60, HIGH_INDEX_1_67, HIGH_INDEX_1_74, OTHER']
+  
+  // Lens Coatings
+  has_anti_reflective_coating boolean [default: false, note: 'Anti-reflective coating']
+  has_blue_light_filter boolean [default: false, note: 'Blue light filter']
+  has_uv_protection boolean [default: false, note: 'UV protection']
+  is_photochromic boolean [default: false, note: 'Photochromic lenses']
+  
+  // Additional Info
+  notes text [note: 'Additional prescription notes']
+  signed_at date [note: 'Prescription signing date']
+  signed_by integer [default: 0, note: 'Doctor who signed (employee_id)']
+  
+  Indexes {
+    appointment_id
+    customer_id
+    created_at
+  }
+  
+  Note: 'Spectacle prescriptions from appointments'
+}
+
+// ========================================
+// INVENTORY TABLES
+// ========================================
+
+Table products {
+  id integer [pk, increment, note: 'Primary key']
+  sku varchar [not null, unique, note: 'Stock keeping unit code']
+  name varchar [not null, note: 'Product name']
+  category varchar [not null, note: 'USER-DEFINED: FRAME, LENS, CONTACT_LENS, MACHINE, CONSUMABLE, SERVICE']
+  unit varchar [note: 'Unit of measurement']
+  price_cost integer [note: 'Cost price']
+  price_retail integer [note: 'Retail price']
+  is_active boolean [default: true, note: 'Product active status']
+  qty_on_hand integer [not null, default: 0, note: 'Current quantity in stock']
+  batch_no varchar [note: 'Batch number']
+  expiry_date date [note: 'Expiry date']
+  serial_no varchar [note: 'Serial number']
+  note varchar [note: 'Additional notes']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  
+  Indexes {
+    sku
+    category
+    is_active
+  }
+  
+  Note: 'Product catalog - frames, lenses, contact lenses, etc'
+}
+
+Table stock_movements {
+  id integer [pk, increment, note: 'Primary key']
+  product_id integer [not null, ref: > products.id, note: 'FK to products']
+  qty integer [not null, note: 'Quantity moved (positive or negative)']
+  move_type varchar [not null, note: 'USER-DEFINED: PURCHASE, SALE, RETURN_IN, RETURN_OUT, ADJUSTMENT, CONSUME, TRANSFER']
+  ref_table varchar [note: 'Reference table name']
+  ref_id integer [note: 'Reference record ID']
+  batch_no varchar [note: 'Batch number']
+  expiry_date date [note: 'Expiry date']
+  serial_no varchar [note: 'Serial number']
+  moved_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Movement timestamp']
+  moved_by integer [not null, note: 'Employee who made the movement']
+  note text [note: 'Movement notes']
+  
+  Indexes {
+    product_id
+    move_type
+    moved_at
+  }
+  
+  Note: 'Product inventory movement tracking'
+}
+
+// ========================================
+// PAYMENT TABLES
+// ========================================
+
+Table payments {
+  id integer [pk, increment, note: 'Primary key']
+  code varchar [unique, note: 'Payment invoice code']
+  customer_id integer [ref: > customers.id, note: 'FK to customers (nullable)']
+  cashier_id integer [not null, note: 'Employee who processed payment']
+  issued_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Payment issue time']
+  subtotal integer [not null, default: 0, note: 'Subtotal amount']
+  discount integer [not null, default: 0, note: 'Discount amount']
+  tax_total integer [not null, default: 0, note: 'Tax amount']
+  rounding integer [not null, default: 0, note: 'Rounding adjustment']
+  grand_total integer [not null, default: 0, note: 'Final total amount']
+  payment_method varchar [note: 'USER-DEFINED: CASH, CREDIT_CARD, BANK_TRANSFER']
+  amount_paid integer [note: 'Amount paid by customer']
+  note varchar [note: 'Payment notes']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Record creation time']
+  
+  Indexes {
+    code
+    customer_id
+    cashier_id
+    issued_at
+  }
+  
+  Note: 'Payment transactions and invoices'
+}
+
+Table payment_items {
+  id integer [pk, increment, note: 'Primary key']
+  product_id integer [not null, note: 'Product reference (not FK due to flexibility)']
+  payment_id integer [not null, ref: > payments.id, note: 'FK to payments']
+  description varchar [note: 'Item description']
+  qty integer [not null, note: 'Quantity purchased']
+  unit_price integer [not null, note: 'Unit price at time of sale']
+  total_line integer [not null, note: 'Line total (qty * unit_price)']
+  
+  Indexes {
+    payment_id
+    product_id
+  }
+  
+  Note: 'Individual line items in a payment/invoice'
+}
+
+Table payment_status_log {
+  id integer [pk, increment, note: 'Primary key']
+  payment_id integer [not null, ref: > payments.id, note: 'FK to payments']
+  changed_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Status change timestamp']
+  status varchar [not null, note: 'USER-DEFINED: payment status']
+  
+  Indexes {
+    payment_id
+    changed_at
+  }
+  
+  Note: 'Payment status change history log'
+}
+
+// ========================================
+// RELATIONSHIPS SUMMARY
+// ========================================
+
+// User Management
+// - employees: staff members including doctors
+// - customers: patients
+// - admins: system administrators
+
+// Appointments
+// - appointments: customer books with doctor
+// - doctor_schedules: doctor availability
+// - prescriptions: one per appointment
+
+// Inventory
+// - products: catalog items
+// - stock_movements: track all inventory changes
+
+// Payments
+// - payments: main invoice/receipt
+// - payment_items: line items in invoice
+// - payment_status_log: payment history tracking

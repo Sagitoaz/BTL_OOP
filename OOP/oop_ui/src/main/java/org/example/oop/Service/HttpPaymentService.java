@@ -49,9 +49,7 @@ public class HttpPaymentService {
         return instance;
     }
 
-    // ================================
     // SYNCHRONOUS METHODS (ĐỒNG BỘ)
-    // ================================
 
     /**
      * GET /payments - Lấy tất cả payments (Sync)
@@ -203,7 +201,7 @@ public class HttpPaymentService {
 
     /**
      * GET /payments/with-status?id={id} - Lấy 1 payment với trạng thái theo ID (Sync)
-     * ✅ TỐI ƯU: Gộp 2 requests (payment + status) thành 1 request duy nhất
+     * TỐI ƯU: Gộp 2 requests (payment + status) thành 1 request duy nhất
      */
     public ApiResponse<PaymentWithStatus> getPaymentWithStatusById(int paymentId) {
         String endpoint = PaymentConfig.GET_PAYMENT_WITH_STATUS_ENDPOINT + "?id=" + paymentId;
@@ -234,9 +232,7 @@ public class HttpPaymentService {
         }
     }
 
-    // ================================
     // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
-    // ================================
 
     /**
      * ASYNC - GET /payments - Lấy tất cả payments (Async)
@@ -388,9 +384,7 @@ public class HttpPaymentService {
         }
     }
 
-    // ================================
     // UTILITY METHODS (PHƯƠNG THỨC HỖ TRỢ)
-    // ================================
 
     /**
      * Kiểm tra kết nối server (Async)

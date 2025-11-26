@@ -10,29 +10,29 @@ public final class AuthConstants {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    // ========== JWT CONFIGURATION ==========
+    // JWT CONFIGURATION 
     public static final String JWT_SECRET_KEY = "miniboot-secret-key-must-be-at-least-256-bits-long-for-security";
     public static final long JWT_EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
     public static final String JWT_ISSUER = "mini-boot-server";
     public static final String JWT_AUDIENCE = "mini-boot-client";
 
-    // ========== TOKEN CONFIGURATION ==========
+    // TOKEN CONFIGURATION 
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String TOKEN_HEADER = "Authorization";
     public static final String TOKEN_TYPE = "Bearer";
     public static final int TOKEN_EXPIRATION_SECONDS = 86400; // 24 hours
 
-    // ========== SESSION CONFIGURATION ==========
+    // SESSION CONFIGURATION 
     public static final long SESSION_TIMEOUT = 1800000; // 30 minutes in milliseconds
     public static final String SESSION_ID_HEADER = "X-Session-ID";
     public static final String SESSION_COOKIE_NAME = "SESSIONID";
 
-    // ========== PASSWORD CONFIGURATION ==========
+    // PASSWORD CONFIGURATION 
     public static final int PASSWORD_MIN_LENGTH = 6;
     public static final int PASSWORD_MAX_LENGTH = 128;
     public static final int BCRYPT_ROUNDS = 10;
 
-    // ========== AUTHENTICATION ERROR MESSAGES ==========
+    // AUTHENTICATION ERROR MESSAGES 
     public static final String ERROR_INVALID_CREDENTIALS = "Invalid username or password";
     public static final String ERROR_TOKEN_EXPIRED = "Token has expired";
     public static final String ERROR_TOKEN_INVALID = "Invalid token";
@@ -45,14 +45,14 @@ public final class AuthConstants {
     public static final String ERROR_MISSING_USERNAME = "Username is required";
     public static final String ERROR_MISSING_PASSWORD = "Password is required";
 
-    // ========== AUTHENTICATION SUCCESS MESSAGES ==========
+    // AUTHENTICATION SUCCESS MESSAGES 
     public static final String SUCCESS_LOGIN = "Login successful";
     public static final String SUCCESS_LOGOUT = "Logout successful";
     public static final String SUCCESS_REGISTER = "Registration successful";
     public static final String SUCCESS_PASSWORD_CHANGED = "Password changed successfully";
     public static final String SUCCESS_PASSWORD_RESET = "Password reset successful";
 
-    // ========== REQUEST FIELD NAMES ==========
+    // REQUEST FIELD NAMES 
     public static final String FIELD_USERNAME = "username";
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_EMAIL = "email";
@@ -60,7 +60,7 @@ public final class AuthConstants {
     public static final String FIELD_NEW_PASSWORD = "newPassword";
     public static final String FIELD_CONFIRM_PASSWORD = "confirmPassword";
 
-    // ========== RESPONSE FIELD NAMES ==========
+    // RESPONSE FIELD NAMES 
     public static final String FIELD_ACCESS_TOKEN = "access_token";
     public static final String FIELD_TOKEN_TYPE = "token_type";
     public static final String FIELD_EXPIRES_IN = "expires_in";
@@ -68,7 +68,7 @@ public final class AuthConstants {
     public static final String FIELD_ROLE = "role";
     public static final String FIELD_MESSAGE = "message";
 
-    // ========== USER ROLES ==========
+    // USER ROLES 
     public static final String ROLE_ADMIN = "admin";
     public static final String ROLE_USER = "user";
     public static final String ROLE_DOCTOR = "doctor";
@@ -78,14 +78,14 @@ public final class AuthConstants {
     public static final String ROLE_INVENTORY_STAFF = "inventory_staff";
     public static final String ROLE_CUSTOMER = "customer";
 
-    // ========== PERMISSION ACTIONS ==========
+    // PERMISSION ACTIONS 
     public static final String PERMISSION_READ = "read";
     public static final String PERMISSION_WRITE = "write";
     public static final String PERMISSION_UPDATE = "update";
     public static final String PERMISSION_DELETE = "delete";
     public static final String PERMISSION_ADMIN = "admin";
 
-    // ========== AUTHENTICATION ENDPOINTS ==========
+    // AUTHENTICATION ENDPOINTS 
     public static final String ENDPOINT_LOGIN = "/auth/login";
     public static final String ENDPOINT_LOGOUT = "/auth/logout";
     public static final String ENDPOINT_REGISTER = "/auth/register";

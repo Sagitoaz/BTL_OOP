@@ -10,7 +10,7 @@ public final class DatabaseConstants {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    // ========== DATABASE CONFIGURATION KEYS ==========
+    // DATABASE CONFIGURATION KEYS 
     public static final String CONFIG_DB_URL = "DB_URL";
     public static final String CONFIG_DB_USER = "DB_USER";
     public static final String CONFIG_DB_PASSWORD = "DB_PASSWORD";
@@ -18,7 +18,7 @@ public final class DatabaseConstants {
     public static final String CONFIG_DB_POOL_SIZE = "DB_POOL_SIZE";
     public static final String CONFIG_DB_TIMEOUT = "DB_TIMEOUT";
 
-    // ========== DATABASE DEFAULT VALUES ==========
+    // DATABASE DEFAULT VALUES 
     public static final String DEFAULT_DB_URL = "jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:6543/postgres";
     public static final String DEFAULT_DB_USER = "postgres.dwcpuomioxgqznusjewq";
     public static final String DEFAULT_DB_PASSWORD = "Nguhotuongd23@";
@@ -26,13 +26,13 @@ public final class DatabaseConstants {
     public static final int DEFAULT_DB_POOL_SIZE = 10;
     public static final int DEFAULT_DB_TIMEOUT = 10; // seconds
 
-    // ========== DATABASE DRIVERS ==========
+    // DATABASE DRIVERS 
     public static final String DRIVER_POSTGRESQL = "org.postgresql.Driver";
     public static final String DRIVER_MYSQL = "com.mysql.cj.jdbc.Driver";
     public static final String DRIVER_SQLITE = "org.sqlite.JDBC";
     public static final String DRIVER_H2 = "org.h2.Driver";
 
-    // ========== COMMON TABLE NAMES ==========
+    // COMMON TABLE NAMES 
     public static final String TABLE_USERS = "users";
     public static final String TABLE_CUSTOMERS = "customers";
     public static final String TABLE_EMPLOYEES = "employees";
@@ -46,7 +46,7 @@ public final class DatabaseConstants {
     public static final String TABLE_PAYMENT_ITEMS = "payment_items";
     public static final String TABLE_PAYMENT_STATUS_LOG = "payment_status_log";
 
-    // ========== COMMON COLUMN NAMES ==========
+    // COMMON COLUMN NAMES 
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_UUID = "uuid";
     public static final String COLUMN_CREATED_AT = "created_at";
@@ -65,7 +65,7 @@ public final class DatabaseConstants {
     public static final String COLUMN_ROLE = "role";
     public static final String COLUMN_STATUS = "status";
 
-    // ========== SQL KEYWORDS ==========
+    // SQL KEYWORDS 
     public static final String SQL_SELECT = "SELECT";
     public static final String SQL_FROM = "FROM";
     public static final String SQL_WHERE = "WHERE";
@@ -84,7 +84,7 @@ public final class DatabaseConstants {
     public static final String SQL_ASC = "ASC";
     public static final String SQL_DESC = "DESC";
 
-    // ========== DATABASE ERROR MESSAGES ==========
+    // DATABASE ERROR MESSAGES 
     public static final String ERROR_CONNECTION_FAILED = "Failed to connect to database";
     public static final String ERROR_QUERY_FAILED = "Failed to execute query";
     public static final String ERROR_DRIVER_NOT_FOUND = "Database driver not found";
@@ -93,14 +93,14 @@ public final class DatabaseConstants {
     public static final String ERROR_TIMEOUT = "Database operation timeout";
     public static final String ERROR_TRANSACTION_FAILED = "Transaction failed";
 
-    // ========== DATABASE SUCCESS MESSAGES ==========
+    // DATABASE SUCCESS MESSAGES 
     public static final String SUCCESS_CONNECTION = "Database connection established successfully";
     public static final String SUCCESS_QUERY = "Query executed successfully";
     public static final String SUCCESS_INSERT = "Record inserted successfully";
     public static final String SUCCESS_UPDATE = "Record updated successfully";
     public static final String SUCCESS_DELETE = "Record deleted successfully";
 
-    // ========== QUERY PARAMETERS ==========
+    // QUERY PARAMETERS 
     public static final String PARAM_LIMIT = "limit";
     public static final String PARAM_OFFSET = "offset";
     public static final String PARAM_PAGE = "page";

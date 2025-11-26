@@ -261,7 +261,6 @@ public class PaymentHistoryController implements Initializable {
         if (status == PaymentStatus.UNPAID || status == PaymentStatus.PENDING) {
             showPaymentActionDialog(payment, status);
         } else {
-            // TODO: Xem chi tiết payment cho các status khác
             showPaymentDetails(payment);
         }
     }
@@ -532,7 +531,6 @@ public class PaymentHistoryController implements Initializable {
     }
 
     private void showPaymentDetails(Payment payment) {
-        // TODO: Sẽ thêm chức năng xem chi tiết sau
     }
     
     @FXML

@@ -102,7 +102,7 @@ public class CalendarController extends BaseController implements Initializable 
     @FXML
     private Button reloadButton;
 
-    // ==================== LOADING STATUS ====================
+    //  LOADING STATUS 
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -505,7 +505,7 @@ public class CalendarController extends BaseController implements Initializable 
         System.out.println("✅ Calendar pre-selection completed");
     }
 
-    // ==================== APPOINTMENT DETAIL ====================
+    //  APPOINTMENT DETAIL 
 
     private void showAppointmentDetail(Appointment apt) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

@@ -33,11 +33,11 @@ import javafx.scene.layout.HBox;
 
 public class StockMovementController extends BaseController {
 
-     // ===== Header & Filter Section =====
+     //  Header & Filter Section 
      @FXML
      private Label statsLabel;
 
-     // ==================== LOADING STATUS ====================
+     //  LOADING STATUS 
      @FXML
      private HBox loadingStatusContainer;
      @FXML
@@ -54,7 +54,7 @@ public class StockMovementController extends BaseController {
      @FXML
      private DatePicker filterDateTo;
 
-     // ===== Left Panel - Record New Movement =====
+     //  Left Panel - Record New Movement 
      @FXML
      private TextField productField;
      @FXML
@@ -88,13 +88,13 @@ public class StockMovementController extends BaseController {
      @FXML
      private Button resetFilterButton;
 
-     // ===== Edit Mode Controls =====
+     //  Edit Mode Controls 
      @FXML
      private Label modeLabel;
      @FXML
      private Label statusLabel;
 
-     // ===== Right Panel - Movement History Table =====
+     //  Right Panel - Movement History Table 
      @FXML
      private TableView<StockMovement> movementTable;
      @FXML
@@ -124,7 +124,7 @@ public class StockMovementController extends BaseController {
      @FXML
      private TableColumn<StockMovement, String> noteColumn;
 
-     // ===== Bottom - Footer =====
+     //  Bottom - Footer 
      @FXML
      private Label footerStatusLabel;
      @FXML
@@ -132,16 +132,16 @@ public class StockMovementController extends BaseController {
      @FXML
      private Label selectedProductLabel;
 
-     // ===== Services - Gọi API backend =====
+     //  Services - Gọi API backend 
      private final ApiStockMovementService stockMovementService = new ApiStockMovementService();
      private final ApiProductService productService = new ApiProductService();
 
-     // ===== Data - ObservableList tự động update UI =====
+     //  Data - ObservableList tự động update UI 
      private final ObservableList<StockMovement> allMovements = FXCollections.observableArrayList();
      private final ObservableList<StockMovement> filteredMovements = FXCollections.observableArrayList();
      private final ObservableList<Product> allProducts = FXCollections.observableArrayList();
 
-     // ===== Mode State - Phân biệt ADD/EDIT =====
+     //  Mode State - Phân biệt ADD/EDIT 
      private boolean isEditMode = false;
      private StockMovement editingMovement = null;
      private Integer selectedProductId = null;
@@ -160,10 +160,8 @@ public class StockMovementController extends BaseController {
      private void handleReloadButton() {
           SceneManager.reloadCurrentScene();
      }
-
-     // ====================================================================
+     
      // INITIALIZATION
-     // ====================================================================
 
      /**
       * Initialize - Entry point khi controller được load
@@ -332,9 +330,7 @@ public class StockMovementController extends BaseController {
           System.out.println("✅ Event handlers setup completed");
      }
 
-     // ====================================================================
      // DATA LOADING
-     // ====================================================================
 
      /**
       * Load danh sách products từ API
@@ -365,7 +361,7 @@ public class StockMovementController extends BaseController {
 
      /**
       * Load danh sách stock movements từ API
-      * ✅ Dùng BaseController.executeAsync() - tự động xử lý background thread
+      * Dùng BaseController.executeAsync() - tự động xử lý background thread
       */
      private void loadDataAsync() {
           if (statusLabel != null) {
@@ -418,9 +414,7 @@ public class StockMovementController extends BaseController {
                     });
      }
 
-     // ====================================================================
      // CRUD OPERATIONS
-     // ====================================================================
 
      /**
       * CREATE - Tạo stock movement mới
@@ -523,9 +517,7 @@ public class StockMovementController extends BaseController {
                     });
      }
 
-     // ====================================================================
      // BUTTON EVENT HANDLERS
-     // ====================================================================
 
      @FXML
      private void onSaveButton() {
@@ -661,9 +653,7 @@ public class StockMovementController extends BaseController {
           }
      }
 
-     // ====================================================================
      // FILTER LOGIC
-     // ====================================================================
 
      /**
       * Apply filters theo product, moveType, dateRange
@@ -721,10 +711,8 @@ public class StockMovementController extends BaseController {
                statusLabel.setText("✅ Tìm thấy " + filtered.size() + " movements");
           }
      }
-
-     // ====================================================================
+     
      // HELPER METHODS
-     // ====================================================================
 
      /**
       * Setup product filter dropdown
@@ -814,10 +802,8 @@ public class StockMovementController extends BaseController {
                selectedProductId = null;
           }
      }
-
-     // ====================================================================
+     
      // FORM OPERATIONS
-     // ====================================================================
 
      /**
       * Validate form trước khi save
@@ -1011,9 +997,7 @@ public class StockMovementController extends BaseController {
                noteField.setText(m.getNote());
      }
 
-     // ====================================================================
      // MODE SWITCHING - ADD vs EDIT
-     // ====================================================================
 
      private void enterAddMode() {
           isEditMode = false;

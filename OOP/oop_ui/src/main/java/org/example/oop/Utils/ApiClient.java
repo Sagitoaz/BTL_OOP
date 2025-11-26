@@ -50,9 +50,7 @@ public class ApiClient {
           return instance;
      }
 
-     // ================================
      // HELPER METHOD - JWT TOKEN
-     // ================================
 
      /**
       * Add JWT token to request builder if available
@@ -74,9 +72,7 @@ public class ApiClient {
           return builder;
      }
 
-     // ================================
      // SYNCHRONOUS HTTP METHODS
-     // ================================
 
      /**
       * Synchronous GET request
@@ -172,9 +168,7 @@ public class ApiClient {
           }
      }
 
-     // ================================
      // ASYNCHRONOUS HTTP METHODS
-     // ================================
 
      /**
       * Asynchronous GET request with JavaFX Platform threading
@@ -310,9 +304,7 @@ public class ApiClient {
                     });
      }
 
-     // ================================
      // RESPONSE HANDLING
-     // ================================
 
      /**
       * Process HTTP response and convert to ApiResponse
@@ -350,9 +342,7 @@ public class ApiClient {
           return ApiResponse.error(errorMessage, statusCode);
      }
 
-     // ================================
      // UTILITY METHODS
-     // ================================
 
      /**
       * Test connection to backend
@@ -383,9 +373,7 @@ public class ApiClient {
                     ", Request Timeout: " + ApiConfig.REQUEST_TIMEOUT + "s";
      }
 
-     // ================================
      // JSON HELPER METHODS
-     // ================================
 
      /**
       * Simple JSON builder for basic objects

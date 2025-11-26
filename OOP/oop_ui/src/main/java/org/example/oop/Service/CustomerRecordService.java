@@ -51,9 +51,7 @@ public class CustomerRecordService {
         return instance;
     }
 
-    // ================================
     // SYNCHRONOUS METHODS (ĐỒNG BỘ)
-    // ================================
 
     /**
      * GET /customers - Lấy tất cả customers (Sync)
@@ -195,9 +193,7 @@ public class CustomerRecordService {
         }
     }
 
-    // ================================
     // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
-    // ================================
 
     /**
      * ASYNC - GET /customers - Lấy tất cả customers (Async)
@@ -414,9 +410,7 @@ public class CustomerRecordService {
                     onError.accept(error);
                 });
     }
-    // ================================
     // UTILITY METHODS (PHƯƠNG THỨC HỖ TRỢ)
-    // ================================
 
     /**
      * Kiểm tra kết nối server (Async)

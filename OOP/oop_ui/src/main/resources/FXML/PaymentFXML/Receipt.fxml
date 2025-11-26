@@ -7,6 +7,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
@@ -153,14 +155,17 @@
                     <Label style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"
                            text="Quét mã QR để nhận tư vấn và hỗ trợ trực tuyến"/>
 
-                    <!-- QR Code Placeholder -->
-                    <VBox alignment="CENTER"
-                          style="-fx-background-color: #ecf0f1; -fx-border-color: #bdc3c7; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;">
+                    <!-- QR Code Image -->
+                    <VBox alignment="CENTER">
                         <padding>
-                            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                            <Insets top="10.0"/>
                         </padding>
-                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#95a5a6" height="120.0" width="120.0"/>
-                        <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="QR Code">
+                        <ImageView fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../../Image/qrcode.png"/>
+                            </image>
+                        </ImageView>
+                        <Label style="-fx-font-size: 11px; -fx-text-fill: #7f8c8d;" text="Quét mã để thanh toán">
                             <padding>
                                 <Insets top="8.0"/>
                             </padding>

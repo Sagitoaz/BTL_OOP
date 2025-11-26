@@ -109,7 +109,7 @@ public class PostgreSQLProductRepository implements ProductRepository {
      }
 
      private Product insert(Product p) {
-          // ✅ FIX: Cast category to product_category ENUM type
+          // Cast category to product_category ENUM type
           String sql = "INSERT INTO Products (sku, name, category, unit, price_cost, price_retail, " +
                     "is_active, qty_on_hand, batch_no, expiry_date, serial_no, note, created_at) " +
                     "VALUES (?,?,?::product_category,?,?,?,?,?,?,?,?,?,?) RETURNING id";

@@ -164,10 +164,7 @@ public abstract class BaseController {
           showAlert(Alert.AlertType.WARNING, "Cảnh báo", message);
      }
 
-     // ================================
      // LOADING INDICATOR METHODS (Ngày 5 - 28/10)
-     // ================================
-
      /**
       * Execute async task với loading indicator
       * 
@@ -392,7 +389,7 @@ public abstract class BaseController {
           executeWithLoading(container, loadingMessage, taskSupplier, onSuccess, this::handleError);
      }
 
-     // ==================== LOADING STATUS HELPERS ====================
+     //  LOADING STATUS HELPERS 
 
      /**
       * Show loading status indicator on navigation bar

@@ -91,7 +91,7 @@ public class FinancialReportController extends BaseController implements Initial
         }
         
         showSuccess("Đang tải dữ liệu báo cáo...");
-        // TODO: Load data based on date range
+
     }
     
     @FXML

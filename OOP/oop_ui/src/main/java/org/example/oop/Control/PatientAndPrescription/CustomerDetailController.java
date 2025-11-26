@@ -76,10 +76,6 @@ public class CustomerDetailController {
         setupTableColumns();
     }
 
-
-
-
-
     private void setupTableColumns() {
         PrescriptionService prescriptionService = new PrescriptionService();
         System.out.println("Loading prescriptions for customer ID: " + customerIdLabel.getText());

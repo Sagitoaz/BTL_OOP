@@ -20,7 +20,7 @@ import java.util.List;
 
 public class PrescriptionEditorController implements Initializable {
 
-    //--Thong tin chinnh--
+    //Thong tin chinnh
     @FXML
     private TextField appointmentIdField;
     @FXML
@@ -33,8 +33,8 @@ public class PrescriptionEditorController implements Initializable {
     private TextField chiefComplaintField;
     @FXML
     private TextArea refractionNotesArea;
-    //--Thong so kham mat--
-    //--Thong so mat trai
+    //Thong so kham mat
+    //Thong so mat trai
     @FXML
     private TextField sphOsField;
     @FXML
@@ -49,7 +49,7 @@ public class PrescriptionEditorController implements Initializable {
     private ComboBox<Prescription.Base> baseOsCombo;
     @FXML
     private TextField addOsField;
-    //--Thong so mat phai
+    //Thong so mat phai
     @FXML
     private TextField sphOdField;
     @FXML
@@ -83,7 +83,7 @@ public class PrescriptionEditorController implements Initializable {
     @FXML
     private ComboBox<Prescription.Material> materialCombo;
 
-    //--Thong tin kham--
+    //Thong tin kham
     @FXML
     private TextArea assessmentArea;
     @FXML
@@ -167,18 +167,6 @@ public class PrescriptionEditorController implements Initializable {
 
 
     }
-//    public void initData(Appointment appointment) {
-//        String patientName = appointment..getFullName();
-//        patientNameField.setText(patientName);
-//        this.idPatient = idPatient;
-//        System.out.println(idPatient);
-//        currentPrescription = prescription;
-//
-//        // Nếu prescription không null, load dữ liệu vào form
-//        if (prescription != null) {
-//            loadPrescriptionData(prescription);
-//        }
-//    }
 
     private void loadPrescriptionData(Prescription prescription) {
         // Thông tin chính

@@ -143,7 +143,4 @@ public class AddCustomerViewController implements Initializable
         if (pr == null) return;
         CustomerRecordService.getInstance().deleteCustomer(pr.getId());
     }
-
-
-
 }

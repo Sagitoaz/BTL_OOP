@@ -63,18 +63,18 @@ public class Prescription {
         }
     }
 
-    // --- ID Fields ---
+    //  ID Fields 
     private int id;
     private int appointmentId;
     private int customerId;
 
-    // --- Examination Info ---
+    //  Examination Info 
     private LocalDate created_at;
     private LocalDate updated_at;
     private String chiefComplaint;
     private String refractionNotes;
 
-    // --- OD (Right Eye) Prescription ---
+    //  OD (Right Eye) Prescription 
     private double sph_od;
     private double cyl_od;
     private int axis_od;
@@ -83,7 +83,7 @@ public class Prescription {
     private Base base_od;
     private double add_od;
 
-    // --- OS (Left Eye) Prescription ---
+    //  OS (Left Eye) Prescription 
     private double sph_os;
     private double cyl_os;
     private int axis_os;
@@ -92,22 +92,22 @@ public class Prescription {
     private Base base_os;
     private double add_os;
 
-    // --- General Prescription Details ---
+    //  General Prescription Details 
     private double pd;
     private Material material;
     private String notes;
 
-    // --- Lens Features ---
+    //  Lens Features 
     private boolean hasAntiReflectiveCoating;
     private boolean hasBlueLightFilter;
     private boolean hasUvProtection;
     private boolean isPhotochromic;
 
-    // --- Diagnosis & Plan ---
+    //  Diagnosis & Plan 
     private String diagnosis;
     private String plan;
 
-    // --- Signature ---
+    //  Signature 
     private LocalDate signedAt;
     private int signedBy;
     private Lens_Type lens_type;
@@ -159,7 +159,7 @@ public class Prescription {
         this.lens_type = lens_type;
     }
 
-    // --- Getters ---
+    //  Getters 
     public int getId() { return id; }
     public int getAppointmentId() { return appointmentId; }
     public int getCustomerId() { return customerId; }
@@ -194,7 +194,7 @@ public class Prescription {
     public int getSignedBy() { return signedBy; }
     public Lens_Type getLens_type() { return lens_type; }
 
-    // --- Setters ---
+    //  Setters 
     public void setId(int id) { this.id = id; }
     public void setAppointmentId(int appointmentId) { this.appointmentId = appointmentId; }
     public void setCustomerId(int customerId) { this.customerId = customerId; }

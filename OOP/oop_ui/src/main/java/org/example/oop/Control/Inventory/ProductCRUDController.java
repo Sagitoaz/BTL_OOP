@@ -12,15 +12,15 @@ import org.example.oop.Service.ApiProductService;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.Inventory.Product; // ✅ Import Product model từ mini-boot
-import org.miniboot.app.domain.models.Inventory.Enum.Category; // ✅ Import Category enum từ mini-boot
+import org.miniboot.app.domain.models.Inventory.Product; // Import Product model từ mini-boot
+import org.miniboot.app.domain.models.Inventory.Enum.Category; // Import Category enum từ mini-boot
 import org.miniboot.app.domain.models.UserRole;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ProductCRUDController extends BaseController implements javafx.fxml.Initializable {
-     // ==================== TABLE COLUMNS ====================
+     //  TABLE COLUMNS 
      @FXML
      private TableView<Product> productTable;
      @FXML
@@ -38,7 +38,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private TableColumn<Product, String> statusColumn;
 
-     // ==================== FORM FIELDS ====================
+     //  FORM FIELDS 
      @FXML
      private TextField skuField;
      @FXML
@@ -50,27 +50,27 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private TextField priceCostField;
      @FXML
-     private TextField priceRetailField; // ✅ Changed from priceField
+     private TextField priceRetailField; // Changed from priceField
      @FXML
      private ComboBox<Category> categoryBox;
      @FXML
      private ComboBox<String> statusBox;
      @FXML
-     private TextField batchNoField; // ✅ Added
+     private TextField batchNoField; // Added
      @FXML
-     private TextField expiryDateField; // ✅ Added (TextField instead of DatePicker)
+     private TextField expiryDateField; // Added (TextField instead of DatePicker)
      @FXML
-     private TextField serialNoField; // ✅ Added
+     private TextField serialNoField; // Added
      @FXML
      private TextArea noteArea;
 
-     // ==================== FILTER CONTROLS ====================
+     //  FILTER CONTROLS 
      @FXML
      private TextField searchField;
      @FXML
      private ComboBox<Category> filterCategoryBox;
 
-     // ==================== BUTTONS ====================
+     //  BUTTONS 
      @FXML
      private Button saveButton;
      @FXML
@@ -84,7 +84,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Button addNewButton;
 
-     // ==================== LABELS ====================
+     //  LABELS 
      @FXML
      private Label statusLabel;
      @FXML
@@ -98,7 +98,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Label lastUpdateLabel;
 
-     // ==================== LOADING STATUS ====================
+     //  LOADING STATUS 
      @FXML
      private HBox loadingStatusContainer;
      @FXML
@@ -106,7 +106,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      @FXML
      private Label loadingStatusLabel;
 
-     // ==================== DATA & SERVICES ====================
+     //  DATA & SERVICES 
 
      private final ApiProductService productService = new ApiProductService();
      private final ObservableList<Product> productList = FXCollections.observableArrayList();
@@ -135,7 +135,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand"));
           priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail"));
           categoryColumn.setCellValueFactory(cellData -> {
-               Category category = cellData.getValue().getCategoryEnum(); // ✅ Sử dụng getCategoryEnum()
+               Category category = cellData.getValue().getCategoryEnum(); // Sử dụng getCategoryEnum()
                return new javafx.beans.property.SimpleStringProperty(
                          category != null ? category.getDisplayName() : "N/A");
           });
@@ -174,7 +174,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      }
 
      private void setupFormBoxes() {
-          // ✅ Dùng ENUM cho Category
+          // Dùng ENUM cho Category
           categoryBox.setItems(FXCollections.observableArrayList(Category.values()));
           categoryBox.setConverter(new javafx.util.StringConverter<Category>() {
                @Override
@@ -206,7 +206,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           });
           filterCategoryBox.getSelectionModel().selectFirst();
 
-          // ✅ Dùng STRING cho isActive status
+          // Dùng STRING cho isActive status
           statusBox.setItems(FXCollections.observableArrayList("Hoạt động", "Ngừng hoạt động"));
           statusBox.getSelectionModel().selectFirst(); // Default: "Hoạt động"
      }
@@ -229,7 +229,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
      private void handleReloadButton() {
           SceneManager.reloadCurrentScene();
      }
-     // ==================== ASYNC DATA LOADING ====================
+     //  ASYNC DATA LOADING 
 
      /**
       * Load tất cả products từ API trong background thread
@@ -808,7 +808,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           }
      }
 
-     // ==================== FILTER LOGIC ====================
+     //  FILTER LOGIC 
 
      private void applyFilter() {
           String keyword = searchField != null ? normalizeText(searchField.getText()) : "";
@@ -922,7 +922,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
 
           product.setSku(skuField.getText().trim());
           product.setName(nameField.getText().trim());
-          product.setCategoryEnum(categoryBox.getValue()); // ✅ ENUM Category → String
+          product.setCategoryEnum(categoryBox.getValue()); // ENUM Category → String
           product.setUnit(unitField.getText().trim());
           product.setQtyOnHand(parseInt(quantityField.getText(), 0));
           product.setPriceRetail(parseInt(priceRetailField.getText(), 0));
@@ -964,7 +964,7 @@ public class ProductCRUDController extends BaseController implements javafx.fxml
           return true;
      }
 
-     // ==================== UI HELPERS ====================
+     //  UI HELPERS 
 
      private void showLoading(boolean show) {
           runOnUIThread(() -> {

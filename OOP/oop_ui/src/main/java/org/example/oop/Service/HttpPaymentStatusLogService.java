@@ -49,9 +49,7 @@ public class HttpPaymentStatusLogService {
         return instance;
     }
 
-    // ================================
     // SYNCHRONOUS METHODS (ĐỒNG BỘ)
-    // ================================
 
     /**
      * GET /paymentStatusLogs - Lấy tất cả payment status logs (Sync)
@@ -241,9 +239,7 @@ public class HttpPaymentStatusLogService {
         return createPaymentStatusLog(log);
     }
 
-    // ================================
     // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
-    // ================================
 
     /**
      * ASYNC - GET /paymentStatusLogs - Lấy tất cả logs (Async)

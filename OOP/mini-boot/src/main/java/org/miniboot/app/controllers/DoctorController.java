@@ -110,7 +110,7 @@ public class DoctorController {
     /**
      * Tính toán slot trống cho bác sĩ trong ngày
      * KHÔNG lưu vào DB, chỉ tính toán runtime
-     * ✅ Sử dụng lịch làm việc thực tế từ doctor_schedules
+     * Sử dụng lịch làm việc thực tế từ doctor_schedules
      */
     private List<TimeSlot> calculateAvailableSlots(int doctorId, String date) throws SQLException {
         List<TimeSlot> slots = new ArrayList<>();
@@ -123,12 +123,12 @@ public class DoctorController {
         System.out.println("   - Doctor ID: " + doctorId);
         System.out.println("   - Date: " + date + " (" + dayOfWeek + ")");
 
-        // 2. ✅ Lấy lịch làm việc của bác sĩ trong ngày này
+        // 2. Lấy lịch làm việc của bác sĩ trong ngày này
         List<DoctorSchedule> workingSchedules = scheduleRepository.findByDoctorIdAndDay(doctorId, dayOfWeek);
         
         if (workingSchedules.isEmpty()) {
             System.out.println("⚠️ Doctor has NO working schedule on " + dayOfWeek);
-            return slots; // Không làm việc ngày này → trả về list rỗng
+            return slots; // Không làm việc ngày này -> trả về list rỗng
         }
         
         System.out.println("✅ Found " + workingSchedules.size() + " working schedules for this day:");
@@ -140,7 +140,7 @@ public class DoctorController {
         List<Appointment> bookedAppointments = appointmentRepository.findByDoctorIdAndDate(doctorId, date);
         System.out.println("📅 Found " + bookedAppointments.size() + " booked appointments");
 
-        // 4. ✅ Sinh slots cho MỖI khung giờ làm việc
+        // 4. Sinh slots cho MỖI khung giờ làm việc
         int slotDuration = 30; // 30 phút mỗi slot
         
         for (DoctorSchedule schedule : workingSchedules) {

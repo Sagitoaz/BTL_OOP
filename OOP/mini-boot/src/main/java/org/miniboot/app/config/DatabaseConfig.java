@@ -70,7 +70,7 @@ public class DatabaseConfig {
 
     /**
      * Lấy connection đến database
-     * ✅ FIX: Tạo connection MỚI mỗi lần thay vì reuse (để tránh connection block)
+     * Tạo connection mới mỗi lần thay vì reuse (để tránh connection block)
      * Connection sẽ được đóng bởi caller trong try-with-resources
      */
     public Connection getConnection() throws SQLException {
@@ -78,10 +78,10 @@ public class DatabaseConfig {
             // Load PostgreSQL driver
             Class.forName(DatabaseConstants.DEFAULT_DB_DRIVER);
 
-            // ✅ Set connection timeout
+            // Set connection timeout
             DriverManager.setLoginTimeout(DatabaseConstants.DEFAULT_DB_TIMEOUT);
 
-            // ✅ Tạo connection MỚI mỗi lần (không cache)
+            // Tạo connection MỚI mỗi lần (không cache)
             Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
             System.out.println(SuccessMessages.SUCCESS_DB_CONNECTION);

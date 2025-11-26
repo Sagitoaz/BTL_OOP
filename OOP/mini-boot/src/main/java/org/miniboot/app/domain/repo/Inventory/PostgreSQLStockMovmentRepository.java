@@ -122,7 +122,7 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
                 m.setId(rs.getInt(1));
                 System.out.println("✅ Stock movement created: ID = " + m.getId());
 
-                // ✅ UPDATE product qty_on_hand
+                // UPDATE product qty_on_hand
                 updateProductQuantity(conn, m.getProductId(), m.getQty());
             }
         } catch (SQLException e) {
@@ -188,7 +188,7 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
                 }
             }
 
-            // ✅ UPDATE product qty_on_hand
+            // UPDATE product qty_on_hand
             for (StockMovement m : movements) {
                 updateProductQuantity(conn, m.getProductId(), m.getQty());
             }
@@ -209,7 +209,7 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
 
 
     private StockMovement update(StockMovement m) {
-        // ⚠️ Cần lấy qty và product_id CŨ để revert, sau đó apply qty MỚI
+        // Cần lấy qty và product_id CŨ để revert, sau đó apply qty MỚI
         String selectSql = "SELECT product_id, qty FROM stock_movements WHERE id = ?";
         String updateSql = "UPDATE stock_movements SET product_id=?, qty=?, move_type=?::stock_movement_type, " +
                 "ref_table=?, ref_id=?, batch_no=?, expiry_date=?, serial_no=?, " +
@@ -333,7 +333,7 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
             m.setMovedBy(rs.getInt("moved_by"));
             m.setNote(rs.getString("note"));
 
-            // ✅ Set product_name từ JOIN
+            // Set product_name từ JOIN
             try {
                 String productName = rs.getString("product_name");
                 m.setProductName(productName);
@@ -351,7 +351,7 @@ public class PostgreSQLStockMovmentRepository implements StockMovementRepository
     }
 
     /**
-     * ✅ UPDATE qty_on_hand trong Products table khi có stock movement
+     * UPDATE qty_on_hand trong Products table khi có stock movement
      *
      * @param conn      Connection (để dùng trong transaction)
      * @param productId ID của sản phẩm

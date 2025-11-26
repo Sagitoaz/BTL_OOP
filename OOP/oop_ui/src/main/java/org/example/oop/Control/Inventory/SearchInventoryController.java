@@ -20,7 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableColumn; // ✅ Import Product model
+import javafx.scene.control.TableColumn; // Import Product model
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -151,18 +151,18 @@ public class SearchInventoryController extends BaseController implements Initial
           skuColumn.setCellValueFactory(new PropertyValueFactory<>("sku"));
           nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-          // ✅ Category - phải dùng custom cell value vì là ENUM
+          // Category - phải dùng custom cell value vì là ENUM
           categoryColumn.setCellValueFactory(cellData -> {
                Product p = cellData.getValue();
                String categoryName = p.getCategoryEnum() != null ? p.getCategoryEnum().getDisplayName() : "";
                return new javafx.beans.property.SimpleStringProperty(categoryName);
           });
 
-          quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand")); // ✅ ĐÚNG: qtyOnHand
+          quantityColumn.setCellValueFactory(new PropertyValueFactory<>("qtyOnHand")); // ĐÚNG: qtyOnHand
           unitColumn.setCellValueFactory(new PropertyValueFactory<>("unit"));
-          priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail")); // ✅ ĐÚNG: priceRetail
+          priceColumn.setCellValueFactory(new PropertyValueFactory<>("priceRetail")); // ĐÚNG: priceRetail
 
-          // ✅ Status - convert boolean isActive thành text
+          // Status - convert boolean isActive thành text
           statusColumn.setCellValueFactory(cellData -> {
                Product p = cellData.getValue();
                String status = p.isActive() ? "Active" : "Inactive";
@@ -227,7 +227,7 @@ public class SearchInventoryController extends BaseController implements Initial
 
                     // Success: Update UI
                     loadedProducts -> {
-                         masterData.setAll(loadedProducts); // ✅ setAll thay vì clear + addAll
+                         masterData.setAll(loadedProducts); // setAll thay vì clear + addAll
 
                          setupCategoryBox();
                          setupStatusBox();
@@ -273,7 +273,7 @@ public class SearchInventoryController extends BaseController implements Initial
           statusBox.getSelectionModel().selectFirst();
      }
 
-     // ==================== BUTTON HANDLERS ====================
+     // BUTTON HANDLERS
 
      @FXML
      private void OnClickSearchButton(javafx.event.ActionEvent event) {
@@ -345,7 +345,7 @@ public class SearchInventoryController extends BaseController implements Initial
           }
      }
 
-     // ==================== FILTER LOGIC ====================
+     // FILTER LOGIC
 
      private void applyFilter() {
           String keyword = normalizeText(searchTextField != null ? searchTextField.getText() : "");
@@ -484,7 +484,7 @@ public class SearchInventoryController extends BaseController implements Initial
           });
      }
 
-     // ==================== UI HELPERS ====================
+     // UI HELPERS
 
      private void showLoading(boolean show) {
           runOnUIThread(() -> {
@@ -521,7 +521,7 @@ public class SearchInventoryController extends BaseController implements Initial
           });
      }
 
-     // ==================== LOADING STATUS HELPERS ====================
+     // LOADING STATUS HELPERS
 
      private void showLoadingStatus(String message) {
           runOnUIThread(() -> {

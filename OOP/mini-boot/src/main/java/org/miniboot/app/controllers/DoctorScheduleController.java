@@ -49,7 +49,7 @@ public class DoctorScheduleController {
         router.put("/doctor-schedules", controller.updateSchedule());
         router.delete("/doctor-schedules", controller.deleteSchedule());
         
-        // ✅ NEW: Batch operations for performance
+        // Batch operations for performance
         router.delete("/doctor-schedules/batch", controller.batchDeleteByDoctor());
         router.post("/doctor-schedules/batch", controller.batchCreateSchedules());
         
@@ -147,9 +147,7 @@ public class DoctorScheduleController {
                     return ValidationUtils.error(422, "INVALID_TIME_RANGE",
                         "startTime must be before endTime");
                 }
-                
-                // TODO: Validate doctor exists and role='doctor'
-                
+
                 // Check for overlapping schedules
                 List<DoctorSchedule> existingSchedules = repository.findByDoctorIdAndDay(
                     schedule.getDoctorId(), schedule.getDayOfWeek());
@@ -302,7 +300,7 @@ public class DoctorScheduleController {
     }
     
     /**
-     * ✅ DELETE /doctor-schedules/batch?doctorId=X
+     * DELETE /doctor-schedules/batch?doctorId=X
      * Xóa TẤT CẢ lịch làm việc của bác sĩ trong 1 query (Batch Delete)
      * Sử dụng khi update lịch làm việc để tối ưu hiệu suất
      */
@@ -346,7 +344,7 @@ public class DoctorScheduleController {
     }
     
     /**
-     * ✅ POST /doctor-schedules/batch
+     * POST /doctor-schedules/batch
      * Tạo NHIỀU lịch làm việc cùng lúc trong 1 query (Batch Insert)
      * Body: JSON array of DoctorSchedule objects
      * Tối ưu hiệu suất khi tạo lịch làm việc mới

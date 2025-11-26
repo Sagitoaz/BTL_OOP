@@ -143,7 +143,7 @@ public class EmployeeEditFormController extends BaseController {
             showError("Vui lòng nhập email hợp lệ");
             return;
         }
-        if (phone == null || phone.trim().isEmpty() || phone.trim().length() < 10) {
+        if (phone == null || phone.trim().length() < 10) {
             showError("Vui lòng nhập số điện thoại hợp lệ (10 số)");
             return;
         }

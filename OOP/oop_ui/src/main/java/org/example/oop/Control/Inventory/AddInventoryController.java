@@ -25,7 +25,7 @@ import javafx.scene.control.TextField;
  */
 public class AddInventoryController extends BaseController {
 
-     // ==================== FXML FIELDS: Identity ====================
+     //  FXML FIELDS: Identity 
      @FXML
      private TextField tfSku;
      @FXML
@@ -35,17 +35,17 @@ public class AddInventoryController extends BaseController {
      @FXML
      private TextField tfUnit;
 
-     // ==================== FXML FIELDS: Pricing ====================
+     //  FXML FIELDS: Pricing 
      @FXML
      private TextField tfPriceCost;
      @FXML
      private TextField tfPriceRetail;
 
-     // ==================== FXML FIELDS: Stock ====================
+     //  FXML FIELDS: Stock 
      @FXML
      private TextField tfQtyOnHand;
 
-     // ==================== FXML FIELDS: Batch/Expiry/Serial ====================
+     //  FXML FIELDS: Batch/Expiry/Serial 
      @FXML
      private TextField tfBatchNo;
      @FXML
@@ -53,11 +53,11 @@ public class AddInventoryController extends BaseController {
      @FXML
      private TextField tfSerialNo;
 
-     // ==================== FXML FIELDS: Note ====================
+     //  FXML FIELDS: Note 
      @FXML
      private TextArea taNote;
 
-     // ==================== FXML FIELDS: Status & Meta ====================
+     //  FXML FIELDS: Status & Meta 
      @FXML
      private CheckBox chkActive;
      @FXML
@@ -65,7 +65,7 @@ public class AddInventoryController extends BaseController {
      @FXML
      private TextField tfCreatedAt;
 
-     // ==================== FXML FIELDS: Action Buttons ====================
+     //  FXML FIELDS: Action Buttons 
      @FXML
      private Button btnResetProduct;
      @FXML
@@ -75,10 +75,10 @@ public class AddInventoryController extends BaseController {
      @FXML
      private Label lblStatus;
 
-     // ==================== SERVICES ====================
+     //  SERVICES 
      private final ApiProductService productService = new ApiProductService();
 
-     // ==================== INITIALIZE ====================
+     //  INITIALIZE 
      @FXML
      public void initialize() {
           setupCategoryComboBox();
@@ -113,7 +113,7 @@ public class AddInventoryController extends BaseController {
           btnClose.setOnAction(e -> onClose());
      }
 
-     // ==================== BUTTON HANDLERS ====================
+     //  BUTTON HANDLERS 
 
      /**
       * Xử lý khi nhấn nút "Save Product"
@@ -133,7 +133,7 @@ public class AddInventoryController extends BaseController {
           disableButtons(true);
           updateStatus("🔄 Đang lưu sản phẩm...");
 
-          // ✅ Sử dụng BaseController.executeAsync để chạy API call
+          // Sử dụng BaseController.executeAsync để chạy API call
           executeAsync(
                     // Background task: Gọi API POST /products
                     () -> {
@@ -148,7 +148,7 @@ public class AddInventoryController extends BaseController {
                     createdProduct -> {
                          disableButtons(false);
 
-                         // ✅ CHECK NULL: Server có thể trả về success nhưng không có body
+                         // CHECK NULL: Server có thể trả về success nhưng không có body
                          if (createdProduct == null) {
                               updateStatus("✅ Đã lưu sản phẩm thành công (server không trả về dữ liệu)");
                               showSuccess("Sản phẩm đã được tạo thành công!\n\n" +
@@ -221,7 +221,7 @@ public class AddInventoryController extends BaseController {
           }
      }
 
-     // ==================== FORM VALIDATION ====================
+     //  FORM VALIDATION 
 
      /**
       * Validate toàn bộ form trước khi save
@@ -346,7 +346,7 @@ public class AddInventoryController extends BaseController {
           return true;
      }
 
-     // ==================== DATA BINDING ====================
+     //  DATA BINDING 
 
      /**
       * Build Product object từ form data
@@ -435,7 +435,7 @@ public class AddInventoryController extends BaseController {
                     !tfQtyOnHand.getText().equals("0");
      }
 
-     // ==================== UI HELPERS ====================
+     //  UI HELPERS 
 
      /**
       * Disable/Enable tất cả buttons
@@ -469,7 +469,7 @@ public class AddInventoryController extends BaseController {
           }
      }
 
-     // ==================== UTILITY METHODS ====================
+     //  UTILITY METHODS 
 
      /**
       * Parse String to Integer, return null if empty or invalid

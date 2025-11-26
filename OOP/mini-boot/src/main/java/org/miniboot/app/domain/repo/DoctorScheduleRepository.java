@@ -158,7 +158,7 @@ public class DoctorScheduleRepository {
     }
     
     /**
-     * ✅ BATCH DELETE: Xóa tất cả lịch làm việc của bác sĩ (1 query duy nhất)
+     * BATCH DELETE: Xóa tất cả lịch làm việc của bác sĩ (1 query duy nhất)
      * Sử dụng khi update lịch làm việc để tránh N+1 query problem
      */
     public int deleteByDoctorId(int doctorId) throws SQLException {
@@ -176,7 +176,7 @@ public class DoctorScheduleRepository {
     }
     
     /**
-     * ✅ BATCH INSERT: Tạo nhiều lịch làm việc cùng lúc (1 query với VALUES multiple rows)
+     * BATCH INSERT: Tạo nhiều lịch làm việc cùng lúc (1 query với VALUES multiple rows)
      * Tối ưu hiệu suất khi tạo lịch làm việc mới
      */
     public List<DoctorSchedule> insertBatch(List<DoctorSchedule> schedules) throws SQLException {

@@ -15,7 +15,7 @@ public class PostgreSQLPaymentItemRepository implements PaymentItemRepository {
         this.dbConfig = DatabaseConfig.getInstance();
     }
 
-    /* ============== SELECT ============== */
+    /*  SELECT  */
 
     @Override
     public List<PaymentItem> findByPaymentId(int paymentId) {
@@ -59,7 +59,7 @@ public class PostgreSQLPaymentItemRepository implements PaymentItemRepository {
         return Optional.empty();
     }
 
-    /* ============== SAVE ============== */
+    /*  SAVE  */
 
     @Override
     public PaymentItem save(PaymentItem item) {
@@ -92,7 +92,7 @@ public class PostgreSQLPaymentItemRepository implements PaymentItemRepository {
         return out;
     }
 
-    /* ============== DELETE ============== */
+    /*  DELETE  */
 
     @Override
     public boolean deleteById(int paymentItemId) {
@@ -154,7 +154,7 @@ public class PostgreSQLPaymentItemRepository implements PaymentItemRepository {
         return out;
     }
 
-    /* ============== PRIVATE HELPERS ============== */
+    /*  PRIVATE HELPERS  */
 
     private PaymentItem insert(PaymentItem it) {
         try (Connection conn = dbConfig.getConnection()) {

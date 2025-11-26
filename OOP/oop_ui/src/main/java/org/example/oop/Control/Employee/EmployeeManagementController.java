@@ -43,12 +43,12 @@ public class EmployeeManagementController extends BaseController implements Init
     private HttpEmployeeService service;
     private final ObservableList<Employee> master = FXCollections.observableArrayList();
     private final PauseTransition searchDebounce = new PauseTransition(Duration.millis(300));
-    // ====== Top bar labels ======
+    //  Top bar labels 
     @FXML
     private Label subtitleLabel;
     @FXML
     private Label statusLabel;
-    // ====== Quick stats ======
+    //  Quick stats 
     @FXML
     private Label totalCountLabel;
     @FXML
@@ -57,7 +57,7 @@ public class EmployeeManagementController extends BaseController implements Init
     private Label nurseCountLabel;
     @FXML
     private Label activeCountLabel;
-    // ====== Filters & Actions ======
+    //  Filters & Actions 
     @FXML
     private TextField searchField;
     @FXML
@@ -70,14 +70,14 @@ public class EmployeeManagementController extends BaseController implements Init
     private Button addButton;
     @FXML
     private Button exportButton;
-    // ====== Navigation Buttons ======
+    //  Navigation Buttons 
     @FXML
     private Button backButton;
     @FXML
     private Button forwardButton;
     @FXML
     private Button reloadButton;
-    // ====== Table ======
+    //  Table 
     @FXML
     private TableView<Employee> employeeTableView;
     @FXML
@@ -96,11 +96,11 @@ public class EmployeeManagementController extends BaseController implements Init
     private TableColumn<Employee, String> phoneColumn;
     @FXML
     private TableColumn<Employee, Boolean> activeColumn;
-    // ====== Delete Button ======
+    //  Delete Button 
     @FXML
     private Button deleteButton;
 
-    // ==================== LOADING STATUS ====================
+    // == LOADING STATUS ==
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -149,7 +149,7 @@ public class EmployeeManagementController extends BaseController implements Init
 
     }
 
-    // ===================== UI Wiring =====================
+    //  UI Wiring 
 
     private void setupTable() {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -297,7 +297,7 @@ public class EmployeeManagementController extends BaseController implements Init
         return s == null ? "" : s;
     }
 
-    // ===================== Button Actions =====================
+    //  Button Actions 
 
     @FXML
     private void handleRefresh() {
@@ -314,7 +314,7 @@ public class EmployeeManagementController extends BaseController implements Init
                 "Sửa nhân viên #" + e.getId() + " — bạn có thể mở dialog edit và gọi updateEmployee(e) từ service.");
     }
 
-    // ===================== Delete Action =====================
+    //  Delete Action 
 
     @FXML
     private void handleDelete() {
@@ -356,7 +356,7 @@ public class EmployeeManagementController extends BaseController implements Init
         }
     }
 
-    // ===================== Hover Effects =====================
+    //  Hover Effects 
     public void onButtonHover(javafx.scene.input.MouseEvent e) {
         Node n = (Node) e.getSource();
         n.setStyle("-fx-opacity:0.9; -fx-translate-y:-1;");
@@ -370,7 +370,7 @@ public class EmployeeManagementController extends BaseController implements Init
     public void onTableRowClick(MouseEvent mouseEvent) {
     }
 
-    // ===================== Navigation Actions =====================
+    //  Navigation Actions 
     @FXML
     private void handleBackButton() {
         SceneManager.goBack();

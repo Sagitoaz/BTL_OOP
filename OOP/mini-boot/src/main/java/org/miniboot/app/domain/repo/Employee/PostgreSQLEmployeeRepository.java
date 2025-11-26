@@ -140,7 +140,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                     requireNonBlank(employee.getLicenseNo(), "license_no (bắt buộc với bác sĩ)");
                }
 
-               // ✅ Hash password using SHA-256 with salt (same format as signup)
+               // Hash password using SHA-256 with salt (same format as signup)
                String hashedPassword = PasswordService.hashPasswordWithSalt(employee.getPassword());
 
                pstmt.setString(1, employee.getUsername());
@@ -229,7 +229,7 @@ public class PostgreSQLEmployeeRepository implements EmployeeRepository {
                pstmt.setString(1, employee.getFirstname());
                pstmt.setString(2, employee.getLastname());
 
-               // Gender - parameter 3 - ✅ FIX: Removed ::gender_enum cast (enum doesn't exist in DB)
+               // Gender - parameter 3 - FIX: Removed ::gender_enum cast (enum doesn't exist in DB)
                if (employee.getGender() != null && !employee.getGender().isBlank())
                     pstmt.setString(3, employee.getGender());
                else

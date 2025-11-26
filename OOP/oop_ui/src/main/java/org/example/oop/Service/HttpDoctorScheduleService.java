@@ -166,7 +166,7 @@ public class HttpDoctorScheduleService {
     }
     
     /**
-     * ✅ DELETE /doctor-schedules/batch?doctorId=X
+     * DELETE /doctor-schedules/batch?doctorId=X
      * XÓA TẤT CẢ lịch làm việc của bác sĩ trong 1 request (Batch Delete)
      * Tối ưu hiệu suất: 1 request thay vì N requests
      */
@@ -184,7 +184,7 @@ public class HttpDoctorScheduleService {
             // Parse response to get deleted count
             JsonObject result = gson.fromJson(response.body(), JsonObject.class);
             int deletedCount = result.has("deletedCount") ? result.get("deletedCount").getAsInt() : 0;
-            System.out.println("✅ Batch deleted " + deletedCount + " schedules for doctor #" + doctorId);
+            System.out.println("Batch deleted " + deletedCount + " schedules for doctor #" + doctorId);
             return deletedCount;
         } else {
             String errorMsg = extractErrorMessage(response.body());
@@ -193,7 +193,7 @@ public class HttpDoctorScheduleService {
     }
     
     /**
-     * ✅ POST /doctor-schedules/batch
+     * POST /doctor-schedules/batch
      * TẠO NHIỀU lịch làm việc cùng lúc trong 1 request (Batch Insert)
      * Tối ưu hiệu suất: 1 request thay vì N requests
      */
@@ -220,7 +220,7 @@ public class HttpDoctorScheduleService {
                     result.get("schedules"), 
                     new TypeToken<List<DoctorSchedule>>(){}.getType()
                 );
-                System.out.println("✅ Batch created " + created.size() + " schedules");
+                System.out.println("Batch created " + created.size() + " schedules");
                 return created;
             }
             return schedules; // Fallback if no schedules in response

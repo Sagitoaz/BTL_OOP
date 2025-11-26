@@ -50,9 +50,7 @@ public class HttpPaymentItemService {
         return instance;
     }
 
-    // ================================
     // SYNCHRONOUS METHODS (ĐỒNG BỘ)
-    // ================================
 
     /**
      * GET /paymentItems - Lấy tất cả payment items (Sync)
@@ -282,9 +280,7 @@ public class HttpPaymentItemService {
         return ApiResponse.success(createdItems, 200);
     }
 
-    // ================================
     // ASYNCHRONOUS METHODS (BẤT ĐỒNG BỘ)
-    // ================================
 
     /**
      * ASYNC - GET /paymentItems - Lấy tất cả payment items (Async)

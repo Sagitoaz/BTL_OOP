@@ -142,10 +142,6 @@ public class AppointmentController {
                 }
 
                 // Step 7: Business rules validation
-                // TODO: Check doctor exists và đang active (404)
-                // TODO: Check patient exists (404)
-                // TODO: Check service exists if serviceId provided (404)
-
                 // Check slot không bị trùng (409 Conflict)
                 try {
                     String date = appointment.getStartTime().toLocalDate().toString();
@@ -192,8 +188,6 @@ public class AppointmentController {
                 } catch (Exception e) {
                     return DatabaseErrorHandler.handleDatabaseException(e);
                 }
-
-                // TODO: Check patient không có appointment trùng giờ (422)
 
                 // Step 8: Save appointment
                 Appointment saved;
@@ -369,9 +363,7 @@ public class AppointmentController {
                             "Appointment not found".getBytes(StandardCharsets.UTF_8));
                 }
 
-                // TODO: Validate slot nếu thay đổi thời gian
                 // - Nếu startTime/endTime thay đổi, check slot mới có trống không
-
                 Appointment updated = appointmentRepository.save(appointment);
                 return Json.ok(updated);
 

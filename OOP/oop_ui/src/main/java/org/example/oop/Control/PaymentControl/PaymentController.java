@@ -1,17 +1,12 @@
 package org.example.oop.Control.PaymentControl;
 
-// 1. IMPORT BaseController
-
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
@@ -22,14 +17,11 @@ import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
 import org.miniboot.app.domain.models.Payment.*;
 
-import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-// 3. KẾ THỪA TỪ BaseController
 public class PaymentController extends BaseController implements Initializable {
     @FXML
     private TextField txtInvoiceId;
@@ -57,7 +49,7 @@ public class PaymentController extends BaseController implements Initializable {
     private Payment currentPayment;
     private List<PaymentItem> currentItems;
 
-    // <-- Khai báo các service
+    // Khai báo các service
     private HttpPaymentService paymentService;
     private HttpPaymentStatusLogService statusLogService;
     private HttpPaymentItemService itemService;
@@ -91,10 +83,7 @@ public class PaymentController extends BaseController implements Initializable {
             SceneManager.removeSceneData("paymentId");
         }
     }
-
-    // ========================================================
-    // ✅ HÀM MỚI: Dùng để nhận dữ liệu từ InvoiceController
-    // ========================================================
+    
     public void initData(String paymentId) {
         txtInvoiceId.setText(paymentId);
         handleLoadInvoice(); // Tự động tải hóa đơn
@@ -103,7 +92,6 @@ public class PaymentController extends BaseController implements Initializable {
         txtInvoiceId.setEditable(false);
         btnLoadInvoice.setDisable(true);
     }
-    // ========================================================
 
     private void setupPaymentMethods() {
         cbMethod.setItems(FXCollections.observableArrayList(PaymentMethod.values()));
@@ -150,17 +138,14 @@ public class PaymentController extends BaseController implements Initializable {
             return;
         }
 
-        // (Tùy chọn: Thêm logic hiển thị loading...)
-        // loadingSpinner.setVisible(true);
-
-        // 5. BỌC CÁC LỆNH GỌI API TRONG executeAsync
-        // ✅ TỐI ƯU: Giảm từ 3 requests xuống còn 2 requests
+        // BỌC CÁC LỆNH GỌI API TRONG executeAsync
+        // TỐI ƯU: Giảm từ 3 requests xuống còn 2 requests
         // - Request 1: getPaymentWithStatusById() (gộp payment + status)
         // - Request 2: getPaymentItemsByPaymentId()
         executeAsync(
-                // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
+                // TÁC VỤ NỀN (BACKGROUND THREAD)
                 () -> {
-                    // 1. ✅ Lấy payment + status trong 1 request duy nhất
+                    // 1. Lấy payment + status trong 1 request duy nhất
                     ApiResponse<PaymentWithStatus> paymentWithStatusResponse = paymentService.getPaymentWithStatusById(id);
                     if (!paymentWithStatusResponse.isSuccess()) {
                         throw new RuntimeException("Không thể lấy thông tin hóa đơn: " + paymentWithStatusResponse.getErrorMessage());
@@ -197,7 +182,7 @@ public class PaymentController extends BaseController implements Initializable {
                     return true; // Trả về true nếu mọi thứ thành công
                 },
 
-                // --------- KHI THÀNH CÔNG (UI THREAD) ---------
+                //  KHI THÀNH CÔNG (UI THREAD) 
                 (success) -> {
                     // (Tùy chọn: Ẩn loading)
                     // loadingSpinner.setVisible(false);
@@ -206,7 +191,7 @@ public class PaymentController extends BaseController implements Initializable {
                     updatePaymentDisplay();
                 },
 
-                // --------- KHI CÓ LỖI (UI THREAD) ---------
+                //  KHI CÓ LỖI (UI THREAD) 
                 (error) -> {
                     // (Tùy chọn: Ẩn loading)
                     // loadingSpinner.setVisible(false);
@@ -240,7 +225,7 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void handleConfirmPayment(boolean shouldPrint) {
-        // --- 1. VALIDATION (Chạy trên UI thread) ---
+        //  1. VALIDATION (Chạy trên UI thread) 
         if (currentPayment == null) {
             showWarning("Vui lòng tải hóa đơn trước khi thanh toán");
             return;
@@ -271,11 +256,9 @@ public class PaymentController extends BaseController implements Initializable {
         currentPayment.setAmountPaid(amountPaid);
         currentPayment.setNote(txtNote.getText());
 
-        // (Tùy chọn: Hiển thị loading...)
-
-        // --- 2. GỌI API (Chạy trên Background thread) ---
+        //  2. GỌI API (Chạy trên Background thread) 
         executeAsync(
-                // --------- TÁC VỤ NỀN (BACKGROUND THREAD) ---------
+                //  TÁC VỤ NỀN (BACKGROUND THREAD) 
                 () -> {
                     // 1. GỬI CẬP NHẬT LÊN SERVER với ApiResponse handling
                     Payment updatedPayment = null;
@@ -305,7 +288,7 @@ public class PaymentController extends BaseController implements Initializable {
                     }
                 },
 
-                // --------- KHI THÀNH CÔNG (UI THREAD) ---------
+                //  KHI THÀNH CÔNG (UI THREAD) 
                 () -> {
                     // (Tùy chọn: Ẩn loading...)
 
