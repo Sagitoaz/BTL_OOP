@@ -263,8 +263,9 @@ public class AppointmentBookingController implements Initializable {
                 txtPatientKeyword.clear();
                 System.out.println("✅ Patient list reloaded");
             };
+            SceneManager.setSceneData("isModal", true);
             SceneManager.openModalWindow(SceneConfig.CUSTOMER_HUB_FXML, SceneConfig.Titles.CUSTOMER_HUB, runnable);
-
+            SceneManager.removeSceneData("isModal");
         } catch (Exception e) {
             System.err.println("❌ Error opening CustomerHub: " + e.getMessage());
             e.printStackTrace();
