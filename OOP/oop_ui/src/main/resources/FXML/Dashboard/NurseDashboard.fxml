@@ -68,7 +68,7 @@
                         <VBox spacing="12" style="-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%); -fx-background-radius: 20px; -fx-padding: 35px 40px; -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.4), 25, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 1px; -fx-border-radius: 20px;" styleClass="welcome-section">
                             <Label style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);" text="Chào mừng Y Tá! 👩‍⚕️" />
                             <Label style="-fx-text-fill: rgba(255,255,255,0.95); -fx-font-size: 16px; -fx-font-weight: 500;" text="Chúc bạn một ngày làm việc năng động và ý nghĩa" />
-                            <Label style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0; -fx-font-weight: 500;" text="📅 Hôm nay: Thứ Năm, 07 tháng 11 năm 2025" />
+                            <Label fx:id="dateLabel" style="-fx-text-fill: rgba(255,255,255,0.9); -fx-font-size: 13px; -fx-padding: 10px 0 0 0; -fx-font-weight: 500;" text="📅 Hôm nay: ..." />
                         </VBox>
 
                         <!-- Main Functions Grid -->

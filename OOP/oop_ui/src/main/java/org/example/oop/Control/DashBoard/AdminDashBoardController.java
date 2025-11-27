@@ -40,6 +40,9 @@ public class AdminDashBoardController extends BaseController {
     @FXML
     private Label userNameLabel;
 
+    @FXML
+    private Label dateLabel;
+
     private Admin currentAdmin;
 
     @FXML
@@ -122,6 +125,17 @@ public class AdminDashBoardController extends BaseController {
                 userNameLabel.setText("@" + currentAdmin.getUsername());
             }
         }
+        if (dateLabel != null) {
+            dateLabel.setText("📅 Hôm nay: " + getVietnameseDateString());
+        }
+    }
+    
+    private String getVietnameseDateString() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        String[] dayNames = {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
+        String dayOfWeek = dayNames[today.getDayOfWeek().getValue() % 7];
+        return String.format("%s, %02d tháng %02d năm %d", 
+            dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
     }
 
     private void loadDashboardStatistics() {

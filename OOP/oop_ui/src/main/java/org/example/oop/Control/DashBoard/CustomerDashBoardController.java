@@ -27,6 +27,9 @@ public class CustomerDashBoardController extends BaseController {
     private Label welcomeText;
 
     @FXML
+    private Label dateLabel;
+
+    @FXML
     private javafx.scene.layout.AnchorPane loadingOverlay;
 
     private Customer currentCustomer;
@@ -115,8 +118,19 @@ public class CustomerDashBoardController extends BaseController {
             welcomeText.setStyle(
                     "-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 700; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);");
         }
+        if (dateLabel != null) {
+            dateLabel.setText("📅 Hôm nay: " + getVietnameseDateString());
+        }
 
         System.out.println("✅ UI setup complete");
+    }
+    
+    private String getVietnameseDateString() {
+        java.time.LocalDate today = java.time.LocalDate.now();
+        String[] dayNames = {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
+        String dayOfWeek = dayNames[today.getDayOfWeek().getValue() % 7];
+        return String.format("%s, %02d tháng %02d năm %d", 
+            dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
     }
 
     private void handleInitializationError(Exception e) {
