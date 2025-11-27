@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class CustomerHubController extends BaseController implements Initializable {
 
-    private List<Customer> allCustomers = new ArrayList<>(); //Khởi tạo để tránh NullPointerException
+    private List<Customer> allCustomers = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
     @FXML
     private ListView<Customer> customerListView;
 
@@ -51,7 +51,7 @@ public class CustomerHubController extends BaseController implements Initializab
     @FXML
     private TableView<Prescription> examHistoryTable;
 
-    //  LOADING STATUS 
+    // LOADING STATUS
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -117,7 +117,7 @@ public class CustomerHubController extends BaseController implements Initializab
 
     private PrescriptionService prescriptionService;
     private CompletableFuture<Void> currentPrescriptionTask;
-    private boolean isInitializing = true; //Flag để tránh load prescription khi khởi tạo
+    private boolean isInitializing = true; // Flag để tránh load prescription khi khởi tạo
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -140,7 +140,7 @@ public class CustomerHubController extends BaseController implements Initializab
         // Setup listener cho selection - NHƯNG chỉ active sau khi load xong
         customerListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             setCurrentCustomer(newValue);
-            //Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
+            // Chỉ load prescriptions khi KHÔNG phải lúc khởi tạo
             if (!isInitializing) {
                 loadPrescriptionsForCustomer(newValue);
             }
@@ -266,7 +266,7 @@ public class CustomerHubController extends BaseController implements Initializab
                     customerRecordsList.addAll(customers);
                     setCurrentListCustomer();
 
-                    //Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
+                    // Đánh dấu hoàn thành khởi tạo - bây giờ cho phép load prescriptions
                     isInitializing = false;
                     showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
                             "✅ Tải thành công " + customers.size() + " bệnh nhân!");
@@ -276,7 +276,7 @@ public class CustomerHubController extends BaseController implements Initializab
                 error -> {
                     // ERROR callback - handle error gracefully
                     System.err.println("❌ Error loading customers: " + error);
-                    isInitializing = false; //Vẫn set false ngay cả khi lỗi
+                    isInitializing = false; // Vẫn set false ngay cả khi lỗi
                     showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
                             "❌ Lỗi: " + error);
                     // Có thể show alert nếu cần
@@ -468,6 +468,7 @@ public class CustomerHubController extends BaseController implements Initializab
         SceneManager.removeSceneData("selectedCustomer");
         SceneManager.setSceneData("selectedCustomer", selectedCustomer);
         SceneManager.openModalWindow(SceneConfig.ADD_CUSTOMER_VIEW_FXML, SceneConfig.Titles.ADD_CUSTOMER, null);
+        SceneManager.removeSceneData("selectedCustomer");
 
         if (SceneManager.getSceneData("updatedCustomer") != null) {
             int selectedIndex = customerListView.getSelectionModel().getSelectedIndex();
@@ -476,6 +477,7 @@ public class CustomerHubController extends BaseController implements Initializab
             customerRecordsList.set(selectedIndex, updatedPatient);
             setCurrentListCustomer();
             SceneManager.removeSceneData("updatedCustomer");
+
         }
 
     }
@@ -494,7 +496,7 @@ public class CustomerHubController extends BaseController implements Initializab
             currentPrescriptionTask.cancel(true);
         }
     }
-    
+
     @FXML
     private void onExportButton() {
         try {
@@ -502,44 +504,43 @@ public class CustomerHubController extends BaseController implements Initializab
                 showWarning("Không có dữ liệu để xuất!");
                 return;
             }
-            
+
             // Prepare headers
             java.util.List<String> headers = java.util.Arrays.asList(
-                "ID", "Họ tên", "Ngày sinh", "Giới tính", 
-                "Tuổi", "Địa chỉ", "Điện thoại", "Email", "Ghi chú"
-            );
-            
+                    "ID", "Họ tên", "Ngày sinh", "Giới tính",
+                    "Tuổi", "Địa chỉ", "Điện thoại", "Email", "Ghi chú");
+
             // Prepare data
             java.util.List<java.util.List<Object>> data = new java.util.ArrayList<>();
             for (Customer customer : customerRecordsList) {
-                int age = customer.getDob() != null ? 
-                    java.time.Period.between(customer.getDob(), LocalDate.now()).getYears() : 0;
-                    
+                int age = customer.getDob() != null
+                        ? java.time.Period.between(customer.getDob(), LocalDate.now()).getYears()
+                        : 0;
+
                 java.util.List<Object> row = java.util.Arrays.asList(
-                    customer.getId(),
-                    customer.getFullName(),
-                    customer.getDob() != null ? customer.getDob() : "",
-                    customer.getGender() != null ? customer.getGender().toString() : "",
-                    age,
-                    customer.getAddress() != null ? customer.getAddress() : "",
-                    customer.getPhone() != null ? customer.getPhone() : "",
-                    customer.getEmail() != null ? customer.getEmail() : "",
-                    customer.getNote() != null ? customer.getNote() : ""
-                );
+                        customer.getId(),
+                        customer.getFullName(),
+                        customer.getDob() != null ? customer.getDob() : "",
+                        customer.getGender() != null ? customer.getGender().toString() : "",
+                        age,
+                        customer.getAddress() != null ? customer.getAddress() : "",
+                        customer.getPhone() != null ? customer.getPhone() : "",
+                        customer.getEmail() != null ? customer.getEmail() : "",
+                        customer.getNote() != null ? customer.getNote() : "");
                 data.add(row);
             }
-            
+
             // Generate filename and path
             String directory = org.example.oop.Utils.ExcelExporter.getDocumentsPath();
             org.example.oop.Utils.ExcelExporter.ensureDirectoryExists(directory);
             String fileName = org.example.oop.Utils.ExcelExporter.generateFileName("DanhSachKhachHang");
             String fullPath = directory + fileName;
-            
+
             // Export to Excel
             org.example.oop.Utils.ExcelExporter.exportToFile(fullPath, "Danh sách khách hàng", headers, data);
-            
+
             showSuccess("Đã xuất danh sách khách hàng ra file:\n" + fileName + "\n\nVị trí: " + fullPath);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             showError("Lỗi xuất file: " + e.getMessage());

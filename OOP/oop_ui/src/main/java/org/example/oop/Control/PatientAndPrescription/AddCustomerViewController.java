@@ -1,5 +1,14 @@
 package org.example.oop.Control.PatientAndPrescription;
 
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.ResourceBundle;
+
+import org.example.oop.Service.CustomerRecordService;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
+import org.miniboot.app.domain.models.UserRole;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,17 +17,8 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.oop.Service.CustomerRecordService;
-import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.CustomerAndPrescription.Customer;
-import org.miniboot.app.domain.models.UserRole;
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ResourceBundle;
-
-public class AddCustomerViewController implements Initializable
-{
+public class AddCustomerViewController implements Initializable {
     @FXML
     private TextField nameField;
     @FXML
@@ -42,23 +42,21 @@ public class AddCustomerViewController implements Initializable
         genderComboBox.getItems().addAll(Customer.Gender.values());
         curCustomer = null;
         UserRole role = (UserRole) SceneManager.getSceneData("role");
-        if( role == UserRole.CUSTOMER){
+        if (role == UserRole.CUSTOMER) {
             curCustomer = (Customer) SceneManager.getSceneData("accountData");
-        }
-        else{
-            if(SceneManager.getSceneData("selectedCustomer") != null){
+        } else {
+            if (SceneManager.getSceneData("selectedCustomer") != null) {
                 curCustomer = (Customer) SceneManager.getSceneData("selectedCustomer");
             }
         }
-        if(curCustomer != null){
+        if (curCustomer != null) {
             initData(curCustomer);
 
         }
 
     }
 
-
-    public void initData(Customer customer){
+    public void initData(Customer customer) {
         curCustomer = customer;
         nameField.setText(curCustomer.getFirstname() + " " + curCustomer.getLastname());
         phoneField.setText(curCustomer.getPhone());
@@ -69,15 +67,15 @@ public class AddCustomerViewController implements Initializable
         notesArea.setText(curCustomer.getNote());
     }
 
-
     @FXML
-    private void onDeleteButton(ActionEvent event){
-        if(SceneManager.getSceneData("role") != "ADMIN"){
-            CustomerHubController.showErrorAlert("Permission Denied", "You do not have permission to delete customer records.");
+    private void onDeleteButton(ActionEvent event) {
+        if (SceneManager.getSceneData("role") != "ADMIN") {
+            CustomerHubController.showErrorAlert("Permission Denied",
+                    "You do not have permission to delete customer records.");
             return;
         }
         Stage stage = (Stage) nameField.getScene().getWindow();
-        if(curCustomer != null){
+        if (curCustomer != null) {
             deleteCustomerRecord(curCustomer);
 
         }
@@ -85,14 +83,14 @@ public class AddCustomerViewController implements Initializable
     }
 
     @FXML
-    private void onCloseButton(ActionEvent event){
+    private void onCloseButton(ActionEvent event) {
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
 
     @FXML
-    private void onSaveAndCloseButton(ActionEvent event){
-        if(curCustomer == null){
+    private void onSaveAndCloseButton(ActionEvent event) {
+        if (curCustomer == null) {
             isCreateMode = true;
             curCustomer = new Customer();
         }
@@ -117,30 +115,34 @@ public class AddCustomerViewController implements Initializable
         curCustomer.setAddress(address);
         curCustomer.setEmail(email);
         curCustomer.setNote(notes);
-        if(curCustomer.getUsername() == null || curCustomer.getUsername().isEmpty() || curCustomer.getGender() == null || curCustomer.getDob() == null || curCustomer.getEmail() == null || curCustomer.getEmail().isEmpty()){
-            CustomerHubController.showErrorAlert("Invalid Input", "Please fill in all required fields (Name, Gender, Date of Birth, Email).");
+        if (curCustomer.getFullName() == null || curCustomer.getFullName().isEmpty() || curCustomer.getGender() == null
+                || curCustomer.getDob() == null || curCustomer.getEmail() == null || curCustomer.getEmail().isEmpty()) {
+            CustomerHubController.showErrorAlert("Invalid Input",
+                    "Please fill in all required fields (Name, Gender, Date of Birth, Email).");
             return;
         }
-        if(isCreateMode){
+        if (isCreateMode) {
             CustomerRecordService.getInstance().createCustomer(curCustomer);
             SceneManager.setSceneData("newCustomer", curCustomer);
         } else {
             CustomerRecordService.getInstance().updateCustomer(curCustomer);
-            if(SceneManager.getSceneData("role") == UserRole.CUSTOMER){
+            if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
                 SceneManager.setSceneData("accountData", curCustomer);
-            }
-            else{
+            } else {
                 SceneManager.setSceneData("updatedCustomer", curCustomer);
             }
         }
         Stage stage = (Stage) nameField.getScene().getWindow();
         stage.close();
     }
-    public Customer getCurCustomer(){
+
+    public Customer getCurCustomer() {
         return curCustomer;
     }
+
     private void deleteCustomerRecord(Customer pr) {
-        if (pr == null) return;
+        if (pr == null)
+            return;
         CustomerRecordService.getInstance().deleteCustomer(pr.getId());
     }
 }
