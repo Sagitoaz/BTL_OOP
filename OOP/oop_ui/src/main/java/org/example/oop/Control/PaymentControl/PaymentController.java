@@ -62,6 +62,8 @@ public class PaymentController extends BaseController implements Initializable {
 
     @FXML
     private void handleBackButton() {
+        // Clear Invoice cache to ensure fresh load when going back
+        SceneManager.removeFromCache(SceneConfig.INVOICE_FXML);
         SceneManager.goBack();
     }
 

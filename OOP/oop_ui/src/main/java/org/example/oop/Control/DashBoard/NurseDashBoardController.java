@@ -1,16 +1,12 @@
 package org.example.oop.Control.DashBoard;
 
-import org.example.oop.Control.BaseController;
-import org.example.oop.Control.SessionStorage;
-import org.example.oop.Utils.ErrorHandler;
-import org.example.oop.Utils.SafeNavigator;
-import org.example.oop.Utils.SceneConfig;
-import org.example.oop.Utils.SceneManager;
-import org.example.oop.Utils.SessionValidator;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import org.example.oop.Control.BaseController;
+import org.example.oop.Control.SessionStorage;
+import org.example.oop.Utils.*;
 import org.miniboot.app.domain.models.Employee;
 
 public class NurseDashBoardController extends BaseController {
@@ -111,13 +107,13 @@ public class NurseDashBoardController extends BaseController {
             dateLabel.setText("📅 Hôm nay: " + getVietnameseDateString());
         }
     }
-    
+
     private String getVietnameseDateString() {
         java.time.LocalDate today = java.time.LocalDate.now();
         String[] dayNames = {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
         String dayOfWeek = dayNames[today.getDayOfWeek().getValue() % 7];
-        return String.format("%s, %02d tháng %02d năm %d", 
-            dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
+        return String.format("%s, %02d tháng %02d năm %d",
+                dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
     }
 
     private void handleInitializationError(Exception e) {
@@ -184,6 +180,8 @@ public class NurseDashBoardController extends BaseController {
     @FXML
     private void openPayment() {
         System.out.println("🔄 Nurse: Opening Payment...");
+        // Clear cache to ensure Invoice screen loads fresh data
+        SceneManager.removeFromCache(SceneConfig.INVOICE_FXML);
         SafeNavigator.navigate(
                 SceneConfig.INVOICE_FXML,
                 SceneConfig.Titles.INVOICE);
@@ -278,10 +276,10 @@ public class NurseDashBoardController extends BaseController {
             SceneManager.clearSceneData();
             SceneManager.clearCache();
             SessionStorage.clear();
-            
+
             // Clear Login page from cache to force re-initialization
             SceneManager.removeFromCache(SceneConfig.LOGIN_FXML);
-            
+
             SafeNavigator.navigate(
                     SceneConfig.LOGIN_FXML,
                     SceneConfig.Titles.LOGIN);

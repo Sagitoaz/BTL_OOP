@@ -230,6 +230,12 @@ public class InvoiceController extends BaseController implements Initializable {
         btnPayInvoice.setOnAction(event -> handlePayInvoice());
         btnFindCustomer.setOnAction(event -> handleFindCustomer());
         btnFindProduct.setOnAction(event -> handleFindProduct());
+
+        // ấn Enter để tìm khách hàng
+        txtCustomerPhone.setOnAction(event -> handleFindCustomer());
+
+        // ấn Enter để tìm sản phẩm
+        txtSkuSearch.setOnAction(event -> handleFindProduct());
     }
 
     @FXML
@@ -577,6 +583,8 @@ public class InvoiceController extends BaseController implements Initializable {
                                 // Mở cửa sổ thanh toán
                                 try {
                                     SceneManager.setSceneData("savedPaymentId", String.valueOf(savedPayment.getId()));
+                                    // Clear cache to ensure Payment screen loads fresh data
+                                    SceneManager.removeFromCache(SceneConfig.PAYMENT_FXML);
                                     SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
 
                                 } catch (Exception ex) {

@@ -1,27 +1,22 @@
 package org.example.oop.Control.DashBoard;
 
-import org.example.oop.Control.BaseController;
-import org.example.oop.Control.SessionStorage;
-import org.example.oop.Utils.ErrorHandler;
-import org.example.oop.Utils.SafeNavigator;
-import org.example.oop.Utils.SceneConfig;
-import org.example.oop.Utils.SceneManager;
-import org.example.oop.Utils.SessionValidator;
-import org.miniboot.app.domain.models.Admin;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import org.example.oop.Control.BaseController;
+import org.example.oop.Control.SessionStorage;
+import org.example.oop.Utils.*;
+import org.miniboot.app.domain.models.Admin;
 
 /**
  * AdminDashBoardController - Controller cho trang quản trị viên
- * 
+ * <p>
  * Chức năng:
  * - Quản lý toàn bộ hệ thống phòng khám
  * - Điều hướng đến các module: nhân viên, bệnh nhân, lịch hẹn, kho, thanh toán
  * - Xử lý lỗi session, navigation và permission
- * 
+ *
  * @author Copilot
  * @version 1.0
  * @since 2025-11-15
@@ -129,13 +124,13 @@ public class AdminDashBoardController extends BaseController {
             dateLabel.setText("📅 Hôm nay: " + getVietnameseDateString());
         }
     }
-    
+
     private String getVietnameseDateString() {
         java.time.LocalDate today = java.time.LocalDate.now();
         String[] dayNames = {"Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"};
         String dayOfWeek = dayNames[today.getDayOfWeek().getValue() % 7];
-        return String.format("%s, %02d tháng %02d năm %d", 
-            dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
+        return String.format("%s, %02d tháng %02d năm %d",
+                dayOfWeek, today.getDayOfMonth(), today.getMonthValue(), today.getYear());
     }
 
     private void loadDashboardStatistics() {
@@ -244,6 +239,8 @@ public class AdminDashBoardController extends BaseController {
     @FXML
     private void handleOpenPayment() {
         System.out.println("🔄 Admin: Opening Payment...");
+        // Clear cache to ensure Invoice screen loads fresh data
+        SceneManager.removeFromCache(SceneConfig.INVOICE_FXML);
         SafeNavigator.navigate(
                 SceneConfig.INVOICE_FXML,
                 SceneConfig.Titles.INVOICE);

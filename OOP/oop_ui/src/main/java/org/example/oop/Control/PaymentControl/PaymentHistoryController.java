@@ -440,6 +440,9 @@ public class PaymentHistoryController extends BaseController implements Initiali
                         // Lưu payment ID vào SceneData
                         SceneManager.setSceneData("savedPaymentId", String.valueOf(payment.getId()));
 
+                        // Clear cache to ensure Payment screen loads fresh data
+                        SceneManager.removeFromCache(SceneConfig.PAYMENT_FXML);
+
                         // Chuyển scene
                         SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
                     } catch (Exception ex) {
@@ -581,7 +584,6 @@ public class PaymentHistoryController extends BaseController implements Initiali
                 }
         );
     }
-
 
     private void showPaymentDetails(Payment payment) {
     }
