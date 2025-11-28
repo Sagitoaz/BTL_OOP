@@ -1,2 +1,0 @@
-101|Nguyen Van A|nguyena@example.com
-102|Le Thi B|letb@example.com

@@ -1,2 +1,0 @@
-201|Dr. Tran Minh|tranm@example.com
-202|Dr. Pham Hoa|phamhoa@example.com
