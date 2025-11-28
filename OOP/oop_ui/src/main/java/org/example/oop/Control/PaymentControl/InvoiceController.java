@@ -2,21 +2,16 @@ package org.example.oop.Control.PaymentControl;
 
 // Import BaseController
 
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import org.example.oop.Control.BaseController;
-import org.example.oop.Service.ApiProductService;
-import org.example.oop.Service.ApiStockMovementService;
-import org.example.oop.Service.CustomerRecordService;
-import org.example.oop.Service.HttpPaymentItemService;
-import org.example.oop.Service.HttpPaymentService;
-import org.example.oop.Service.HttpPaymentStatusLogService;
+import org.example.oop.Service.*;
 import org.example.oop.Utils.ApiResponse;
 import org.example.oop.Utils.SceneConfig;
 import org.example.oop.Utils.SceneManager;
@@ -29,22 +24,13 @@ import org.miniboot.app.domain.models.Payment.PaymentItem;
 import org.miniboot.app.domain.models.Payment.PaymentStatus;
 import org.miniboot.app.domain.models.Payment.PaymentStatusLog;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Controller quản lý giao diện Hóa đơn.
@@ -422,8 +408,10 @@ public class InvoiceController extends BaseController implements Initializable {
     /**
      * HÀM MỚI (HELPER): Chứa logic blocking để lưu hóa đơn.
      * Hàm này sẽ được gọi bởi executeAsync trong một luồng nền.
+     *
+     * @param createStatusLog true để tạo UNPAID status, false để bỏ qua
      */
-    private Payment saveInvoiceLogic() throws Exception {
+    private Payment saveInvoiceLogic(boolean createStatusLog) throws Exception {
         // Đọc dữ liệu từ UI (an toàn vì đang ở luồng UI KHI GỌI,
         // nhưng chúng ta tạo bản sao để truyền vào luồng nền)
         final List<PaymentItem> itemsToSave = new ArrayList<>(invoiceItems);
@@ -471,14 +459,16 @@ public class InvoiceController extends BaseController implements Initializable {
             stockMovementService.createStockMovement(movement);
         }
 
-        // 4. TẠO STATUS LOG = UNPAID với ApiResponse handling
-        PaymentStatusLog unpaidLog = new PaymentStatusLog();
-        unpaidLog.setPaymentId(savedPaymentId);
-        unpaidLog.setStatus(PaymentStatus.UNPAID);
+        // 4. TẠO STATUS LOG = UNPAID với ApiResponse handling (chỉ khi cần)
+        if (createStatusLog) {
+            PaymentStatusLog unpaidLog = new PaymentStatusLog();
+            unpaidLog.setPaymentId(savedPaymentId);
+            unpaidLog.setStatus(PaymentStatus.UNPAID);
 
-        ApiResponse<PaymentStatusLog> statusResponse = paymentStatusLogService.updatePaymentStatus(unpaidLog);
-        if (!statusResponse.isSuccess()) {
-            throw new Exception("Không thể tạo status log: " + statusResponse.getErrorMessage());
+            ApiResponse<PaymentStatusLog> statusResponse = paymentStatusLogService.updatePaymentStatus(unpaidLog);
+            if (!statusResponse.isSuccess()) {
+                throw new Exception("Không thể tạo status log: " + statusResponse.getErrorMessage());
+            }
         }
 
         return savedPayment; // Trả về payment đã lưu thành công
@@ -502,7 +492,7 @@ public class InvoiceController extends BaseController implements Initializable {
         executeAsync(
                 () -> {
                     try {
-                        return saveInvoiceLogic();
+                        return saveInvoiceLogic(true); // Tạo UNPAID status
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -526,7 +516,7 @@ public class InvoiceController extends BaseController implements Initializable {
 
     /**
      * HÀM REFACTOR: Dùng executeAsync lồng nhau để xử lý chuỗi tác vụ
-     * (Lưu HĐ -> Thành công -> Cập nhật PENDING -> Thành công -> Mở cửa sổ)
+     * TỐI ƯU: Bỏ qua UNPAID, chỉ tạo PENDING trực tiếp để giảm 1 request
      */
     @FXML
     private void handlePayInvoice() {
@@ -539,18 +529,18 @@ public class InvoiceController extends BaseController implements Initializable {
         btnSaveInvoice.setDisable(true);
         btnPayInvoice.setDisable(true);
 
-        // 2. Tác vụ 1: Lưu Hóa Đơn
+        // 2. Tác vụ 1: Lưu Hóa Đơn (không tạo UNPAID status)
         executeAsync(
                 () -> {
                     try {
-                        return saveInvoiceLogic();
+                        return saveInvoiceLogic(false); // Bỏ qua UNPAID status
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }, // Tác vụ nền (Step 1)
                 (savedPayment) -> {
                     // 3. Thành công Tác vụ 1 (chạy trên UI thread)
-                    // Bắt đầu Tác vụ 2: Cập nhật trạng thái PENDING
+                    // Bắt đầu Tác vụ 2: Cập nhật trạng thái PENDING trực tiếp
                     executeAsync(
                             () -> {
                                 // Tác vụ nền (Step 2)
@@ -608,7 +598,8 @@ public class InvoiceController extends BaseController implements Initializable {
         try {
             discount = Integer.parseInt(txtDiscountAmount.getText());
         } catch (NumberFormatException e) {
-            /* Bỏ qua */ }
+            /* Bỏ qua */
+        }
 
         int tax = 0;
         int grandTotal = subtotal - discount + tax;
