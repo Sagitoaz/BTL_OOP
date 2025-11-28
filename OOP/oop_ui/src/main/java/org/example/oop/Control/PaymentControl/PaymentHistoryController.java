@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import org.example.oop.Control.BaseController;
 import org.example.oop.Service.ApiStockMovementService;
 import org.example.oop.Service.HttpPaymentItemService;
 import org.example.oop.Service.HttpPaymentService;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class PaymentHistoryController implements Initializable {
+public class PaymentHistoryController extends BaseController implements Initializable {
     private final HttpPaymentService paymentService;
     private final HttpPaymentStatusLogService statusLogService;
     private final HttpPaymentItemService paymentItemService;
@@ -34,6 +36,14 @@ public class PaymentHistoryController implements Initializable {
 
     // Dữ liệu tải về từ API sẽ được lưu trữ ở đây
     private List<PaymentWithStatus> allPaymentsWithStatus;
+
+    //  LOADING STATUS
+    @FXML
+    private HBox loadingStatusContainer;
+    @FXML
+    private ProgressIndicator statusProgressIndicator;
+    @FXML
+    private Label loadingStatusLabel;
 
     @FXML
     private TextField txtKeyword;
@@ -290,100 +300,108 @@ public class PaymentHistoryController implements Initializable {
      * Hủy thanh toán - cập nhật status thành CANCELLED và hoàn trả hàng về kho
      */
     private void handleCancelPayment(Payment payment) {
-        try {
-            System.out.println("🔄 Đang hủy thanh toán: " + payment.getCode() + " (ID: " + payment.getId() + ")");
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang hủy hóa đơn...");
 
-            // Bước 1: Lấy danh sách payment items
-            System.out.println("📦 Bước 1: Lấy danh sách payment items...");
-            ApiResponse<List<PaymentItem>> itemsResponse = paymentItemService.getPaymentItemsByPaymentId(payment.getId());
+        executeAsync(
+                () -> {
+                    // Task chạy trên background thread
+                    try {
+                        System.out.println("🔄 Đang hủy thanh toán: " + payment.getCode() + " (ID: " + payment.getId() + ")");
 
-            List<PaymentItem> paymentItems = null;
+                        // Bước 1: Lấy danh sách payment items
+                        System.out.println("📦 Bước 1: Lấy danh sách payment items...");
+                        ApiResponse<List<PaymentItem>> itemsResponse = paymentItemService.getPaymentItemsByPaymentId(payment.getId());
 
-            if (itemsResponse.isSuccess()) {
-                paymentItems = itemsResponse.getData();
-                if (paymentItems != null) {
-                    System.out.println("✅ Tìm thấy " + paymentItems.size() + " sản phẩm trong hóa đơn");
-                } else {
-                    System.out.println("⚠️ Không có sản phẩm trong hóa đơn (data is null)");
-                    paymentItems = new ArrayList<>(); // Khởi tạo empty list để tránh null
+                        List<PaymentItem> paymentItems = new ArrayList<>();
+
+                        if (itemsResponse.isSuccess()) {
+                            paymentItems = itemsResponse.getData();
+                            if (paymentItems != null) {
+                                System.out.println("✅ Tìm thấy " + paymentItems.size() + " sản phẩm trong hóa đơn");
+                            } else {
+                                System.out.println("⚠️ Không có sản phẩm trong hóa đơn (data is null)");
+                                paymentItems = new ArrayList<>();
+                            }
+                        } else {
+                            System.err.println("⚠️ Không thể lấy payment items: " + itemsResponse.getErrorMessage());
+                            System.out.println("ℹ️ Tiếp tục hủy hóa đơn mà không hoàn trả hàng");
+                        }
+
+                        // Bước 2: Tạo stock movements để hoàn trả hàng về kho (nếu có items)
+                        if (!paymentItems.isEmpty()) {
+                            System.out.println("📦 Bước 2: Tạo stock movements để hoàn trả hàng...");
+                            List<StockMovement> returnMovements = new ArrayList<>();
+
+                            int userId = payment.getCashierId();
+
+                            for (PaymentItem item : paymentItems) {
+                                StockMovement movement = new StockMovement();
+                                movement.setProductId(item.getProductId());
+                                movement.setQty(item.getQty());
+                                movement.setMoveType(MoveType.RETURN_IN);
+                                movement.setRefTable("payments");
+                                movement.setRefId(payment.getId());
+                                movement.setMovedAt(LocalDateTime.now());
+                                movement.setMovedBy(userId);
+                                movement.setNote("Hoàn trả do hủy hóa đơn: " + payment.getCode());
+
+                                returnMovements.add(movement);
+                                System.out.println("  ➕ Product ID: " + item.getProductId() + ", Qty: +" + item.getQty());
+                            }
+
+                            try {
+                                List<StockMovement> createdMovements = stockMovementService.createListStockMovement(returnMovements);
+                                System.out.println("✅ Đã tạo " + createdMovements.size() + " stock movements để hoàn trả hàng");
+                            } catch (Exception e) {
+                                System.err.println("❌ Lỗi khi tạo stock movements: " + e.getMessage());
+                                throw new RuntimeException("Không thể hoàn trả hàng về kho: " + e.getMessage());
+                            }
+                        } else {
+                            System.out.println("ℹ️ Không có sản phẩm cần hoàn trả");
+                        }
+
+                        // Bước 3: Cập nhật status payment thành CANCELLED
+                        System.out.println("📝 Bước 3: Cập nhật status payment thành CANCELLED...");
+                        ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response =
+                                statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.CANCELLED);
+
+                        if (!response.isSuccess()) {
+                            throw new RuntimeException("Không thể cập nhật trạng thái thanh toán: " + response.getErrorMessage());
+                        }
+
+                        return paymentItems; // Trả về danh sách items
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+                (paymentItems) -> {
+                    // Success callback - chạy trên UI thread
+                    System.out.println("✅ Đã hủy thanh toán thành công");
+
+                    String message;
+                    if (paymentItems != null && !paymentItems.isEmpty()) {
+                        message = "Đã hủy hóa đơn " + payment.getCode() + " và hoàn trả " +
+                                paymentItems.size() + " sản phẩm về kho";
+                    } else {
+                        message = "Đã hủy hóa đơn " + payment.getCode();
+                    }
+
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ " + message);
+                    showAlert(Alert.AlertType.INFORMATION, "Thành công", message);
+
+                    // Reload lại danh sách
+                    loadPayments();
+                },
+                (error) -> {
+                    // Error callback - chạy trên UI thread
+                    System.err.println("❌ Exception khi hủy thanh toán: " + error.getMessage());
+                    showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "❌ Lỗi: " + error.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi khi hủy thanh toán: " + error.getMessage());
                 }
-            } else {
-                System.err.println("⚠️ Không thể lấy payment items: " + itemsResponse.getErrorMessage());
-                System.out.println("ℹ️ Tiếp tục hủy hóa đơn mà không hoàn trả hàng");
-                paymentItems = new ArrayList<>(); // Khởi tạo empty list
-            }
-
-            // Bước 2: Tạo stock movements để hoàn trả hàng về kho (nếu có items)
-            if (paymentItems != null && !paymentItems.isEmpty()) {
-                System.out.println("📦 Bước 2: Tạo stock movements để hoàn trả hàng...");
-                List<StockMovement> returnMovements = new ArrayList<>();
-
-                // Lấy thông tin cashier từ payment để ghi vào moved_by
-                int userId = payment.getCashierId(); // Sử dụng cashier ID từ payment
-
-                for (PaymentItem item : paymentItems) {
-                    StockMovement movement = new StockMovement();
-                    movement.setProductId(item.getProductId());
-                    movement.setQty(item.getQty()); // Số lượng dương = nhập kho (hoàn trả)
-                    movement.setMoveType(MoveType.RETURN_IN); // Hoàn trả vào kho
-                    movement.setRefTable("payments"); // Tham chiếu đến bảng payments
-                    movement.setRefId(payment.getId()); // ID của payment bị hủy
-                    movement.setMovedAt(LocalDateTime.now());
-                    movement.setMovedBy(userId);
-                    movement.setNote("Hoàn trả do hủy hóa đơn: " + payment.getCode());
-
-                    returnMovements.add(movement);
-                    System.out.println("  ➕ Product ID: " + item.getProductId() + ", Qty: +" + item.getQty());
-                }
-
-                // Gọi API để tạo stock movements
-                try {
-                    List<StockMovement> createdMovements = stockMovementService.createListStockMovement(returnMovements);
-                    System.out.println("✅ Đã tạo " + createdMovements.size() + " stock movements để hoàn trả hàng");
-                } catch (Exception e) {
-                    System.err.println("❌ Lỗi khi tạo stock movements: " + e.getMessage());
-                    e.printStackTrace();
-                    showAlert(Alert.AlertType.WARNING, "Cảnh báo",
-                            "Không thể hoàn trả hàng về kho: " + e.getMessage() +
-                                    "\n\nHóa đơn vẫn sẽ được hủy. Vui lòng kiểm tra kho hàng thủ công.");
-                    // Không return - vẫn tiếp tục hủy hóa đơn
-                }
-            } else {
-                System.out.println("ℹ️ Không có sản phẩm cần hoàn trả");
-            }
-
-            // Bước 3: Cập nhật status payment thành CANCELLED
-            System.out.println("📝 Bước 3: Cập nhật status payment thành CANCELLED...");
-            ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response =
-                    statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.CANCELLED);
-
-            if (response.isSuccess()) {
-                System.out.println("✅ Đã hủy thanh toán thành công");
-
-                // Tùy chỉnh message dựa trên việc có hoàn trả hàng hay không
-                String message;
-                if (paymentItems != null && !paymentItems.isEmpty()) {
-                    message = "Đã hủy hóa đơn " + payment.getCode() + " và hoàn trả " +
-                            paymentItems.size() + " sản phẩm về kho";
-                } else {
-                    message = "Đã hủy hóa đơn " + payment.getCode();
-                }
-
-                showAlert(Alert.AlertType.INFORMATION, "Thành công", message);
-
-                // Reload lại danh sách
-                loadPayments();
-            } else {
-                System.err.println("❌ Lỗi khi cập nhật status: " + response.getErrorMessage());
-                showAlert(Alert.AlertType.ERROR, "Lỗi",
-                        "Không thể cập nhật trạng thái thanh toán: " + response.getErrorMessage());
-            }
-        } catch (Exception e) {
-            System.err.println("❌ Exception khi hủy thanh toán: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi",
-                    "Lỗi khi hủy thanh toán: " + e.getMessage());
-        }
+        );
     }
 
     /**
@@ -391,35 +409,56 @@ public class PaymentHistoryController implements Initializable {
      * Nếu payment đang ở status UNPAID, sẽ cập nhật thành PENDING trước
      */
     private void handleGoToPayment(Payment payment, PaymentStatus currentStatus) {
-        try {
-            System.out.println("🔄 Chuyển sang scene thanh toán cho: " + payment.getCode() + " (ID: " + payment.getId() + ")");
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang chuẩn bị thanh toán...");
 
-            // Nếu payment đang UNPAID, cập nhật sang PENDING trước khi thanh toán
-            if (currentStatus == PaymentStatus.UNPAID) {
-                System.out.println("📝 Cập nhật status từ UNPAID sang PENDING...");
-                ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response =
-                        statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.PENDING);
+        executeAsync(
+                () -> {
+                    // Task chạy trên background thread
+                    System.out.println("🔄 Chuyển sang scene thanh toán cho: " + payment.getCode() + " (ID: " + payment.getId() + ")");
 
-                if (!response.isSuccess()) {
-                    System.err.println("❌ Lỗi khi cập nhật status: " + response.getErrorMessage());
+                    // Nếu payment đang UNPAID, cập nhật sang PENDING trước khi thanh toán
+                    if (currentStatus == PaymentStatus.UNPAID) {
+                        System.out.println("📝 Cập nhật status từ UNPAID sang PENDING...");
+                        ApiResponse<org.miniboot.app.domain.models.Payment.PaymentStatusLog> response =
+                                statusLogService.updatePaymentStatus(payment.getId(), PaymentStatus.PENDING);
+
+                        if (!response.isSuccess()) {
+                            throw new RuntimeException("Không thể cập nhật trạng thái thanh toán: " + response.getErrorMessage());
+                        }
+                        System.out.println("✅ Đã cập nhật status sang PENDING");
+                    }
+
+                    return null;
+                },
+                (nothing) -> {
+                    // Success callback - chạy trên UI thread
+                    try {
+                        showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                "✅ Mở trang thanh toán...");
+
+                        // Lưu payment ID vào SceneData
+                        SceneManager.setSceneData("savedPaymentId", String.valueOf(payment.getId()));
+
+                        // Chuyển scene
+                        SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
+                    } catch (Exception ex) {
+                        System.err.println("❌ Lỗi khi chuyển scene: " + ex.getMessage());
+                        showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                                "❌ Lỗi mở trang thanh toán");
+                        showAlert(Alert.AlertType.ERROR, "Lỗi",
+                                "Không thể chuyển sang trang thanh toán: " + ex.getMessage());
+                    }
+                },
+                (error) -> {
+                    // Error callback - chạy trên UI thread
+                    System.err.println("❌ Lỗi: " + error.getMessage());
+                    showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "❌ Lỗi: " + error.getMessage());
                     showAlert(Alert.AlertType.ERROR, "Lỗi",
-                            "Không thể cập nhật trạng thái thanh toán: " + response.getErrorMessage());
-                    return;
+                            "Không thể cập nhật trạng thái thanh toán: " + error.getMessage());
                 }
-                System.out.println("✅ Đã cập nhật status sang PENDING");
-            }
-
-            // Lưu payment ID vào SceneData (dưới dạng String)
-            SceneManager.setSceneData("savedPaymentId", String.valueOf(payment.getId()));
-
-            // Chuyển scene
-            SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
-        } catch (Exception e) {
-            System.err.println("❌ Lỗi khi chuyển scene: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi",
-                    "Không thể chuyển sang trang thanh toán: " + e.getMessage());
-        }
+        );
     }
 
     private void searchPayments() {
@@ -480,62 +519,69 @@ public class PaymentHistoryController implements Initializable {
 
     private void loadPayments() {
         System.out.println("⏳ Đang tải lịch sử thanh toán...");
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "⏳ Đang tải lịch sử thanh toán...");
 
-        try {
-            ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
+        executeAsync(
+                () -> {
+                    // Task chạy trên background thread
+                    try {
+                        ApiResponse<List<PaymentWithStatus>> response = paymentService.getPaymentsWithStatus();
 
-            if (!response.isSuccess()) {
-                System.err.println("❌ Lỗi tải lịch sử thanh toán: " + response.getErrorMessage());
-                showAlert(Alert.AlertType.ERROR, "Lỗi",
-                        "Không thể tải lịch sử thanh toán: " + response.getErrorMessage());
-                return;
-            }
+                        if (!response.isSuccess()) {
+                            throw new RuntimeException("Không thể tải lịch sử thanh toán: " + response.getErrorMessage());
+                        }
 
-            List<PaymentWithStatus> allPayments = response.getData();
+                        List<PaymentWithStatus> allPayments = response.getData();
 
-            if (allPayments == null) {
-                System.err.println("❌ Dữ liệu trả về null");
-                allPayments = List.of();
-            }
+                        if (allPayments == null) {
+                            System.err.println("❌ Dữ liệu trả về null");
+                            allPayments = List.of();
+                        }
 
-            System.out.println("📊 Tổng số hóa đơn: " + allPayments.size());
+                        System.out.println("📊 Tổng số hóa đơn: " + allPayments.size());
 
-            // Lọc theo role nếu là customer
-            if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
-                Object accountData = SceneManager.getSceneData("accountData");
-                if (accountData instanceof Customer) {
-                    int customerId = ((Customer) accountData).getId();
-                    System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
+                        // Lọc theo role nếu là customer
+                        if (SceneManager.getSceneData("role") == UserRole.CUSTOMER) {
+                            Object accountData = SceneManager.getSceneData("accountData");
+                            if (accountData instanceof Customer) {
+                                int customerId = ((Customer) accountData).getId();
+                                System.out.println("🔍 Lọc lịch sử thanh toán cho khách hàng ID: " + customerId);
 
-                    allPayments = allPayments.stream()
-                            .filter(p -> p.getPayment() != null && p.getPayment().getCustomerId() == customerId)
-                            .toList();
+                                allPayments = allPayments.stream()
+                                        .filter(p -> p.getPayment() != null && p.getPayment().getCustomerId() == customerId)
+                                        .toList();
 
-                    System.out.println("📊 Số hóa đơn sau khi lọc: " + allPayments.size());
+                                System.out.println("📊 Số hóa đơn sau khi lọc: " + allPayments.size());
+                            }
+                        }
+
+                        return allPayments;
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+                (allPayments) -> {
+                    // Success callback - chạy trên UI thread
+                    // Lưu lại toàn bộ danh sách và cập nhật bảng
+                    allPaymentsWithStatus = allPayments;
+                    paymentsWithStatus.clear();
+                    paymentsWithStatus.addAll(allPayments);
+
+                    System.out.println("✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
+                    showSuccessStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
+                },
+                (error) -> {
+                    // Error callback - chạy trên UI thread
+                    System.err.println("❌ Exception khi tải lịch sử thanh toán: " + error.getMessage());
+                    showErrorStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                            "❌ Lỗi: " + error.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi khi tải lịch sử thanh toán: " + error.getMessage());
                 }
-            }
-
-            // Lưu lại toàn bộ danh sách và cập nhật bảng
-            allPaymentsWithStatus = allPayments;
-            paymentsWithStatus.clear();
-            paymentsWithStatus.addAll(allPayments);
-
-            System.out.println("✅ Đã tải " + paymentsWithStatus.size() + " hóa đơn");
-
-        } catch (Exception e) {
-            System.err.println("❌ Exception khi tải lịch sử thanh toán: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Lỗi khi tải lịch sử thanh toán: " + e.getMessage());
-        }
+        );
     }
 
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 
     private void showPaymentDetails(Payment payment) {
     }
