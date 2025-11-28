@@ -9,7 +9,6 @@ import org.example.oop.Utils.ErrorHandler;
 import org.example.oop.Utils.GsonProvider;
 import org.miniboot.app.domain.models.Payment.Payment;
 import org.miniboot.app.domain.models.Payment.PaymentWithStatus;
-// import org.miniboot.app.util.PaymentConfig; // TODO: PaymentConfig class not found
 import org.example.oop.Utils.PaymentConfig; // Temporary workaround
 
 import java.util.ArrayList;
@@ -64,7 +63,8 @@ public class HttpPaymentService {
 
             try {
                 List<Payment> payments = gson.fromJson(response.getData(),
-                        new TypeToken<List<Payment>>() {}.getType());
+                        new TypeToken<List<Payment>>() {
+                        }.getType());
                 return ApiResponse.success(payments, response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse payments list");
@@ -187,7 +187,8 @@ public class HttpPaymentService {
 
             try {
                 List<PaymentWithStatus> payments = gson.fromJson(response.getData(),
-                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
+                        new TypeToken<List<PaymentWithStatus>>() {
+                        }.getType());
                 return ApiResponse.success(payments, response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse payments with status");
@@ -200,7 +201,8 @@ public class HttpPaymentService {
     }
 
     /**
-     * GET /payments/with-status?id={id} - Lấy 1 payment với trạng thái theo ID (Sync)
+     * GET /payments/with-status?id={id} - Lấy 1 payment với trạng thái theo ID
+     * (Sync)
      * TỐI ƯU: Gộp 2 requests (payment + status) thành 1 request duy nhất
      */
     public ApiResponse<PaymentWithStatus> getPaymentWithStatusById(int paymentId) {
@@ -215,12 +217,13 @@ public class HttpPaymentService {
             try {
                 // Backend trả về array với 1 phần tử
                 List<PaymentWithStatus> payments = gson.fromJson(response.getData(),
-                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
-                
+                        new TypeToken<List<PaymentWithStatus>>() {
+                        }.getType());
+
                 if (payments == null || payments.isEmpty()) {
                     return ApiResponse.error("Payment not found with ID: " + paymentId);
                 }
-                
+
                 return ApiResponse.success(payments.get(0), response.getStatusCode());
             } catch (Exception e) {
                 ErrorHandler.handleJsonParseError(e, "Parse payment with status by ID");
@@ -249,7 +252,8 @@ public class HttpPaymentService {
                                     || "null".equals(responseData.trim())) {
                                 payments = new ArrayList<>();
                             } else {
-                                payments = gson.fromJson(responseData, new TypeToken<List<Payment>>() {}.getType());
+                                payments = gson.fromJson(responseData, new TypeToken<List<Payment>>() {
+                                }.getType());
                                 if (payments == null) {
                                     payments = new ArrayList<>();
                                 }
@@ -288,7 +292,8 @@ public class HttpPaymentService {
                                 payments = new ArrayList<>();
                             } else {
                                 payments = gson.fromJson(responseData,
-                                        new TypeToken<List<PaymentWithStatus>>() {}.getType());
+                                        new TypeToken<List<PaymentWithStatus>>() {
+                                        }.getType());
                                 if (payments == null) {
                                     payments = new ArrayList<>();
                                 }

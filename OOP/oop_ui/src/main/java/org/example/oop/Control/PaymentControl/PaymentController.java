@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import org.example.oop.Control.BaseController;
 import org.example.oop.Model.Receipt;
 import org.example.oop.Service.HttpPaymentItemService;
@@ -23,6 +24,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PaymentController extends BaseController implements Initializable {
+    @FXML
+    private AnchorPane loadingOverlay;
+
     @FXML
     private TextField txtInvoiceId;
     @FXML
@@ -53,21 +57,26 @@ public class PaymentController extends BaseController implements Initializable {
     private HttpPaymentService paymentService;
     private HttpPaymentStatusLogService statusLogService;
     private HttpPaymentItemService itemService;
+
     @FXML
-    private void handleBackButton(){
+    private void handleBackButton() {
         SceneManager.goBack();
     }
+
     @FXML
-    private void handleForwardButton(){
+    private void handleForwardButton() {
         SceneManager.goForward();
     }
+
     @FXML
-    private void handleReloadButton(){
+    private void handleReloadButton() {
         SceneManager.reloadCurrentScene();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        hideLoading();
+
         // <-- Khởi tạo các service với getInstance()
         paymentService = HttpPaymentService.getInstance();
         statusLogService = HttpPaymentStatusLogService.getInstance();
@@ -77,13 +86,13 @@ public class PaymentController extends BaseController implements Initializable {
         setupEventHandlers();
         setupListeners();
         handleReset();
-        if(SceneManager.getSceneData("savedPaymentId") != null){
-            String paymentId = (String)SceneManager.getSceneData("savedPaymentId");
+        if (SceneManager.getSceneData("savedPaymentId") != null) {
+            String paymentId = (String) SceneManager.getSceneData("savedPaymentId");
             initData(paymentId);
             SceneManager.removeSceneData("paymentId");
         }
     }
-    
+
     public void initData(String paymentId) {
         txtInvoiceId.setText(paymentId);
         handleLoadInvoice(); // Tự động tải hóa đơn
@@ -138,6 +147,9 @@ public class PaymentController extends BaseController implements Initializable {
             return;
         }
 
+        // Hiển thị loading
+        showLoading();
+
         // BỌC CÁC LỆNH GỌI API TRONG executeAsync
         // TỐI ƯU: Giảm từ 3 requests xuống còn 2 requests
         // - Request 1: getPaymentWithStatusById() (gộp payment + status)
@@ -146,11 +158,13 @@ public class PaymentController extends BaseController implements Initializable {
                 // TÁC VỤ NỀN (BACKGROUND THREAD)
                 () -> {
                     // 1. Lấy payment + status trong 1 request duy nhất
-                    ApiResponse<PaymentWithStatus> paymentWithStatusResponse = paymentService.getPaymentWithStatusById(id);
+                    ApiResponse<PaymentWithStatus> paymentWithStatusResponse = paymentService
+                            .getPaymentWithStatusById(id);
                     if (!paymentWithStatusResponse.isSuccess()) {
-                        throw new RuntimeException("Không thể lấy thông tin hóa đơn: " + paymentWithStatusResponse.getErrorMessage());
+                        throw new RuntimeException(
+                                "Không thể lấy thông tin hóa đơn: " + paymentWithStatusResponse.getErrorMessage());
                     }
-                    
+
                     PaymentWithStatus paymentWithStatus = paymentWithStatusResponse.getData();
                     if (paymentWithStatus == null) {
                         throw new RuntimeException("Không tìm thấy hóa đơn với ID " + id);
@@ -166,12 +180,13 @@ public class PaymentController extends BaseController implements Initializable {
                     } else if (status == PaymentStatus.CANCELLED) {
                         throw new RuntimeException("Hóa đơn này đã bị hủy");
                     } else if (status != PaymentStatus.PENDING) {
-                        throw new RuntimeException("Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
+                        throw new RuntimeException(
+                                "Hóa đơn này không ở trạng thái chờ thanh toán. Trạng thái hiện tại: " + status);
                     }
 
                     // 4. Gán biến global (vẫn an toàn vì onSuccess sẽ đọc sau)
                     currentPayment = payment;
-                    
+
                     // 5. Lấy items - chỉ còn 1 request riêng lẻ
                     ApiResponse<List<PaymentItem>> itemsResponse = itemService.getPaymentItemsByPaymentId(id);
                     if (!itemsResponse.isSuccess()) {
@@ -182,19 +197,19 @@ public class PaymentController extends BaseController implements Initializable {
                     return true; // Trả về true nếu mọi thứ thành công
                 },
 
-                //  KHI THÀNH CÔNG (UI THREAD) 
+                // KHI THÀNH CÔNG (UI THREAD)
                 (success) -> {
-                    // (Tùy chọn: Ẩn loading)
-                    // loadingSpinner.setVisible(false);
+                    // Ẩn loading
+                    hideLoading();
 
                     // Cập nhật giao diện với dữ liệu đã tải
                     updatePaymentDisplay();
                 },
 
-                //  KHI CÓ LỖI (UI THREAD) 
+                // KHI CÓ LỖI (UI THREAD)
                 (error) -> {
-                    // (Tùy chọn: Ẩn loading)
-                    // loadingSpinner.setVisible(false);
+                    // Ẩn loading
+                    hideLoading();
 
                     // Nếu là lỗi nghiệp vụ ta tự ném ra (RuntimeException)
                     if (error instanceof RuntimeException) {
@@ -204,8 +219,7 @@ public class PaymentController extends BaseController implements Initializable {
                         handleError(error);
                     }
                     handleReset(); // Reset form khi có lỗi
-                }
-        );
+                });
     }
 
     private void handleReset() {
@@ -225,7 +239,7 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void handleConfirmPayment(boolean shouldPrint) {
-        //  1. VALIDATION (Chạy trên UI thread) 
+        // 1. VALIDATION (Chạy trên UI thread)
         if (currentPayment == null) {
             showWarning("Vui lòng tải hóa đơn trước khi thanh toán");
             return;
@@ -256,16 +270,17 @@ public class PaymentController extends BaseController implements Initializable {
         currentPayment.setAmountPaid(amountPaid);
         currentPayment.setNote(txtNote.getText());
 
-        //  2. GỌI API (Chạy trên Background thread) 
+        // 2. GỌI API (Chạy trên Background thread)
         executeAsync(
-                //  TÁC VỤ NỀN (BACKGROUND THREAD) 
+                // TÁC VỤ NỀN (BACKGROUND THREAD)
                 () -> {
                     // 1. GỬI CẬP NHẬT LÊN SERVER với ApiResponse handling
                     Payment updatedPayment = null;
                     try {
                         ApiResponse<Payment> updateResponse = paymentService.updatePayment(currentPayment);
                         if (!updateResponse.isSuccess()) {
-                            throw new RuntimeException("Không thể cập nhật payment: " + updateResponse.getErrorMessage());
+                            throw new RuntimeException(
+                                    "Không thể cập nhật payment: " + updateResponse.getErrorMessage());
                         }
                         updatedPayment = updateResponse.getData();
                     } catch (Exception e) {
@@ -277,18 +292,19 @@ public class PaymentController extends BaseController implements Initializable {
                     }
 
                     // 2. Cập nhật trạng thái với ApiResponse handling
-                    ApiResponse<PaymentStatusLog> statusResponse = statusLogService.updatePaymentStatus(new PaymentStatusLog(
-                            null,
-                            currentPayment.getId(),
-                            LocalDateTime.now(),
-                            PaymentStatus.PAID)
-                    );
+                    ApiResponse<PaymentStatusLog> statusResponse = statusLogService
+                            .updatePaymentStatus(new PaymentStatusLog(
+                                    null,
+                                    currentPayment.getId(),
+                                    LocalDateTime.now(),
+                                    PaymentStatus.PAID));
                     if (!statusResponse.isSuccess()) {
-                        throw new RuntimeException("Không thể cập nhật trạng thái: " + statusResponse.getErrorMessage());
+                        throw new RuntimeException(
+                                "Không thể cập nhật trạng thái: " + statusResponse.getErrorMessage());
                     }
                 },
 
-                //  KHI THÀNH CÔNG (UI THREAD) 
+                // KHI THÀNH CÔNG (UI THREAD)
                 () -> {
                     // (Tùy chọn: Ẩn loading...)
 
@@ -299,7 +315,7 @@ public class PaymentController extends BaseController implements Initializable {
                     showSuccess("Đã thanh toán hóa đơn thành công");
                     handleReset();
                 }
-                // Khi lỗi, hàm handleError chung của BaseController sẽ tự động được gọi
+        // Khi lỗi, hàm handleError chung của BaseController sẽ tự động được gọi
         );
     }
 
@@ -320,7 +336,8 @@ public class PaymentController extends BaseController implements Initializable {
     }
 
     private void handlePaymentMethodChange(PaymentMethod method) {
-        if (currentPayment == null) return;
+        if (currentPayment == null)
+            return;
 
         switch (method) {
             case CASH -> {
@@ -347,10 +364,24 @@ public class PaymentController extends BaseController implements Initializable {
 
     private void printReceipt() {
 
-            String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
+        String receiptNumber = "RC" + String.format("%06d", currentPayment.getId());
 
-            Receipt receipt = new Receipt(currentPayment, currentItems);
-            SceneManager.setSceneData("receiptData", receipt);
-            SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
+        Receipt receipt = new Receipt(currentPayment, currentItems);
+        SceneManager.setSceneData("receiptData", receipt);
+        SceneManager.openModalWindow(SceneConfig.RECEIPT_FXML, SceneConfig.Titles.RECEIPT, null);
+    }
+
+    private void showLoading() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(true);
+            loadingOverlay.setManaged(true);
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(false);
+            loadingOverlay.setManaged(false);
+        }
     }
 }

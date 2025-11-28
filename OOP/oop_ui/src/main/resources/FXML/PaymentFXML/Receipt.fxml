@@ -9,17 +9,19 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane xmlns:fx="http://javafx.com/fxml/1" fitToHeight="true" fitToWidth="true" prefHeight="1000.0" prefWidth="1200.0"
+<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/24.0.1" prefHeight="1000.0" prefWidth="1200.0" fx:controller="org.example.oop.Control.PaymentControl.ReceiptController">
+<ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="1000.0" prefWidth="1200.0"
             styleClass="scroll-pane"
-            stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css" xmlns="http://javafx.com/javafx/24.0.1"
-            fx:controller="org.example.oop.Control.PaymentControl.ReceiptController">
+            stylesheets="@../../css/main.css,@../../css/forms.css,@../../css/buttons.css,@../../css/layouts.css,@../../css/tables.css,@../../css/financial-report.css">
     <content>
         <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #f5f5f5;">
             <padding>
@@ -193,4 +195,14 @@
         </VBox>
     </content>
 </ScrollPane>
+
+<!-- Loading Overlay -->
+<AnchorPane fx:id="loadingOverlay" managed="false" prefHeight="1000.0" prefWidth="1200.0" style="-fx-background-color: rgba(255, 255, 255, 0.95);" visible="false">
+    <VBox alignment="CENTER" spacing="20" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="350">
+        <Label style="-fx-font-size: 48px;" text="⏳" />
+        <Label style="-fx-font-size: 20px; -fx-font-weight: 600; -fx-text-fill: #0EA5E9;" text="Đang tải hóa đơn..." />
+        <Label style="-fx-font-size: 14px; -fx-text-fill: #64748B;" text="Vui lòng chờ trong giây lát" />
+    </VBox>
+</AnchorPane>
+</StackPane>
 

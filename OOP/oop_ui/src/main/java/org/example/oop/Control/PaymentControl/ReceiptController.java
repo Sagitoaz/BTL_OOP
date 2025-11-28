@@ -1,5 +1,18 @@
 package org.example.oop.Control.PaymentControl;
 
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+
+import org.example.oop.Control.BaseController;
+import org.example.oop.Model.Receipt;
+import org.example.oop.Utils.PDFExporter;
+import org.example.oop.Utils.SceneManager;
+import org.miniboot.app.domain.models.Payment.Payment;
+import org.miniboot.app.domain.models.Payment.PaymentItem;
+
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,22 +21,12 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.example.oop.Control.BaseController;
-import org.example.oop.Model.Receipt;
-import org.example.oop.Utils.PDFExporter;
-import org.example.oop.Utils.SceneManager;
-import org.miniboot.app.domain.models.Payment.Payment;
-import org.miniboot.app.domain.models.Payment.PaymentItem;
-
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import javafx.scene.layout.AnchorPane;
 
 public class ReceiptController extends BaseController implements Initializable {
+    @FXML
+    private AnchorPane loadingOverlay;
+
     @FXML
     private Label lblReceiptNo;
     @FXML
@@ -57,11 +60,26 @@ public class ReceiptController extends BaseController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        hideLoading();
         initializeTable();
     }
 
+    private void showLoading() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(true);
+            loadingOverlay.setManaged(true);
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisible(false);
+            loadingOverlay.setManaged(false);
+        }
+    }
+
     private void initializeTable() {
-        if(SceneManager.getSceneData("receiptData") != null){
+        if (SceneManager.getSceneData("receiptData") != null) {
             System.out.println("Loading receipt data into receipt view...");
             Receipt receipt = SceneManager.getSceneData("receiptData");
             displayReceipt(receipt);
@@ -117,7 +135,6 @@ public class ReceiptController extends BaseController implements Initializable {
 
         lblCustomer.setText(payment.getCustomerId() == null ? "Khách lẻ" : String.valueOf(payment.getCustomerId()));
 
-
         System.out.println("Receipt has " + receipt.getItems().size() + " items.");
 
         // Hiển thị danh sách items
@@ -149,14 +166,14 @@ public class ReceiptController extends BaseController implements Initializable {
 
         try {
             Payment payment = receipt.getPayment();
-            
+
             // Tạo tên file với mã hóa đơn
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
             String fileName = "HoaDon_" + payment.getCode() + "_" + timestamp;
 
             // Xuất PDF với method mới (hỗ trợ tiếng Việt và format đẹp)
             boolean success = PDFExporter.exportReceipt(payment, receipt.getItems(), fileName);
-            
+
             if (success) {
                 showSuccess("Thành công\n" + "Đã xuất hóa đơn PDF thành công!");
             } else {

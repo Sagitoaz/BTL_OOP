@@ -53,7 +53,7 @@ import javafx.scene.layout.HBox;
 // Bước 1: Kế thừa từ BaseController
 public class InvoiceController extends BaseController implements Initializable {
 
-    //  Dữ liệu và Repository 
+    // Dữ liệu và Repository
     private final ObservableList<PaymentItem> invoiceItems = FXCollections.observableArrayList();
     private ApiProductService productService;
     private HttpPaymentService paymentService;
@@ -62,7 +62,7 @@ public class InvoiceController extends BaseController implements Initializable {
     private HttpPaymentStatusLogService paymentStatusLogService;
     private CustomerRecordService customerService;
 
-    //  LOADING STATUS 
+    // LOADING STATUS
     @FXML
     private HBox loadingStatusContainer;
     @FXML
@@ -76,7 +76,7 @@ public class InvoiceController extends BaseController implements Initializable {
     private Product currentSelectedProduct;
     private Customer currentSelectedCustomer;
 
-    //  Các thành phần UI (@FXML) 
+    // Các thành phần UI (@FXML)
     // (Tất cả các @FXML giữ nguyên)
     @FXML
     private TextField txtInvoiceCode;
@@ -167,6 +167,7 @@ public class InvoiceController extends BaseController implements Initializable {
         } catch (Exception e) {
             System.err.println("❌ Error opening Payment History: " + e.getMessage());
             e.printStackTrace();
+            hideLoadingStatus(loadingStatusContainer);
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở màn hình Lịch sử thanh toán: " + e.getMessage());
         }
     }
@@ -179,6 +180,9 @@ public class InvoiceController extends BaseController implements Initializable {
         stockMovementService = new ApiStockMovementService();
         paymentStatusLogService = HttpPaymentStatusLogService.getInstance();
         customerService = CustomerRecordService.getInstance();
+
+        // Ẩn loading status khi khởi tạo (trường hợp quay lại từ scene khác)
+        hideLoadingStatus(loadingStatusContainer);
 
         setupTableColumns();
         setupEventListeners();
@@ -430,7 +434,7 @@ public class InvoiceController extends BaseController implements Initializable {
         final Payment paymentToSave = createPaymentFromUI();
         final int cashierId = safeParseInt(txtCashier.getText());
 
-        //  Logic này chạy trong LUỒNG NỀN 
+        // Logic này chạy trong LUỒNG NỀN
 
         // 1. Lưu Payment với ApiResponse handling
         ApiResponse<Payment> paymentResponse = paymentService.create(paymentToSave);
@@ -480,7 +484,6 @@ public class InvoiceController extends BaseController implements Initializable {
         if (!statusResponse.isSuccess()) {
             throw new Exception("Không thể tạo status log: " + statusResponse.getErrorMessage());
         }
-
         return savedPayment; // Trả về payment đã lưu thành công
     }
 
@@ -494,6 +497,10 @@ public class InvoiceController extends BaseController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Thiếu Thông Tin", "Mã hóa đơn và ít nhất một sản phẩm là bắt buộc.");
             return;
         }
+
+        // Hiển thị loading status
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "Đang xử lý và lưu hóa đơn...");
 
         // Vô hiệu hóa các nút
         btnSaveInvoice.setDisable(true);
@@ -509,6 +516,7 @@ public class InvoiceController extends BaseController implements Initializable {
                 }, // Tác vụ nền
                 (savedPayment) -> {
                     // Thành công (chạy trên UI thread)
+                    hideLoadingStatus(loadingStatusContainer);
                     showAlert(Alert.AlertType.INFORMATION, "Thành Công",
                             "Đã lưu hóa đơn " + savedPayment.getCode() + " (Trạng thái: UNPAID).");
                     handleNewInvoice();
@@ -517,6 +525,7 @@ public class InvoiceController extends BaseController implements Initializable {
                 },
                 (error) -> {
                     // Thất bại (chạy trên UI thread)
+                    hideLoadingStatus(loadingStatusContainer);
                     showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn", error.getMessage());
                     error.printStackTrace();
                     btnSaveInvoice.setDisable(false);
@@ -535,6 +544,10 @@ public class InvoiceController extends BaseController implements Initializable {
             showAlert(Alert.AlertType.ERROR, "Thiếu Thông Tin", "Mã hóa đơn và ít nhất một sản phẩm là bắt buộc.");
             return;
         }
+
+        // Hiển thị loading status ngay khi bắt đầu
+        showLoadingStatus(loadingStatusContainer, statusProgressIndicator, loadingStatusLabel,
+                "Đang chuyển sang thanh toán...");
 
         btnSaveInvoice.setDisable(true);
         btnPayInvoice.setDisable(true);
@@ -568,13 +581,16 @@ public class InvoiceController extends BaseController implements Initializable {
                             },
                             (nothing) -> {
                                 // 4. Thành công Tác vụ 2 (chạy trên UI thread)
+                                // Ẩn loading trước khi chuyển scene
+                                hideLoadingStatus(loadingStatusContainer);
+
                                 // Mở cửa sổ thanh toán
                                 try {
                                     SceneManager.setSceneData("savedPaymentId", String.valueOf(savedPayment.getId()));
-
                                     SceneManager.switchScene(SceneConfig.PAYMENT_FXML, SceneConfig.Titles.PAYMENT);
 
                                 } catch (Exception ex) {
+                                    hideLoadingStatus(loadingStatusContainer);
                                     showAlert(Alert.AlertType.ERROR, "Lỗi Mở Cửa Sổ Thanh Toán",
                                             "Đã lưu hóa đơn nhưng không thể mở cửa sổ thanh toán: " + ex.getMessage());
                                     ex.printStackTrace();
@@ -585,6 +601,7 @@ public class InvoiceController extends BaseController implements Initializable {
                             },
                             (pendingError) -> {
                                 // 5. Thất bại Tác vụ 2 (chạy trên UI thread)
+                                hideLoadingStatus(loadingStatusContainer);
                                 showAlert(Alert.AlertType.ERROR, "Lỗi Cập Nhật Trạng Thái",
                                         "Đã lưu hóa đơn nhưng không thể cập nhật trạng thái PENDING: "
                                                 + pendingError.getMessage());
@@ -593,7 +610,7 @@ public class InvoiceController extends BaseController implements Initializable {
                             });
                 },
                 (saveError) -> {
-                    // 6. Thất bại Tác vụ 1 (chạy trên UI thread)
+                    hideLoadingStatus(loadingStatusContainer);
                     showAlert(Alert.AlertType.ERROR, "Lỗi Lưu Hóa Đơn", saveError.getMessage());
                     saveError.printStackTrace();
                     btnSaveInvoice.setDisable(false);
@@ -632,7 +649,7 @@ public class InvoiceController extends BaseController implements Initializable {
         int tax = safeParseInt(txtTaxAmount.getText());
         int grandTotal = safeParseInt(txtGrandTotal.getText());
 
-        //  Khi tạo invoice (chưa thanh toán): paymentMethod=null, amountPaid=null
+        // Khi tạo invoice (chưa thanh toán): paymentMethod=null, amountPaid=null
         return new Payment(0, txtInvoiceCode.getText(), customerId, cashierId, issuedAt,
                 subtotal, discount, tax, 0, grandTotal,
                 null, null, txtInvoiceNote.getText(), LocalDateTime.now());

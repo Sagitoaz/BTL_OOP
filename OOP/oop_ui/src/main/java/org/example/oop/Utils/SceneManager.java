@@ -9,10 +9,12 @@ import java.util.Stack;
 import org.example.oop.Model.SceneInfo;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -30,6 +32,12 @@ public final class SceneManager {
     private static final Stack<SceneInfo> forwardHistory = new Stack<>();
     private static Map<String, Object> sceneData = new HashMap<>();
 
+    // Global loading overlay
+    private static StackPane globalLoadingOverlay;
+
+    // Flag to prevent concurrent scene switches
+    private static volatile boolean isSwitchingScene = false;
+
     private SceneManager() {
         // Private constructor to prevent instantiation
     }
@@ -45,58 +53,130 @@ public final class SceneManager {
 
     // Basic navigation methods
     public static void switchScene(String fxmlPath, String title) {
-        runOnFxThread(() -> {
+        // Prevent concurrent scene switches
+        if (isSwitchingScene) {
+            System.out.println("⚠️ Scene switch already in progress, ignoring duplicate call");
+            return;
+        }
 
+        isSwitchingScene = true;
+
+        runOnFxThread(() -> {
             if (primaryStage == null) {
+                isSwitchingScene = false;
                 return;
             }
-            primaryStage.setScene(loadFxmlScene(fxmlPath));
 
-            primaryStage.setTitle(title);
-            addToHistory(fxmlPath, title);
-            forwardHistory.clear();
-            primaryStage.show();
-            System.out.println("Switching to scene: " + fxmlPath);
+            // Show loading on current scene if possible
+            showGlobalLoading();
+
+            // Use Task to load scene asynchronously
+            Task<Scene> loadTask = new Task<Scene>() {
+                @Override
+                protected Scene call() throws Exception {
+                    return loadFxmlScene(fxmlPath);
+                }
+            };
+
+            loadTask.setOnSucceeded(event -> {
+                runOnFxThread(() -> {
+                    try {
+                        Scene newScene = loadTask.getValue();
+                        if (newScene != null) {
+                            primaryStage.setScene(newScene);
+                            primaryStage.setTitle(title);
+                            addToHistory(fxmlPath, title);
+                            forwardHistory.clear();
+                            primaryStage.show();
+                            System.out.println("Switching to scene: " + fxmlPath);
+                        }
+                    } finally {
+                        hideGlobalLoading();
+                        isSwitchingScene = false;
+                    }
+                });
+            });
+
+            loadTask.setOnFailed(event -> {
+                runOnFxThread(() -> {
+                    hideGlobalLoading();
+                    isSwitchingScene = false;
+                    Throwable exception = loadTask.getException();
+                    System.err.println("❌ Failed to load scene: " + exception.getMessage());
+                    exception.printStackTrace();
+                });
+            });
+
+            // Run task in background thread
+            new Thread(loadTask).start();
         });
     }
 
     // chuyen scene kem data
     public static void switchSceneWithData(String fxmlPath, String title, String[] key, Object[] data) {
+        // Set data first
         for (int i = 0; i < key.length; i++) {
             if (data[i] != null && key[i] != null) {
                 setSceneData(key[i], data[i]);
             }
-
         }
 
+        // Then switch scene with loading
         switchScene(fxmlPath, title);
     }
     // Navigation History
 
     public static void goBack() {
+        if (isSwitchingScene) {
+            System.out.println("⚠️ Scene switch already in progress, ignoring goBack");
+            return;
+        }
+
+        isSwitchingScene = true;
+
         runOnFxThread(() -> {
             if (navigationHistory.size() <= 1) {
+                isSwitchingScene = false;
                 return;
             }
+
+            showGlobalLoading();
+
             SceneInfo current = navigationHistory.pop();
             forwardHistory.push(current);
             SceneInfo previous = navigationHistory.peek();
 
             if (primaryStage == null) {
+                hideGlobalLoading();
+                isSwitchingScene = false;
                 return;
             }
+
             primaryStage.setScene(loadFxmlScene(previous.getFxmlPath()));
             primaryStage.setTitle(previous.getTitle());
             primaryStage.show();
 
+            hideGlobalLoading();
+            isSwitchingScene = false;
         });
     }
 
     public static void goForward() {
+        if (isSwitchingScene) {
+            System.out.println("⚠️ Scene switch already in progress, ignoring goForward");
+            return;
+        }
+
+        isSwitchingScene = true;
+
         runOnFxThread(() -> {
             if (forwardHistory.isEmpty()) {
+                isSwitchingScene = false;
                 return;
             }
+
+            showGlobalLoading();
+
             SceneInfo next = forwardHistory.pop();
             navigationHistory.push(next);
             primaryStage.setScene(loadFxmlScene(next.getFxmlPath()));
@@ -105,6 +185,9 @@ public final class SceneManager {
                 primaryStage.setTitle(next.getTitle());
             }
             primaryStage.show();
+
+            hideGlobalLoading();
+            isSwitchingScene = false;
         });
     }
 
@@ -265,6 +348,73 @@ public final class SceneManager {
         } else {
             Platform.runLater(r);
         }
+    }
+
+    // Initialize global loading overlay
+    private static void initializeLoadingOverlay() {
+        if (globalLoadingOverlay != null) {
+            return;
+        }
+
+        globalLoadingOverlay = new StackPane();
+        globalLoadingOverlay.setStyle(
+                "-fx-background-color: rgba(0, 0, 0, 0.7);");
+
+        javafx.scene.layout.VBox loadingContent = new javafx.scene.layout.VBox(15);
+        loadingContent.setAlignment(javafx.geometry.Pos.CENTER);
+        loadingContent.setStyle("-fx-padding: 30;");
+
+        javafx.scene.control.ProgressIndicator progressIndicator = new javafx.scene.control.ProgressIndicator();
+        progressIndicator.setStyle("-fx-progress-color: #4A90E2;");
+        progressIndicator.setPrefSize(60, 60);
+
+        javafx.scene.control.Label loadingLabel = new javafx.scene.control.Label("Đang tải...");
+        loadingLabel.setStyle(
+                "-fx-text-fill: white; " +
+                        "-fx-font-size: 16px; " +
+                        "-fx-font-weight: bold;");
+
+        loadingContent.getChildren().addAll(progressIndicator, loadingLabel);
+        globalLoadingOverlay.getChildren().add(loadingContent);
+
+        globalLoadingOverlay.setVisible(false);
+        globalLoadingOverlay.setManaged(false);
+    }
+
+    // Show global loading overlay
+    private static void showGlobalLoading() {
+        runOnFxThread(() -> {
+            if (primaryStage == null || primaryStage.getScene() == null) {
+                return;
+            }
+
+            if (globalLoadingOverlay == null) {
+                initializeLoadingOverlay();
+            }
+
+            Parent root = primaryStage.getScene().getRoot();
+
+            // Only add overlay if root is StackPane
+            if (root instanceof StackPane) {
+                StackPane stackPane = (StackPane) root;
+                if (!stackPane.getChildren().contains(globalLoadingOverlay)) {
+                    stackPane.getChildren().add(globalLoadingOverlay);
+                }
+                globalLoadingOverlay.setVisible(true);
+                globalLoadingOverlay.setManaged(true);
+                globalLoadingOverlay.toFront();
+            }
+        });
+    }
+
+    // Hide global loading overlay
+    private static void hideGlobalLoading() {
+        runOnFxThread(() -> {
+            if (globalLoadingOverlay != null) {
+                globalLoadingOverlay.setVisible(false);
+                globalLoadingOverlay.setManaged(false);
+            }
+        });
     }
 
 }
