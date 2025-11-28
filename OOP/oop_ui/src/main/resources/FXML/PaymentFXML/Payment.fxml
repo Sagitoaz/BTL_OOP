@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -42,6 +43,13 @@
             <padding>
                 <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
             </padding>
+            
+            <!-- Loading Status Container -->
+            <HBox fx:id="loadingStatusContainer" alignment="CENTER_LEFT" spacing="10.0" styleClass="loading-status-container" visible="false">
+                <ProgressIndicator fx:id="statusProgressIndicator" maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0" />
+                <Label fx:id="loadingStatusLabel" styleClass="loading-status-label" text="Đang xử lý..." />
+            </HBox>
+            
             <GridPane hgap="20.0" vgap="20.0">
                 <columnConstraints>
                     <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="140.0" prefWidth="140.0" />
